@@ -1,0 +1,22 @@
+---
+import DesktopLayout from '../../layouts/DesktopLayout.astro';
+import WindowFrame from '../../components/global/WindowFrame.astro';
+import { userConfig } from '../../config/index';
+---
+
+<DesktopLayout>
+  <main class="mx-auto max-w-4xl px-6 pt-16 text-white">
+    <WindowFrame title="Resume">
+      <h1 class="text-2xl font-semibold">Resume</h1>
+      <p class="mt-3 text-white/70">Download the latest PDF or explore on mobile.</p>
+      <a
+        class="mt-4 inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/20 transition"
+        href={userConfig.resume.url}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Open PDF
+      </a>
+    </WindowFrame>
+  </main>
+</DesktopLayout>

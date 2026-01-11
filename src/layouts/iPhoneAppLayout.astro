@@ -1,0 +1,34 @@
+---
+import Layout from './Layout.astro';
+import { userConfig } from '../config/index';
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonical?: string;
+  openGraph?: {
+    url: string;
+    title: string;
+    description: string;
+    site_name: string;
+  };
+}
+
+const {
+  title = userConfig.seo.title,
+  description = userConfig.seo.description,
+  canonical = userConfig.website,
+  openGraph = {
+    url: userConfig.website,
+    title: userConfig.seo.title,
+    description: userConfig.seo.description,
+    site_name: userConfig.name,
+  },
+} = Astro.props;
+---
+
+<Layout title={title} description={description} canonical={canonical} openGraph={openGraph}>
+  <div class="min-h-screen bg-black text-white">
+    <slot />
+  </div>
+</Layout>

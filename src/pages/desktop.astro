@@ -1,0 +1,16 @@
+---
+import DesktopLayout from '../layouts/DesktopLayout.astro';
+import { userConfig } from '../config/index';
+---
+
+<DesktopLayout
+  title={userConfig.seo.title}
+  description={userConfig.seo.description}
+  canonical={userConfig.website}
+  openGraph={{
+    url: userConfig.website,
+    title: userConfig.seo.title,
+    description: userConfig.seo.description,
+    site_name: userConfig.name,
+  }}
+/>

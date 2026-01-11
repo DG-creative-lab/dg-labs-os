@@ -1,0 +1,75 @@
+---
+import Layout from './Layout.astro';
+import MacToolbar from '../components/global/MacToolbar';
+import DesktopDock from '../components/global/DesktopDock';
+import RippleGrid from '../components/global/RippleGrid';
+import { userConfig } from '../config/index';
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonical?: string;
+  openGraph?: {
+    url: string;
+    title: string;
+    description: string;
+    site_name: string;
+  };
+  activeApps?: {
+    terminal: boolean;
+    notes: boolean;
+    github: boolean;
+    resume: boolean;
+  };
+}
+
+const {
+  title = userConfig.seo.title,
+  description = userConfig.seo.description,
+  canonical = userConfig.website,
+  openGraph = {
+    url: userConfig.website,
+    title: userConfig.seo.title,
+    description: userConfig.seo.description,
+    site_name: userConfig.name,
+  },
+  activeApps = {
+    terminal: false,
+    notes: false,
+    github: false,
+    resume: false,
+  },
+} = Astro.props;
+---
+
+<Layout title={title} description={description} canonical={canonical} openGraph={openGraph}>
+  <div class="relative w-screen min-h-screen overflow-hidden bg-gray-900">
+    <div class="absolute inset-0 opacity-70">
+      <RippleGrid
+        client:load
+        enableRainbow={false}
+        gridColor="#ffffff"
+        rippleIntensity={0.05}
+        gridSize={10}
+        gridThickness={15}
+        mouseInteraction={true}
+        mouseInteractionRadius={1.6}
+        opacity={0.8}
+      />
+    </div>
+    <div class="relative z-30">
+      <MacToolbar client:load />
+    </div>
+    <main class="relative z-10 min-h-screen pt-10 pb-24">
+      <slot />
+    </main>
+    <DesktopDock
+      client:load
+      onTerminalClick={() => { window.location.href = '/apps/terminal'; }}
+      onNotesClick={() => { window.location.href = '/apps/notes'; }}
+      onGitHubClick={() => { window.location.href = '/apps/projects'; }}
+      onContactClick={() => { window.location.href = '/#contact'; }}
+      activeApps={activeApps}
+    />
+  </div>
+</Layout>

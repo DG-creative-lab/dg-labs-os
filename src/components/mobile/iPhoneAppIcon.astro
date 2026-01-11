@@ -1,0 +1,16 @@
+---
+interface Props {
+  label: string;
+  href?: string;
+  className?: string;
+}
+
+const { label, href = '#', className = '' } = Astro.props;
+---
+
+<a href={href} class={`flex flex-col items-center gap-2 text-white ${className}`}>
+  <div class="h-14 w-14 rounded-2xl bg-white/10 shadow-[0_10px_20px_rgba(0,0,0,0.35)] border border-white/10 flex items-center justify-center">
+    <slot />
+  </div>
+  <span class="text-[10px] tracking-wide text-white/80">{label}</span>
+</a>

@@ -1,0 +1,34 @@
+@import 'tailwindcss';
+
+@layer base {
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+      'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+      'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .font-mono {
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+  }
+}
+
+@keyframes fade-scale-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+::view-transition-new(root) {
+  animation: fade-scale-in 240ms ease-out;
+}
+
+::view-transition-old(root) {
+  animation: fade-scale-in 240ms ease-out reverse;
+}

@@ -1,0 +1,29 @@
+{
+  "id": "nucpa-balloons",
+  "title": "Nucpa Balloons",
+  "description": "A web application for managing balloon reservations and requests for contest operations.",
+  "repoUrl": "https://github.com/aabdoo23/nucpa-balloons",
+  "techStack": [
+    "React",
+    "TypeScript",
+    "Tailwind CSS"
+  ],
+  "structure": {
+    "root": "nucpa-balloons",
+    "children": [
+      {
+        "name": "src",
+        "type": "directory"
+      },
+      {
+        "name": "public",
+        "type": "directory"
+      },
+      {
+        "name": "package.json",
+        "type": "file"
+      }
+    ]
+  },
+  "images": []
+}

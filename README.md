@@ -1,0 +1,75 @@
+# DG-Labs OS
+
+DG-Labs OS is a portfolio presented as a personal operating system - an interface for exploring what DG-Labs thinks about, builds, and ships. The UI leans on familiar OS metaphors (toolbar, dock, windows) but reframes them as a brain-like control panel: a machine of memory, experiments, and evolving ideas.
+
+## Features
+
+- Desktop OS UI with a Mac-style toolbar and dock
+- Mobile iPhone-inspired lock + home screens (`/mobile`)
+- RippleGrid live background with mouse interaction
+- Page-based apps (`/apps/notes`, `/apps/projects`, `/apps/resume`, `/apps/terminal`)
+- Apple menu "About DG-Labs Pro" window
+- Modular config in `src/config/`
+- API routes for chat + contact + admin dashboard
+
+## Tech Stack
+
+- [Astro](https://astro.build/)
+- [React](https://reactjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Supabase](https://supabase.com/) (contact storage)
+
+## Getting Started
+
+1) Install dependencies
+
+```bash
+pnpm install
+```
+
+2) Run the dev server
+
+```bash
+pnpm dev
+```
+
+3) Environment variables
+
+Copy `.env.example` to `.env` and fill in:
+
+```
+# AI Terminal
+GROQ_API_KEY=your_groq_api_key_here
+
+# Site
+# PUBLIC_SITE_URL=https://your-domain.tld
+
+# Supabase (server-only; do NOT expose in PUBLIC_ vars)
+SUPABASE_URL=https://YOUR-PROJECT.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# Admin dashboard credentials (server-only)
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=change_me
+```
+
+## Configuration
+
+Edit the config files in `src/config/`:
+
+- `personal.ts` - name, role, focus
+- `social.ts` - GitHub, LinkedIn
+- `contact.ts` - email, phone, Calendly
+- `education.ts`, `experience.ts`, `skills.ts`
+- `projects.ts` + `src/config/projects/*.json`
+- `apps.ts` - resume URL
+- `site.ts` - SEO + theme colors
+
+## Deployment
+
+This project runs with Astro SSR (API routes). Deploy anywhere that supports a Node runtime.
+
+## License
+
+MIT
