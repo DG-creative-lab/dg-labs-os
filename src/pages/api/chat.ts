@@ -1,7 +1,4 @@
 import type { APIRoute } from 'astro';
-import Groq from 'groq-sdk';
-
-const groq = new Groq({ apiKey: import.meta.env.GROQ_API_KEY });
 
 type ErrorCode =
   | 'CONFIG_ERROR'
@@ -23,8 +20,8 @@ const err = (code: ErrorCode, message: string, status: number) =>
 
 export const POST: APIRoute = async ({ request }) => {
   // Fast-fail if not configured
-  if (!import.meta.env.GROQ_API_KEY) {
-    console.error('[Chat API] Missing GROQ_API_KEY');
+  if (!import.meta.env.OPENROUTER_API_KEY) {
+    console.error('[Chat API] Missing OPENROUTER_API_KEY');
     return err('CONFIG_ERROR', 'Chat service is not configured. Please contact the site administrator.', 503);
   }
 
@@ -42,16 +39,36 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   try {
-    const completion = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
-      messages,
-      temperature: 0.7,
-      max_tokens: 500,
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${import.meta.env.OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': import.meta.env.PUBLIC_SITE_URL || 'http://localhost:4321',
+        'X-Title': import.meta.env.PUBLIC_SITE_NAME || 'DG-Labs OS',
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-oss-120b',
+        messages,
+        temperature: 0.7,
+        max_tokens: 500,
+      }),
     });
 
-    const content = completion.choices?.[0]?.message?.content;
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[Chat API] OpenRouter error:', errorText);
+      return err(
+        'AI_SERVICE_ERROR',
+        import.meta.env.DEV ? `AI service error: ${errorText}` : 'The AI service is temporarily unavailable',
+        response.status || 500
+      );
+    }
+
+    const completion = await response.json();
+    const content = completion?.choices?.[0]?.message?.content;
     if (!content) {
-      console.error('[Chat API] Invalid response from Groq API');
+      console.error('[Chat API] Invalid response from OpenRouter');
       return err('INVALID_RESPONSE', 'Received invalid response from AI service', 500);
     }
 
@@ -59,21 +76,10 @@ export const POST: APIRoute = async ({ request }) => {
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
 
-    // Groq-specific error
-    if (error instanceof Groq.APIError) {
-      return err(
-        'AI_SERVICE_ERROR',
-        import.meta.env.DEV ? `AI service error: ${message}` : 'The AI service is temporarily unavailable',
-        (error as any).status || 500
-      );
-    }
-
-    // Timeout
     if (message.includes('timeout')) {
       return err('TIMEOUT', 'Request timed out. Please try again.', 504);
     }
 
-    // Generic
     console.error('[Chat API] Error:', message);
     return err(
       'INTERNAL_ERROR',

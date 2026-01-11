@@ -39,8 +39,11 @@ pnpm dev
 Copy `.env.example` to `.env` and fill in:
 
 ```
-# AI Terminal
-GROQ_API_KEY=your_groq_api_key_here
+# AI Terminal (OpenRouter)
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+# Optional (used for OpenRouter rankings/analytics)
+# PUBLIC_SITE_URL=https://your-domain.tld
+# PUBLIC_SITE_NAME=DG-Labs OS
 
 # Site
 # PUBLIC_SITE_URL=https://your-domain.tld
