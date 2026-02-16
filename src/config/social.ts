@@ -7,5 +7,5 @@ import type { SocialLinks } from '../types';
 
 export const social: SocialLinks = {
   github: 'https://github.com/DG-creative-lab?tab=repositories',
-  linkedin: 'https://www.linkedin.com/in/dg-labs/',
+  linkedin: 'https://www.linkedin.com/in/dessi-georgieva-997a8732/',
 };

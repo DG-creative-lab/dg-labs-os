@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { NetworkIdeaEdge, NetworkNode } from '../../config/network';
 import { buildGraph } from '../../utils/networkGraph';
-import { filterNetworkNodes, type KindFilter } from '../../utils/networkSearch';
+import { filterNetworkNodes } from '../../utils/networkSearch';
 import SigmaGraph from './SigmaGraph';
 
 type ViewMode = 'LIST' | 'GRAPH';
@@ -11,22 +11,34 @@ type Props = {
   ideas?: readonly NetworkIdeaEdge[];
 };
 
-const kindLabel: Record<KindFilter, string> = {
+type CategoryFilter = 'ALL' | 'Education' | 'Research' | 'Projects' | 'Experience';
+
+const kindLabel: Record<CategoryFilter, string> = {
   ALL: 'All',
   Education: 'Education',
   Research: 'Research',
-  Org: 'Companies',
-  Project: 'Projects',
-  Event: 'All-Hands',
+  Projects: 'Projects',
   Experience: 'Experience',
+};
+
+const matchesCategory = (node: NetworkNode, filter: CategoryFilter) => {
+  if (filter === 'ALL') return true;
+  if (filter === 'Projects') return node.kind === 'Project';
+  if (filter === 'Experience') {
+    return node.kind === 'Experience' || node.kind === 'Org' || node.kind === 'Event';
+  }
+  return node.kind === filter;
 };
 
 export default function NetworkApp({ nodes, ideas = [] }: Props) {
   const [query, setQuery] = useState('');
-  const [filter, setFilter] = useState<KindFilter>('ALL');
+  const [filter, setFilter] = useState<CategoryFilter>('ALL');
   const [view, setView] = useState<ViewMode>('LIST');
 
-  const filtered = useMemo(() => filterNetworkNodes(nodes, filter, query), [nodes, query, filter]);
+  const filtered = useMemo(() => {
+    const searched = filterNetworkNodes(nodes, 'ALL', query);
+    return searched.filter((node) => matchesCategory(node, filter));
+  }, [nodes, query, filter]);
 
   return (
     <div>
@@ -43,7 +55,7 @@ export default function NetworkApp({ nodes, ideas = [] }: Props) {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {(Object.keys(kindLabel) as KindFilter[]).map((k) => (
+          {(Object.keys(kindLabel) as CategoryFilter[]).map((k) => (
             <button
               key={k}
               onClick={() => setFilter(k)}
