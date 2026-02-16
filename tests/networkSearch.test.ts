@@ -14,8 +14,8 @@ describe('filterNetworkNodes', () => {
   });
 
   it('filters by query across tags/title/subtitle/bullets', () => {
-    const res = filterNetworkNodes(networkNodes, 'ALL', 'lakehouse');
+    const res = filterNetworkNodes(networkNodes, 'ALL', 'empowerment');
     expect(res.length).toBeGreaterThan(0);
-    expect(res.some((n) => n.id === 'performics-innovations-lab')).toBe(true);
+    expect(res.some((n) => n.id === 'research-empowerment-imperative')).toBe(true);
   });
 });

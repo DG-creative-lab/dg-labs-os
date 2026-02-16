@@ -2,7 +2,7 @@
 import DesktopLayout from '../../layouts/DesktopLayout.astro';
 import WindowFrame from '../../components/global/WindowFrame.astro';
 import { userConfig } from '../../config/index';
-import { networkNodes, networkLinks } from '../../config/network';
+import { networkIdeaEdges, networkLinks, networkNodes } from '../../config/network';
 import NetworkApp from '../../components/network/NetworkApp';
 ---
 
@@ -13,8 +13,8 @@ import NetworkApp from '../../components/network/NetworkApp';
         <div>
           <h1 class="text-2xl font-semibold">Network</h1>
           <p class="mt-2 text-white/70">
-            A map of roles, systems, and ideas that reinforce each other: agency-first design,
-            learning loops, and infrastructure.
+            Facts are nodes. The connecting ideas are edges: empowerment, explainability, scientific
+            method, and engineering discipline.
           </p>
         </div>
         <div class="hidden md:block text-right text-xs text-white/50">
@@ -66,7 +66,7 @@ import NetworkApp from '../../components/network/NetworkApp';
         </a>
       </div>
 
-      <NetworkApp client:load nodes={networkNodes} />
+      <NetworkApp client:load nodes={networkNodes} ideas={networkIdeaEdges} />
     </WindowFrame>
   </main>
 </DesktopLayout>

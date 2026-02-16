@@ -1,68 +1,106 @@
-import type { NetworkNode } from '../config/network';
+import type { NetworkIdeaEdge, NetworkKind, NetworkNode } from '../config/network';
 
 export type GraphNode = NetworkNode & {
   x: number;
   y: number;
+  r: number;
 };
 
 export type GraphEdge = {
   from: GraphNode;
   to: GraphNode;
+  idea: string;
+  strength: 1 | 2 | 3;
 };
 
-export const buildGraph = (nodes: readonly NetworkNode[]) => {
-  const writing = nodes.filter((n) => n.kind === 'Artifact');
-  const systems = nodes.filter((n) => n.kind === 'Project');
-  const platforms = nodes.filter((n) => n.kind === 'Org');
+const laneOrder: readonly NetworkKind[] = [
+  'Education',
+  'Research',
+  'Project',
+  'Org',
+  'Event',
+  'Experience',
+];
 
-  const colX = { writing: 90, systems: 390, platforms: 690 };
-  const rowGap = 76;
-  const top = 70;
+const laneLabel: Record<NetworkKind, string> = {
+  Education: 'Education',
+  Research: 'Research',
+  Project: 'Projects',
+  Org: 'Companies',
+  Event: 'All-Hands',
+  Experience: 'Experience',
+};
 
-  const place = (items: readonly NetworkNode[], x: number): GraphNode[] =>
-    items.map((n, i) => ({ ...n, x, y: top + i * rowGap }));
+export const buildGraph = (
+  nodes: readonly NetworkNode[],
+  ideas: readonly NetworkIdeaEdge[] = []
+) => {
+  const colGap = 190;
+  const startX = 110;
+  const rowGap = 84;
+  const top = 90;
+  const width = Math.max(840, startX + colGap * laneOrder.length);
 
-  const graphNodes: GraphNode[] = [
-    ...place(writing, colX.writing),
-    ...place(systems, colX.systems),
-    ...place(platforms, colX.platforms),
-  ];
+  const nodesByLane = new Map<NetworkKind, NetworkNode[]>();
+  laneOrder.forEach((k) =>
+    nodesByLane.set(
+      k,
+      nodes.filter((n) => n.kind === k)
+    )
+  );
+
+  const laneX = new Map<NetworkKind, number>(
+    laneOrder.map((kind, index) => [kind, startX + index * colGap])
+  );
+
+  const graphNodes: GraphNode[] = laneOrder.flatMap((kind) => {
+    const x = laneX.get(kind) ?? startX;
+    const laneNodes = nodesByLane.get(kind) ?? [];
+    return laneNodes.map((node, i) => ({
+      ...node,
+      x,
+      y: top + i * rowGap,
+      r: 7 + node.weight * 2.2,
+    }));
+  });
 
   const byId = new Map(graphNodes.map((n) => [n.id, n]));
+  const maxY = graphNodes.length > 0 ? Math.max(...graphNodes.map((n) => n.y)) : 0;
+  const height = Math.max(430, Math.round(maxY + 120));
 
-  // Edges by tag intersection with a simple cap to avoid hairballs.
-  const tagSet = (n: NetworkNode) => new Set(n.tags.map((t) => t.toLowerCase()));
-  const intersectCount = (a: Set<string>, b: Set<string>) => {
-    let c = 0;
-    for (const x of a) if (b.has(x)) c++;
-    return c;
-  };
+  let edges: GraphEdge[] = ideas
+    .map((edge) => {
+      const from = byId.get(edge.from);
+      const to = byId.get(edge.to);
+      if (!from || !to) return null;
+      return {
+        from,
+        to,
+        idea: edge.idea,
+        strength: edge.strength ?? 2,
+      } satisfies GraphEdge;
+    })
+    .filter((edge): edge is GraphEdge => Boolean(edge));
 
-  const edges: GraphEdge[] = [];
-
-  const mkEdges = (froms: readonly NetworkNode[], tos: readonly NetworkNode[], perFrom: number) => {
-    for (const f of froms) {
-      const fs = tagSet(f);
-      const scored = tos
-        .map((t) => ({ t, s: intersectCount(fs, tagSet(t)) }))
-        .filter((x) => x.s > 0)
-        .sort((a, b) => b.s - a.s)
-        .slice(0, perFrom);
-
-      // Fallback: if no tag overlap exists, still connect to the first target
-      // so graph mode remains navigable and semantically structured.
-      const chosen = scored.length > 0 ? scored.map((x) => x.t) : tos.slice(0, 1);
-
-      for (const t of chosen) {
-        const from = byId.get(f.id);
-        const to = byId.get(t.id);
-        if (from && to) edges.push({ from, to });
-      }
+  if (edges.length === 0) {
+    const ordered = graphNodes.slice().sort((a, b) => a.x - b.x || a.y - b.y);
+    const fallback: GraphEdge[] = [];
+    for (let i = 0; i < ordered.length - 1; i += 1) {
+      fallback.push({
+        from: ordered[i],
+        to: ordered[i + 1],
+        idea: 'trajectory',
+        strength: 1,
+      });
     }
-  };
+    edges = fallback;
+  }
 
-  mkEdges(writing, systems, 2);
-  mkEdges(systems, platforms, 2);
+  const lanes = laneOrder.map((kind) => ({
+    kind,
+    label: laneLabel[kind],
+    x: laneX.get(kind) ?? startX,
+  }));
 
-  return { graphNodes, edges };
+  return { graphNodes, edges, lanes, width, height };
 };

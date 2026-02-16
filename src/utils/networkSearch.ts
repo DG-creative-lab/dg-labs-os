@@ -1,6 +1,6 @@
 import type { NetworkNode } from '../config/network';
 
-export type KindFilter = 'ALL' | 'Org' | 'Project' | 'Idea';
+export type KindFilter = 'ALL' | NetworkNode['kind'];
 
 const includesQuery = (haystack: string, q: string) => haystack.toLowerCase().includes(q);
 
