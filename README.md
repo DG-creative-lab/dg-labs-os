@@ -22,26 +22,47 @@ DG-Labs OS is a portfolio presented as a personal operating system - an interfac
 
 ## Getting Started
 
-1) Install dependencies
+1. Install dependencies
 
 ```bash
 pnpm install
 ```
 
-2) Run the dev server
+2. Run the dev server
 
 ```bash
 pnpm dev
 ```
 
-3) Environment variables
+## Quality Checks
+
+Run locally with `pnpm` scripts:
+
+```bash
+pnpm lint
+pnpm format:check
+pnpm test
+pnpm typecheck
+pnpm check
+```
+
+Or use `make` shortcuts:
+
+```bash
+make lint
+make test
+make typecheck
+make check
+```
+
+3. Environment variables
 
 Copy `.env.example` to `.env` and fill in:
 
 ```
 # AI Terminal (OpenRouter)
 OPENROUTER_API_KEY=your_openrouter_api_key_here
-# Optional (used for OpenRouter rankings/analytics)
+# Optional (used for request headers / OpenRouter rankings)
 # PUBLIC_SITE_URL=https://your-domain.tld
 # PUBLIC_SITE_NAME=DG-Labs OS
 

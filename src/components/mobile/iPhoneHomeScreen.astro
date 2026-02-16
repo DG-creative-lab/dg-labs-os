@@ -5,47 +5,72 @@ import iPhoneAppIcon from './iPhoneAppIcon.astro';
 import { userConfig } from '../../config/index';
 ---
 
-<div class="min-h-screen flex flex-col justify-between bg-gradient-to-br from-slate-900 via-slate-950 to-indigo-950">
+<div
+  class="min-h-screen flex flex-col justify-between bg-gradient-to-br from-slate-900 via-slate-950 to-indigo-950"
+>
   <div>
-    <iPhoneStatusBar />
+    <iPhoneStatusBar></iPhoneStatusBar>
     <div class="mt-8 grid grid-cols-4 gap-5 px-6">
       <iPhoneAppIcon label="Notes" href="/mobile/apps/notes" className="text-yellow-200">
-        <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-yellow-300 to-amber-500 flex items-center justify-center text-black font-semibold">
+        <div
+          class="h-10 w-10 rounded-xl bg-gradient-to-br from-yellow-300 to-amber-500 flex items-center justify-center text-black font-semibold"
+        >
           N
         </div>
       </iPhoneAppIcon>
       <iPhoneAppIcon label="Projects" href="/mobile/apps/projects">
-        <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white font-semibold">
+        <div
+          class="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white font-semibold"
+        >
           DG
         </div>
       </iPhoneAppIcon>
       <iPhoneAppIcon label="Resume" href="/mobile/apps/resume">
-        <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center text-white font-semibold">
+        <div
+          class="h-10 w-10 rounded-xl bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center text-white font-semibold"
+        >
           CV
         </div>
       </iPhoneAppIcon>
+      <iPhoneAppIcon label="Network" href="/mobile/apps/network">
+        <div
+          class="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-600 to-fuchsia-700 flex items-center justify-center text-white font-semibold"
+        >
+          NW
+        </div>
+      </iPhoneAppIcon>
       <iPhoneAppIcon label="Terminal" href="/mobile/apps/terminal" className="text-emerald-200">
-        <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-black to-slate-900 border border-emerald-400/40 flex items-center justify-center text-emerald-400 font-semibold">
+        <div
+          class="h-10 w-10 rounded-xl bg-gradient-to-br from-black to-slate-900 border border-emerald-400/40 flex items-center justify-center text-emerald-400 font-semibold"
+        >
           $
         </div>
       </iPhoneAppIcon>
       <iPhoneAppIcon label="Contact" href="/#contact">
-        <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-700 flex items-center justify-center text-white font-semibold">
+        <div
+          class="h-10 w-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-700 flex items-center justify-center text-white font-semibold"
+        >
           @
         </div>
       </iPhoneAppIcon>
       <iPhoneAppIcon label="LinkedIn" href={userConfig.social.linkedin}>
-        <div class="h-10 w-10 rounded-xl bg-[#0a66c2] flex items-center justify-center text-white font-semibold">
+        <div
+          class="h-10 w-10 rounded-xl bg-[#0a66c2] flex items-center justify-center text-white font-semibold"
+        >
           in
         </div>
       </iPhoneAppIcon>
       <iPhoneAppIcon label="GitHub" href={userConfig.social.github}>
-        <div class="h-10 w-10 rounded-xl bg-slate-900 flex items-center justify-center text-white font-semibold">
+        <div
+          class="h-10 w-10 rounded-xl bg-slate-900 flex items-center justify-center text-white font-semibold"
+        >
           GH
         </div>
       </iPhoneAppIcon>
       <iPhoneAppIcon label="Calendar" href={userConfig.contact.calendly}>
-        <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center text-white font-semibold">
+        <div
+          class="h-10 w-10 rounded-xl bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center text-white font-semibold"
+        >
           10
         </div>
       </iPhoneAppIcon>
@@ -55,28 +80,42 @@ import { userConfig } from '../../config/index';
   <div class="px-6 pb-4">
     <div class="rounded-[28px] bg-white/10 border border-white/10 px-6 py-4 backdrop-blur-md">
       <div class="grid grid-cols-4 gap-4">
-        <a href={`tel:${userConfig.contact.phone}`} class="flex flex-col items-center text-white/80">
-          <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white font-semibold">
+        <a
+          href={`tel:${userConfig.contact.phone}`}
+          class="flex flex-col items-center text-white/80"
+        >
+          <div
+            class="h-12 w-12 rounded-2xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white font-semibold"
+          >
             T
           </div>
         </a>
-        <a href={`mailto:${userConfig.contact.email}`} class="flex flex-col items-center text-white/80">
-          <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white font-semibold">
+        <a
+          href={`mailto:${userConfig.contact.email}`}
+          class="flex flex-col items-center text-white/80"
+        >
+          <div
+            class="h-12 w-12 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white font-semibold"
+          >
             M
           </div>
         </a>
         <a href="/mobile/apps/terminal" class="flex flex-col items-center text-white/80">
-          <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-slate-900 to-black flex items-center justify-center text-emerald-400 font-semibold">
+          <div
+            class="h-12 w-12 rounded-2xl bg-gradient-to-br from-slate-900 to-black flex items-center justify-center text-emerald-400 font-semibold"
+          >
             $
           </div>
         </a>
         <a href="/mobile/apps/notes" class="flex flex-col items-center text-white/80">
-          <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-yellow-300 to-amber-500 flex items-center justify-center text-black font-semibold">
+          <div
+            class="h-12 w-12 rounded-2xl bg-gradient-to-br from-yellow-300 to-amber-500 flex items-center justify-center text-black font-semibold"
+          >
             N
           </div>
         </a>
       </div>
     </div>
-    <iPhoneHomeIndicator />
+    <iPhoneHomeIndicator></iPhoneHomeIndicator>
   </div>
 </div>

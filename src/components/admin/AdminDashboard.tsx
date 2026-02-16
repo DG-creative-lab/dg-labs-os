@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
 
 type Message = {
   id: string;
@@ -16,7 +15,6 @@ export default function AdminDashboard() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [token, setToken] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +23,6 @@ export default function AdminDashboard() {
   useEffect(() => {
     const savedToken = sessionStorage.getItem('admin_session_token');
     if (savedToken) {
-      setToken(savedToken);
       setIsLoggedIn(true);
       fetchMessages(savedToken);
     }
@@ -50,7 +47,6 @@ export default function AdminDashboard() {
       }
 
       const sessionToken = data.token;
-      setToken(sessionToken);
       sessionStorage.setItem('admin_session_token', sessionToken);
       setIsLoggedIn(true);
       fetchMessages(sessionToken);
@@ -87,7 +83,6 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     sessionStorage.removeItem('admin_session_token');
     setIsLoggedIn(false);
-    setToken(null);
     setMessages([]);
     setUsername('');
     setPassword('');

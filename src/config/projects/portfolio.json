@@ -3,12 +3,7 @@
   "title": "DG-Labs OS",
   "description": "An experimental portfolio presented as a personal operating system - a place to explore what DG-Labs thinks about, builds, and ships.",
   "repoUrl": "https://github.com/dg-labs/dg-labs-os",
-  "techStack": [
-    "Astro.js",
-    "Tailwind CSS",
-    "TypeScript",
-    "React"
-  ],
+  "techStack": ["Astro.js", "Tailwind CSS", "TypeScript", "React"],
   "structure": {
     "root": "dg-labs-os",
     "children": [

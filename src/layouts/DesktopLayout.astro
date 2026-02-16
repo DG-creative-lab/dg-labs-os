@@ -57,6 +57,11 @@ const {
         opacity={0.8}
       />
     </div>
+    <!-- Reading scrim: softens the animated grid so content panels stay legible. -->
+    <div
+      class="absolute inset-0 z-[5] pointer-events-none bg-gradient-to-b from-black/45 via-black/35 to-black/55 backdrop-blur-[2px]"
+    >
+    </div>
     <div class="relative z-30">
       <MacToolbar client:load />
     </div>
@@ -65,10 +70,15 @@ const {
     </main>
     <DesktopDock
       client:load
-      onTerminalClick={() => { window.location.href = '/apps/terminal'; }}
-      onNotesClick={() => { window.location.href = '/apps/notes'; }}
-      onGitHubClick={() => { window.location.href = '/apps/projects'; }}
-      onContactClick={() => { window.location.href = '/#contact'; }}
+      onTerminalClick={() => {
+        window.location.href = '/apps/terminal';
+      }}
+      onNotesClick={() => {
+        window.location.href = '/apps/notes';
+      }}
+      onGitHubClick={() => {
+        window.location.href = '/apps/projects';
+      }}
       activeApps={activeApps}
     />
   </div>

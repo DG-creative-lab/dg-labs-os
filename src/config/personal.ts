@@ -11,6 +11,7 @@ export const personal: PersonalInfo = {
   location: 'Remote',
   email: 'hello@dg-labs.com',
   website: 'dg-labs',
-  roleFocus: 'Exploring human-computer metaphors, experimental interfaces, and tools that feel alive.',
+  roleFocus:
+    'Exploring human-computer metaphors, experimental interfaces, and tools that feel alive.',
   yearOfBirth: 1998,
 };

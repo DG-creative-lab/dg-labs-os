@@ -25,16 +25,14 @@ interface MacToolbarProps {
   onOpenContact?: () => void;
 }
 
-export default function MacToolbar({
-  onOpenContact,
-}: MacToolbarProps) {
+export default function MacToolbar({ onOpenContact }: MacToolbarProps) {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [showAbout, setShowAbout] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    const timer = window.setInterval(() => {
       setCurrentDateTime(new Date());
     }, 60000);
 
@@ -63,10 +61,7 @@ export default function MacToolbar({
     const minute = date.getMinutes().toString().padStart(2, '0');
     const period = date.getHours() >= 12 ? 'PM' : 'AM';
 
-    return `${weekday} ${month} ${day} ${hour.replace(
-      /\s?[AP]M/,
-      ''
-    )}:${minute} ${period}`;
+    return `${weekday} ${month} ${day} ${hour.replace(/\s?[AP]M/, '')}:${minute} ${period}`;
   };
 
   const formatIPhoneTime = (date: Date) => {
@@ -104,24 +99,32 @@ export default function MacToolbar({
       {
         label: 'System Settings...',
         icon: <IoDocumentText size={16} />,
-        action: () => { window.location.href = '/apps/notes'; },
+        action: () => {
+          window.location.href = '/apps/notes';
+        },
       },
     ],
     File: [
       {
         label: 'Resume',
         icon: <IoDocumentText size={16} />,
-        action: () => { window.location.href = '/apps/resume'; },
+        action: () => {
+          window.location.href = '/apps/resume';
+        },
       },
       {
         label: 'Projects',
         icon: <IoCodeSlash size={16} />,
-        action: () => { window.location.href = '/apps/projects'; },
+        action: () => {
+          window.location.href = '/apps/projects';
+        },
       },
       {
         label: 'Admin Dashboard',
         icon: <FaWindowRestore size={16} />,
-        action: () => { window.location.href = '/admin'; },
+        action: () => {
+          window.location.href = '/admin';
+        },
       },
     ],
     Edit: [
@@ -146,17 +149,30 @@ export default function MacToolbar({
       {
         label: 'Projects',
         icon: <IoCodeSlash size={16} />,
-        action: () => { window.location.href = '/apps/projects'; },
+        action: () => {
+          window.location.href = '/apps/projects';
+        },
+      },
+      {
+        label: 'AI News Hub',
+        icon: <IoDocumentText size={16} />,
+        action: () => {
+          window.location.href = '/apps/news';
+        },
       },
       {
         label: 'Notes',
         icon: <IoDocumentText size={16} />,
-        action: () => { window.location.href = '/apps/notes'; },
+        action: () => {
+          window.location.href = '/apps/notes';
+        },
       },
       {
         label: 'Terminal',
         icon: <IoHelpCircle size={16} />,
-        action: () => { window.location.href = '/apps/terminal'; },
+        action: () => {
+          window.location.href = '/apps/terminal';
+        },
       },
     ],
     Go: [
@@ -171,9 +187,16 @@ export default function MacToolbar({
         action: () => window.open(userConfig.social.linkedin, '_blank'),
       },
       {
+        label: 'AI News Hub',
+        icon: <IoDocumentText size={16} />,
+        action: () => window.open('https://ai-news-hub.performics-labs.com/', '_blank'),
+      },
+      {
         label: 'Email',
         icon: <FaEnvelope size={16} />,
-        action: () => { window.location.href = `mailto:${userConfig.contact.email}`; },
+        action: () => {
+          window.location.href = `mailto:${userConfig.contact.email}`;
+        },
       },
       {
         label: 'Schedule a Call',
@@ -185,7 +208,7 @@ export default function MacToolbar({
       {
         label: 'Contact...',
         icon: <IoMail size={16} />,
-        action: () => onOpenContact ? onOpenContact() : (window.location.href = '/#contact'),
+        action: () => (onOpenContact ? onOpenContact() : (window.location.href = '/#contact')),
       },
     ],
     Help: [
@@ -200,7 +223,10 @@ export default function MacToolbar({
   const menuOrder = ['File', 'Edit', 'View', 'Go', 'Window', 'Help'];
 
   const renderMenu = (menuItems: MenuItem[]) => (
-    <div className="absolute top-full left-0 mt-1 bg-gray-800/90 backdrop-blur-sm rounded-lg shadow-xl py-1 min-w-[200px]" role="menu">
+    <div
+      className="absolute top-full left-0 mt-1 bg-gray-800/90 backdrop-blur-sm rounded-lg shadow-xl py-1 min-w-[200px]"
+      role="menu"
+    >
       {menuItems.map((item, index) => (
         <div key={index}>
           <button
@@ -212,7 +238,10 @@ export default function MacToolbar({
             {item.label}
           </button>
           {item.submenu && (
-            <div className="absolute left-full top-0 ml-1 bg-gray-800/90 backdrop-blur-sm rounded-lg shadow-xl py-1 min-w-[200px]" role="menu">
+            <div
+              className="absolute left-full top-0 ml-1 bg-gray-800/90 backdrop-blur-sm rounded-lg shadow-xl py-1 min-w-[200px]"
+              role="menu"
+            >
               {item.submenu.map((subItem, subIndex) => (
                 <button
                   key={subIndex}
@@ -233,19 +262,21 @@ export default function MacToolbar({
 
   return (
     <>
-      <div className='sticky top-0 z-50 md:hidden bg-transparent text-white h-12 px-8 flex items-center justify-between text-base font-medium'>
-        <span className='font-semibold'>
-          {formatIPhoneTime(currentDateTime)}
-        </span>
-        <div className='flex items-center gap-1.5'>
+      <div className="sticky top-0 z-50 md:hidden bg-transparent text-white h-12 px-8 flex items-center justify-between text-base font-medium">
+        <span className="font-semibold">{formatIPhoneTime(currentDateTime)}</span>
+        <div className="flex items-center gap-1.5">
           <IoCellular size={20} />
           <MdWifi size={20} />
           <IoBatteryHalfOutline size={24} />
         </div>
       </div>
 
-      <div className='sticky top-0 z-50 hidden md:flex bg-black/20 backdrop-blur-md text-white h-6 px-4 items-center justify-between text-sm' role="menubar" aria-label="Application menu bar">
-        <div className='flex items-center space-x-4' ref={menuRef}>
+      <div
+        className="sticky top-0 z-50 hidden md:flex bg-black/20 backdrop-blur-md text-white h-6 px-4 items-center justify-between text-sm"
+        role="menubar"
+        aria-label="Application menu bar"
+      >
+        <div className="flex items-center space-x-4" ref={menuRef}>
           <div className="relative">
             <button
               className="cursor-pointer hover:text-gray-300 transition-colors flex items-center gap-1"
@@ -257,11 +288,7 @@ export default function MacToolbar({
             >
               <FaApple size={16} />
             </button>
-            {activeMenu === 'Apple' && (
-              <div id="menu-Apple">
-                {renderMenu(menus.Apple)}
-              </div>
-            )}
+            {activeMenu === 'Apple' && <div id="menu-Apple">{renderMenu(menus.Apple)}</div>}
           </div>
           <span className="font-semibold text-white/90">{userConfig.name}</span>
           {menuOrder.map((menu) => (
@@ -276,31 +303,27 @@ export default function MacToolbar({
               >
                 {menu}
               </button>
-              {activeMenu === menu && (
-                <div id={`menu-${menu}`}>
-                  {renderMenu(menus[menu])}
-                </div>
-              )}
+              {activeMenu === menu && <div id={`menu-${menu}`}>{renderMenu(menus[menu])}</div>}
             </div>
           ))}
         </div>
-        <div className='flex items-center space-x-4'>
+        <div className="flex items-center space-x-4">
           <VscVscode
             size={16}
-            className='cursor-pointer hover:opacity-80 transition-opacity'
+            className="cursor-pointer hover:opacity-80 transition-opacity"
             onClick={handleVSCodeClick}
-            title='Open in VSCode'
+            title="Open in VSCode"
           />
           <MdWifi size={16} />
-          <span className='cursor-default'>
-            {formatMacDate(currentDateTime)}
-          </span>
+          <span className="cursor-default">{formatMacDate(currentDateTime)}</span>
         </div>
       </div>
       <AboutDGWindow
         isOpen={showAbout}
         onClose={() => setShowAbout(false)}
-        onMoreInfo={() => { window.location.href = '/apps/notes'; }}
+        onMoreInfo={() => {
+          window.location.href = '/apps/notes';
+        }}
       />
     </>
   );

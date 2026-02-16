@@ -1,12 +1,13 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
 
-const json = (data: unknown, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
+const json = (data: unknown, status = 200) =>
+  new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 const err = (message: string, status = 400) => json({ message }, status);
 
 export const GET: APIRoute = async ({ request }) => {
   const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
-  
+
   // Simple token validation (in production use proper JWT verification)
   if (!token || token.length < 10) {
     return err('Unauthorized', 401);
@@ -18,7 +19,9 @@ export const GET: APIRoute = async ({ request }) => {
     return err('Database not configured', 503);
   }
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    auth: { persistSession: false },
+  });
 
   const url = new URL(request.url);
   const limit = Math.min(parseInt(url.searchParams.get('limit') || '50', 10), 200);

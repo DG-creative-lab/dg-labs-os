@@ -12,13 +12,34 @@ export const extraCurricularRoles: readonly ExtraCurricularRole[] = [
     location: 'Nile University',
     year: '2023-2024',
     images: [
-      { url: 'https://i.ibb.co/FbSmTsBw/486635391-1079182187577545-400541279663759578-n.jpg', alt: 'NUICPC' },
-      { url: 'https://i.ibb.co/1fLrcywC/487093779-1079182100910887-5326561587880729477-n.jpg', alt: 'NUICPC' },
-      { url: 'https://i.ibb.co/mVJBpngp/486181151-1075334944628936-2845216629795518112-n.jpg', alt: 'NUICPC' },
-      { url: 'https://i.ibb.co/yn7ccHM1/486507182-1075334774628953-7774379668898780058-n.jpg', alt: 'NUICPC' },
-      { url: 'https://i.ibb.co/35xMtCDV/486104871-1075333997962364-6362307301859416001-n.jpg', alt: 'NUICPC' },
-      { url: 'https://i.ibb.co/fzL5qvvS/486248194-1074582274704203-6554786202979315108-n.jpg', alt: 'NUICPC' },
-      { url: 'https://i.ibb.co/VYxSXZF5/483525641-1070070571822040-3631060112169135578-n.jpg', alt: 'NUICPC' },
+      {
+        url: 'https://i.ibb.co/FbSmTsBw/486635391-1079182187577545-400541279663759578-n.jpg',
+        alt: 'NUICPC',
+      },
+      {
+        url: 'https://i.ibb.co/1fLrcywC/487093779-1079182100910887-5326561587880729477-n.jpg',
+        alt: 'NUICPC',
+      },
+      {
+        url: 'https://i.ibb.co/mVJBpngp/486181151-1075334944628936-2845216629795518112-n.jpg',
+        alt: 'NUICPC',
+      },
+      {
+        url: 'https://i.ibb.co/yn7ccHM1/486507182-1075334774628953-7774379668898780058-n.jpg',
+        alt: 'NUICPC',
+      },
+      {
+        url: 'https://i.ibb.co/35xMtCDV/486104871-1075333997962364-6362307301859416001-n.jpg',
+        alt: 'NUICPC',
+      },
+      {
+        url: 'https://i.ibb.co/fzL5qvvS/486248194-1074582274704203-6554786202979315108-n.jpg',
+        alt: 'NUICPC',
+      },
+      {
+        url: 'https://i.ibb.co/VYxSXZF5/483525641-1070070571822040-3631060112169135578-n.jpg',
+        alt: 'NUICPC',
+      },
     ],
   },
   {
@@ -40,19 +61,58 @@ export const extraCurricularRoles: readonly ExtraCurricularRole[] = [
     location: 'Nile University',
     year: '2021-2024',
     images: [
-      { url: 'https://i.ibb.co/Y43vdxrV/484501388-1069637098532054-11435862832739630-n.jpg', alt: 'NUICPC' },
-      { url: 'https://i.ibb.co/WWBPM6GG/484804363-1069556495206781-5476304623000762204-n.jpg', alt: 'Nile University' },
-      { url: 'https://i.ibb.co/wNFg7VkR/484643522-1069479561881141-6397451359649224021-n.jpg', alt: 'Nile University' },
-      { url: 'https://i.ibb.co/ZR4dJLyv/482238905-1065269192302178-4747858326277637907-n.jpg', alt: 'NUICPC' },
-      { url: 'https://i.ibb.co/ymJN2v00/482246774-1065269122302185-3150232388297078773-n.jpg', alt: 'NUICPC' },
-      { url: 'https://i.ibb.co/vxYBzH64/482027750-1063466179149146-4344066305683793822-n.jpg', alt: 'NUICPC' },
-      { url: 'https://i.ibb.co/j9K3Smq8/481466571-1061263352702762-7633575959379424468-n.jpg', alt: 'NUICPC' },
-      { url: 'https://i.ibb.co/S7R12bRy/484136881-1069556391873458-1395371296655723435-n.jpg', alt: 'NUICPC' },
-      { url: 'https://i.ibb.co/zWVHwSPH/484516365-1070411428454621-8390835945290794938-n.jpg', alt: 'NUICPC' },
-      { url: 'https://i.ibb.co/27L4bpQY/484381461-1069479998547764-3349306911678016045-n.jpg', alt: 'NUICPC' },
-      { url: 'https://i.ibb.co/MyFj8V6s/484140894-1069479545214476-3560564697839847145-n.jpg', alt: 'NUICPC' },
-      { url: 'https://i.ibb.co/Sw9psfwX/484640131-1069484585213972-5052989750649951025-n.jpg', alt: 'NUICPC' },
-      { url: 'https://i.ibb.co/v6QLXpqg/486627143-1081260057369758-4195012303656403802-n.jpg', alt: 'NUICPC' },
+      {
+        url: 'https://i.ibb.co/Y43vdxrV/484501388-1069637098532054-11435862832739630-n.jpg',
+        alt: 'NUICPC',
+      },
+      {
+        url: 'https://i.ibb.co/WWBPM6GG/484804363-1069556495206781-5476304623000762204-n.jpg',
+        alt: 'Nile University',
+      },
+      {
+        url: 'https://i.ibb.co/wNFg7VkR/484643522-1069479561881141-6397451359649224021-n.jpg',
+        alt: 'Nile University',
+      },
+      {
+        url: 'https://i.ibb.co/ZR4dJLyv/482238905-1065269192302178-4747858326277637907-n.jpg',
+        alt: 'NUICPC',
+      },
+      {
+        url: 'https://i.ibb.co/ymJN2v00/482246774-1065269122302185-3150232388297078773-n.jpg',
+        alt: 'NUICPC',
+      },
+      {
+        url: 'https://i.ibb.co/vxYBzH64/482027750-1063466179149146-4344066305683793822-n.jpg',
+        alt: 'NUICPC',
+      },
+      {
+        url: 'https://i.ibb.co/j9K3Smq8/481466571-1061263352702762-7633575959379424468-n.jpg',
+        alt: 'NUICPC',
+      },
+      {
+        url: 'https://i.ibb.co/S7R12bRy/484136881-1069556391873458-1395371296655723435-n.jpg',
+        alt: 'NUICPC',
+      },
+      {
+        url: 'https://i.ibb.co/zWVHwSPH/484516365-1070411428454621-8390835945290794938-n.jpg',
+        alt: 'NUICPC',
+      },
+      {
+        url: 'https://i.ibb.co/27L4bpQY/484381461-1069479998547764-3349306911678016045-n.jpg',
+        alt: 'NUICPC',
+      },
+      {
+        url: 'https://i.ibb.co/MyFj8V6s/484140894-1069479545214476-3560564697839847145-n.jpg',
+        alt: 'NUICPC',
+      },
+      {
+        url: 'https://i.ibb.co/Sw9psfwX/484640131-1069484585213972-5052989750649951025-n.jpg',
+        alt: 'NUICPC',
+      },
+      {
+        url: 'https://i.ibb.co/v6QLXpqg/486627143-1081260057369758-4195012303656403802-n.jpg',
+        alt: 'NUICPC',
+      },
     ],
   },
   {
@@ -78,9 +138,21 @@ export const extraCurricularActivities: readonly ExtraCurricularActivity[] = [
     location: 'Nile University',
     year: '2025',
     images: [
-      { url: 'https://i.ibb.co/N6FsYfLW/NP100582-2.jpg', alt: 'Nile University', description: 'Nile University Campus' },
-      { url: 'https://i.ibb.co/355vdbMJ/NP109982-1.jpg', alt: 'Nile University', description: 'Nile University Campus' },
-      { url: 'https://i.ibb.co/Frhbfyq/NP100626-2-1.jpg', alt: 'Nile University', description: 'Nile University Campus' },
+      {
+        url: 'https://i.ibb.co/N6FsYfLW/NP100582-2.jpg',
+        alt: 'Nile University',
+        description: 'Nile University Campus',
+      },
+      {
+        url: 'https://i.ibb.co/355vdbMJ/NP109982-1.jpg',
+        alt: 'Nile University',
+        description: 'Nile University Campus',
+      },
+      {
+        url: 'https://i.ibb.co/Frhbfyq/NP100626-2-1.jpg',
+        alt: 'Nile University',
+        description: 'Nile University Campus',
+      },
     ],
   },
   {
@@ -99,7 +171,8 @@ export const extraCurricularActivities: readonly ExtraCurricularActivity[] = [
   },
   {
     title: 'NUICPC Problem Solving Sessions',
-    description: 'Mentored students in problem solving and competitive programming, started as a member and became a mentor, from level 0 to level 2, and helped them to qualify for the ECPC Finals',
+    description:
+      'Mentored students in problem solving and competitive programming, started as a member and became a mentor, from level 0 to level 2, and helped them to qualify for the ECPC Finals',
     institution: 'NUICPC',
     location: 'Nile University',
     year: '2022-2025',

@@ -1,6 +1,5 @@
 ---
 import '../../styles/global.css';
-// @ts-ignore - package exports named AstroSeo but types may not resolve correctly in some setups
 import { AstroSeo } from '@astrolib/seo';
 import { userConfig } from '../../config/index';
 
@@ -11,13 +10,10 @@ const ogUrl = Astro.props.openGraph?.url || siteOrigin;
 ---
 
 <!-- Core meta tags -->
-<meta charset='UTF-8' />
-<meta http-equiv='X-UA-Compatible' content='IE=edge' />
-<meta
-  name='viewport'
-  content='width=device-width, initial-scale=1, maximum-scale=1'
-/>
-<meta name='author' content={userConfig.name} />
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<meta name="author" content={userConfig.name} />
 
 <!-- SEO Configuration -->
 <AstroSeo
@@ -36,42 +32,46 @@ const ogUrl = Astro.props.openGraph?.url || siteOrigin;
 />
 
 <!-- JSON-LD Schema.org -->
-{siteOrigin && (
-  <script type="application/ld+json">
-    {JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'WebSite',
-      url: siteOrigin,
-      name: userConfig.name,
-      description: userConfig.seo.description,
-    })}
-  </script>
-)}
-{siteOrigin && (
-  <script type="application/ld+json">
-    {JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'Person',
-      name: userConfig.name,
-      jobTitle: userConfig.role,
-      url: siteOrigin,
-      sameAs: [userConfig.social.github, userConfig.social.linkedin].filter(Boolean),
-    })}
-  </script>
-)}
+{
+  siteOrigin && (
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        url: siteOrigin,
+        name: userConfig.name,
+        description: userConfig.seo.description,
+      })}
+    />
+  )
+}
+{
+  siteOrigin && (
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        name: userConfig.name,
+        jobTitle: userConfig.role,
+        url: siteOrigin,
+        sameAs: [userConfig.social.github, userConfig.social.linkedin].filter(Boolean),
+      })}
+    />
+  )
+}
 
 <!-- Add your favicon files in public/images/ -->
-<link rel='apple-touch-icon' sizes='180x180' href='/images/dg-labs.svg' />
-<link
-  rel='icon'
-  type='image/svg+xml'
-  href='/images/dg-labs.svg'
-/>
-<link rel='icon' type='image/svg+xml' href='/images/dg-labs.svg' />
+<link rel="apple-touch-icon" sizes="180x180" href="/images/dg-labs.svg" />
+<link rel="icon" type="image/svg+xml" href="/images/dg-labs.svg" />
+<link rel="icon" type="image/svg+xml" href="/images/dg-labs.svg" />
 
 <!-- Theme colors for browsers -->
-<meta name='msapplication-TileColor' content={userConfig.theme.secondaryColor} />
-<meta name='theme-color' content={userConfig.theme.secondaryColor} />
+<meta name="msapplication-TileColor" content={userConfig.theme.secondaryColor} />
+<meta name="theme-color" content={userConfig.theme.secondaryColor} />
 
 <!-- Auto-generated sitemap -->
-<link rel='sitemap' href='/sitemap-index.xml' />
+<link rel="sitemap" href="/sitemap-index.xml" />

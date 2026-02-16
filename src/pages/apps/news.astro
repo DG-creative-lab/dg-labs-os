@@ -1,0 +1,21 @@
+---
+import DesktopLayout from '../../layouts/DesktopLayout.astro';
+import WindowFrame from '../../components/global/WindowFrame.astro';
+---
+
+<DesktopLayout>
+  <main class="mx-auto max-w-5xl px-6 pt-16 text-white">
+    <WindowFrame title="AI News Hub" closeHref="/desktop">
+      <h1 class="text-2xl font-semibold">AI News Hub</h1>
+      <p class="mt-3 text-white/70">Your research writing and analysis lives here.</p>
+      <a
+        class="mt-4 inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/20 transition"
+        href="https://ai-news-hub.performics-labs.com/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Open Site
+      </a>
+    </WindowFrame>
+  </main>
+</DesktopLayout>

@@ -3,10 +3,7 @@ import BaseHead from '../components/global/BaseHead.astro';
 import { ViewTransitions } from 'astro:transitions';
 ---
 
-<html
-  lang='en'
-  class='scroll-smooth selection:bg-gray-900 selection:text-white overflow-x-hidden'
->
+<html lang="en" class="scroll-smooth selection:bg-gray-900 selection:text-white overflow-x-hidden">
   <head>
     <BaseHead
       title={Astro.props.title}
@@ -17,7 +14,7 @@ import { ViewTransitions } from 'astro:transitions';
     <ViewTransitions />
   </head>
 
-  <body class='overflow-x-hidden bg-gray-900'>
+  <body class="overflow-x-hidden bg-gray-900">
     <slot />
   </body>
 </html>

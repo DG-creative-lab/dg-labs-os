@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 
-const json = (data: unknown, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
+const json = (data: unknown, status = 200) =>
+  new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 
 export const POST: APIRoute = async ({ request }) => {
   const ADMIN_USERNAME = import.meta.env.ADMIN_USERNAME as string | undefined;

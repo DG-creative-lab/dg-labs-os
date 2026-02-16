@@ -1,7 +1,7 @@
 /**
  * Main configuration file
  * This file combines all modular configuration files into a single userConfig export
- * 
+ *
  * To customize your portfolio, edit the individual files in src/config/
  * instead of editing this file directly:
  * - personal.ts: Personal information
@@ -60,4 +60,19 @@ export const userConfig: UserConfig = {
 } as const;
 
 // Export individual modules for granular imports if needed
-export { personal, social, contact, education, courses, experience, skills, extraCurricularRoles, extraCurricularActivities, competitions, projects, resume, seo, theme };
+export {
+  personal,
+  social,
+  contact,
+  education,
+  courses,
+  experience,
+  skills,
+  extraCurricularRoles,
+  extraCurricularActivities,
+  competitions,
+  projects,
+  resume,
+  seo,
+  theme,
+};

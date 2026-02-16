@@ -1,15 +1,136 @@
 ---
 import DesktopLayout from '../../layouts/DesktopLayout.astro';
 import WindowFrame from '../../components/global/WindowFrame.astro';
+import { labNotes, labPrinciples } from '../../config/labNotes';
 ---
 
 <DesktopLayout>
   <main class="mx-auto max-w-4xl px-6 pt-16 text-white">
-    <WindowFrame title="Notes">
-      <h1 class="text-2xl font-semibold">DG-Labs Notes</h1>
-      <p class="mt-3 text-white/70">
-        A scratchpad for research threads, experiments, and questions worth chasing.
-      </p>
+    <WindowFrame title="Lab Notes" closeHref="/desktop">
+      <div class="flex items-start justify-between gap-6">
+        <div>
+          <h1 class="text-2xl font-semibold">Lab Notes</h1>
+          <p class="mt-2 text-white/70">
+            Research writing and engineering notes focused on intent, memory, and empowerment-first
+            systems.
+          </p>
+        </div>
+        <div class="hidden md:block text-right text-xs text-white/50">
+          <p>DG-Labs OS</p>
+          <p>Module: Lab Notes</p>
+        </div>
+      </div>
+
+      <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <section class="rounded-xl border border-white/10 bg-white/5 p-4">
+          <h2 class="text-sm font-semibold tracking-wide text-white/80">Principles</h2>
+          <div class="mt-3 space-y-2 text-sm">
+            {
+              labPrinciples.map((p) => (
+                <div class="flex items-start justify-between gap-4">
+                  <span class="text-white/50">{p.label}</span>
+                  <span class="text-white/80 text-right">{p.value}</span>
+                </div>
+              ))
+            }
+          </div>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <a
+              class="text-sm rounded-full bg-white/10 px-3 py-1.5 hover:bg-white/20 transition"
+              href="https://ai-news-hub.performics-labs.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open AI News Hub
+            </a>
+          </div>
+        </section>
+
+        <section class="rounded-xl border border-white/10 bg-white/5 p-4">
+          <h2 class="text-sm font-semibold tracking-wide text-white/80">Quick Actions</h2>
+          <div class="mt-3 grid grid-cols-1 gap-2">
+            <a
+              class="rounded-lg bg-black/30 border border-white/10 px-3 py-2 hover:bg-black/40 transition"
+              href="/apps/projects"
+            >
+              Open Workbench
+            </a>
+            <a
+              class="rounded-lg bg-black/30 border border-white/10 px-3 py-2 hover:bg-black/40 transition"
+              href="/apps/terminal"
+            >
+              Open Agents (Terminal)
+            </a>
+            <a
+              class="rounded-lg bg-black/30 border border-white/10 px-3 py-2 hover:bg-black/40 transition"
+              href="/apps/network"
+            >
+              Open Network
+            </a>
+          </div>
+        </section>
+      </div>
+
+      <section class="mt-6">
+        <h2 class="text-sm font-semibold tracking-wide text-white/80">Pinned Deep Dives</h2>
+        <div class="mt-3 grid grid-cols-1 gap-3">
+          {
+            labNotes
+              .filter((n) => n.kind === 'Deep Dive')
+              .map((note) => (
+                <a
+                  class="block rounded-xl border border-white/10 bg-white/5 p-4 hover:bg-white/7 transition"
+                  href={note.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <div class="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 class="text-lg font-semibold">{note.title}</h3>
+                      <p class="text-sm text-white/60">{note.subtitle}</p>
+                    </div>
+                    <span class="text-[11px] rounded-full bg-black/30 border border-white/10 px-2 py-1 text-white/70">
+                      {note.readingTime}
+                    </span>
+                  </div>
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    {note.tags.map((t) => (
+                      <span class="text-[11px] rounded-full bg-black/30 border border-white/10 px-2 py-1 text-white/60">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </a>
+              ))
+          }
+        </div>
+      </section>
+
+      <section class="mt-6">
+        <h2 class="text-sm font-semibold tracking-wide text-white/80">News Analysis</h2>
+        {
+          labNotes
+            .filter((n) => n.kind === 'News')
+            .map((note) => (
+              <a
+                class="mt-3 block rounded-xl border border-white/10 bg-white/5 p-4 hover:bg-white/7 transition"
+                href={note.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <div class="flex items-start justify-between gap-4">
+                  <div>
+                    <h3 class="text-lg font-semibold">{note.title}</h3>
+                    <p class="text-sm text-white/60">{note.subtitle}</p>
+                  </div>
+                  <span class="text-[11px] rounded-full bg-black/30 border border-white/10 px-2 py-1 text-white/70">
+                    {note.readingTime}
+                  </span>
+                </div>
+              </a>
+            ))
+        }
+      </section>
     </WindowFrame>
   </main>
 </DesktopLayout>
