@@ -2,6 +2,7 @@ import type { NetworkNode } from '../config/network';
 import type { WorkbenchItem } from '../config/workbench';
 import type { LabNote } from '../config/labNotes';
 import type { UserConfig } from '../types';
+import { getKnowledgeSourceStats, retrieveKnowledge } from './terminalKnowledge';
 
 export type TerminalAction =
   | { type: 'navigate'; href: string }
@@ -34,6 +35,29 @@ const APP_TARGETS: Record<string, string> = {
   desktop: '/desktop',
 };
 
+const DETERMINISTIC_COMMANDS = new Set([
+  'help',
+  'clear',
+  'whoami',
+  'open',
+  'projects',
+  'project',
+  'resume',
+  'links',
+  'now',
+  'network',
+  'search',
+  'sources',
+  'context',
+]);
+
+export const isDeterministicTerminalCommand = (rawInput: string): boolean => {
+  const input = rawInput.trim().toLowerCase();
+  if (!input) return false;
+  const [command] = input.split(/\s+/, 1);
+  return DETERMINISTIC_COMMANDS.has(command);
+};
+
 const HELP_TEXT = [
   'Available commands:',
   '  help                         Show this list',
@@ -46,6 +70,8 @@ const HELP_TEXT = [
   '  now                          Current focus',
   '  network                      Network graph summary',
   '  search <query>               Search projects, notes, and network',
+  '  sources                      Show indexed context sources',
+  '  context <query>              Retrieve top local context snippets',
   '  clear                        Clear terminal output',
 ];
 
@@ -216,6 +242,37 @@ export const executeTerminalCommand = (
       lines: [`Results for "${args}" (${hits.length}):`, ...hits.slice(0, 12)],
       action: { type: 'none' },
     };
+  }
+
+  if (command === 'sources') {
+    const stats = getKnowledgeSourceStats(ctx);
+    return {
+      lines: [
+        'Indexed sources:',
+        `- personal: ${stats.personal}`,
+        `- workbench: ${stats.workbench}`,
+        `- notes: ${stats.notes}`,
+        `- network: ${stats.network}`,
+      ],
+      action: { type: 'none' },
+    };
+  }
+
+  if (command === 'context') {
+    if (!args) {
+      return { lines: ['Usage: context <query>'], action: { type: 'none' } };
+    }
+    const hits = retrieveKnowledge(args, ctx, 5);
+    if (hits.length === 0) {
+      return { lines: [`No context hits for "${args}".`], action: { type: 'none' } };
+    }
+    const lines: string[] = [`Context hits for "${args}" (${hits.length}):`];
+    for (const [index, hit] of hits.entries()) {
+      lines.push(`${index + 1}. [${hit.source}] ${hit.title}`);
+      lines.push(`   ${hit.snippet}`);
+      if (hit.url) lines.push(`   source: ${hit.url}`);
+    }
+    return { lines, action: { type: 'none' } };
   }
 
   return {

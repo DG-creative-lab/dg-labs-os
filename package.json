@@ -14,6 +14,8 @@
     "test:auth": "vitest run tests/adminAuth.test.ts",
     "test:network": "vitest run tests/networkGraph.test.ts tests/networkSearch.test.ts",
     "test:terminal": "vitest run tests/terminalCommands.test.ts",
+    "test:terminal:llm": "vitest run tests/terminalLlm.test.ts",
+    "test:terminal:settings": "vitest run tests/terminalSettings.test.ts",
     "test:content": "vitest run tests/contentConfig.test.ts",
     "test:device": "vitest run tests/deviceDetection.test.ts",
     "test:schemas": "vitest run tests/requestSchemas.test.ts",
