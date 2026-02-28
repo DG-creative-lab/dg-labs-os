@@ -12,6 +12,11 @@ DG-Labs OS is a portfolio presented as a personal operating system - an interfac
 - Mobile iPhone-inspired lock + home screens (`/mobile`)
 - RippleGrid live background with mouse interaction
 - Page-based apps (`/apps/notes`, `/apps/projects`, `/apps/resume`, `/apps/terminal`)
+- Terminal v3 hybrid runtime:
+  - deterministic commands (`help`, `open`, `search`, `context`, `sources`, etc.)
+  - natural-language command router (high-confidence phrase -> deterministic command)
+  - retrieval-grounded LLM mode (`ask ...`) using local knowledge index
+  - runtime toggles for `LLM fallback`, `router debug`, and `LLM source footer`
 - Apple menu "About DG-Labs Pro" window
 - Modular config in `src/config/`
 - API routes for chat + contact + admin dashboard
@@ -70,6 +75,9 @@ Focused unit test suites:
 pnpm test:auth
 pnpm test:network
 pnpm test:terminal
+pnpm test:terminal:llm
+pnpm test:terminal:settings
+pnpm test tests/terminalKnowledge.test.ts tests/terminalRouter.test.ts
 pnpm test:content
 pnpm test:device
 pnpm test:schemas
@@ -86,6 +94,8 @@ make test-unit
 make test-auth
 make test-network
 make test-terminal
+make test-terminal-llm
+make test-terminal-settings
 make test-content
 make test-device
 make test-schemas
@@ -115,6 +125,15 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 # Admin dashboard credentials (server-only)
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=change_me
+```
+
+Security notes:
+
+- `.env*` files are gitignored (except `.env.example`).
+- If an env file was committed in the past, remove it from git tracking before push:
+
+```bash
+git rm --cached .env.local .env.production .env
 ```
 
 ## Configuration

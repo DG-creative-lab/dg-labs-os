@@ -39,6 +39,20 @@ describe('executeTerminalCommand', () => {
     expect(result.lines[0]).toContain('Results for');
   });
 
+  it('shows indexed sources', () => {
+    const result = executeTerminalCommand('sources', ctx);
+    expect(result.action.type).toBe('none');
+    expect(result.lines[0]).toContain('Indexed sources');
+    expect(result.lines.join(' ')).toContain('workbench');
+  });
+
+  it('retrieves grounded context snippets', () => {
+    const result = executeTerminalCommand('context intent', ctx);
+    expect(result.action.type).toBe('none');
+    expect(result.lines[0]).toContain('Context hits for');
+    expect(result.lines.join(' ')).toContain('[workbench]');
+  });
+
   it('returns clear action', () => {
     const result = executeTerminalCommand('clear', ctx);
     expect(result.action.type).toBe('clear');
