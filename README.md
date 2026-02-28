@@ -22,10 +22,24 @@ DG-Labs OS is a portfolio presented as a personal operating system - an interfac
 
 ## Getting Started
 
-1. Install dependencies
+0. Use the same runtime versions (recommended for reproducibility)
 
 ```bash
-pnpm install
+nvm use
+pnpm -v
+node -v
+```
+
+1. Install dependencies from lockfile
+
+```bash
+pnpm install --frozen-lockfile
+```
+
+If `pnpm` prints `Ignored build scripts` (for example `esbuild`), run:
+
+```bash
+pnpm approve-builds
 ```
 
 2. Run the dev server

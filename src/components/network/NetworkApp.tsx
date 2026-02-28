@@ -1,27 +1,44 @@
 import { useMemo, useState } from 'react';
-import type { NetworkNode } from '../../config/network';
+import type { NetworkIdeaEdge, NetworkNode } from '../../config/network';
 import { buildGraph } from '../../utils/networkGraph';
-import { filterNetworkNodes, type KindFilter } from '../../utils/networkSearch';
+import { filterNetworkNodes } from '../../utils/networkSearch';
+import SigmaGraph from './SigmaGraph';
 
 type ViewMode = 'LIST' | 'GRAPH';
 
 type Props = {
   nodes: readonly NetworkNode[];
+  ideas?: readonly NetworkIdeaEdge[];
 };
 
-const kindLabel: Record<KindFilter, string> = {
+type CategoryFilter = 'ALL' | 'Education' | 'Research' | 'Projects' | 'Experience';
+
+const kindLabel: Record<CategoryFilter, string> = {
   ALL: 'All',
-  Org: 'Companies',
-  Project: 'Projects',
-  Idea: 'Ideas',
+  Education: 'Education',
+  Research: 'Research',
+  Projects: 'Projects',
+  Experience: 'Experience',
 };
 
-export default function NetworkApp({ nodes }: Props) {
+const matchesCategory = (node: NetworkNode, filter: CategoryFilter) => {
+  if (filter === 'ALL') return true;
+  if (filter === 'Projects') return node.kind === 'Project';
+  if (filter === 'Experience') {
+    return node.kind === 'Experience' || node.kind === 'Org' || node.kind === 'Event';
+  }
+  return node.kind === filter;
+};
+
+export default function NetworkApp({ nodes, ideas = [] }: Props) {
   const [query, setQuery] = useState('');
-  const [filter, setFilter] = useState<KindFilter>('ALL');
+  const [filter, setFilter] = useState<CategoryFilter>('ALL');
   const [view, setView] = useState<ViewMode>('LIST');
 
-  const filtered = useMemo(() => filterNetworkNodes(nodes, filter, query), [nodes, query, filter]);
+  const filtered = useMemo(() => {
+    const searched = filterNetworkNodes(nodes, 'ALL', query);
+    return searched.filter((node) => matchesCategory(node, filter));
+  }, [nodes, query, filter]);
 
   return (
     <div>
@@ -38,7 +55,7 @@ export default function NetworkApp({ nodes }: Props) {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {(Object.keys(kindLabel) as KindFilter[]).map((k) => (
+          {(Object.keys(kindLabel) as CategoryFilter[]).map((k) => (
             <button
               key={k}
               onClick={() => setFilter(k)}
@@ -76,15 +93,30 @@ export default function NetworkApp({ nodes }: Props) {
         </div>
       </div>
 
-      {view === 'GRAPH' ? <Graph nodes={filtered} /> : <List nodes={filtered} />}
+      {view === 'GRAPH' ? <Graph nodes={filtered} ideas={ideas} /> : <List nodes={filtered} />}
     </div>
   );
 }
 
 function List({ nodes }: { nodes: readonly NetworkNode[] }) {
+  const kindPriority: Record<NetworkNode['kind'], number> = {
+    Project: 0,
+    Research: 1,
+    Event: 2,
+    Experience: 3,
+    Education: 4,
+    Org: 5,
+  };
+  const sortedNodes = [...nodes].sort((a, b) => {
+    if (b.weight !== a.weight) return b.weight - a.weight;
+    const kindDiff = kindPriority[a.kind] - kindPriority[b.kind];
+    if (kindDiff !== 0) return kindDiff;
+    return a.title.localeCompare(b.title);
+  });
+
   return (
     <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-      {nodes.map((n) => (
+      {sortedNodes.map((n) => (
         <section
           key={n.id}
           id={`node-${n.id}`}
@@ -96,7 +128,9 @@ function List({ nodes }: { nodes: readonly NetworkNode[] }) {
               <p className="text-sm text-white/60">{n.subtitle}</p>
             </div>
             <div className="text-right">
-              <span className="text-[10px] uppercase tracking-[0.2em] text-white/40">{n.kind}</span>
+              <span className="text-[10px] uppercase tracking-[0.2em] text-white/40">
+                {n.kind} · W{n.weight}
+              </span>
               {n.period && <p className="mt-1 text-xs text-white/40">{n.period}</p>}
             </div>
           </div>
@@ -159,13 +193,17 @@ function List({ nodes }: { nodes: readonly NetworkNode[] }) {
   );
 }
 
-function Graph({ nodes }: { nodes: readonly NetworkNode[] }) {
-  const { graphNodes, edges } = useMemo(() => buildGraph(nodes), [nodes]);
-
-  // Render as an SVG map with a light grid to keep it “OS-like” but readable.
-  const width = 960;
-  const maxY = graphNodes.length ? Math.max(...graphNodes.map((n) => n.y)) : 0;
-  const height = Math.max(420, Math.round(maxY + 120));
+function Graph({
+  nodes,
+  ideas,
+}: {
+  nodes: readonly NetworkNode[];
+  ideas: readonly NetworkIdeaEdge[];
+}) {
+  const { graphNodes, edges, lanes, height } = useMemo(
+    () => buildGraph(nodes, ideas),
+    [nodes, ideas]
+  );
 
   const jumpTo = (id: string) => {
     const el = document.getElementById(`node-${id}`);
@@ -176,107 +214,18 @@ function Graph({ nodes }: { nodes: readonly NetworkNode[] }) {
   return (
     <div className="mt-6 rounded-xl border border-white/10 bg-black/30 backdrop-blur-xl overflow-hidden">
       <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
-        <div>
-          <p className="text-sm font-semibold">Graph Mode</p>
-          <p className="text-xs text-white/50">
-            Writing -&gt; Systems -&gt; Platforms (tag-similarity links)
-          </p>
-        </div>
+        <p className="text-sm font-semibold">Graph Mode</p>
         <p className="text-xs text-white/50">
           {graphNodes.length} nodes, {edges.length} edges
         </p>
       </div>
-
-      <div className="overflow-auto">
-        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="block">
-          <defs>
-            <linearGradient id="edge" x1="0" x2="1">
-              <stop offset="0%" stopColor="rgba(56,189,248,0.35)" />
-              <stop offset="100%" stopColor="rgba(244,114,182,0.22)" />
-            </linearGradient>
-            <filter id="glow">
-              <feGaussianBlur stdDeviation="2.5" result="b" />
-              <feMerge>
-                <feMergeNode in="b" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-
-          {edges.map((e, i) => (
-            <line
-              key={i}
-              x1={e.from.x}
-              y1={e.from.y}
-              x2={e.to.x}
-              y2={e.to.y}
-              stroke="url(#edge)"
-              strokeWidth={2}
-              opacity={0.9}
-            />
-          ))}
-
-          {graphNodes.map((n) => (
-            <g
-              key={n.id}
-              filter="url(#glow)"
-              onClick={() => jumpTo(n.id)}
-              style={{ cursor: 'pointer' }}
-              role="link"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  jumpTo(n.id);
-                }
-              }}
-            >
-              <circle
-                cx={n.x}
-                cy={n.y}
-                r={16}
-                fill="rgba(255,255,255,0.10)"
-                stroke="rgba(255,255,255,0.16)"
-              />
-              <circle cx={n.x} cy={n.y} r={7} fill="rgba(56,189,248,0.9)" />
-              <text
-                x={n.x + 24}
-                y={n.y + 4}
-                fill="rgba(255,255,255,0.82)"
-                fontSize="12"
-                fontFamily="system-ui, -apple-system, Segoe UI, sans-serif"
-              >
-                {n.title}
-              </text>
-              <text
-                x={n.x + 24}
-                y={n.y + 18}
-                fill="rgba(255,255,255,0.45)"
-                fontSize="10"
-                fontFamily="system-ui, -apple-system, Segoe UI, sans-serif"
-              >
-                {n.kind}
-              </text>
-            </g>
-          ))}
-
-          <g opacity="0.9">
-            <text x="80" y="36" fill="rgba(255,255,255,0.55)" fontSize="11">
-              Writing
-            </text>
-            <text x="380" y="36" fill="rgba(255,255,255,0.55)" fontSize="11">
-              Systems
-            </text>
-            <text x="680" y="36" fill="rgba(255,255,255,0.55)" fontSize="11">
-              Platforms
-            </text>
-          </g>
-        </svg>
-      </div>
-
-      <div className="px-4 py-3 border-t border-white/10 text-xs text-white/50">
-        Tip: click a node to jump to its card in list mode.
-      </div>
+      <SigmaGraph
+        nodes={graphNodes}
+        edges={edges}
+        lanes={lanes}
+        height={height}
+        onNodeClick={(id) => jumpTo(id)}
+      />
     </div>
   );
 }

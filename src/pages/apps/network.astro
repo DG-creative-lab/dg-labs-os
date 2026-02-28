@@ -2,7 +2,7 @@
 import DesktopLayout from '../../layouts/DesktopLayout.astro';
 import WindowFrame from '../../components/global/WindowFrame.astro';
 import { userConfig } from '../../config/index';
-import { networkNodes, networkLinks } from '../../config/network';
+import { networkIdeaEdges, networkLinks, networkNodes } from '../../config/network';
 import NetworkApp from '../../components/network/NetworkApp';
 ---
 
@@ -13,8 +13,7 @@ import NetworkApp from '../../components/network/NetworkApp';
         <div>
           <h1 class="text-2xl font-semibold">Network</h1>
           <p class="mt-2 text-white/70">
-            A map of roles, systems, and ideas that reinforce each other: agency-first design,
-            learning loops, and infrastructure.
+            Work graph across research, projects, experience, and education.
           </p>
         </div>
         <div class="hidden md:block text-right text-xs text-white/50">
@@ -25,7 +24,7 @@ import NetworkApp from '../../components/network/NetworkApp';
 
       <div class="mt-4 flex flex-wrap gap-2">
         <a
-          class="text-sm rounded-full bg-white/10 px-3 py-1.5 hover:bg-white/20 transition"
+          class="text-sm rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-1.5 text-sky-100 hover:bg-sky-400/20 transition"
           href={userConfig.social.linkedin}
           target="_blank"
           rel="noopener noreferrer"
@@ -33,7 +32,7 @@ import NetworkApp from '../../components/network/NetworkApp';
           LinkedIn
         </a>
         <a
-          class="text-sm rounded-full bg-white/10 px-3 py-1.5 hover:bg-white/20 transition"
+          class="text-sm rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-1.5 text-sky-100 hover:bg-sky-400/20 transition"
           href={userConfig.social.github}
           target="_blank"
           rel="noopener noreferrer"
@@ -41,7 +40,7 @@ import NetworkApp from '../../components/network/NetworkApp';
           GitHub
         </a>
         <a
-          class="text-sm rounded-full bg-white/10 px-3 py-1.5 hover:bg-white/20 transition"
+          class="text-sm rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-1.5 text-sky-100 hover:bg-sky-400/20 transition"
           href={networkLinks.githubOrg}
           target="_blank"
           rel="noopener noreferrer"
@@ -49,7 +48,7 @@ import NetworkApp from '../../components/network/NetworkApp';
           ai-knowledge-hub (org)
         </a>
         <a
-          class="text-sm rounded-full bg-white/10 px-3 py-1.5 hover:bg-white/20 transition"
+          class="text-sm rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-1.5 text-sky-100 hover:bg-sky-400/20 transition"
           href={networkLinks.githubPersonal}
           target="_blank"
           rel="noopener noreferrer"
@@ -57,16 +56,24 @@ import NetworkApp from '../../components/network/NetworkApp';
           DG-creative-lab
         </a>
         <a
-          class="text-sm rounded-full bg-white/10 px-3 py-1.5 hover:bg-white/20 transition"
+          class="text-sm rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-1.5 text-sky-100 hover:bg-sky-400/20 transition"
           href={networkLinks.newsHub}
           target="_blank"
           rel="noopener noreferrer"
         >
           AI News Hub
         </a>
+        <a
+          class="text-sm rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-1.5 text-sky-100 hover:bg-sky-400/20 transition"
+          href={networkLinks.skillsHub}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          AI Skills Platform
+        </a>
       </div>
 
-      <NetworkApp client:load nodes={networkNodes} />
+      <NetworkApp client:load nodes={networkNodes} ideas={networkIdeaEdges} />
     </WindowFrame>
   </main>
 </DesktopLayout>
