@@ -3,13 +3,13 @@ import { buildGraph } from '../src/utils/networkGraph';
 import { networkIdeaEdges, networkNodes } from '../src/config/network';
 
 describe('buildGraph', () => {
-  it('places education/research/project/org nodes into graph lanes', () => {
+  it('places core kinds into graph lanes', () => {
     const { graphNodes } = buildGraph(networkNodes, networkIdeaEdges);
     const kinds = new Set(graphNodes.map((n) => n.kind));
     expect(kinds.has('Education')).toBe(true);
     expect(kinds.has('Research')).toBe(true);
     expect(kinds.has('Project')).toBe(true);
-    expect(kinds.has('Org')).toBe(true);
+    expect(kinds.has('Experience')).toBe(true);
   });
 
   it('creates only valid edges between existing nodes', () => {

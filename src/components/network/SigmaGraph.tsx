@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Graph from 'graphology';
+import type { NetworkNode } from '../../config/network';
 import type { GraphEdge, GraphNode } from '../../utils/networkGraph';
 
 type Lane = {
@@ -32,6 +33,7 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
   const neighborsRef = useRef<Set<string>>(new Set());
   const edgeFocusRef = useRef<Set<string>>(new Set());
   const [activeNodeId, setActiveNodeId] = useState<string | null>(null);
+  const [inspectedNodeId, setInspectedNodeId] = useState<string | null>(null);
 
   const connectedNodeIds = useMemo(() => {
     const ids = new Set<string>();
@@ -58,6 +60,17 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
   const majorNodeIds = useMemo(
     () => new Set(connectedNodes.filter((n) => n.weight >= 4).map((n) => n.id)),
     [connectedNodes]
+  );
+  const kindIcon: Record<NetworkNode['kind'], string> = useMemo(
+    () => ({
+      Education: '🎓',
+      Research: '📚',
+      Project: '🚀',
+      Org: '🏢',
+      Event: '⚡',
+      Experience: '🧩',
+    }),
+    []
   );
 
   useEffect(() => {
@@ -95,17 +108,53 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
           y: Math.sin(angle) * radius,
           size: Math.max(4, node.r * 0.65),
           label: node.title,
+          icon: kindIcon[node.kind],
           color: kindColor[node.kind] ?? '#93c5fd',
         });
       }
 
-      for (const [index, edge] of connectedEdges.entries()) {
+      const mergedEdges = new Map<
+        string,
+        {
+          from: string;
+          to: string;
+          style: 'solid' | 'dotted';
+          strength: number;
+          ideas: string[];
+        }
+      >();
+
+      for (const edge of connectedEdges) {
         if (!graph.hasNode(edge.from.id) || !graph.hasNode(edge.to.id)) continue;
-        graph.addEdgeWithKey(`edge-${index}`, edge.from.id, edge.to.id, {
-          color: 'rgba(148,163,184,0.6)',
-          size: 1 + edge.strength * 0.6,
-          label: edge.idea,
+        const key = `${edge.from.id}|${edge.to.id}|${edge.style}`;
+        const existing = mergedEdges.get(key);
+        if (!existing) {
+          mergedEdges.set(key, {
+            from: edge.from.id,
+            to: edge.to.id,
+            style: edge.style,
+            strength: edge.strength,
+            ideas: [edge.idea],
+          });
+          continue;
+        }
+        existing.strength = Math.max(existing.strength, edge.strength);
+        if (!existing.ideas.includes(edge.idea)) existing.ideas.push(edge.idea);
+      }
+
+      let edgeIndex = 0;
+      for (const edge of mergedEdges.values()) {
+        const isDotted = edge.style === 'dotted';
+        const label =
+          edge.ideas.length > 1 ? `${edge.ideas[0]} (+${edge.ideas.length - 1})` : edge.ideas[0];
+        graph.addEdgeWithKey(`edge-${edgeIndex}`, edge.from, edge.to, {
+          color: isDotted ? 'rgba(148,163,184,0.36)' : 'rgba(148,163,184,0.6)',
+          size: isDotted ? 0.8 + edge.strength * 0.35 : 1 + edge.strength * 0.6,
+          label,
+          style: edge.style,
+          ideas: edge.ideas,
         });
+        edgeIndex += 1;
       }
 
       if (graph.order > 1) {
@@ -126,11 +175,23 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
 
       const drawPillLabel = (
         context: CanvasRenderingContext2D,
-        data: { x: number; y: number; size: number; label: string | null },
+        data: { x: number; y: number; size: number; label: string | null; icon?: string },
         settings: { labelFont: string; labelSize: number; labelWeight: string }
       ) => {
         const text = data.label;
-        if (!text) return;
+        const icon = data.icon ?? '';
+
+        if (icon) {
+          context.textAlign = 'center';
+          context.textBaseline = 'middle';
+          context.font = `600 ${Math.max(8, data.size * 1.05)}px ${settings.labelFont}`;
+          context.fillStyle = 'rgba(248, 250, 252, 0.96)';
+          context.fillText(icon, data.x, data.y + 0.5);
+          context.textAlign = 'start';
+          context.textBaseline = 'alphabetic';
+        }
+
+        if (!text || text === icon) return;
 
         const fontSize = settings.labelSize;
         const x = data.x + data.size + 10;
@@ -165,7 +226,14 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
 
       const drawDarkNodeHover = (
         context: CanvasRenderingContext2D,
-        data: { x: number; y: number; size: number; label: string | null; color: string },
+        data: {
+          x: number;
+          y: number;
+          size: number;
+          label: string | null;
+          color: string;
+          icon?: string;
+        },
         settings: { labelFont: string; labelSize: number; labelWeight: string }
       ) => {
         const text = data.label;
@@ -185,6 +253,16 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
         context.strokeStyle = 'rgba(248,250,252,0.95)';
         context.lineWidth = 2;
         context.stroke();
+
+        if (data.icon) {
+          context.textAlign = 'center';
+          context.textBaseline = 'middle';
+          context.font = `600 ${Math.max(9, size * 1.05)}px ${settings.labelFont}`;
+          context.fillStyle = 'rgba(248, 250, 252, 0.98)';
+          context.fillText(data.icon, x, y + 0.5);
+          context.textAlign = 'start';
+          context.textBaseline = 'alphabetic';
+        }
 
         if (!text) return;
 
@@ -221,14 +299,18 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
 
       const sigma = new Sigma(graph, container, {
         renderLabels: true,
+        renderEdgeLabels: false,
         labelSize: 11,
-        labelDensity: 0.028,
+        labelDensity: 1,
         labelGridCellSize: 120,
-        labelRenderedSizeThreshold: 11,
+        labelRenderedSizeThreshold: 0,
         zIndex: true,
         defaultNodeColor: '#60a5fa',
         defaultEdgeColor: 'rgba(148,163,184,0.36)',
         labelColor: { color: 'rgba(226,232,240,0.86)' },
+        edgeLabelColor: { color: 'rgba(203,213,225,0.92)' },
+        edgeLabelSize: 10,
+        edgeLabelWeight: '500',
         labelFont: 'ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif',
         labelWeight: '500',
         defaultDrawNodeLabel: drawPillLabel,
@@ -252,22 +334,21 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
         }
 
         sigma.setSetting('nodeReducer', (node, data) => {
+          const d = data as { color: string; label: string; size: number; icon?: string };
           if (!source) {
-            const d = data as { color: string; label: string; size: number };
             const showLabel = majorNodeIds.has(node) || node === hoveredRef.current;
             return {
               ...d,
               color: d.color,
-              label: showLabel ? d.label : '',
+              label: showLabel ? d.label : d.icon ?? '',
             };
           }
 
           const isNeighbor = neighborsRef.current.has(node);
-          const d = data as { color: string; label: string; size: number };
           return {
             ...d,
             color: isNeighbor ? d.color : 'rgba(100,116,139,0.22)',
-            label: isNeighbor ? d.label : '',
+            label: isNeighbor ? d.label : d.icon ?? '',
             zIndex: node === source ? 2 : isNeighbor ? 1 : 0,
             size: node === source ? Math.max(d.size * 1.2, d.size + 2) : d.size,
           };
@@ -284,25 +365,37 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
           }
 
           const isFocused = edgeFocusRef.current.has(edge);
-          const d = data as { size: number };
+          const d = data as { size: number; style?: 'solid' | 'dotted' };
+          const dotted = d.style === 'dotted';
           return {
             ...d,
-            color: isFocused ? 'rgba(125,211,252,0.88)' : 'rgba(100,116,139,0.10)',
+            color: dotted
+              ? isFocused
+                ? 'rgba(125,211,252,0.55)'
+                : 'rgba(100,116,139,0.10)'
+              : isFocused
+                ? 'rgba(125,211,252,0.88)'
+                : 'rgba(100,116,139,0.10)',
             hidden: false,
-            size: isFocused ? Math.max(d.size * 1.1, d.size + 0.4) : d.size,
+            size: isFocused
+              ? Math.max(dotted ? d.size * 1.05 : d.size * 1.1, d.size + (dotted ? 0.2 : 0.4))
+              : d.size,
           };
         });
 
+        sigma.setSetting('renderEdgeLabels', Boolean(source));
         sigma.refresh();
       };
 
       sigma.on('enterNode', ({ node }) => {
         hoveredRef.current = node;
+        if (!selectedRef.current) setInspectedNodeId(node);
         updateFocus();
       });
 
       sigma.on('leaveNode', () => {
         hoveredRef.current = null;
+        if (!selectedRef.current) setInspectedNodeId(null);
         updateFocus();
       });
 
@@ -310,6 +403,7 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
         event.preventSigmaDefault();
         selectedRef.current = selectedRef.current === node ? null : node;
         setActiveNodeId(selectedRef.current);
+        setInspectedNodeId(selectedRef.current);
         onNodeClick?.(node);
         updateFocus();
       });
@@ -317,6 +411,7 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
       sigma.on('clickStage', () => {
         selectedRef.current = null;
         setActiveNodeId(null);
+        setInspectedNodeId(null);
         updateFocus();
       });
 
@@ -331,14 +426,20 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
   }, [connectedEdges, connectedNodes, lanes, majorNodeIds, onNodeClick]);
 
   const activeNode = activeNodeId ? nodeById.get(activeNodeId) : null;
+  const inspectedNode = inspectedNodeId ? nodeById.get(inspectedNodeId) : null;
   const related = activeNode
     ? connectedEdges.filter(
         (edge) => edge.from.id === activeNode.id || edge.to.id === activeNode.id
       )
     : [];
+  const inspectedRelated = inspectedNode
+    ? connectedEdges.filter(
+        (edge) => edge.from.id === inspectedNode.id || edge.to.id === inspectedNode.id
+      )
+    : [];
 
   return (
-    <div>
+    <div className="relative">
       <div className="px-4 py-2 border-b border-white/10 flex flex-wrap items-center gap-2">
         {laneNames.map((lane) => (
           <span
@@ -355,6 +456,103 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
         style={{ height: `${Math.max(460, height)}px` }}
         className="w-full bg-[radial-gradient(circle_at_40%_0%,rgba(148,163,184,0.06),rgba(2,6,23,0.2)_45%,rgba(2,6,23,0.28)_100%)]"
       />
+
+      <aside className="absolute right-4 top-14 w-[300px] max-w-[38vw] rounded-xl border border-white/10 bg-slate-950/85 backdrop-blur-md p-3 text-xs text-slate-200 shadow-2xl">
+        {inspectedNode ? (
+          <div className="space-y-2">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.16em] text-slate-400">
+                {inspectedNode.kind} · W{inspectedNode.weight}
+              </p>
+              <h3 className="mt-1 text-sm font-semibold text-white">
+                {kindIcon[inspectedNode.kind]} {inspectedNode.title}
+              </h3>
+              <p className="text-slate-300/85">{inspectedNode.subtitle}</p>
+              {inspectedNode.period && <p className="text-slate-400">{inspectedNode.period}</p>}
+            </div>
+
+            <ul className="space-y-1">
+              {inspectedNode.bullets.slice(0, 3).map((bullet, i) => (
+                <li key={i} className="text-slate-300/90">
+                  - {bullet}
+                </li>
+              ))}
+            </ul>
+
+            <div className="flex flex-wrap gap-1">
+              {inspectedNode.tags.slice(0, 5).map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-slate-300"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.12em] text-slate-400">
+                Connections ({inspectedRelated.length})
+              </p>
+              <div className="mt-1 space-y-1 max-h-28 overflow-auto pr-1">
+                {inspectedRelated.slice(0, 8).map((edge, i) => {
+                  const outbound = edge.from.id === inspectedNode.id;
+                  const otherId = outbound ? edge.to.id : edge.from.id;
+                  const otherTitle = outbound ? edge.to.title : edge.from.title;
+                  return (
+                    <p key={`${otherId}-${i}`} className="text-slate-300/85">
+                      <span className="text-slate-100">{edge.idea}</span> -&gt; {otherTitle}
+                      {edge.style === 'dotted' ? (
+                        <span className="ml-1 text-slate-500">(foundation)</span>
+                      ) : null}
+                    </p>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2 pt-1">
+              {inspectedNode.links?.url && (
+                <a
+                  href={inspectedNode.links.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full bg-white/10 px-2 py-1 text-[11px] hover:bg-white/20"
+                >
+                  Open
+                </a>
+              )}
+              {inspectedNode.links?.repo && (
+                <a
+                  href={inspectedNode.links.repo}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full bg-white/10 px-2 py-1 text-[11px] hover:bg-white/20"
+                >
+                  Repo
+                </a>
+              )}
+              {inspectedNode.links?.article && (
+                <a
+                  href={inspectedNode.links.article}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full bg-white/10 px-2 py-1 text-[11px] hover:bg-white/20"
+                >
+                  Article
+                </a>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-1 text-slate-300/80">
+            <p className="text-[10px] uppercase tracking-[0.16em] text-slate-400">Graph Inspector</p>
+            <p>Hover a node for details.</p>
+            <p>Click to lock focus and show edge labels.</p>
+            <p>Click empty space to reset.</p>
+          </div>
+        )}
+      </aside>
 
       <div className="px-4 py-3 border-t border-white/10 text-xs text-white/55">
         {activeNode ? (

@@ -99,9 +99,24 @@ export default function NetworkApp({ nodes, ideas = [] }: Props) {
 }
 
 function List({ nodes }: { nodes: readonly NetworkNode[] }) {
+  const kindPriority: Record<NetworkNode['kind'], number> = {
+    Project: 0,
+    Research: 1,
+    Event: 2,
+    Experience: 3,
+    Education: 4,
+    Org: 5,
+  };
+  const sortedNodes = [...nodes].sort((a, b) => {
+    if (b.weight !== a.weight) return b.weight - a.weight;
+    const kindDiff = kindPriority[a.kind] - kindPriority[b.kind];
+    if (kindDiff !== 0) return kindDiff;
+    return a.title.localeCompare(b.title);
+  });
+
   return (
     <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-      {nodes.map((n) => (
+      {sortedNodes.map((n) => (
         <section
           key={n.id}
           id={`node-${n.id}`}
@@ -199,12 +214,7 @@ function Graph({
   return (
     <div className="mt-6 rounded-xl border border-white/10 bg-black/30 backdrop-blur-xl overflow-hidden">
       <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
-        <div>
-          <p className="text-sm font-semibold">Graph Mode</p>
-          <p className="text-xs text-white/50">
-            Facts as nodes, ideas as weighted edges. Interactive focus mode enabled.
-          </p>
-        </div>
+        <p className="text-sm font-semibold">Graph Mode</p>
         <p className="text-xs text-white/50">
           {graphNodes.length} nodes, {edges.length} edges
         </p>

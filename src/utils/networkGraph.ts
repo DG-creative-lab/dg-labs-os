@@ -10,25 +10,26 @@ export type GraphEdge = {
   from: GraphNode;
   to: GraphNode;
   idea: string;
-  strength: 1 | 2 | 3;
+  strength: 1 | 2 | 3 | 4 | 5;
+  style: 'solid' | 'dotted';
 };
 
 const laneOrder: readonly NetworkKind[] = [
   'Education',
   'Research',
   'Project',
-  'Org',
   'Event',
   'Experience',
+  'Org',
 ];
 
 const laneLabel: Record<NetworkKind, string> = {
   Education: 'Education',
   Research: 'Research',
   Project: 'Projects',
+  Event: 'Hackathons',
+  Experience: 'Experience and Tools',
   Org: 'Companies',
-  Event: 'All-Hands',
-  Experience: 'Experience',
 };
 
 export const buildGraph = (
@@ -78,6 +79,7 @@ export const buildGraph = (
         to,
         idea: edge.idea,
         strength: edge.strength ?? 2,
+        style: edge.style ?? 'solid',
       } satisfies GraphEdge;
     })
     .filter((edge): edge is GraphEdge => Boolean(edge));
@@ -91,6 +93,7 @@ export const buildGraph = (
         to: ordered[i + 1],
         idea: 'trajectory',
         strength: 1,
+        style: 'solid',
       });
     }
     edges = fallback;
