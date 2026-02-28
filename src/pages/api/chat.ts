@@ -17,6 +17,24 @@ type ErrorCode =
 const err = (code: ErrorCode, message: string, status: number) =>
   errorResponse(code, message, status);
 
+const normalizeAssistantContent = (content: unknown): string | null => {
+  if (typeof content === 'string') return content;
+  if (!Array.isArray(content)) return null;
+
+  const textParts = content
+    .map((item) => {
+      if (!item || typeof item !== 'object') return '';
+      const record = item as Record<string, unknown>;
+      if (typeof record.text === 'string') return record.text;
+      if (typeof record.content === 'string') return record.content;
+      return '';
+    })
+    .filter(Boolean);
+
+  if (textParts.length > 0) return textParts.join('\n').trim();
+  return null;
+};
+
 export const POST: APIRoute = async ({ request }) => {
   const openRouterApiKey = getServerEnv('OPENROUTER_API_KEY');
 
@@ -56,7 +74,7 @@ export const POST: APIRoute = async ({ request }) => {
       maxTokens: 500,
     });
 
-    const content = completion?.choices?.[0]?.message?.content;
+    const content = normalizeAssistantContent(completion?.choices?.[0]?.message?.content);
     if (!content) {
       console.error('[Chat API] Invalid response from OpenRouter');
       return err('INVALID_RESPONSE', 'Received invalid response from AI service', 500);

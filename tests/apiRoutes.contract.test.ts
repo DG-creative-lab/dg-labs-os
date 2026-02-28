@@ -28,7 +28,8 @@ describe('API route contracts', () => {
   });
 
   it('contact GET health returns ok', async () => {
-    const response = await contactGet();
+    const request = new Request('http://localhost/api/contact');
+    const response = await contactGet(ctx(request));
     expect(response.status).toBe(200);
     const body = (await response.json()) as unknown;
     expect(isHealthSuccessEnvelope(body)).toBe(true);
