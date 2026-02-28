@@ -16,6 +16,8 @@
     "test:terminal": "vitest run tests/terminalCommands.test.ts",
     "test:content": "vitest run tests/contentConfig.test.ts",
     "test:device": "vitest run tests/deviceDetection.test.ts",
+    "test:schemas": "vitest run tests/requestSchemas.test.ts",
+    "test:api": "vitest run tests/apiResponse.test.ts tests/apiContracts.test.ts tests/apiRoutes.contract.test.ts tests/apiRoutes.success.contract.test.ts",
     "lint": "eslint src tests --ext .ts,.tsx,.astro",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,cjs,astro,md,json,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,cjs,astro,md,json,yml,yaml}\"",

@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import { getServerEnv } from './serverEnv';
 
 type AdminSessionPayload = {
   u: string;
@@ -22,8 +23,8 @@ const safeEqual = (a: string, b: string): boolean => {
 };
 
 export const getAdminSessionSecret = (): string | null => {
-  const explicit = import.meta.env.ADMIN_SESSION_SECRET as string | undefined;
-  const fallback = import.meta.env.ADMIN_PASSWORD as string | undefined;
+  const explicit = getServerEnv('ADMIN_SESSION_SECRET');
+  const fallback = getServerEnv('ADMIN_PASSWORD');
   return explicit || fallback || null;
 };
 

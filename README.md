@@ -59,16 +59,37 @@ Run locally with `pnpm` scripts:
 ```bash
 pnpm lint
 pnpm format:check
-pnpm test
+pnpm test:unit
 pnpm typecheck
 pnpm check
 ```
+
+Focused unit test suites:
+
+```bash
+pnpm test:auth
+pnpm test:network
+pnpm test:terminal
+pnpm test:content
+pnpm test:device
+pnpm test:schemas
+pnpm test:api
+```
+
+`test:api` includes API helper tests, response contract tests, and route contract tests (failure and success paths).
 
 Or use `make` shortcuts:
 
 ```bash
 make lint
-make test
+make test-unit
+make test-auth
+make test-network
+make test-terminal
+make test-content
+make test-device
+make test-schemas
+make test-api
 make typecheck
 make check
 ```

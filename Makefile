@@ -1,4 +1,4 @@
-.PHONY: install dev build preview test test-unit test-auth test-network test-terminal test-content test-device lint format format-check typecheck check ci qa
+.PHONY: install dev build preview test test-unit test-auth test-network test-terminal test-content test-device test-schemas test-api lint format format-check typecheck check ci qa
 
 install:
 	pnpm install
@@ -32,6 +32,12 @@ test-content:
 
 test-device:
 	pnpm test:device
+
+test-schemas:
+	pnpm test:schemas
+
+test-api:
+	pnpm test:api
 
 lint:
 	pnpm lint

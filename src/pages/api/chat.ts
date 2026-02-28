@@ -1,5 +1,9 @@
 import type { APIRoute } from 'astro';
 import { OpenRouter } from '@openrouter/sdk';
+import { chatSuccess } from '../../utils/apiContracts';
+import { errorResponse, jsonResponse } from '../../utils/apiResponse';
+import { parseChatMessagesInput } from '../../utils/requestSchemas';
+import { getServerEnv, isServerDev } from '../../utils/serverEnv';
 
 type ErrorCode =
   | 'CONFIG_ERROR'
@@ -10,18 +14,14 @@ type ErrorCode =
   | 'TIMEOUT'
   | 'INTERNAL_ERROR';
 
-const ts = () => new Date().toISOString();
-const json = (data: unknown, status = 200) =>
-  new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  });
 const err = (code: ErrorCode, message: string, status: number) =>
-  json({ code, message, timestamp: ts() }, status);
+  errorResponse(code, message, status);
 
 export const POST: APIRoute = async ({ request }) => {
+  const openRouterApiKey = getServerEnv('OPENROUTER_API_KEY');
+
   // Fast-fail if not configured
-  if (!import.meta.env.OPENROUTER_API_KEY) {
+  if (!openRouterApiKey) {
     console.error('[Chat API] Missing OPENROUTER_API_KEY');
     return err(
       'CONFIG_ERROR',
@@ -31,21 +31,21 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   // Parse body
-  let body: any;
+  let body: unknown;
   try {
     body = await request.json();
   } catch {
     return err('INVALID_JSON', 'Invalid request format', 400);
   }
 
-  const messages = body?.messages;
-  if (!Array.isArray(messages) || messages.length === 0) {
+  const messages = parseChatMessagesInput(body);
+  if (!messages) {
     return err('INVALID_MESSAGES', 'Messages array is required and must not be empty', 400);
   }
 
   try {
     const openRouter = new OpenRouter({
-      apiKey: import.meta.env.OPENROUTER_API_KEY,
+      apiKey: openRouterApiKey,
     });
 
     const completion = await openRouter.chat.send({
@@ -62,7 +62,7 @@ export const POST: APIRoute = async ({ request }) => {
       return err('INVALID_RESPONSE', 'Received invalid response from AI service', 500);
     }
 
-    return json({ message: content }, 200);
+    return jsonResponse(chatSuccess(content), 200);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
 
@@ -73,7 +73,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     return err(
       'INTERNAL_ERROR',
-      import.meta.env.DEV ? message : 'An unexpected error occurred. Please try again later.',
+      isServerDev() ? message : 'An unexpected error occurred. Please try again later.',
       500
     );
   }
