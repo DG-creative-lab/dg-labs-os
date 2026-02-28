@@ -340,7 +340,7 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
             return {
               ...d,
               color: d.color,
-              label: showLabel ? d.label : d.icon ?? '',
+              label: showLabel ? d.label : (d.icon ?? ''),
             };
           }
 
@@ -348,7 +348,7 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
           return {
             ...d,
             color: isNeighbor ? d.color : 'rgba(100,116,139,0.22)',
-            label: isNeighbor ? d.label : d.icon ?? '',
+            label: isNeighbor ? d.label : (d.icon ?? ''),
             zIndex: node === source ? 2 : isNeighbor ? 1 : 0,
             size: node === source ? Math.max(d.size * 1.2, d.size + 2) : d.size,
           };
@@ -546,7 +546,9 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
           </div>
         ) : (
           <div className="space-y-1 text-slate-300/80">
-            <p className="text-[10px] uppercase tracking-[0.16em] text-slate-400">Graph Inspector</p>
+            <p className="text-[10px] uppercase tracking-[0.16em] text-slate-400">
+              Graph Inspector
+            </p>
             <p>Hover a node for details.</p>
             <p>Click to lock focus and show edge labels.</p>
             <p>Click empty space to reset.</p>

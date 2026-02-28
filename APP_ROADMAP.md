@@ -117,6 +117,7 @@ This means roadmap execution can be incremental without redesigning the whole in
 Goal: make current modules feel intentionally connected.
 
 1. Terminal v1 (deterministic CLI commands)
+
 - Add command parser:
   - `help`
   - `open projects|notes|resume|news|network|contact`
@@ -130,6 +131,7 @@ Goal: make current modules feel intentionally connected.
 - Keep LLM as optional wrapper, not dependency for core functionality.
 
 2. Timeline/Resume upgrade
+
 - Convert `/apps/resume` from single button to:
   - summary section
   - milestones
@@ -137,6 +139,7 @@ Goal: make current modules feel intentionally connected.
   - link-outs to Workbench/Network nodes
 
 3. About DG-Labs Pro alignment
+
 - Make "About" values consistent with current story (DG-Labs Pro, chip/memory/OS narrative).
 - Ensure close/minimize behavior matches other windows.
 
@@ -145,17 +148,20 @@ Goal: make current modules feel intentionally connected.
 Goal: map all high-value content into app-native modules.
 
 1. News Hub app strategy
+
 - Option A: embed selected feed cards in-window + external open
 - Option B: pure curated summary + outbound links
 - Keep performance and readability first.
 
 2. Network -> App deep linking
+
 - Add "open in app" actions from graph inspector/list cards:
   - research node -> notes deep dive
   - project node -> workbench item
   - org/experience node -> resume timeline anchor
 
 3. Toolbar semantics hardening
+
 - Keep mac menu order.
 - Re-map actions to meaningful system controls:
   - Apple: About, Preferences, Lock, Sleep (dim), Restart (seed refresh)
@@ -166,10 +172,12 @@ Goal: map all high-value content into app-native modules.
 Goal: stronger DG visual language while preserving simplicity.
 
 1. Icon system unification
+
 - Build a consistent DG-Labs icon set (squircle + gradient + glyph grammar).
 - Apply to desktop dock + mobile home + graph legend badges.
 
 2. Typography and spacing pass
+
 - Introduce one strong type scale token set for window headers/body/meta text.
 - Tighten chip/button variants:
   - external actions
@@ -177,6 +185,7 @@ Goal: stronger DG visual language while preserving simplicity.
   - utility controls
 
 3. Motion polish
+
 - Keep transitions minimal first (fade/slide), avoid over-animation.
 
 ## Phase 4 - Reliability and Shipping (ongoing)
@@ -184,6 +193,7 @@ Goal: stronger DG visual language while preserving simplicity.
 Goal: production confidence.
 
 1. Testing expansion
+
 - Add unit tests for terminal command parser and router mapping.
 - Add integration tests for critical pages:
   - `/desktop`
@@ -191,12 +201,14 @@ Goal: production confidence.
   - `/mobile/lock -> /mobile/`
 
 2. E2E smoke tests
+
 - Add Playwright smoke suite for:
   - navigation from dock
   - toolbar menu actions
   - mobile unlock flow
 
 3. Deployment hardening (Vercel)
+
 - Confirm envs for OpenRouter and Supabase.
 - Keep chat persistence in `localStorage` initially.
 - Move to server persistence only when product behavior is stable.
@@ -217,16 +229,19 @@ Recommended steady-state modules:
 ## 7. Backlog (Prioritized)
 
 P0 (next):
+
 - Terminal deterministic commands
 - Resume app enrichment
 - About window behavior/design parity
 
 P1:
+
 - News app curation mode
 - Network deep links into other apps
 - Toolbar action model finalization
 
 P2:
+
 - Icon system redesign
 - E2E suite
 - Preferences + Activity Monitor modules
