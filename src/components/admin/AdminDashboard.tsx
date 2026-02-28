@@ -21,11 +21,7 @@ export default function AdminDashboard() {
   const [loginError, setLoginError] = useState<string | null>(null);
 
   useEffect(() => {
-    const savedToken = sessionStorage.getItem('admin_session_token');
-    if (savedToken) {
-      setIsLoggedIn(true);
-      fetchMessages(savedToken);
-    }
+    fetchMessages();
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -37,6 +33,7 @@ export default function AdminDashboard() {
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ username, password }),
       });
 
@@ -46,10 +43,8 @@ export default function AdminDashboard() {
         throw new Error(data.error || 'Login failed');
       }
 
-      const sessionToken = data.token;
-      sessionStorage.setItem('admin_session_token', sessionToken);
       setIsLoggedIn(true);
-      fetchMessages(sessionToken);
+      fetchMessages();
     } catch (err: any) {
       setLoginError(err.message || 'Login failed');
     } finally {
@@ -57,21 +52,26 @@ export default function AdminDashboard() {
     }
   };
 
-  const fetchMessages = async (authToken: string) => {
+  const fetchMessages = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch('/api/admin/messages?limit=100', {
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
+      const res = await fetch('/api/admin/messages?limit=100', { credentials: 'include' });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+
+      if (res.status === 401) {
+        setIsLoggedIn(false);
+        setMessages([]);
+        return;
+      }
 
       if (!res.ok) {
         throw new Error(data.message || 'Failed to fetch messages');
       }
 
+      setIsLoggedIn(true);
       setMessages(data.data || []);
     } catch (err: any) {
       setError(err.message || 'Error fetching messages');
@@ -80,8 +80,8 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleLogout = () => {
-    sessionStorage.removeItem('admin_session_token');
+  const handleLogout = async () => {
+    await fetch('/api/admin/messages', { method: 'DELETE', credentials: 'include' });
     setIsLoggedIn(false);
     setMessages([]);
     setUsername('');

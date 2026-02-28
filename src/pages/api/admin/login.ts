@@ -1,30 +1,49 @@
 import type { APIRoute } from 'astro';
-
-const json = (data: unknown, status = 200) =>
-  new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
+import {
+  createAdminSessionToken,
+  getAdminSessionSecret,
+  safeCredentialMatch,
+} from '../../../utils/adminAuth';
+import { adminLoginSuccess } from '../../../utils/apiContracts';
+import { errorResponse, jsonResponse } from '../../../utils/apiResponse';
+import { parseAdminLoginInput } from '../../../utils/requestSchemas';
+import { getServerEnv } from '../../../utils/serverEnv';
 
 export const POST: APIRoute = async ({ request }) => {
-  const ADMIN_USERNAME = import.meta.env.ADMIN_USERNAME as string | undefined;
-  const ADMIN_PASSWORD = import.meta.env.ADMIN_PASSWORD as string | undefined;
+  const ADMIN_USERNAME = getServerEnv('ADMIN_USERNAME');
+  const ADMIN_PASSWORD = getServerEnv('ADMIN_PASSWORD');
+  const ADMIN_SESSION_SECRET = getAdminSessionSecret();
 
-  if (!ADMIN_USERNAME || !ADMIN_PASSWORD) {
-    return json({ error: 'Admin credentials not configured' }, 503);
+  if (!ADMIN_USERNAME || !ADMIN_PASSWORD || !ADMIN_SESSION_SECRET) {
+    return errorResponse('CONFIG_ERROR', 'Admin credentials not configured', 503, true);
   }
 
-  let body: any;
+  let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return json({ error: 'Invalid JSON' }, 400);
+    return errorResponse('INVALID_JSON', 'Invalid JSON', 400, true);
   }
 
-  const { username, password } = body || {};
+  const credentials = parseAdminLoginInput(body);
+  if (!credentials) {
+    return errorResponse('INVALID_CREDENTIALS', 'Invalid credentials', 401, true);
+  }
+  const { username, password } = credentials;
 
-  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-    // Generate a simple session token (in production use JWT or secure sessions)
-    const token = Buffer.from(`${username}:${Date.now()}`).toString('base64');
-    return json({ success: true, token });
+  const usernameMatch = safeCredentialMatch(username, ADMIN_USERNAME);
+  const passwordMatch = safeCredentialMatch(password, ADMIN_PASSWORD);
+  if (usernameMatch && passwordMatch) {
+    const token = createAdminSessionToken(username, ADMIN_SESSION_SECRET);
+    const isSecure = new URL(request.url).protocol === 'https:';
+    const securePart = isSecure ? ' Secure;' : '';
+    const response = jsonResponse(adminLoginSuccess(), 200, true);
+    response.headers.append(
+      'Set-Cookie',
+      `admin_session=${token}; HttpOnly;${securePart} SameSite=Lax; Path=/; Max-Age=28800`
+    );
+    return response;
   }
 
-  return json({ error: 'Invalid credentials' }, 401);
+  return errorResponse('INVALID_CREDENTIALS', 'Invalid credentials', 401, true);
 };

@@ -1,16 +1,19 @@
 ---
 import DesktopLayout from '../../layouts/DesktopLayout.astro';
 import WindowFrame from '../../components/global/WindowFrame.astro';
+import AgentsTerminal from '../../components/global/AgentsTerminal';
 ---
 
 <DesktopLayout>
   <main class="mx-auto max-w-4xl px-6 pt-16 text-white">
-    <WindowFrame title="iTerm">
-      <div class="font-mono text-sm text-emerald-200 space-y-3">
-        <p>DG-Labs:~$ whoami</p>
-        <p class="text-white/70">DG-Labs // cognitive interface</p>
-        <p>DG-Labs:~$ help</p>
-        <p class="text-white/70">Try: projects, resume, notes, contact</p>
+    <WindowFrame title="Agents Terminal">
+      <h1 class="text-2xl font-semibold">Agents Runtime</h1>
+      <p class="mt-2 text-white/70">
+        Command surface for DG-Labs OS. Deterministic commands run locally; LLM orchestration comes
+        next.
+      </p>
+      <div class="mt-5">
+        <AgentsTerminal client:load />
       </div>
     </WindowFrame>
   </main>

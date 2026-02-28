@@ -197,7 +197,7 @@ export default function MacToolbar({ onOpenContact }: MacToolbarProps) {
         action: () => {
           window.location.href = `mailto:${userConfig.contact.email}`;
         },
-      }, 
+      },
       {
         label: 'Schedule a Call',
         icon: <IoCall size={16} />,
