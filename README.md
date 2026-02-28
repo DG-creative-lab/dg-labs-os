@@ -2,6 +2,10 @@
 
 DG-Labs OS is a portfolio presented as a personal operating system - an interface for exploring what DG-Labs thinks about, builds, and ships. The UI leans on familiar OS metaphors (toolbar, dock, windows) but reframes them as a brain-like control panel: a machine of memory, experiments, and evolving ideas.
 
+## Documentation
+
+- Product and implementation roadmap: `APP_ROADMAP.md`
+
 ## Features
 
 - Desktop OS UI with a Mac-style toolbar and dock
