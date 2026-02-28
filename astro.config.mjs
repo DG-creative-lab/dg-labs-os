@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
+import node from '@astrojs/node';
 
 export default defineConfig({
   // Replace with your website URL (required for sitemap generation)
@@ -30,6 +31,9 @@ export default defineConfig({
 
   // Deployment configuration
   output: 'server', // Server-side rendering for API routes
+  adapter: node({
+    mode: 'standalone',
+  }),
   devToolbar: {
     enabled: false,
   },

@@ -16,6 +16,7 @@
     "check": "pnpm lint && pnpm format:check && pnpm test && pnpm typecheck"
   },
   "dependencies": {
+    "@astrojs/node": "^9.0.0",
     "@astrojs/react": "^4.4.1",
     "@astrojs/sitemap": "^3.6.0",
     "@astrolib/seo": "^1.0.0-beta.8",
