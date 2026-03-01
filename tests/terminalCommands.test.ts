@@ -69,6 +69,20 @@ describe('executeTerminalCommand', () => {
     }
   });
 
+  it('returns list_tools action for tools command', () => {
+    const result = executeTerminalCommand('tools', ctx);
+    expect(result.action.type).toBe('list_tools');
+  });
+
+  it('routes tool command to tool_call action', () => {
+    const result = executeTerminalCommand('tool local_context intent modeling', ctx);
+    expect(result.action.type).toBe('tool_call');
+    if (result.action.type === 'tool_call') {
+      expect(result.action.tool).toBe('local_context');
+      expect(result.action.input?.query).toBe('intent modeling');
+    }
+  });
+
   it('returns clear action', () => {
     const result = executeTerminalCommand('clear', ctx);
     expect(result.action.type).toBe('clear');

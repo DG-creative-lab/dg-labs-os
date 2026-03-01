@@ -4,6 +4,7 @@ import type { LabNote } from '../config/labNotes';
 import type { UserConfig } from '../types';
 import type { KnowledgeHit } from './terminalKnowledge';
 import type { TerminalBrainMode } from './terminalSettings';
+import type { VerifySource } from './apiContracts';
 
 export const TERMINAL_LLM_MAX_QUERY_CHARS = 900;
 export const TERMINAL_LLM_TIMEOUT_MS = 15000;
@@ -20,6 +21,12 @@ type TerminalContextShape = {
 type LlmHistoryMessage = {
   role: 'user' | 'assistant';
   content: string;
+};
+
+type WebVerifyContext = {
+  query: string;
+  summary: string;
+  sources: readonly VerifySource[];
 };
 
 export const isLlmQuery = (rawInput: string, isDeterministicCommand: boolean): boolean => {
@@ -98,6 +105,7 @@ export const buildLlmMessages = (
   ctx: TerminalContextShape,
   priorHistory: readonly LlmHistoryMessage[],
   grounding: readonly KnowledgeHit[] = [],
+  webContext: WebVerifyContext | null = null,
   mode: TerminalBrainMode = 'concise'
 ): Array<{ role: 'system' | 'user' | 'assistant'; content: string }> => {
   const groundingBlock =
@@ -112,7 +120,23 @@ export const buildLlmMessages = (
           ),
         ].join('\n');
 
-  const system = `${buildTerminalSystemContext(ctx, mode)}${groundingBlock}`;
+  const webContextBlock =
+    !webContext || webContext.sources.length === 0
+      ? ''
+      : [
+          '',
+          'Latest web verification context:',
+          `query: ${webContext.query}`,
+          `summary: ${webContext.summary}`,
+          ...webContext.sources
+            .slice(0, 5)
+            .map(
+              (source, index) =>
+                `${index + 1}. ${source.title} :: ${source.snippet} (source: ${source.url})`
+            ),
+        ].join('\n');
+
+  const system = `${buildTerminalSystemContext(ctx, mode)}${groundingBlock}${webContextBlock}`;
   const compactHistory = priorHistory.slice(-TERMINAL_LLM_MAX_TURNS * 2);
   return [{ role: 'system', content: system }, ...compactHistory, { role: 'user', content: query }];
 };

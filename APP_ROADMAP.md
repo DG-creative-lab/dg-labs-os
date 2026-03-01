@@ -141,7 +141,38 @@ Goal: make current modules feel intentionally connected.
   - `whoami`
 - Keep LLM as optional wrapper, not dependency for core functionality.
 
-2. Timeline/Resume upgrade
+2. Agent identity and evidence model (CV index)
+
+- Create a canonical `CV/Identity Index` dataset (single source of truth) that the agent uses for:
+  - complete work experience timeline
+  - project classification (long-term research vs delivery projects vs experiments)
+  - education, publications, talks, and impact signals
+  - verified profile links (LinkedIn, GitHub personal/org, AI News Hub, Skills platform)
+- Add provenance fields to index entries (source URL, last-verified date, confidence).
+- Use this index as retrieval context for `ask` and as query planner input for `verify`.
+- Define profile-facing outputs for target users:
+  - human recruiters/hiring managers
+  - AI HR agents
+  - technical peer agents performing due diligence
+
+3. Verification semantics (agent runtime)
+
+- Re-scope `web_verify` from generic tech checks to identity/work verification checks:
+  - person identity + public profile consistency
+  - experience and education corroboration
+  - project/publication footprint corroboration
+- Add verification query presets aligned to DG-Labs OS intent.
+- Add completion criteria for verify responses:
+  - claim coverage (what was checked)
+  - source list
+  - confidence and unresolved gaps
+- Wire verification to a centralized Links registry:
+  - make Links app the single source of public footprint URLs
+  - feed `web_verify` query planning from this registry
+  - support domain-priority and per-link trust metadata
+  - remove hardcoded footprint URLs from verifier internals
+
+4. Timeline/Resume upgrade
 
 - Convert `/apps/resume` from single button to:
   - summary section
@@ -149,7 +180,7 @@ Goal: make current modules feel intentionally connected.
   - downloadable PDF action
   - link-outs to Workbench/Network nodes
 
-3. About DG-Labs Pro alignment
+5. About DG-Labs Pro alignment
 
 - Make "About" values consistent with current story (DG-Labs Pro, chip/memory/OS narrative).
 - Ensure close/minimize behavior matches other windows.
@@ -242,6 +273,7 @@ Recommended steady-state modules:
 P0 (next):
 
 - Terminal deterministic commands
+- Links registry -> `web_verify` wiring (single source of truth for external profile/project links)
 - Resume app enrichment
 - About window behavior/design parity
 
