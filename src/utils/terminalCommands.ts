@@ -2,6 +2,7 @@ import type { NetworkNode } from '../config/network';
 import type { WorkbenchItem } from '../config/workbench';
 import type { LabNote } from '../config/labNotes';
 import type { UserConfig } from '../types';
+import { publicLinks } from '../config/links';
 import { getKnowledgeSourceStats, retrieveKnowledge } from './terminalKnowledge';
 import type { TerminalBrainMode } from './terminalSettings';
 
@@ -194,13 +195,11 @@ export const executeTerminalCommand = (
   }
 
   if (command === 'links') {
+    const lines = publicLinks
+      .filter((link) => link.trust === 'high')
+      .map((link) => `${link.label}: ${link.url}`);
     return {
-      lines: [
-        `GitHub: ${ctx.user.social.github}`,
-        `LinkedIn: ${ctx.user.social.linkedin}`,
-        `Email: mailto:${ctx.user.contact.email}`,
-        `Call: tel:${ctx.user.contact.phone}`,
-      ],
+      lines,
       action: { type: 'none' },
     };
   }

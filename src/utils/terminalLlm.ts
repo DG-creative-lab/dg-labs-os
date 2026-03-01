@@ -7,9 +7,13 @@ import type { TerminalBrainMode } from './terminalSettings';
 import type { VerifySource } from './apiContracts';
 
 export const TERMINAL_LLM_MAX_QUERY_CHARS = 900;
-export const TERMINAL_LLM_TIMEOUT_MS = 15000;
+export const TERMINAL_LLM_TIMEOUT_MS = 45000;
 export const TERMINAL_LLM_MAX_SESSION_REQUESTS = 24;
-export const TERMINAL_LLM_MAX_TURNS = 10;
+export const TERMINAL_LLM_MAX_TURNS = 6;
+export const TERMINAL_LLM_SYSTEM_CHAR_BUDGET = 5200;
+export const TERMINAL_LLM_HISTORY_CHAR_BUDGET = 1600;
+export const TERMINAL_LLM_GROUNDING_MAX_ITEMS = 6;
+export const TERMINAL_LLM_WEB_SOURCES_MAX_ITEMS = 3;
 
 type TerminalContextShape = {
   user: UserConfig;
@@ -27,6 +31,77 @@ type WebVerifyContext = {
   query: string;
   summary: string;
   sources: readonly VerifySource[];
+};
+
+const truncate = (value: string, maxChars: number): string =>
+  value.length <= maxChars ? value : `${value.slice(0, Math.max(0, maxChars - 1)).trimEnd()}…`;
+
+const pushWithinBudget = (lines: string[], next: string, maxChars: number): boolean => {
+  const current = lines.join('\n').length;
+  const nextLen = next.length + (lines.length > 0 ? 1 : 0);
+  if (current + nextLen > maxChars) return false;
+  lines.push(next);
+  return true;
+};
+
+const buildBudgetedGroundingLines = (
+  grounding: readonly KnowledgeHit[],
+  maxChars: number
+): string[] => {
+  if (grounding.length === 0) return [];
+  const lines: string[] = ['', 'Grounded context snippets (local index):'];
+  const sorted = [...grounding]
+    .sort((a, b) => b.score - a.score)
+    .slice(0, TERMINAL_LLM_GROUNDING_MAX_ITEMS);
+
+  for (const [index, item] of sorted.entries()) {
+    const sourceSuffix = item.url ? ` (source: ${item.url})` : '';
+    const line = `${index + 1}. [${item.source}] ${item.title} :: ${truncate(item.snippet, 180)}${sourceSuffix}`;
+    if (!pushWithinBudget(lines, line, maxChars)) break;
+  }
+
+  return lines.length > 2 ? lines : [];
+};
+
+const buildBudgetedWebContextLines = (
+  webContext: WebVerifyContext | null,
+  maxChars: number
+): string[] => {
+  if (!webContext || webContext.sources.length === 0) return [];
+  const lines: string[] = [
+    '',
+    'Latest web verification context:',
+    `query: ${truncate(webContext.query, 180)}`,
+    `summary: ${truncate(webContext.summary, 260)}`,
+  ];
+
+  const sources = webContext.sources.slice(0, TERMINAL_LLM_WEB_SOURCES_MAX_ITEMS);
+  for (const [index, source] of sources.entries()) {
+    const line = `${index + 1}. ${source.title} :: ${truncate(source.snippet, 140)} (source: ${source.url})`;
+    if (!pushWithinBudget(lines, line, maxChars)) break;
+  }
+  return lines;
+};
+
+const selectBudgetedHistory = (
+  priorHistory: readonly LlmHistoryMessage[],
+  maxTurns: number,
+  maxChars: number
+): LlmHistoryMessage[] => {
+  const maxItems = maxTurns * 2;
+  const selected: LlmHistoryMessage[] = [];
+  let usedChars = 0;
+
+  for (let i = priorHistory.length - 1; i >= 0 && selected.length < maxItems; i -= 1) {
+    const item = priorHistory[i];
+    const content = truncate(item.content, 240);
+    const cost = content.length;
+    if (usedChars + cost > maxChars) continue;
+    selected.push({ role: item.role, content });
+    usedChars += cost;
+  }
+
+  return selected.reverse();
 };
 
 export const isLlmQuery = (rawInput: string, isDeterministicCommand: boolean): boolean => {
@@ -108,37 +183,38 @@ export const buildLlmMessages = (
   webContext: WebVerifyContext | null = null,
   mode: TerminalBrainMode = 'concise'
 ): Array<{ role: 'system' | 'user' | 'assistant'; content: string }> => {
-  const groundingBlock =
-    grounding.length === 0
-      ? ''
-      : [
-          '',
-          'Grounded context snippets (local index):',
-          ...grounding.map(
-            (item, index) =>
-              `${index + 1}. [${item.source}] ${item.title} :: ${item.snippet}${item.url ? ` (source: ${item.url})` : ''}`
-          ),
-        ].join('\n');
+  const baseSystem = buildTerminalSystemContext(ctx, mode);
+  const systemLines = [baseSystem];
+  let budgetUsed = baseSystem.length;
 
-  const webContextBlock =
-    !webContext || webContext.sources.length === 0
-      ? ''
-      : [
-          '',
-          'Latest web verification context:',
-          `query: ${webContext.query}`,
-          `summary: ${webContext.summary}`,
-          ...webContext.sources
-            .slice(0, 5)
-            .map(
-              (source, index) =>
-                `${index + 1}. ${source.title} :: ${source.snippet} (source: ${source.url})`
-            ),
-        ].join('\n');
+  const groundingLines = buildBudgetedGroundingLines(
+    grounding,
+    Math.max(0, TERMINAL_LLM_SYSTEM_CHAR_BUDGET - budgetUsed)
+  );
+  if (groundingLines.length > 0) {
+    systemLines.push(groundingLines.join('\n'));
+    budgetUsed += groundingLines.join('\n').length;
+  }
 
-  const system = `${buildTerminalSystemContext(ctx, mode)}${groundingBlock}${webContextBlock}`;
-  const compactHistory = priorHistory.slice(-TERMINAL_LLM_MAX_TURNS * 2);
-  return [{ role: 'system', content: system }, ...compactHistory, { role: 'user', content: query }];
+  const webLines = buildBudgetedWebContextLines(
+    webContext,
+    Math.max(0, TERMINAL_LLM_SYSTEM_CHAR_BUDGET - budgetUsed)
+  );
+  if (webLines.length > 0) {
+    systemLines.push(webLines.join('\n'));
+  }
+
+  const compactHistory = selectBudgetedHistory(
+    priorHistory,
+    TERMINAL_LLM_MAX_TURNS,
+    TERMINAL_LLM_HISTORY_CHAR_BUDGET
+  );
+
+  return [
+    { role: 'system', content: systemLines.join('\n') },
+    ...compactHistory,
+    { role: 'user', content: truncate(query, TERMINAL_LLM_MAX_QUERY_CHARS) },
+  ];
 };
 
 export const readChatMessage = (data: unknown): string | null => {
@@ -146,4 +222,87 @@ export const readChatMessage = (data: unknown): string | null => {
   const record = data as Record<string, unknown>;
   if (typeof record.message === 'string') return record.message;
   return null;
+};
+
+type AgentChunk = {
+  id: string;
+  type: string;
+  title: string;
+  confidence: string;
+  score: number;
+  sources: string[];
+  related: string[];
+};
+
+export type AgentJsonPayload = {
+  query: string;
+  classification: string;
+  chunks: AgentChunk[];
+  sources: string[];
+  suggestedFollowUp: string[];
+};
+
+const asRecord = (value: unknown): Record<string, unknown> | null =>
+  value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+
+export const readAgentJsonPayload = (data: unknown): AgentJsonPayload | null => {
+  const root = asRecord(data);
+  if (!root || root.mode !== 'agent_json') return null;
+  const payload = asRecord(root.data);
+  if (!payload) return null;
+  const query = typeof payload.query === 'string' ? payload.query : '';
+  const classification = typeof payload.classification === 'string' ? payload.classification : '';
+  const chunksRaw = Array.isArray(payload.chunks) ? payload.chunks : [];
+  const chunks = chunksRaw
+    .map((item) => {
+      const row = asRecord(item);
+      if (!row) return null;
+      const id = typeof row.id === 'string' ? row.id : '';
+      const type = typeof row.type === 'string' ? row.type : '';
+      const title = typeof row.title === 'string' ? row.title : '';
+      const confidence = typeof row.confidence === 'string' ? row.confidence : '';
+      const score = typeof row.score === 'number' ? row.score : 0;
+      const sources = Array.isArray(row.sources)
+        ? row.sources.filter((source): source is string => typeof source === 'string')
+        : [];
+      const related = Array.isArray(row.related)
+        ? row.related.filter((value): value is string => typeof value === 'string')
+        : [];
+      if (!id || !type || !title) return null;
+      return { id, type, title, confidence, score, sources, related };
+    })
+    .filter((chunk): chunk is AgentChunk => chunk !== null);
+  const sources = Array.isArray(payload.sources)
+    ? payload.sources.filter((source): source is string => typeof source === 'string')
+    : [];
+  const suggestedFollowUp = Array.isArray(payload.suggestedFollowUp)
+    ? payload.suggestedFollowUp.filter((item): item is string => typeof item === 'string')
+    : [];
+  return { query, classification, chunks, sources, suggestedFollowUp };
+};
+
+export const buildAgentJsonLines = (payload: AgentJsonPayload): string[] => {
+  const lines: string[] = [
+    '[agent_json]',
+    `- query: ${payload.query || 'n/a'}`,
+    `- classification: ${payload.classification || 'general'}`,
+    `- chunks: ${payload.chunks.length}`,
+  ];
+
+  for (const [index, chunk] of payload.chunks.slice(0, 6).entries()) {
+    const sourceLabel = chunk.sources.slice(0, 2).join(', ') || 'n/a';
+    lines.push(`${index + 1}. [${chunk.type}] ${chunk.title} (score=${chunk.score})`);
+    lines.push(`   confidence=${chunk.confidence || 'n/a'} | sources=${sourceLabel}`);
+  }
+
+  if (payload.suggestedFollowUp.length > 0) {
+    lines.push('[suggested_follow_up]');
+    for (const followUp of payload.suggestedFollowUp.slice(0, 3)) {
+      lines.push(`- ${followUp}`);
+    }
+  }
+
+  return lines;
 };

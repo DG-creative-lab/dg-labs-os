@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { userConfig } from '../../config/index';
+import { dockLinks } from '../../config/links';
 import DockGlyph from './DockGlyph';
 
 interface DesktopDockProps {
@@ -32,7 +32,12 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
     setShowLinksPopup(!showLinksPopup);
   };
 
-  // Email is handled via Contact widget now; direct mail link remains in Links popup
+  const getLinkGlyph = (id: string): React.ComponentProps<typeof DockGlyph>['name'] => {
+    if (id.includes('linkedin')) return 'network';
+    if (id.includes('github')) return 'workbench';
+    if (id === 'email' || id === 'call') return 'contact';
+    return 'links';
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -90,46 +95,20 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
       className="absolute bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-800/90 w-30 backdrop-blur-sm rounded-lg p-4 shadow-xl"
     >
       <div className="grid grid-cols-1 gap-y-2">
-        <a
-          href={userConfig.social.linkedin}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 text-gray-300 hover:text-white"
-        >
-          <span className="h-5 w-5 text-gray-300">
-            <DockGlyph name="network" className="h-5 w-5" />
-          </span>
-          <span>LinkedIn</span>
-        </a>
-        <a
-          href={userConfig.social.github}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 text-gray-300 hover:text-white"
-        >
-          <span className="h-5 w-5 text-gray-300">
-            <DockGlyph name="workbench" className="h-5 w-5" />
-          </span>
-          <span>GitHub</span>
-        </a>
-        <a
-          href={`mailto:${userConfig.contact.email}`}
-          className="flex items-center gap-2 text-gray-300 hover:text-white"
-        >
-          <span className="h-5 w-5 text-gray-300">
-            <DockGlyph name="contact" className="h-5 w-5" />
-          </span>
-          <span>Email</span>
-        </a>
-        <a
-          href={`tel:${userConfig.contact.phone}`}
-          className="flex items-center gap-2 text-gray-300 hover:text-white"
-        >
-          <span className="h-5 w-5 text-gray-300">
-            <DockGlyph name="contact" className="h-5 w-5" />
-          </span>
-          <span>Call</span>
-        </a>
+        {dockLinks.map((item) => (
+          <a
+            key={item.id}
+            href={item.url}
+            target={item.url.startsWith('http') ? '_blank' : undefined}
+            rel={item.url.startsWith('http') ? 'noopener noreferrer' : undefined}
+            className="flex items-center gap-2 text-gray-300 hover:text-white"
+          >
+            <span className="h-5 w-5 text-gray-300">
+              <DockGlyph name={getLinkGlyph(item.id)} className="h-5 w-5" />
+            </span>
+            <span>{item.label}</span>
+          </a>
+        ))}
       </div>
     </div>
   );

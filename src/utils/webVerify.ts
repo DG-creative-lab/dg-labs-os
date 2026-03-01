@@ -1,4 +1,5 @@
 import type { VerifySource } from './apiContracts';
+import { verificationLinks, type PublicLink } from '../config/links';
 
 type DuckDuckGoTopic = {
   Text?: string;
@@ -12,40 +13,6 @@ type DuckDuckGoResponse = {
   Heading?: string;
   RelatedTopics?: DuckDuckGoTopic[];
 };
-
-type FootprintSource = {
-  title: string;
-  url: string;
-  tags: readonly string[];
-};
-
-const DG_LABS_FOOTPRINT: readonly FootprintSource[] = [
-  {
-    title: 'Dessi Georgieva (LinkedIn)',
-    url: 'https://www.linkedin.com/in/dessi-georgieva-997a8732/',
-    tags: ['linkedin', 'experience', 'education', 'profile'],
-  },
-  {
-    title: 'DG-creative-lab (GitHub)',
-    url: 'https://github.com/DG-creative-lab',
-    tags: ['github', 'projects', 'repositories', 'portfolio'],
-  },
-  {
-    title: 'ai-knowledge-hub (GitHub org)',
-    url: 'https://github.com/ai-knowledge-hub',
-    tags: ['github', 'org', 'research', 'projects'],
-  },
-  {
-    title: 'AI News Hub (Performics Labs)',
-    url: 'https://ai-news-hub.performics-labs.com/',
-    tags: ['articles', 'research', 'writing'],
-  },
-  {
-    title: 'AI Skills Platform',
-    url: 'https://skills.ai-knowledge-hub.org/',
-    tags: ['skills', 'agents', 'tooling'],
-  },
-];
 
 const flattenTopics = (topics: DuckDuckGoTopic[] | undefined): DuckDuckGoTopic[] => {
   if (!topics) return [];
@@ -90,33 +57,36 @@ const extractPageSnippet = (html: string): { title: string; snippet: string } =>
 
 const isIdentityVerificationQuery = (query: string): boolean => {
   const q = query.toLowerCase();
-  return (
-    q.includes('dessi') ||
-    q.includes('georgieva') ||
-    q.includes('dg-labs') ||
-    q.includes('linkedin') ||
-    q.includes('ai-knowledge-hub') ||
-    q.includes('dg-creative-lab')
+  if (q.includes('dessi') || q.includes('georgieva') || q.includes('dg-labs')) return true;
+  return verificationLinks.some((source) =>
+    source.tags.some((tag) => q.includes(tag.toLowerCase()))
   );
 };
 
-const buildIdentitySourcePlan = (query: string): FootprintSource[] => {
+const trustScore = (trust: PublicLink['trust']): number =>
+  trust === 'high' ? 2 : trust === 'medium' ? 1 : 0;
+
+const buildIdentitySourcePlan = (query: string): PublicLink[] => {
   const q = query.toLowerCase();
-  const ranked = DG_LABS_FOOTPRINT.map((source) => {
-    const score = source.tags.reduce((acc, tag) => (q.includes(tag) ? acc + 2 : acc), 0);
-    return { source, score };
-  }).sort((a, b) => b.score - a.score);
+  const ranked = verificationLinks
+    .map((source) => {
+      const score =
+        source.tags.reduce((acc, tag) => (q.includes(tag) ? acc + 2 : acc), 0) +
+        trustScore(source.trust);
+      return { source, score };
+    })
+    .sort((a, b) => b.score - a.score);
 
   const selected = ranked
     .filter((item) => item.score > 0)
     .map((item) => item.source)
     .slice(0, 4);
 
-  return selected.length > 0 ? selected : DG_LABS_FOOTPRINT.slice(0, 4);
+  return selected.length > 0 ? selected : verificationLinks.slice(0, 4);
 };
 
 const fetchSourceEvidence = async (
-  source: FootprintSource,
+  source: PublicLink,
   timeoutMs: number
 ): Promise<VerifySource | null> => {
   const controller = new AbortController();
@@ -133,7 +103,7 @@ const fetchSourceEvidence = async (
     const raw = (await response.text()).slice(0, 200_000);
     const parsed = extractPageSnippet(raw);
     return {
-      title: parsed.title || source.title,
+      title: parsed.title || source.label,
       url: source.url,
       snippet: parsed.snippet,
     };

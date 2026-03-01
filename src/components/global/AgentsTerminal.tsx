@@ -10,9 +10,11 @@ import {
 } from '../../utils/terminalCommands';
 import { routeNaturalLanguageCommand } from '../../utils/terminalRouter';
 import {
+  buildAgentJsonLines,
   buildLlmMessages,
   isLlmQuery,
   normalizeLlmQuery,
+  readAgentJsonPayload,
   readChatMessage,
 } from '../../utils/terminalLlm';
 import { buildAskEnvelopeLines, buildVerifyEnvelopeLines } from '../../utils/terminalEnvelope';
@@ -25,6 +27,7 @@ import {
   terminalSettingsSummary,
   TERMINAL_SETTINGS_KEY,
   type TerminalBrainMode,
+  type TerminalResponseMode,
   type TerminalSettings,
 } from '../../utils/terminalSettings';
 
@@ -90,6 +93,7 @@ const runAction = (action: TerminalAction) => {
 export default function AgentsTerminal() {
   const [input, setInput] = useState('');
   const [isLlmBusy, setIsLlmBusy] = useState(false);
+  const [thinkingFrame, setThinkingFrame] = useState(0);
   const [settings, setSettings] = useState<TerminalSettings>(defaultTerminalSettings);
   const [toolUsage, setToolUsage] = useState<ToolUsage>(INITIAL_TOOL_USAGE);
   const [activeQuickAction, setActiveQuickAction] = useState<string | null>(null);
@@ -129,6 +133,17 @@ export default function AgentsTerminal() {
       behavior: 'smooth',
     });
   }, [history]);
+
+  useEffect(() => {
+    if (!isLlmBusy) {
+      setThinkingFrame(0);
+      return;
+    }
+    const timer = window.setInterval(() => {
+      setThinkingFrame((prev) => (prev + 1) % 4);
+    }, 320);
+    return () => window.clearInterval(timer);
+  }, [isLlmBusy]);
 
   const pushLine = (kind: TerminalEntry['kind'], text: string): TerminalEntry => ({
     id: nextIdRef.current++,
@@ -194,12 +209,16 @@ export default function AgentsTerminal() {
 
     setIsLlmBusy(true);
     try {
-      const grounding = retrieveKnowledge(query, {
-        user: userConfig,
-        workbench,
-        notes: labNotes,
-        network: networkNodes,
-      });
+      const grounding = retrieveKnowledge(
+        query,
+        {
+          user: userConfig,
+          workbench,
+          notes: labNotes,
+          network: networkNodes,
+        },
+        4
+      );
 
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -213,11 +232,14 @@ export default function AgentsTerminal() {
             lastWebVerifyContext,
             settings.brainMode
           ),
+          responseMode: settings.responseMode,
         }),
         signal: controller.signal,
       });
       const payload = (await response.json().catch(() => ({}))) as unknown;
       const message = readChatMessage(payload);
+      const agentPayload =
+        settings.responseMode === 'agent_json' ? readAgentJsonPayload(payload) : null;
 
       if (!response.ok || !message) {
         const fallback =
@@ -236,9 +258,11 @@ export default function AgentsTerminal() {
         settings.showLlmSources,
         lastWebVerifyContext
       );
+      const agentLines = agentPayload ? buildAgentJsonLines(agentPayload) : [];
       setHistory((prev) => [
         ...prev,
         pushLine('output', message),
+        ...agentLines.map((line) => pushLine('output', line)),
         ...envelopeLines.map((line) => pushLine('system', line)),
       ]);
     } catch (error) {
@@ -512,8 +536,16 @@ export default function AgentsTerminal() {
 
   return (
     <div className="rounded-xl border border-emerald-300/20 bg-black/60 shadow-[0_14px_60px_rgba(0,0,0,0.45)] overflow-hidden">
-      <div className="border-b border-emerald-400/20 px-4 py-2 text-xs text-emerald-300/80">
-        Runtime: deterministic commands + LLM (`ask`) | {terminalSettingsSummary(settings)}
+      <div className="flex items-center justify-between border-b border-emerald-400/20 px-4 py-2 text-xs text-emerald-300/80">
+        <span>
+          Runtime: deterministic commands + LLM (`ask`) | {terminalSettingsSummary(settings)}
+        </span>
+        {isLlmBusy ? (
+          <span className="inline-flex items-center gap-2 text-emerald-200/90">
+            <span className="inline-block h-3 w-3 animate-spin rounded-full border border-emerald-300/40 border-t-emerald-200" />
+            thinking{'.'.repeat(Math.max(1, thinkingFrame))}
+          </span>
+        ) : null}
       </div>
       <details className="border-b border-emerald-400/20 px-4 py-2 text-xs text-white/70">
         <summary className="cursor-pointer select-none text-emerald-300/90">
@@ -551,6 +583,22 @@ export default function AgentsTerminal() {
             </select>
           </label>
           <label className="flex items-center gap-2">
+            <span>LLM response</span>
+            <select
+              value={settings.responseMode}
+              onChange={(event) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  responseMode: event.target.value as TerminalResponseMode,
+                }))
+              }
+              className="rounded border border-white/20 bg-black/40 px-2 py-1 text-white"
+            >
+              <option value="narrative">narrative</option>
+              <option value="agent_json">agent_json</option>
+            </select>
+          </label>
+          <label className="flex items-center gap-2">
             <input
               type="checkbox"
               checked={settings.routerDebug}
@@ -581,11 +629,11 @@ export default function AgentsTerminal() {
             <input
               type="number"
               min={3}
-              max={60}
+              max={120}
               value={Math.round(settings.llmTimeoutMs / 1000)}
               onChange={(event) => {
                 const seconds = parseInt(event.target.value || '15', 10);
-                const next = Number.isNaN(seconds) ? 15 : Math.min(60, Math.max(3, seconds));
+                const next = Number.isNaN(seconds) ? 45 : Math.min(120, Math.max(3, seconds));
                 setSettings((prev) => ({ ...prev, llmTimeoutMs: next * 1000 }));
               }}
               className="w-16 rounded border border-white/20 bg-black/40 px-2 py-1 text-white"

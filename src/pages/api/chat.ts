@@ -2,8 +2,14 @@ import type { APIRoute } from 'astro';
 import { OpenRouter } from '@openrouter/sdk';
 import { chatSuccess } from '../../utils/apiContracts';
 import { errorResponse, jsonResponse } from '../../utils/apiResponse';
-import { parseChatMessagesInput } from '../../utils/requestSchemas';
+import { parseChatRequestInput, type ChatMessageInput } from '../../utils/requestSchemas';
 import { getServerEnv, isServerDev } from '../../utils/serverEnv';
+import {
+  classifyKnowledgeQuery,
+  getKnowledgeById,
+  searchKnowledge,
+  type KnowledgeHit,
+} from '../../knowledge';
 
 type ErrorCode =
   | 'CONFIG_ERROR'
@@ -35,10 +41,108 @@ const normalizeAssistantContent = (content: unknown): string | null => {
   return null;
 };
 
-export const POST: APIRoute = async ({ request }) => {
-  const openRouterApiKey = getServerEnv('OPENROUTER_API_KEY');
+const latestUserQuery = (messages: readonly ChatMessageInput[]): string =>
+  [...messages]
+    .reverse()
+    .find((message) => message.role === 'user')
+    ?.content.trim() ?? '';
 
-  // Fast-fail if not configured
+const buildKnowledgeGrounding = (query: string, hits: readonly KnowledgeHit[]): string => {
+  if (!query || hits.length === 0) return '';
+  const lines = [
+    'Grounding context (knowledge index):',
+    `query: ${query}`,
+    ...hits
+      .slice(0, 6)
+      .map(
+        (hit, index) =>
+          `${index + 1}. [${hit.type}] ${hit.title} :: ${hit.content.slice(0, 260).replace(/\s+/g, ' ')}`
+      ),
+  ];
+  return lines.join('\n');
+};
+
+const expandRelated = (seed: readonly KnowledgeHit[], limit = 8): KnowledgeHit[] => {
+  const out: KnowledgeHit[] = [];
+  const seen = new Set<string>();
+  for (const item of seed) {
+    if (!seen.has(item.id)) {
+      seen.add(item.id);
+      out.push(item);
+    }
+    if (out.length >= limit) break;
+    for (const relId of item.related) {
+      const rel = getKnowledgeById(relId);
+      if (!rel || seen.has(rel.id)) continue;
+      seen.add(rel.id);
+      out.push({ ...rel, score: Math.max(1, item.score - 1) });
+      if (out.length >= limit) break;
+    }
+    if (out.length >= limit) break;
+  }
+  return out.slice(0, limit);
+};
+
+const buildAgentJsonResponse = (query: string, hits: readonly KnowledgeHit[]) => {
+  const classification = classifyKnowledgeQuery(query);
+  const chunks = expandRelated(hits, 8);
+  const sources = Array.from(new Set(chunks.flatMap((chunk) => chunk.sources))).slice(0, 12);
+  const answer =
+    chunks.length === 0
+      ? 'No matching knowledge chunks found for this query. Try a narrower project, research, or experience question.'
+      : `Matched ${chunks.length} knowledge chunk(s) for ${classification}. Top signals: ${chunks
+          .slice(0, 3)
+          .map((chunk) => chunk.title)
+          .join(' | ')}.`;
+
+  return {
+    ok: true as const,
+    message: answer,
+    mode: 'agent_json' as const,
+    data: {
+      query,
+      classification,
+      chunks: chunks.map((chunk) => ({
+        id: chunk.id,
+        type: chunk.type,
+        title: chunk.title,
+        confidence: chunk.confidence,
+        score: chunk.score,
+        sources: chunk.sources,
+        related: chunk.related,
+      })),
+      sources,
+      suggestedFollowUp: [
+        'Ask for evidence by specific claim (role, project, publication).',
+        'Request comparison between two projects or research themes.',
+        'Request structured summary grouped by experience/projects/research.',
+      ],
+    },
+  };
+};
+
+export const POST: APIRoute = async ({ request }) => {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return err('INVALID_JSON', 'Invalid request format', 400);
+  }
+
+  const parsed = parseChatRequestInput(body);
+  if (!parsed) {
+    return err('INVALID_MESSAGES', 'Messages array is required and must not be empty', 400);
+  }
+
+  const { messages, responseMode } = parsed;
+  const query = latestUserQuery(messages);
+  const localHits = query ? searchKnowledge(query, 6) : [];
+
+  if (responseMode === 'agent_json') {
+    return jsonResponse(buildAgentJsonResponse(query, localHits), 200);
+  }
+
+  const openRouterApiKey = getServerEnv('OPENROUTER_API_KEY');
   if (!openRouterApiKey) {
     console.error('[Chat API] Missing OPENROUTER_API_KEY');
     return err(
@@ -48,27 +152,19 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  // Parse body
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return err('INVALID_JSON', 'Invalid request format', 400);
-  }
-
-  const messages = parseChatMessagesInput(body);
-  if (!messages) {
-    return err('INVALID_MESSAGES', 'Messages array is required and must not be empty', 400);
-  }
-
   try {
     const openRouter = new OpenRouter({
       apiKey: openRouterApiKey,
     });
 
+    const knowledgeGrounding = buildKnowledgeGrounding(query, localHits);
+    const requestMessages = knowledgeGrounding
+      ? [{ role: 'system' as const, content: knowledgeGrounding }, ...messages]
+      : messages;
+
     const completion = await openRouter.chat.send({
       model: 'openai/gpt-oss-120b',
-      messages,
+      messages: requestMessages,
       stream: false,
       temperature: 0.7,
       maxTokens: 500,

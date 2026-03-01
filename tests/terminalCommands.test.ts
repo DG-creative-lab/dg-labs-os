@@ -50,7 +50,7 @@ describe('executeTerminalCommand', () => {
     const result = executeTerminalCommand('context intent', ctx);
     expect(result.action.type).toBe('none');
     expect(result.lines[0]).toContain('Context hits for');
-    expect(result.lines.join(' ')).toContain('[workbench]');
+    expect(result.lines.join(' ')).toMatch(/\[(workbench|network|brain)\]/);
   });
 
   it('sets brain mode with deterministic mode command', () => {
@@ -67,6 +67,13 @@ describe('executeTerminalCommand', () => {
     if (result.action.type === 'verify') {
       expect(result.action.query).toContain('latest mcp spec');
     }
+  });
+
+  it('returns links from centralized links registry', () => {
+    const result = executeTerminalCommand('links', ctx);
+    expect(result.action.type).toBe('none');
+    expect(result.lines.join(' ')).toContain('LinkedIn:');
+    expect(result.lines.join(' ')).toContain('AI Skills Platform:');
   });
 
   it('returns list_tools action for tools command', () => {

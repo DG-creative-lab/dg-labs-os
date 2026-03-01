@@ -18,9 +18,13 @@ const ctx = {
 
 describe('terminalKnowledge', () => {
   it('builds index from all configured sources', () => {
+    const stats = getKnowledgeSourceStats(ctx);
     const index = buildKnowledgeIndex(ctx);
-    expect(index.length).toBe(1 + workbench.length + labNotes.length + networkNodes.length);
+    expect(index.length).toBe(
+      stats.personal + stats.workbench + stats.notes + stats.network + stats.brain
+    );
     expect(index.some((item) => item.source === 'personal')).toBe(true);
+    expect(index.some((item) => item.source === 'brain')).toBe(true);
   });
 
   it('returns source stats', () => {
@@ -29,6 +33,7 @@ describe('terminalKnowledge', () => {
     expect(stats.workbench).toBe(workbench.length);
     expect(stats.notes).toBe(labNotes.length);
     expect(stats.network).toBe(networkNodes.length);
+    expect(stats.brain).toBeGreaterThan(0);
   });
 
   it('retrieves ranked hits for a query', () => {

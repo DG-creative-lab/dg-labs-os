@@ -23,27 +23,31 @@ describe('terminal settings', () => {
     expect(parsed.routerDebug).toBe(true);
     expect(parsed.showLlmSources).toBe(true);
     expect(parsed.brainMode).toBe('concise');
+    expect(parsed.responseMode).toBe('narrative');
   });
 
   it('sanitizes ranges', () => {
     const s = sanitizeTerminalSettings({
       brainMode: 'research',
+      responseMode: 'agent_json',
       llmFallbackForUnknown: true,
       routerDebug: false,
       showLlmSources: false,
       llmSessionCap: 1000,
-      llmTimeoutMs: 100000,
+      llmTimeoutMs: 200000,
     });
     expect(s.brainMode).toBe('research');
+    expect(s.responseMode).toBe('agent_json');
     expect(s.routerDebug).toBe(false);
     expect(s.showLlmSources).toBe(false);
     expect(s.llmSessionCap).toBe(100);
-    expect(s.llmTimeoutMs).toBe(60000);
+    expect(s.llmTimeoutMs).toBe(120000);
   });
 
   it('builds readable summary', () => {
     const summary = terminalSettingsSummary(defaultTerminalSettings);
     expect(summary).toContain('mode=');
+    expect(summary).toContain('response=');
     expect(summary).toContain('fallback=');
     expect(summary).toContain('router-debug=');
     expect(summary).toContain('llm-sources=');

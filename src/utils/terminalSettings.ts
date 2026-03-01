@@ -5,9 +5,11 @@ import {
 } from './terminalLlm';
 
 export type TerminalBrainMode = 'concise' | 'explainer' | 'research';
+export type TerminalResponseMode = 'narrative' | 'agent_json';
 
 export type TerminalSettings = {
   brainMode: TerminalBrainMode;
+  responseMode: TerminalResponseMode;
   llmFallbackForUnknown: boolean;
   routerDebug: boolean;
   showLlmSources: boolean;
@@ -19,6 +21,7 @@ export const TERMINAL_SETTINGS_KEY = 'dg_labs_terminal_settings_v1';
 
 export const defaultTerminalSettings: TerminalSettings = {
   brainMode: 'concise',
+  responseMode: 'narrative',
   llmFallbackForUnknown: true,
   routerDebug: true,
   showLlmSources: true,
@@ -37,9 +40,14 @@ export const sanitizeTerminalSettings = (
     partial?.brainMode === 'research'
       ? partial.brainMode
       : defaultTerminalSettings.brainMode;
+  const responseMode =
+    partial?.responseMode === 'narrative' || partial?.responseMode === 'agent_json'
+      ? partial.responseMode
+      : defaultTerminalSettings.responseMode;
 
   return {
     brainMode,
+    responseMode,
     llmFallbackForUnknown:
       typeof partial?.llmFallbackForUnknown === 'boolean'
         ? partial.llmFallbackForUnknown
@@ -57,7 +65,7 @@ export const sanitizeTerminalSettings = (
         ? partial.llmTimeoutMs
         : defaultTerminalSettings.llmTimeoutMs,
       3000,
-      60000
+      120000
     ),
     llmSessionCap: clamp(
       typeof partial?.llmSessionCap === 'number'
@@ -85,6 +93,7 @@ export const parseTerminalSettings = (raw: string | null): TerminalSettings => {
 export const terminalSettingsSummary = (settings: TerminalSettings): string =>
   [
     `mode=${settings.brainMode}`,
+    `response=${settings.responseMode}`,
     `fallback=${settings.llmFallbackForUnknown ? 'on' : 'off'}`,
     `router-debug=${settings.routerDebug ? 'on' : 'off'}`,
     `llm-sources=${settings.showLlmSources ? 'on' : 'off'}`,
