@@ -80,6 +80,29 @@ describe('API route success contracts', () => {
     expect(body.message).toBe('Hello from model');
   });
 
+  it('chat agent_json mode returns structured data', async () => {
+    const { POST } = await import('../src/pages/api/chat');
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        responseMode: 'agent_json',
+        messages: [{ role: 'user', content: 'tell me about dessi projects' }],
+      }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      ok?: boolean;
+      mode?: string;
+      data?: { chunks?: Array<{ id: string }> };
+    };
+    expect(body.ok).toBe(true);
+    expect(body.mode).toBe('agent_json');
+    expect(Array.isArray(body.data?.chunks)).toBe(true);
+  });
+
   it('contact POST returns ok:true when insert succeeds', async () => {
     mockSupabaseInsert.mockResolvedValue({ error: null });
 

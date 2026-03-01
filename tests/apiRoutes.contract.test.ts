@@ -29,6 +29,24 @@ describe('API route contracts', () => {
     expect(typeof body.timestamp).toBe('string');
   });
 
+  it('chat agent_json mode returns structured response without LLM provider', async () => {
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        responseMode: 'agent_json',
+        messages: [{ role: 'user', content: 'what has dessi built?' }],
+      }),
+    });
+
+    const response = await chatPost(ctx(request));
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { ok?: boolean; mode?: string; data?: unknown };
+    expect(body.ok).toBe(true);
+    expect(body.mode).toBe('agent_json');
+    expect(body.data).toBeTruthy();
+  });
+
   it('contact GET health returns ok', async () => {
     const request = new Request('http://localhost/api/contact');
     const response = await contactGet(ctx(request));

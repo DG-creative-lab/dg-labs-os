@@ -30,6 +30,7 @@ import { competitions } from './competitions';
 import { projects } from './projects';
 import { resume } from './apps';
 import { seo, theme } from './site';
+import { publicLinks, dockLinks, verificationLinks } from './links';
 
 /**
  * Combined user configuration
@@ -72,6 +73,9 @@ export {
   extraCurricularActivities,
   competitions,
   projects,
+  publicLinks,
+  dockLinks,
+  verificationLinks,
   resume,
   seo,
   theme,

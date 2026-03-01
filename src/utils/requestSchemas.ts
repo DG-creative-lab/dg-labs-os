@@ -5,6 +5,13 @@ export type ChatMessageInput = {
   content: string;
 };
 
+export type ChatResponseMode = 'narrative' | 'agent_json';
+
+export type ChatRequestInput = {
+  messages: ChatMessageInput[];
+  responseMode: ChatResponseMode;
+};
+
 export type AdminLoginInput = {
   username: string;
   password: string;
@@ -86,6 +93,21 @@ export const parseChatMessagesInput = (input: unknown): ChatMessageInput[] | nul
     parsed.push({ role, content });
   }
   return parsed;
+};
+
+export const parseChatRequestInput = (input: unknown): ChatRequestInput | null => {
+  const body = asRecord(input);
+  if (!body) return null;
+  const messages = parseChatMessagesInput(body);
+  if (!messages) return null;
+
+  const responseModeRaw = body.responseMode;
+  const responseMode: ChatResponseMode =
+    responseModeRaw === 'agent_json' || responseModeRaw === 'narrative'
+      ? responseModeRaw
+      : 'narrative';
+
+  return { messages, responseMode };
 };
 
 export const parseVerifyInput = (input: unknown): VerifyInput | null => {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   parseAdminLoginInput,
+  parseChatRequestInput,
   parseChatMessagesInput,
   parseContactInput,
   parseToolCallInput,
@@ -46,6 +47,15 @@ describe('request schemas', () => {
   it('rejects invalid chat payload', () => {
     expect(parseChatMessagesInput({ messages: [{ role: 'bad', content: 'x' }] })).toBeNull();
     expect(parseChatMessagesInput({ messages: [] })).toBeNull();
+  });
+
+  it('parses valid chat request with response mode', () => {
+    const parsed = parseChatRequestInput({
+      messages: [{ role: 'user', content: 'hello' }],
+      responseMode: 'agent_json',
+    });
+    expect(parsed?.responseMode).toBe('agent_json');
+    expect(parsed?.messages.length).toBe(1);
   });
 
   it('parses valid verify input', () => {
