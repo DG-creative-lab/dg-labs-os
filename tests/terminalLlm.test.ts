@@ -37,8 +37,12 @@ describe('terminal llm helpers', () => {
       notes: labNotes,
       network: networkNodes,
     };
-    const system = buildTerminalSystemContext(ctx);
+    const system = buildTerminalSystemContext(ctx, 'research');
     expect(system).toContain('DG-Labs OS terminal brain');
+    expect(system).toContain(
+      'Identity contract: DG-Labs OS is the cognitive interface of Dessi Georgieva'
+    );
+    expect(system).toContain('Response mode: research');
     const messages = buildLlmMessages(
       'What is DG-Labs OS?',
       ctx,

@@ -17,6 +17,26 @@ describe('terminal natural language router', () => {
     expect(routed?.command).toBe('context intent modeling');
   });
 
+  it('routes mode phrases to deterministic mode command', () => {
+    const routed = routeNaturalLanguageCommand('switch to research mode');
+    expect(routed?.command).toBe('mode research');
+  });
+
+  it('routes fact-check phrasing to verify command', () => {
+    const routed = routeNaturalLanguageCommand('fact check model context protocol');
+    expect(routed?.command).toBe('verify model context protocol');
+  });
+
+  it('routes identity + project phrasing to context lookup', () => {
+    const routed = routeNaturalLanguageCommand("tell me about dessi's current projects");
+    expect(routed?.command).toBe('context dessi projects');
+  });
+
+  it('routes identity profile phrasing to context lookup', () => {
+    const routed = routeNaturalLanguageCommand('about Dessi Georgieva');
+    expect(routed?.command).toBe('context dessi profile');
+  });
+
   it('returns null for unrelated text', () => {
     const routed = routeNaturalLanguageCommand('tell me a joke about compilers');
     expect(routed).toBeNull();

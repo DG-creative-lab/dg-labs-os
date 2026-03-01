@@ -4,7 +4,10 @@ import {
   TERMINAL_LLM_TIMEOUT_MS,
 } from './terminalLlm';
 
+export type TerminalBrainMode = 'concise' | 'explainer' | 'research';
+
 export type TerminalSettings = {
+  brainMode: TerminalBrainMode;
   llmFallbackForUnknown: boolean;
   routerDebug: boolean;
   showLlmSources: boolean;
@@ -15,6 +18,7 @@ export type TerminalSettings = {
 export const TERMINAL_SETTINGS_KEY = 'dg_labs_terminal_settings_v1';
 
 export const defaultTerminalSettings: TerminalSettings = {
+  brainMode: 'concise',
   llmFallbackForUnknown: true,
   routerDebug: true,
   showLlmSources: true,
@@ -27,7 +31,15 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
 export const sanitizeTerminalSettings = (
   partial: Partial<TerminalSettings> | null | undefined
 ): TerminalSettings => {
+  const brainMode =
+    partial?.brainMode === 'concise' ||
+    partial?.brainMode === 'explainer' ||
+    partial?.brainMode === 'research'
+      ? partial.brainMode
+      : defaultTerminalSettings.brainMode;
+
   return {
+    brainMode,
     llmFallbackForUnknown:
       typeof partial?.llmFallbackForUnknown === 'boolean'
         ? partial.llmFallbackForUnknown
@@ -72,6 +84,7 @@ export const parseTerminalSettings = (raw: string | null): TerminalSettings => {
 
 export const terminalSettingsSummary = (settings: TerminalSettings): string =>
   [
+    `mode=${settings.brainMode}`,
     `fallback=${settings.llmFallbackForUnknown ? 'on' : 'off'}`,
     `router-debug=${settings.routerDebug ? 'on' : 'off'}`,
     `llm-sources=${settings.showLlmSources ? 'on' : 'off'}`,

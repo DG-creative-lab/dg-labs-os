@@ -1,14 +1,20 @@
 ---
 import DesktopLayout from '../../layouts/DesktopLayout.astro';
-import WindowFrame from '../../components/global/WindowFrame.astro';
 import { userConfig } from '../../config/index';
 import { networkIdeaEdges, networkLinks, networkNodes } from '../../config/network';
 import NetworkApp from '../../components/network/NetworkApp';
+import DraggableAppWindow from '../../components/global/DraggableAppWindow';
 ---
 
 <DesktopLayout>
-  <main class="mx-auto max-w-5xl px-6 pt-16 text-white">
-    <WindowFrame title="Network" closeHref="/desktop">
+  <main class="relative min-h-[calc(100vh-4rem)] px-6 pt-10 text-white">
+    <DraggableAppWindow
+      client:load
+      title="Network"
+      closeHref="/desktop"
+      initialSize={{ width: 1160, height: 760 }}
+      initialPosition={{ x: 70, y: 70 }}
+    >
       <div class="flex items-start justify-between gap-6">
         <div>
           <h1 class="text-2xl font-semibold">Network</h1>
@@ -74,6 +80,6 @@ import NetworkApp from '../../components/network/NetworkApp';
       </div>
 
       <NetworkApp client:load nodes={networkNodes} ideas={networkIdeaEdges} />
-    </WindowFrame>
+    </DraggableAppWindow>
   </main>
 </DesktopLayout>

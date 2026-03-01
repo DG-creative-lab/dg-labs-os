@@ -18,6 +18,17 @@ export type ContactInput = {
   t?: number;
 };
 
+export type VerifyInput = {
+  query: string;
+};
+
+export type ToolName = 'local_context' | 'web_verify' | 'open_app' | 'list_projects';
+
+export type ToolCallInput = {
+  tool: ToolName;
+  input?: Record<string, unknown>;
+};
+
 const asRecord = (input: unknown): Record<string, unknown> | null => {
   if (!input || typeof input !== 'object' || Array.isArray(input)) return null;
   return input as Record<string, unknown>;
@@ -75,4 +86,34 @@ export const parseChatMessagesInput = (input: unknown): ChatMessageInput[] | nul
     parsed.push({ role, content });
   }
   return parsed;
+};
+
+export const parseVerifyInput = (input: unknown): VerifyInput | null => {
+  const body = asRecord(input);
+  if (!body) return null;
+  const query = body.query;
+  if (typeof query !== 'string') return null;
+  const trimmed = query.trim();
+  if (trimmed.length < 2) return null;
+  return { query: trimmed };
+};
+
+export const parseToolCallInput = (input: unknown): ToolCallInput | null => {
+  const body = asRecord(input);
+  if (!body) return null;
+  const tool = body.tool;
+  if (
+    tool !== 'local_context' &&
+    tool !== 'web_verify' &&
+    tool !== 'open_app' &&
+    tool !== 'list_projects'
+  ) {
+    return null;
+  }
+  const maybeInput = body.input;
+  const parsedInput =
+    maybeInput && typeof maybeInput === 'object' && !Array.isArray(maybeInput)
+      ? (maybeInput as Record<string, unknown>)
+      : undefined;
+  return { tool, input: parsedInput };
 };

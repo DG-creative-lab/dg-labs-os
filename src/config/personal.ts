@@ -7,6 +7,8 @@ import type { PersonalInfo } from '../types';
 
 export const personal: PersonalInfo = {
   name: 'DG-Labs',
+  ownerName: 'Dessi Georgieva',
+  aliases: ['DG-Labs', 'Dessi', 'Dessi Georgieva'],
   role: 'Creative Technologist',
   location: 'Remote',
   email: 'hello@dg-labs.com',

@@ -3,12 +3,21 @@ import type { WorkbenchItem } from '../config/workbench';
 import type { LabNote } from '../config/labNotes';
 import type { UserConfig } from '../types';
 import { getKnowledgeSourceStats, retrieveKnowledge } from './terminalKnowledge';
+import type { TerminalBrainMode } from './terminalSettings';
 
 export type TerminalAction =
   | { type: 'navigate'; href: string }
   | { type: 'external'; href: string }
   | { type: 'mailto'; href: string }
   | { type: 'tel'; href: string }
+  | { type: 'set_mode'; mode: TerminalBrainMode }
+  | { type: 'verify'; query: string }
+  | { type: 'list_tools' }
+  | {
+      type: 'tool_call';
+      tool: 'local_context' | 'web_verify' | 'open_app' | 'list_projects';
+      input?: Record<string, unknown>;
+    }
   | { type: 'clear' }
   | { type: 'none' };
 
@@ -49,6 +58,10 @@ const DETERMINISTIC_COMMANDS = new Set([
   'search',
   'sources',
   'context',
+  'mode',
+  'verify',
+  'tools',
+  'tool',
 ]);
 
 export const isDeterministicTerminalCommand = (rawInput: string): boolean => {
@@ -72,6 +85,10 @@ const HELP_TEXT = [
   '  search <query>               Search projects, notes, and network',
   '  sources                      Show indexed context sources',
   '  context <query>              Retrieve top local context snippets',
+  '  mode <concise|explainer|research>  Set LLM answer style',
+  '  verify <query>               Verify with web sources and citations',
+  '  tools                        List available tools and status',
+  '  tool <name> <input>          Run a tool (local_context|web_verify|open_app|list_projects)',
   '  clear                        Clear terminal output',
 ];
 
@@ -273,6 +290,98 @@ export const executeTerminalCommand = (
       if (hit.url) lines.push(`   source: ${hit.url}`);
     }
     return { lines, action: { type: 'none' } };
+  }
+
+  if (command === 'mode') {
+    if (!args) {
+      return {
+        lines: ['Usage: mode <concise|explainer|research>'],
+        action: { type: 'none' },
+      };
+    }
+    if (args !== 'concise' && args !== 'explainer' && args !== 'research') {
+      return {
+        lines: [`Unknown mode "${args}". Use: concise, explainer, research.`],
+        action: { type: 'none' },
+      };
+    }
+    return {
+      lines: [`Brain mode set to ${args}.`],
+      action: { type: 'set_mode', mode: args },
+    };
+  }
+
+  if (command === 'verify') {
+    if (!args) {
+      return { lines: ['Usage: verify <query>'], action: { type: 'none' } };
+    }
+    return {
+      lines: [`Verifying "${args}" against web sources...`],
+      action: { type: 'verify', query: args },
+    };
+  }
+
+  if (command === 'tools') {
+    return {
+      lines: ['Tools registry: local_context, web_verify, open_app, list_projects'],
+      action: { type: 'list_tools' },
+    };
+  }
+
+  if (command === 'tool') {
+    if (!args) {
+      return {
+        lines: ['Usage: tool <local_context|web_verify|open_app|list_projects> <input>'],
+        action: { type: 'none' },
+      };
+    }
+
+    const [toolName, ...toolRest] = args.split(/\s+/);
+    const toolInput = toolRest.join(' ').trim();
+
+    if (toolName === 'list_projects') {
+      return {
+        lines: ['Running tool: list_projects'],
+        action: { type: 'tool_call', tool: 'list_projects' },
+      };
+    }
+
+    if (toolName === 'local_context') {
+      if (!toolInput) {
+        return { lines: ['Usage: tool local_context <query>'], action: { type: 'none' } };
+      }
+      return {
+        lines: [`Running tool: local_context ("${toolInput}")`],
+        action: { type: 'tool_call', tool: 'local_context', input: { query: toolInput } },
+      };
+    }
+
+    if (toolName === 'web_verify') {
+      if (!toolInput) {
+        return { lines: ['Usage: tool web_verify <query>'], action: { type: 'none' } };
+      }
+      return {
+        lines: [`Running tool: web_verify ("${toolInput}")`],
+        action: { type: 'tool_call', tool: 'web_verify', input: { query: toolInput } },
+      };
+    }
+
+    if (toolName === 'open_app') {
+      if (!toolInput) {
+        return { lines: ['Usage: tool open_app <target>'], action: { type: 'none' } };
+      }
+      return {
+        lines: [`Running tool: open_app ("${toolInput}")`],
+        action: { type: 'tool_call', tool: 'open_app', input: { target: toolInput } },
+      };
+    }
+
+    return {
+      lines: [
+        `Unknown tool "${toolName}". Use: local_context, web_verify, open_app, list_projects.`,
+      ],
+      action: { type: 'none' },
+    };
   }
 
   return {

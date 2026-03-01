@@ -45,12 +45,18 @@ const scoreByTokens = (queryTokens: readonly string[], target: string, weight: n
 };
 
 export const buildKnowledgeIndex = (ctx: TerminalKnowledgeContext): KnowledgeItem[] => {
+  const identityAliases = [
+    ctx.user.name,
+    ...(ctx.user.ownerName ? [ctx.user.ownerName] : []),
+    ...((ctx.user.aliases ?? []).filter((alias) => alias.trim().length > 0) as string[]),
+  ];
+
   const personalItem: KnowledgeItem = {
     id: 'personal-profile',
     source: 'personal',
     title: `${ctx.user.name} profile`,
-    snippet: `${ctx.user.role}. Focus: ${ctx.user.roleFocus}. Location: ${ctx.user.location}.`,
-    tags: ['identity', 'profile', 'focus', 'location'],
+    snippet: `${ctx.user.role}. Focus: ${ctx.user.roleFocus}. Location: ${ctx.user.location}. Identity aliases: ${identityAliases.join(', ')}.`,
+    tags: ['identity', 'profile', 'focus', 'location', ...identityAliases],
     url: ctx.user.website,
   };
 

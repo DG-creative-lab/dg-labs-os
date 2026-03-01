@@ -1,12 +1,24 @@
 ---
 import DesktopLayout from '../../layouts/DesktopLayout.astro';
-import WindowFrame from '../../components/global/WindowFrame.astro';
 import AgentsTerminal from '../../components/global/AgentsTerminal';
+import DraggableAppWindow from '../../components/global/DraggableAppWindow';
 ---
 
-<DesktopLayout>
-  <main class="mx-auto max-w-4xl px-6 pt-16 text-white">
-    <WindowFrame title="Agents Terminal">
+<DesktopLayout
+  activeApps={{
+    terminal: true,
+    notes: false,
+    github: false,
+    resume: false,
+  }}
+>
+  <main class="relative min-h-[calc(100vh-4rem)] px-6 pt-10 text-white">
+    <DraggableAppWindow
+      client:load
+      title="Agents Terminal"
+      initialSize={{ width: 980, height: 680 }}
+      initialPosition={{ x: 80, y: 80 }}
+    >
       <h1 class="text-2xl font-semibold">Agents Runtime</h1>
       <p class="mt-2 text-white/70">
         Command surface for DG-Labs OS. Deterministic commands run locally; LLM orchestration comes
@@ -15,6 +27,6 @@ import AgentsTerminal from '../../components/global/AgentsTerminal';
       <div class="mt-5">
         <AgentsTerminal client:load />
       </div>
-    </WindowFrame>
+    </DraggableAppWindow>
   </main>
 </DesktopLayout>
