@@ -313,6 +313,7 @@ export default function AgentsTerminal() {
 
       if (tool === 'web_verify') {
         const result = payload.result as {
+          query?: unknown;
           summary?: unknown;
           sources?: unknown;
         };
