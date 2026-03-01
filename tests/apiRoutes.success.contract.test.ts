@@ -4,11 +4,14 @@ import {
   isAdminMessagesSuccessEnvelope,
   isChatSuccessEnvelope,
   isHealthSuccessEnvelope,
+  isToolSuccessEnvelope,
+  isVerifySuccessEnvelope,
 } from '../src/utils/apiContracts';
 
 const mockOpenRouterSend = vi.fn();
 const mockSupabaseInsert = vi.fn();
 const mockSupabaseRange = vi.fn();
+const mockGlobalFetch = vi.fn();
 
 vi.mock('@openrouter/sdk', () => ({
   OpenRouter: class OpenRouter {
@@ -40,6 +43,8 @@ describe('API route success contracts', () => {
     mockOpenRouterSend.mockReset();
     mockSupabaseInsert.mockReset();
     mockSupabaseRange.mockReset();
+    mockGlobalFetch.mockReset();
+    vi.stubGlobal('fetch', mockGlobalFetch);
   });
 
   afterEach(() => {
@@ -49,6 +54,7 @@ describe('API route success contracts', () => {
     delete process.env.ADMIN_SESSION_SECRET;
     delete process.env.SUPABASE_URL;
     delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    vi.unstubAllGlobals();
     vi.resetModules();
   });
 
@@ -133,5 +139,82 @@ describe('API route success contracts', () => {
     if (!isAdminMessagesSuccessEnvelope(body)) return;
     expect(body.data.length).toBe(1);
     expect(body.count).toBe(1);
+  });
+
+  it('verify returns ok:true with citations when provider responds', async () => {
+    mockGlobalFetch.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          AbstractText: 'Model Context Protocol is an open protocol for LLM tools.',
+          AbstractURL: 'https://example.com/mcp',
+          Heading: 'Model Context Protocol',
+          RelatedTopics: [
+            {
+              Text: 'MCP spec - protocol details',
+              FirstURL: 'https://example.com/mcp-spec',
+            },
+          ],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      )
+    );
+
+    const { POST } = await import('../src/pages/api/verify');
+    const request = new Request('http://localhost/api/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: 'model context protocol' }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as unknown;
+    expect(isVerifySuccessEnvelope(body)).toBe(true);
+    if (!isVerifySuccessEnvelope(body)) return;
+    expect(body.sources.length).toBeGreaterThan(0);
+  });
+
+  it('tools local_context returns indexed hits', async () => {
+    const { POST } = await import('../src/pages/api/tools');
+    const request = new Request('http://localhost/api/tools', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tool: 'local_context', input: { query: 'intent' } }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as unknown;
+    expect(isToolSuccessEnvelope(body)).toBe(true);
+    if (!isToolSuccessEnvelope(body)) return;
+    expect(body.tool).toBe('local_context');
+  });
+
+  it('tools web_verify returns citations', async () => {
+    mockGlobalFetch.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          AbstractText: 'Open standards for tool integration.',
+          AbstractURL: 'https://example.com/open-standards',
+          Heading: 'MCP',
+          RelatedTopics: [],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      )
+    );
+
+    const { POST } = await import('../src/pages/api/tools');
+    const request = new Request('http://localhost/api/tools', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tool: 'web_verify', input: { query: 'mcp standard' } }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as unknown;
+    expect(isToolSuccessEnvelope(body)).toBe(true);
+    if (!isToolSuccessEnvelope(body)) return;
+    expect(body.tool).toBe('web_verify');
   });
 });

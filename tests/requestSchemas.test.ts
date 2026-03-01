@@ -3,6 +3,8 @@ import {
   parseAdminLoginInput,
   parseChatMessagesInput,
   parseContactInput,
+  parseToolCallInput,
+  parseVerifyInput,
 } from '../src/utils/requestSchemas';
 
 describe('request schemas', () => {
@@ -44,5 +46,24 @@ describe('request schemas', () => {
   it('rejects invalid chat payload', () => {
     expect(parseChatMessagesInput({ messages: [{ role: 'bad', content: 'x' }] })).toBeNull();
     expect(parseChatMessagesInput({ messages: [] })).toBeNull();
+  });
+
+  it('parses valid verify input', () => {
+    const parsed = parseVerifyInput({ query: 'agentic marketing verification' });
+    expect(parsed?.query).toBe('agentic marketing verification');
+  });
+
+  it('rejects invalid verify input', () => {
+    expect(parseVerifyInput({ query: '' })).toBeNull();
+    expect(parseVerifyInput({})).toBeNull();
+  });
+
+  it('parses valid tool call input', () => {
+    const parsed = parseToolCallInput({ tool: 'local_context', input: { query: 'intent' } });
+    expect(parsed?.tool).toBe('local_context');
+  });
+
+  it('rejects invalid tool call input', () => {
+    expect(parseToolCallInput({ tool: 'bad_tool' })).toBeNull();
   });
 });

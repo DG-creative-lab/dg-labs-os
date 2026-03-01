@@ -3,12 +3,15 @@ import type { WorkbenchItem } from '../config/workbench';
 import type { LabNote } from '../config/labNotes';
 import type { UserConfig } from '../types';
 import { getKnowledgeSourceStats, retrieveKnowledge } from './terminalKnowledge';
+import type { TerminalBrainMode } from './terminalSettings';
 
 export type TerminalAction =
   | { type: 'navigate'; href: string }
   | { type: 'external'; href: string }
   | { type: 'mailto'; href: string }
   | { type: 'tel'; href: string }
+  | { type: 'set_mode'; mode: TerminalBrainMode }
+  | { type: 'verify'; query: string }
   | { type: 'clear' }
   | { type: 'none' };
 
@@ -49,6 +52,8 @@ const DETERMINISTIC_COMMANDS = new Set([
   'search',
   'sources',
   'context',
+  'mode',
+  'verify',
 ]);
 
 export const isDeterministicTerminalCommand = (rawInput: string): boolean => {
@@ -72,6 +77,8 @@ const HELP_TEXT = [
   '  search <query>               Search projects, notes, and network',
   '  sources                      Show indexed context sources',
   '  context <query>              Retrieve top local context snippets',
+  '  mode <concise|explainer|research>  Set LLM answer style',
+  '  verify <query>               Verify with web sources and citations',
   '  clear                        Clear terminal output',
 ];
 
@@ -273,6 +280,35 @@ export const executeTerminalCommand = (
       if (hit.url) lines.push(`   source: ${hit.url}`);
     }
     return { lines, action: { type: 'none' } };
+  }
+
+  if (command === 'mode') {
+    if (!args) {
+      return {
+        lines: ['Usage: mode <concise|explainer|research>'],
+        action: { type: 'none' },
+      };
+    }
+    if (args !== 'concise' && args !== 'explainer' && args !== 'research') {
+      return {
+        lines: [`Unknown mode "${args}". Use: concise, explainer, research.`],
+        action: { type: 'none' },
+      };
+    }
+    return {
+      lines: [`Brain mode set to ${args}.`],
+      action: { type: 'set_mode', mode: args },
+    };
+  }
+
+  if (command === 'verify') {
+    if (!args) {
+      return { lines: ['Usage: verify <query>'], action: { type: 'none' } };
+    }
+    return {
+      lines: [`Verifying "${args}" against web sources...`],
+      action: { type: 'verify', query: args },
+    };
   }
 
   return {

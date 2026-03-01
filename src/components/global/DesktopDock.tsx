@@ -3,9 +3,6 @@ import { userConfig } from '../../config/index';
 import DockGlyph from './DockGlyph';
 
 interface DesktopDockProps {
-  onTerminalClick: () => void;
-  onNotesClick: () => void;
-  onGitHubClick: () => void;
   activeApps: {
     terminal: boolean;
     notes: boolean;
@@ -24,12 +21,7 @@ type DockItem = {
   active: boolean;
 };
 
-const DesktopDock = ({
-  onTerminalClick,
-  onNotesClick,
-  onGitHubClick,
-  activeApps,
-}: DesktopDockProps) => {
+const DesktopDock = ({ activeApps }: DesktopDockProps) => {
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
   const [showLinksPopup, setShowLinksPopup] = useState(false);
   const [mouseX, setMouseX] = useState<number | null>(null);
@@ -146,7 +138,9 @@ const DesktopDock = ({
     {
       id: 'workbench',
       label: 'Workbench',
-      onClick: onGitHubClick,
+      onClick: () => {
+        window.location.href = '/apps/projects';
+      },
       glyph: 'workbench',
       color: 'from-slate-900 to-slate-700',
       active: activeApps.github,
@@ -154,7 +148,9 @@ const DesktopDock = ({
     {
       id: 'notes',
       label: 'Lab Notes',
-      onClick: onNotesClick,
+      onClick: () => {
+        window.location.href = '/apps/notes';
+      },
       glyph: 'notes',
       color: 'from-amber-500 to-yellow-300',
       active: activeApps.notes,
@@ -183,11 +179,12 @@ const DesktopDock = ({
       id: 'network',
       label: 'Network',
       onClick: () => {
-        window.location.href = '/apps/network';
+        window.location.href =
+          window.location.pathname === '/apps/network' ? '/desktop' : '/apps/network';
       },
       glyph: 'network',
       color: 'from-indigo-600 to-fuchsia-700',
-      active: false,
+      active: typeof window !== 'undefined' && window.location.pathname === '/apps/network',
     },
     {
       id: 'links',
@@ -200,11 +197,19 @@ const DesktopDock = ({
     {
       id: 'terminal',
       label: 'Agents',
-      onClick: onTerminalClick,
+      onClick: () => {
+        const path = window.location.pathname;
+        const isTerminal = path === '/apps/terminal' || path === '/apps/terminal/';
+        window.location.href = isTerminal ? '/desktop' : '/apps/terminal';
+      },
       glyph: 'agents',
       glyphClassName: 'text-emerald-300',
       color: 'from-slate-950 to-slate-800',
-      active: activeApps.terminal,
+      active:
+        activeApps.terminal ||
+        (typeof window !== 'undefined' &&
+          (window.location.pathname === '/apps/terminal' ||
+            window.location.pathname === '/apps/terminal/')),
     },
   ];
 
@@ -236,7 +241,7 @@ const DesktopDock = ({
                   }}
                   onMouseEnter={() => setHoveredIcon(item.id)}
                   onMouseLeave={() => setHoveredIcon(null)}
-                  className="relative group"
+                  className="relative group outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0"
                   style={{
                     transform: `scale(${scale})`,
                     transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',

@@ -68,18 +68,6 @@ const {
     <main class="relative z-10 min-h-screen pt-10 pb-24">
       <slot />
     </main>
-    <DesktopDock
-      client:load
-      onTerminalClick={() => {
-        window.location.href = '/apps/terminal';
-      }}
-      onNotesClick={() => {
-        window.location.href = '/apps/notes';
-      }}
-      onGitHubClick={() => {
-        window.location.href = '/apps/projects';
-      }}
-      activeApps={activeApps}
-    />
+    <DesktopDock client:load activeApps={activeApps} />
   </div>
 </Layout>

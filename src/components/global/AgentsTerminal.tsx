@@ -15,6 +15,7 @@ import {
   normalizeLlmQuery,
   readChatMessage,
 } from '../../utils/terminalLlm';
+import { buildAskEnvelopeLines, buildVerifyEnvelopeLines } from '../../utils/terminalEnvelope';
 import { retrieveKnowledge } from '../../utils/terminalKnowledge';
 import {
   defaultTerminalSettings,
@@ -22,6 +23,7 @@ import {
   serializeTerminalSettings,
   terminalSettingsSummary,
   TERMINAL_SETTINGS_KEY,
+  type TerminalBrainMode,
   type TerminalSettings,
 } from '../../utils/terminalSettings';
 
@@ -37,7 +39,9 @@ type LlmHistoryMessage = {
 };
 
 const LLM_COUNT_KEY = 'dg_labs_terminal_llm_count';
+const VERIFY_COUNT_KEY = 'dg_labs_terminal_verify_count';
 const ROUTER_CONFIDENCE_THRESHOLD = 0.8;
+const VERIFY_SESSION_CAP = 12;
 
 const runAction = (action: TerminalAction) => {
   if (typeof window === 'undefined') return;
@@ -55,6 +59,8 @@ const runAction = (action: TerminalAction) => {
       window.location.href = action.href;
       break;
     case 'clear':
+    case 'set_mode':
+    case 'verify':
     case 'none':
     default:
       break;
@@ -68,7 +74,11 @@ export default function AgentsTerminal() {
   const [llmHistory, setLlmHistory] = useState<LlmHistoryMessage[]>([]);
   const [history, setHistory] = useState<TerminalEntry[]>([
     { id: 1, kind: 'system', text: 'DG-Labs Agents Runtime v2' },
-    { id: 2, kind: 'system', text: 'Type "help" for commands or "ask <question>" for LLM mode.' },
+    {
+      id: 2,
+      kind: 'system',
+      text: 'Type "help" for commands or "ask <question>" for LLM mode.',
+    },
   ]);
   const nextIdRef = useRef(3);
 
@@ -103,6 +113,14 @@ export default function AgentsTerminal() {
     if (typeof window === 'undefined') return;
     sessionStorage.setItem(LLM_COUNT_KEY, '0');
     setHistory((prev) => [...prev, pushLine('system', 'LLM session counter reset.')]);
+  };
+
+  const getAndIncrementVerifyCount = () => {
+    if (typeof window === 'undefined') return 0;
+    const current = parseInt(sessionStorage.getItem(VERIFY_COUNT_KEY) || '0', 10);
+    const next = Number.isNaN(current) ? 1 : current + 1;
+    sessionStorage.setItem(VERIFY_COUNT_KEY, String(next));
+    return next;
   };
 
   const askLlm = async (rawQuery: string) => {
@@ -144,7 +162,8 @@ export default function AgentsTerminal() {
             query,
             { user: userConfig, workbench, notes: labNotes, network: networkNodes },
             llmHistory,
-            grounding
+            grounding,
+            settings.brainMode
           ),
         }),
         signal: controller.signal,
@@ -164,19 +183,12 @@ export default function AgentsTerminal() {
         { role: 'user', content: query },
         { role: 'assistant', content: message },
       ]);
-      const sourceSummary =
-        grounding.length > 0
-          ? `Sources used: ${grounding.map((item) => `${item.source}:${item.title}`).join(' | ')}`
-          : 'Sources used: none matched; response based on general terminal context.';
-      if (settings.showLlmSources) {
-        setHistory((prev) => [
-          ...prev,
-          pushLine('output', message),
-          pushLine('system', sourceSummary),
-        ]);
-      } else {
-        setHistory((prev) => [...prev, pushLine('output', message)]);
-      }
+      const envelopeLines = buildAskEnvelopeLines(grounding, settings.showLlmSources);
+      setHistory((prev) => [
+        ...prev,
+        pushLine('output', message),
+        ...envelopeLines.map((line) => pushLine('system', line)),
+      ]);
     } catch (error) {
       const timeoutMessage =
         error instanceof DOMException && error.name === 'AbortError'
@@ -186,6 +198,72 @@ export default function AgentsTerminal() {
     } finally {
       clearTimeout(timeout);
       setIsLlmBusy(false);
+    }
+  };
+
+  const runVerify = async (query: string) => {
+    const verifyCount = getAndIncrementVerifyCount();
+    if (verifyCount > VERIFY_SESSION_CAP) {
+      setHistory((prev) => [
+        ...prev,
+        pushLine(
+          'output',
+          `Verify session cap reached (${VERIFY_SESSION_CAP}). Use local context commands or refresh session.`
+        ),
+      ]);
+      return;
+    }
+
+    setHistory((prev) => [...prev, pushLine('system', `verify: searching web for "${query}"...`)]);
+    try {
+      const response = await fetch('/api/tools', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tool: 'web_verify',
+          input: { query },
+        }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as
+        | {
+            ok?: boolean;
+            tool?: string;
+            result?: {
+              summary?: string;
+              sources?: Array<{ title?: string; url?: string; snippet?: string }>;
+            };
+            message?: string;
+          }
+        | undefined;
+      if (!response.ok || !payload?.ok || payload.tool !== 'web_verify') {
+        const message =
+          typeof payload?.message === 'string'
+            ? payload.message
+            : 'Verification failed. Try a different query.';
+        setHistory((prev) => [...prev, pushLine('output', message)]);
+        return;
+      }
+
+      const toolResult = payload.result;
+      const rawSources = toolResult && Array.isArray(toolResult.sources) ? toolResult.sources : [];
+      const sources = rawSources
+        .filter(
+          (source): source is { title: string; url: string; snippet: string } =>
+            typeof source?.title === 'string' &&
+            typeof source?.url === 'string' &&
+            typeof source?.snippet === 'string'
+        )
+        .slice(0, 5);
+      const lines = buildVerifyEnvelopeLines(
+        typeof toolResult?.summary === 'string' ? toolResult.summary : 'Verification complete.',
+        sources
+      );
+      setHistory((prev) => [...prev, ...lines.map((line) => pushLine('output', line))]);
+    } catch {
+      setHistory((prev) => [
+        ...prev,
+        pushLine('output', 'Verification request failed unexpectedly.'),
+      ]);
     }
   };
 
@@ -240,6 +318,16 @@ export default function AgentsTerminal() {
       return;
     }
 
+    if (response.action.type === 'set_mode') {
+      const mode: TerminalBrainMode = response.action.mode;
+      setSettings((prev) => ({ ...prev, brainMode: mode }));
+    }
+
+    if (response.action.type === 'verify') {
+      await runVerify(response.action.query);
+      return;
+    }
+
     const newEntries: TerminalEntry[] = [];
     for (const line of response.lines) {
       newEntries.push(pushLine('output', line));
@@ -271,6 +359,23 @@ export default function AgentsTerminal() {
               }
             />
             <span>LLM fallback on unknown input</span>
+          </label>
+          <label className="flex items-center gap-2">
+            <span>Brain mode</span>
+            <select
+              value={settings.brainMode}
+              onChange={(event) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  brainMode: event.target.value as TerminalBrainMode,
+                }))
+              }
+              className="rounded border border-white/20 bg-black/40 px-2 py-1 text-white"
+            >
+              <option value="concise">concise</option>
+              <option value="explainer">explainer</option>
+              <option value="research">research</option>
+            </select>
           </label>
           <label className="flex items-center gap-2">
             <input
@@ -357,11 +462,13 @@ export default function AgentsTerminal() {
           <p
             key={entry.id}
             className={
-              entry.kind === 'command'
-                ? 'text-emerald-300'
-                : entry.kind === 'system'
-                  ? 'text-white/50'
-                  : 'text-white/80'
+              /^\[(local_context|web_context)\]$/.test(entry.text)
+                ? 'mt-1 text-[11px] uppercase tracking-[0.12em] text-cyan-300/85 border-b border-cyan-300/20'
+                : entry.kind === 'command'
+                  ? 'text-emerald-300'
+                  : entry.kind === 'system'
+                    ? 'text-white/50'
+                    : 'text-white/80'
             }
           >
             {entry.text}

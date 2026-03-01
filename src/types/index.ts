@@ -133,6 +133,8 @@ export interface ContactInfo {
 
 export interface PersonalInfo {
   name: string;
+  ownerName?: string;
+  aliases?: readonly string[];
   role: string;
   location: string;
   email: string;
@@ -165,6 +167,8 @@ export interface ThemeConfig {
 export interface UserConfig {
   // Personal Information
   name: string;
+  ownerName?: string;
+  aliases?: readonly string[];
   role: string;
   location: string;
   email: string;

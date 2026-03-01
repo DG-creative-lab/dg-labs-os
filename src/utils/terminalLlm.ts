@@ -3,6 +3,7 @@ import type { WorkbenchItem } from '../config/workbench';
 import type { LabNote } from '../config/labNotes';
 import type { UserConfig } from '../types';
 import type { KnowledgeHit } from './terminalKnowledge';
+import type { TerminalBrainMode } from './terminalSettings';
 
 export const TERMINAL_LLM_MAX_QUERY_CHARS = 900;
 export const TERMINAL_LLM_TIMEOUT_MS = 15000;
@@ -34,7 +35,29 @@ export const normalizeLlmQuery = (rawInput: string): string =>
     .trim()
     .slice(0, TERMINAL_LLM_MAX_QUERY_CHARS);
 
-export const buildTerminalSystemContext = (ctx: TerminalContextShape): string => {
+const modeInstructions = (mode: TerminalBrainMode): string[] => {
+  if (mode === 'explainer') {
+    return [
+      'Response mode: explainer.',
+      'Use short sections and concrete examples. Prioritize clarity over brevity.',
+    ];
+  }
+  if (mode === 'research') {
+    return [
+      'Response mode: research.',
+      'State assumptions, separate evidence from inference, and mention uncertainty.',
+    ];
+  }
+  return [
+    'Response mode: concise.',
+    'Answer in compact operational form (2-6 lines unless asked otherwise).',
+  ];
+};
+
+export const buildTerminalSystemContext = (
+  ctx: TerminalContextShape,
+  mode: TerminalBrainMode = 'concise'
+): string => {
   const topProjects = ctx.workbench.slice(0, 4).map((p) => `- ${p.title}: ${p.summary}`);
   const topNotes = ctx.notes
     .filter((n) => n.kind === 'Deep Dive')
@@ -49,11 +72,15 @@ export const buildTerminalSystemContext = (ctx: TerminalContextShape): string =>
 
   return [
     'You are the DG-Labs OS terminal brain.',
+    'Identity contract: DG-Labs OS is the cognitive interface of Dessi Georgieva.',
+    'Treat references to "DG-Labs", "Dessi", and "Dessi Georgieva" as the same person/system.',
     'Speak concisely and practically.',
     'Use only provided context for personal/work claims; if unknown, say so.',
     'If a question needs external verification, state that web search/tooling is not enabled in this runtime.',
+    ...modeInstructions(mode),
     '',
-    `Identity: ${ctx.user.name} | role: ${ctx.user.role} | focus: ${ctx.user.roleFocus}`,
+    `Identity: ${ctx.user.name}${ctx.user.ownerName ? ` (owner: ${ctx.user.ownerName})` : ''} | role: ${ctx.user.role} | focus: ${ctx.user.roleFocus}`,
+    `Aliases: ${(ctx.user.aliases ?? [ctx.user.name]).join(', ')}`,
     `Location: ${ctx.user.location}`,
     '',
     'Top workbench systems:',
@@ -70,7 +97,8 @@ export const buildLlmMessages = (
   query: string,
   ctx: TerminalContextShape,
   priorHistory: readonly LlmHistoryMessage[],
-  grounding: readonly KnowledgeHit[] = []
+  grounding: readonly KnowledgeHit[] = [],
+  mode: TerminalBrainMode = 'concise'
 ): Array<{ role: 'system' | 'user' | 'assistant'; content: string }> => {
   const groundingBlock =
     grounding.length === 0
@@ -84,7 +112,7 @@ export const buildLlmMessages = (
           ),
         ].join('\n');
 
-  const system = `${buildTerminalSystemContext(ctx)}${groundingBlock}`;
+  const system = `${buildTerminalSystemContext(ctx, mode)}${groundingBlock}`;
   const compactHistory = priorHistory.slice(-TERMINAL_LLM_MAX_TURNS * 2);
   return [{ role: 'system', content: system }, ...compactHistory, { role: 'user', content: query }];
 };

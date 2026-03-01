@@ -22,16 +22,19 @@ describe('terminal settings', () => {
     );
     expect(parsed.routerDebug).toBe(true);
     expect(parsed.showLlmSources).toBe(true);
+    expect(parsed.brainMode).toBe('concise');
   });
 
   it('sanitizes ranges', () => {
     const s = sanitizeTerminalSettings({
+      brainMode: 'research',
       llmFallbackForUnknown: true,
       routerDebug: false,
       showLlmSources: false,
       llmSessionCap: 1000,
       llmTimeoutMs: 100000,
     });
+    expect(s.brainMode).toBe('research');
     expect(s.routerDebug).toBe(false);
     expect(s.showLlmSources).toBe(false);
     expect(s.llmSessionCap).toBe(100);
@@ -40,6 +43,7 @@ describe('terminal settings', () => {
 
   it('builds readable summary', () => {
     const summary = terminalSettingsSummary(defaultTerminalSettings);
+    expect(summary).toContain('mode=');
     expect(summary).toContain('fallback=');
     expect(summary).toContain('router-debug=');
     expect(summary).toContain('llm-sources=');

@@ -15,6 +15,25 @@ export type ChatSuccessEnvelope = {
   message: string;
 };
 
+export type VerifySource = {
+  title: string;
+  url: string;
+  snippet: string;
+};
+
+export type VerifySuccessEnvelope = {
+  ok: true;
+  query: string;
+  summary: string;
+  sources: VerifySource[];
+};
+
+export type ToolSuccessEnvelope<T = unknown> = {
+  ok: true;
+  tool: string;
+  result: T;
+};
+
 export type AdminLoginSuccessEnvelope = {
   ok: true;
   success: true;
@@ -31,6 +50,23 @@ export type AdminMessagesSuccessEnvelope<T = unknown> = {
 export const healthSuccess = (): HealthSuccessEnvelope => ({ ok: true });
 
 export const chatSuccess = (message: string): ChatSuccessEnvelope => ({ ok: true, message });
+
+export const verifySuccess = (
+  query: string,
+  summary: string,
+  sources: VerifySource[]
+): VerifySuccessEnvelope => ({
+  ok: true,
+  query,
+  summary,
+  sources,
+});
+
+export const toolSuccess = <T>(tool: string, result: T): ToolSuccessEnvelope<T> => ({
+  ok: true,
+  tool,
+  result,
+});
 
 export const adminLoginSuccess = (): AdminLoginSuccessEnvelope => ({ ok: true, success: true });
 
@@ -57,6 +93,23 @@ export const isHealthSuccessEnvelope = (value: unknown): value is HealthSuccessE
 
 export const isChatSuccessEnvelope = (value: unknown): value is ChatSuccessEnvelope =>
   isRecord(value) && value.ok === true && typeof value.message === 'string';
+
+export const isVerifySuccessEnvelope = (value: unknown): value is VerifySuccessEnvelope =>
+  isRecord(value) &&
+  value.ok === true &&
+  typeof value.query === 'string' &&
+  typeof value.summary === 'string' &&
+  Array.isArray(value.sources) &&
+  value.sources.every(
+    (source) =>
+      isRecord(source) &&
+      typeof source.title === 'string' &&
+      typeof source.url === 'string' &&
+      typeof source.snippet === 'string'
+  );
+
+export const isToolSuccessEnvelope = (value: unknown): value is ToolSuccessEnvelope =>
+  isRecord(value) && value.ok === true && typeof value.tool === 'string' && 'result' in value;
 
 export const isAdminLoginSuccessEnvelope = (value: unknown): value is AdminLoginSuccessEnvelope =>
   isRecord(value) && value.ok === true && value.success === true;

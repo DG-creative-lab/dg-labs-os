@@ -4,6 +4,8 @@ import { GET as adminMessagesGet } from '../src/pages/api/admin/messages';
 import { POST as adminLoginPost } from '../src/pages/api/admin/login';
 import { POST as chatPost } from '../src/pages/api/chat';
 import { GET as contactGet, POST as contactPost } from '../src/pages/api/contact';
+import { POST as toolsPost } from '../src/pages/api/tools';
+import { POST as verifyPost } from '../src/pages/api/verify';
 
 const ctx = (request: Request) => ({ request }) as Parameters<typeof chatPost>[0];
 
@@ -96,5 +98,36 @@ describe('API route contracts', () => {
     if (!isApiErrorEnvelope(body)) return;
     expect(body.code).toBe('UNAUTHORIZED');
     expect(body.error).toBe(body.message);
+  });
+
+  it('verify POST rejects invalid payload with normalized error', async () => {
+    const request = new Request('http://localhost/api/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: '' }),
+    });
+
+    const response = await verifyPost(ctx(request));
+    expect(response.status).toBe(400);
+    const body = (await response.json()) as unknown;
+    expect(isApiErrorEnvelope(body)).toBe(true);
+    if (!isApiErrorEnvelope(body)) return;
+    expect(body.code).toBe('INVALID_QUERY');
+    expect(body.error).toBe(body.message);
+  });
+
+  it('tools POST rejects invalid tool call payload', async () => {
+    const request = new Request('http://localhost/api/tools', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tool: 'bad_tool' }),
+    });
+
+    const response = await toolsPost(ctx(request));
+    expect(response.status).toBe(400);
+    const body = (await response.json()) as unknown;
+    expect(isApiErrorEnvelope(body)).toBe(true);
+    if (!isApiErrorEnvelope(body)) return;
+    expect(body.code).toBe('INVALID_TOOL_CALL');
   });
 });

@@ -53,6 +53,22 @@ describe('executeTerminalCommand', () => {
     expect(result.lines.join(' ')).toContain('[workbench]');
   });
 
+  it('sets brain mode with deterministic mode command', () => {
+    const result = executeTerminalCommand('mode research', ctx);
+    expect(result.action.type).toBe('set_mode');
+    if (result.action.type === 'set_mode') {
+      expect(result.action.mode).toBe('research');
+    }
+  });
+
+  it('routes verify command to verify action', () => {
+    const result = executeTerminalCommand('verify latest mcp spec', ctx);
+    expect(result.action.type).toBe('verify');
+    if (result.action.type === 'verify') {
+      expect(result.action.query).toContain('latest mcp spec');
+    }
+  });
+
   it('returns clear action', () => {
     const result = executeTerminalCommand('clear', ctx);
     expect(result.action.type).toBe('clear');

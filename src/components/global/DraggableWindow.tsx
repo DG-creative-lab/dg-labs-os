@@ -194,7 +194,7 @@ export default function DraggableWindow({
         isMobile ? 'fixed inset-0 m-4 rounded-xl' : 'absolute rounded-xl'
       } bg-[#1d1d1f] shadow-xl overflow-hidden p-0 transition-all duration-300 ${
         isDragging ? 'cursor-grabbing' : 'cursor-default'
-      } ${className}`}
+      } outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 ${className}`}
       style={{
         ...(isMobile
           ? {}
@@ -216,7 +216,7 @@ export default function DraggableWindow({
             onClick={onClose}
             aria-label={`Close ${title}`}
             title="Close"
-            className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors"
+            className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0"
           />
           <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
           <div className="w-3 h-3 rounded-full bg-green-500"></div>
