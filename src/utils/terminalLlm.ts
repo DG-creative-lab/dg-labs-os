@@ -33,6 +33,21 @@ type WebVerifyContext = {
   sources: readonly VerifySource[];
 };
 
+export type LlmAnswerMode = 'ask' | 'brief' | 'cv' | 'projects';
+export type LlmConfidenceLabel =
+  | 'local-only'
+  | 'local+verified'
+  | 'verified-only'
+  | 'low-confidence';
+
+export type CitationChipGroup = 'Profile' | 'Projects' | 'Research' | 'Web';
+
+export type CitationChip = {
+  group: CitationChipGroup;
+  label: string;
+  url: string;
+};
+
 const truncate = (value: string, maxChars: number): string =>
   value.length <= maxChars ? value : `${value.slice(0, Math.max(0, maxChars - 1)).trimEnd()}…`;
 
@@ -107,7 +122,8 @@ const selectBudgetedHistory = (
 export const isLlmQuery = (rawInput: string, isDeterministicCommand: boolean): boolean => {
   const trimmed = rawInput.trim();
   if (!trimmed) return false;
-  if (/^ask\s+/i.test(trimmed)) return true;
+  if (/^(ask|brief|cv)\s+/i.test(trimmed)) return true;
+  if (/^projects\s+/i.test(trimmed)) return true;
   return !isDeterministicCommand;
 };
 
@@ -116,6 +132,44 @@ export const normalizeLlmQuery = (rawInput: string): string =>
     .replace(/^ask\s+/i, '')
     .trim()
     .slice(0, TERMINAL_LLM_MAX_QUERY_CHARS);
+
+export const parseLlmModeQuery = (rawInput: string): { mode: LlmAnswerMode; query: string } => {
+  const trimmed = rawInput.trim();
+  if (!trimmed) return { mode: 'ask', query: '' };
+
+  const capture = (mode: LlmAnswerMode, expr: RegExp) => {
+    const match = trimmed.match(expr);
+    if (!match) return null;
+    const query = (match[1] ?? '').trim().slice(0, TERMINAL_LLM_MAX_QUERY_CHARS);
+    return { mode, query };
+  };
+
+  return (
+    capture('ask', /^ask\s+(.+)$/i) ??
+    capture('brief', /^brief\s+(.+)$/i) ??
+    capture('cv', /^cv\s+(.+)$/i) ??
+    capture('projects', /^projects\s+(.+)$/i) ?? { mode: 'ask', query: normalizeLlmQuery(trimmed) }
+  );
+};
+
+const answerModeInstructions = (mode: LlmAnswerMode): string[] => {
+  if (mode === 'brief') {
+    return ['Answer style: brief.', 'Use compact bullets (3-6) and avoid long prose.'];
+  }
+  if (mode === 'cv') {
+    return [
+      'Answer style: cv.',
+      'Prioritize experience timeline, roles, and measurable delivery before theory.',
+    ];
+  }
+  if (mode === 'projects') {
+    return [
+      'Answer style: projects.',
+      'Prioritize builds, architecture, stack, outcomes, and direct links if available.',
+    ];
+  }
+  return ['Answer style: ask.', 'Use narrative answer with clear sections when helpful.'];
+};
 
 const modeInstructions = (mode: TerminalBrainMode): string[] => {
   if (mode === 'explainer') {
@@ -181,10 +235,11 @@ export const buildLlmMessages = (
   priorHistory: readonly LlmHistoryMessage[],
   grounding: readonly KnowledgeHit[] = [],
   webContext: WebVerifyContext | null = null,
-  mode: TerminalBrainMode = 'concise'
+  mode: TerminalBrainMode = 'concise',
+  answerMode: LlmAnswerMode = 'ask'
 ): Array<{ role: 'system' | 'user' | 'assistant'; content: string }> => {
   const baseSystem = buildTerminalSystemContext(ctx, mode);
-  const systemLines = [baseSystem];
+  const systemLines = [baseSystem, '', ...answerModeInstructions(answerMode)];
   let budgetUsed = baseSystem.length;
 
   const groundingLines = buildBudgetedGroundingLines(
@@ -222,6 +277,58 @@ export const readChatMessage = (data: unknown): string | null => {
   const record = data as Record<string, unknown>;
   if (typeof record.message === 'string') return record.message;
   return null;
+};
+
+export const resolveAnswerConfidenceLabel = (
+  localEvidenceCount: number,
+  verifiedWebSourceCount: number
+): LlmConfidenceLabel => {
+  if (localEvidenceCount > 0 && verifiedWebSourceCount > 0) return 'local+verified';
+  if (localEvidenceCount > 0) return 'local-only';
+  if (verifiedWebSourceCount > 0) return 'verified-only';
+  return 'low-confidence';
+};
+
+const sourceToGroup = (source: string): CitationChipGroup => {
+  const key = source.toLowerCase();
+  if (key === 'workbench') return 'Projects';
+  if (key === 'notes' || key === 'brain') return 'Research';
+  if (key === 'personal' || key === 'network') return 'Profile';
+  return 'Research';
+};
+
+export const buildCitationChips = (
+  localEvidence: readonly EvidenceReference[],
+  webSources: readonly VerifySource[] = []
+): CitationChip[] => {
+  const chips: CitationChip[] = [];
+  const seen = new Set<string>();
+
+  const push = (chip: CitationChip) => {
+    const key = `${chip.group}|${chip.label}|${chip.url}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    chips.push(chip);
+  };
+
+  for (const evidence of localEvidence) {
+    if (!evidence.url) continue;
+    push({
+      group: sourceToGroup(evidence.source),
+      label: evidence.title,
+      url: evidence.url,
+    });
+  }
+
+  for (const source of webSources) {
+    push({
+      group: 'Web',
+      label: source.title,
+      url: source.url,
+    });
+  }
+
+  return chips;
 };
 
 type AgentChunk = {
