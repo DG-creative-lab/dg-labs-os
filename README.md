@@ -4,11 +4,13 @@ DG-Labs OS is a portfolio presented as a personal operating system - an interfac
 
 ## Documentation
 
-- Product and implementation roadmap: `APP_ROADMAP.md`
+- Product and implementation roadmap: `docs/APP_ROADMAP.md`
+- Codebase stabilization plan: `docs/CODEBASE_STABILIZATION_PLAN.md`
 
 ## Features
 
 - Desktop OS UI with a Mac-style toolbar and dock
+- Focus-aware desktop menubar (menu sets update by active/focused app)
 - Mobile iPhone-inspired lock + home screens (`/mobile`)
 - RippleGrid live background with mouse interaction
 - Page-based apps (`/apps/notes`, `/apps/projects`, `/apps/resume`, `/apps/terminal`)
@@ -18,8 +20,13 @@ DG-Labs OS is a portfolio presented as a personal operating system - an interfac
   - retrieval-grounded LLM mode (`ask ...`) using local knowledge index
   - runtime toggles for `LLM fallback`, `router debug`, and `LLM source footer`
 - Apple menu "About DG-Labs Pro" window
+- `Window -> Contact...` opens dock Links panel on desktop (email fallback on page routes)
 - Modular config in `src/config/`
 - API routes for chat + contact + admin dashboard
+
+## Current Priority
+
+- Replace duplicated Help dropdown links with dedicated instruction windows (`DG-Labs OS User Guide`, `Terminal Command Guide`, `Navigation Tips`, `Troubleshooting/FAQ`).
 
 ## Tech Stack
 

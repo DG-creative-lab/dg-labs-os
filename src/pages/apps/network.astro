@@ -6,11 +6,12 @@ import NetworkApp from '../../components/network/NetworkApp';
 import DraggableAppWindow from '../../components/global/DraggableAppWindow';
 ---
 
-<DesktopLayout>
+<DesktopLayout activeAppId="network">
   <main class="relative min-h-[calc(100vh-4rem)] px-6 pt-12 text-white">
     <DraggableAppWindow
       client:load
       title="Network"
+      appId="network"
       closeHref="/desktop"
       initialSize={{ width: 1080, height: 700 }}
       initialPosition={{ x: 70, y: 70 }}

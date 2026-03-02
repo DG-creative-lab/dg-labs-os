@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { NetworkIdeaEdge, NetworkNode } from '../../config/network';
 import { buildGraph } from '../../utils/networkGraph';
 import { filterNetworkNodes } from '../../utils/networkSearch';
@@ -12,6 +12,13 @@ type Props = {
 };
 
 type CategoryFilter = 'ALL' | 'Education' | 'Research' | 'Projects' | 'Experience';
+
+type NetworkMenuEventDetail = {
+  action: 'set_filter' | 'set_view' | 'clear_search' | 'apply_query';
+  filter?: CategoryFilter;
+  view?: ViewMode;
+  query?: string;
+};
 
 const kindLabel: Record<CategoryFilter, string> = {
   ALL: 'All',
@@ -34,6 +41,48 @@ export default function NetworkApp({ nodes, ideas = [] }: Props) {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<CategoryFilter>('ALL');
   const [view, setView] = useState<ViewMode>('LIST');
+
+  useEffect(() => {
+    const handleMenuAction = (event: Event) => {
+      const customEvent = event as CustomEvent<NetworkMenuEventDetail>;
+      const detail = customEvent.detail;
+      if (!detail?.action) return;
+
+      if (detail.action === 'set_filter') {
+        if (
+          detail.filter === 'ALL' ||
+          detail.filter === 'Education' ||
+          detail.filter === 'Research' ||
+          detail.filter === 'Projects' ||
+          detail.filter === 'Experience'
+        ) {
+          setFilter(detail.filter);
+        }
+        return;
+      }
+
+      if (detail.action === 'set_view') {
+        if (detail.view === 'LIST' || detail.view === 'GRAPH') {
+          setView(detail.view);
+        }
+        return;
+      }
+
+      if (detail.action === 'clear_search') {
+        setQuery('');
+        return;
+      }
+
+      if (detail.action === 'apply_query' && typeof detail.query === 'string') {
+        setQuery(detail.query);
+      }
+    };
+
+    window.addEventListener('dg-network-menu-action', handleMenuAction as EventListener);
+    return () => {
+      window.removeEventListener('dg-network-menu-action', handleMenuAction as EventListener);
+    };
+  }, []);
 
   const filtered = useMemo(() => {
     const searched = filterNetworkNodes(nodes, 'ALL', query);

@@ -25,6 +25,14 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
   const [showLinksPopup, setShowLinksPopup] = useState(false);
   const [mouseX, setMouseX] = useState<number | null>(null);
+  const [desktopOpen, setDesktopOpen] = useState({
+    terminal: false,
+    notes: false,
+    projects: false,
+    resume: false,
+    news: false,
+    network: false,
+  });
   const dockRef = useRef<HTMLDivElement>(null);
   const dockNavRef = useRef<HTMLElement>(null);
   const linksPopupRef = useRef<HTMLDivElement>(null);
@@ -35,11 +43,22 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
 
   const normalizedPath =
     typeof window !== 'undefined' ? window.location.pathname.replace(/\/+$/, '') || '/' : '/';
+  const isDesktopShell = normalizedPath === '/desktop';
   const isPathActive = (...paths: string[]) =>
     paths.some((path) => {
       const normalized = path.replace(/\/+$/, '') || '/';
       return normalized === normalizedPath;
     });
+
+  const toggleDesktopWindow = (
+    appId: 'terminal' | 'notes' | 'projects' | 'resume' | 'news' | 'network'
+  ) => {
+    window.dispatchEvent(
+      new CustomEvent('dg-desktop-toggle-window', {
+        detail: { appId },
+      })
+    );
+  };
 
   const getLinkGlyph = (id: string): React.ComponentProps<typeof DockGlyph>['name'] => {
     if (id.includes('linkedin')) return 'network';
@@ -77,6 +96,46 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, []);
+
+  useEffect(() => {
+    const onDesktopState = (event: Event) => {
+      const customEvent = event as CustomEvent<{
+        open?: {
+          terminal?: boolean;
+          notes?: boolean;
+          projects?: boolean;
+          resume?: boolean;
+          news?: boolean;
+          network?: boolean;
+        };
+      }>;
+      const open = customEvent.detail?.open;
+      if (!open) return;
+      setDesktopOpen((prev) => ({
+        terminal: open.terminal ?? prev.terminal,
+        notes: open.notes ?? prev.notes,
+        projects: open.projects ?? prev.projects,
+        resume: open.resume ?? prev.resume,
+        news: open.news ?? prev.news,
+        network: open.network ?? prev.network,
+      }));
+    };
+    window.addEventListener('dg-desktop-state', onDesktopState as EventListener);
+    return () => {
+      window.removeEventListener('dg-desktop-state', onDesktopState as EventListener);
+    };
+  }, []);
+
+  useEffect(() => {
+    const onOpenLinks = () => setShowLinksPopup(true);
+    const onCloseLinks = () => setShowLinksPopup(false);
+    window.addEventListener('dg-dock-open-links', onOpenLinks as EventListener);
+    window.addEventListener('dg-dock-close-links', onCloseLinks as EventListener);
+    return () => {
+      window.removeEventListener('dg-dock-open-links', onOpenLinks as EventListener);
+      window.removeEventListener('dg-dock-close-links', onCloseLinks as EventListener);
     };
   }, []);
 
@@ -148,52 +207,76 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
       id: 'workbench',
       label: 'Workbench',
       onClick: () => {
+        if (isDesktopShell) {
+          toggleDesktopWindow('projects');
+          return;
+        }
         window.location.href = '/apps/projects';
       },
       glyph: 'workbench',
       color: 'from-slate-900 to-slate-700',
-      active: activeApps.github || isPathActive('/apps/projects'),
+      active: isDesktopShell
+        ? desktopOpen.projects
+        : activeApps.github || isPathActive('/apps/projects'),
     },
     {
       id: 'notes',
       label: 'Lab Notes',
       onClick: () => {
+        if (isDesktopShell) {
+          toggleDesktopWindow('notes');
+          return;
+        }
         window.location.href = '/apps/notes';
       },
       glyph: 'notes',
       color: 'from-amber-500 to-yellow-300',
-      active: activeApps.notes || isPathActive('/apps/notes'),
+      active: isDesktopShell ? desktopOpen.notes : activeApps.notes || isPathActive('/apps/notes'),
     },
     {
       id: 'timeline',
       label: 'Timeline',
       onClick: () => {
+        if (isDesktopShell) {
+          toggleDesktopWindow('resume');
+          return;
+        }
         window.location.href = '/apps/resume';
       },
       glyph: 'timeline',
       color: 'from-rose-600 to-rose-400',
-      active: activeApps.resume || isPathActive('/apps/resume'),
+      active: isDesktopShell
+        ? desktopOpen.resume
+        : activeApps.resume || isPathActive('/apps/resume'),
     },
     {
       id: 'news',
       label: 'News Hub',
       onClick: () => {
+        if (isDesktopShell) {
+          toggleDesktopWindow('news');
+          return;
+        }
         window.location.href = '/apps/news';
       },
       glyph: 'news',
       color: 'from-sky-600 to-indigo-700',
-      active: isPathActive('/apps/news'),
+      active: isDesktopShell ? desktopOpen.news : isPathActive('/apps/news'),
     },
     {
       id: 'network',
       label: 'Network',
       onClick: () => {
+        if (isDesktopShell) {
+          toggleDesktopWindow('network');
+          return;
+        }
         window.location.href =
           window.location.pathname === '/apps/network' ? '/desktop' : '/apps/network';
       },
       glyph: 'network',
       color: 'from-indigo-600 to-fuchsia-700',
-      active: isPathActive('/apps/network'),
+      active: isDesktopShell ? desktopOpen.network : isPathActive('/apps/network'),
     },
     {
       id: 'links',
@@ -207,6 +290,10 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
       id: 'terminal',
       label: 'Agents',
       onClick: () => {
+        if (isDesktopShell) {
+          toggleDesktopWindow('terminal');
+          return;
+        }
         const path = window.location.pathname;
         const isTerminal = path === '/apps/terminal' || path === '/apps/terminal/';
         window.location.href = isTerminal ? '/desktop' : '/apps/terminal';
@@ -214,7 +301,9 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
       glyph: 'agents',
       glyphClassName: 'text-emerald-300',
       color: 'from-slate-950 to-slate-800',
-      active: activeApps.terminal || isPathActive('/apps/terminal'),
+      active: isDesktopShell
+        ? desktopOpen.terminal
+        : activeApps.terminal || isPathActive('/apps/terminal'),
     },
   ];
 

@@ -1,12 +1,22 @@
 ---
 import DesktopLayout from '../../layouts/DesktopLayout.astro';
-import WindowFrame from '../../components/global/WindowFrame.astro';
+import DraggableAppWindow from '../../components/global/DraggableAppWindow';
 import { workbench } from '../../config/workbench';
+
+const toSectionId = (category: string) =>
+  `workbench-${category.toLowerCase().replace(/\s+/g, '-')}`;
 ---
 
-<DesktopLayout>
-  <main class="mx-auto max-w-5xl px-6 pt-16 text-white">
-    <WindowFrame title="Workbench" closeHref="/desktop">
+<DesktopLayout activeAppId="projects">
+  <main class="relative min-h-[calc(100vh-4rem)] px-6 pt-12 text-white">
+    <DraggableAppWindow
+      client:load
+      appId="projects"
+      title="Workbench"
+      closeHref="/desktop"
+      initialSize={{ width: 980, height: 680 }}
+      initialPosition={{ x: 80, y: 80 }}
+    >
       <div class="flex items-start justify-between gap-6">
         <div>
           <h1 class="text-2xl font-semibold">Workbench</h1>
@@ -27,7 +37,7 @@ import { workbench } from '../../config/workbench';
             const items = workbench.filter((x) => x.category === cat);
             if (items.length === 0) return null;
             return (
-              <section>
+              <section id={toSectionId(cat)}>
                 <h2 class="text-sm font-semibold tracking-wide text-white/80">{cat}</h2>
                 <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
                   {items.map((item) => (
@@ -110,6 +120,35 @@ import { workbench } from '../../config/workbench';
           })
         }
       </div>
-    </WindowFrame>
+    </DraggableAppWindow>
   </main>
 </DesktopLayout>
+
+<script is:inline>
+  const jumpTo = (sectionId) => {
+    if (!sectionId) return;
+    const el = document.getElementById(sectionId);
+    if (!el) return;
+    const container = el.closest('.no-scrollbar');
+    if (container instanceof HTMLElement) {
+      const top = Math.max(0, el.offsetTop - 8);
+      container.scrollTo({ top, behavior: 'smooth' });
+      return;
+    }
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const onWorkbenchMenuAction = (event) => {
+    const detail = event.detail;
+    if (!detail || !detail.action) return;
+    if (detail.action === 'jump_section' && typeof detail.sectionId === 'string') {
+      jumpTo(detail.sectionId);
+      return;
+    }
+    if (detail.action === 'scroll_top') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  window.addEventListener('dg-workbench-menu-action', onWorkbenchMenuAction);
+</script>

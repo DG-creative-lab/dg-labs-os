@@ -9,6 +9,21 @@ Make the codebase stable, predictable, and easy for AI coding agents to modify s
 - focused test commands
 - explicit refactor backlog with priorities
 
+## Status Snapshot (2026-03-02)
+
+Recently completed:
+
+- Quality command matrix and Makefile shortcuts are in place (`lint`, `format`, `test`, `typecheck`, `check` and focused suites).
+- API contract/unit test coverage expanded across chat/contact/admin and terminal utilities.
+- Admin authentication hardened with signed `HttpOnly` session cookies (`src/utils/adminAuth.ts` + API route integration).
+- Desktop shell moved to single-page multi-window behavior with focus-aware menubar actions.
+- Terminal runtime upgraded to hybrid deterministic + LLM mode with retrieval context and citation footer controls.
+
+Current focus:
+
+- Dedicated Help instruction windows (replace duplicated Help menu app links).
+- Resume module enrichment and tighter cross-linking between Resume/Workbench/Network.
+
 ## Current Snapshot (Audit)
 
 ### Strengths
@@ -19,6 +34,7 @@ Make the codebase stable, predictable, and easy for AI coding agents to modify s
   - unit tests (`vitest`)
   - typecheck (`astro check`)
   - CI workflow with quality + build
+- Focused `pnpm` and `make` commands support incremental local validation per domain.
 - Strong domain-oriented config modules already exist:
   - `src/config/workbench.ts`
   - `src/config/labNotes.ts`
@@ -35,9 +51,9 @@ Make the codebase stable, predictable, and easy for AI coding agents to modify s
 
 2. **Test coverage breadth**
 
-- Current tests cover utility logic, but not enough app behavior contracts.
-- No component-level tests for terminal command output/rendering.
-- No API contract tests for chat/contact/admin endpoints.
+- Utility and API contracts are now covered, but component behavior coverage is still light.
+- No component-level tests for draggable window/menu interaction paths.
+- No committed Playwright smoke flow yet for desktop shell + mobile unlock.
 
 3. **Operational consistency**
 
@@ -70,19 +86,14 @@ Make the codebase stable, predictable, and easy for AI coding agents to modify s
 
 ## P0 (Immediate)
 
-1. **Testing command matrix and Makefile orchestration**
+1. **Desktop interaction test harness**
 
-- Add focused test scripts:
-  - auth
-  - network
-  - terminal
-  - content
-  - full unit suite
-- Mirror these in Make targets.
+- Add behavior tests for focus-aware menubar action dispatch.
+- Add tests for shell events (`dg-desktop-open-window`, `dg-app-focus`, dock link-open events).
 
-2. **API input parsing hardening**
+2. **Help system implementation**
 
-- Replace `any` in `/api/chat`, `/api/contact`, `/api/admin/login` with narrow runtime parsing.
+- Add dedicated instruction windows and remove duplicated app-link Help behavior.
 
 3. **Lock quality gates**
 

@@ -52,6 +52,11 @@ type ToolName = 'local_context' | 'web_verify' | 'open_app' | 'list_projects' | 
 
 type ToolUsage = Record<ToolName, number>;
 
+type TerminalMenuEventDetail = {
+  action: 'clear_output' | 'set_mode' | 'toggle_sources' | 'verify_profile' | 'verify_projects';
+  mode?: TerminalBrainMode;
+};
+
 type LastWebVerifyContext = {
   query: string;
   summary: string;
@@ -164,7 +169,7 @@ export default function AgentsTerminal() {
     {
       id: 2,
       kind: 'system',
-      text: 'Type "help" for commands or "ask <question>" for LLM mode.',
+      text: 'Modes: ask|brief|cv|projects <question>  •  help for deterministic commands',
     },
   ]);
   const nextIdRef = useRef(3);
@@ -759,6 +764,66 @@ export default function AgentsTerminal() {
     await action();
   };
 
+  useEffect(() => {
+    const handleMenuAction = (event: Event) => {
+      const customEvent = event as CustomEvent<TerminalMenuEventDetail>;
+      const detail = customEvent.detail;
+      if (!detail?.action) return;
+
+      if (detail.action === 'clear_output') {
+        setHistory([
+          pushLine('system', 'DG-Labs Agents Runtime v2'),
+          pushLine(
+            'system',
+            'Modes: ask|brief|cv|projects <question>  •  help for deterministic commands'
+          ),
+        ]);
+        return;
+      }
+
+      if (detail.action === 'set_mode') {
+        const mode = detail.mode;
+        if (mode === 'concise' || mode === 'explainer' || mode === 'research') {
+          setSettings((prev) => ({ ...prev, brainMode: mode }));
+          setHistory((prev) => [...prev, pushLine('system', `Mode set to ${mode}.`)]);
+        }
+        return;
+      }
+
+      if (detail.action === 'toggle_sources') {
+        setSettings((prev) => {
+          const next = !prev.showLlmSources;
+          setHistory((historyPrev) => [
+            ...historyPrev,
+            pushLine('system', `LLM sources footer ${next ? 'enabled' : 'disabled'}.`),
+          ]);
+          return { ...prev, showLlmSources: next };
+        });
+        return;
+      }
+
+      if (detail.action === 'verify_profile') {
+        void runQuickAction('verify-profile-menu', () =>
+          runVerify('Dessi Georgieva LinkedIn profile work experience education')
+        );
+        return;
+      }
+
+      if (detail.action === 'verify_projects') {
+        void runQuickAction('verify-projects-menu', () =>
+          runVerify(
+            'Dessi Georgieva projects DG-creative-lab ai-knowledge-hub AI News Hub skills ai-knowledge-hub'
+          )
+        );
+      }
+    };
+
+    window.addEventListener('dg-terminal-menu-action', handleMenuAction as EventListener);
+    return () => {
+      window.removeEventListener('dg-terminal-menu-action', handleMenuAction as EventListener);
+    };
+  }, []);
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const command = input.trim();
@@ -829,7 +894,10 @@ export default function AgentsTerminal() {
     if (response.action.type === 'clear') {
       setHistory([
         pushLine('system', 'DG-Labs Agents Runtime v2'),
-        pushLine('system', 'Type "help" for commands or "ask <question>" for LLM mode.'),
+        pushLine(
+          'system',
+          'Modes: ask|brief|cv|projects <question>  •  help for deterministic commands'
+        ),
       ]);
       return;
     }
@@ -873,7 +941,7 @@ export default function AgentsTerminal() {
 
   return (
     <div className="h-full min-h-0 rounded-xl border border-emerald-300/20 bg-black/60 shadow-[0_14px_60px_rgba(0,0,0,0.45)] overflow-hidden flex flex-col">
-      <div className="flex items-center justify-between border-b border-emerald-400/20 px-4 py-2 text-xs text-emerald-300/80">
+      <div className="flex items-center justify-between border-b border-emerald-400/20 px-4 py-2 text-[11px] text-emerald-300/75">
         <span>
           Runtime: deterministic commands + LLM (`ask`) | {terminalSettingsSummary(settings)}
         </span>
@@ -884,7 +952,7 @@ export default function AgentsTerminal() {
           </span>
         ) : null}
       </div>
-      <details className="border-b border-emerald-400/20 px-4 py-2 text-xs text-white/70">
+      <details className="border-b border-emerald-400/20 px-4 py-2 text-[11px] text-white/70">
         <summary className="cursor-pointer select-none text-emerald-300/90">
           Terminal Settings
         </summary>
@@ -1024,7 +1092,7 @@ export default function AgentsTerminal() {
           </button>
         </div>
       </details>
-      <details className="border-b border-emerald-400/20 px-4 py-2 text-xs text-white/70">
+      <details className="border-b border-emerald-400/20 px-4 py-2 text-[11px] text-white/70">
         <summary className="cursor-pointer select-none text-emerald-300/90">Tools Panel</summary>
         <div className="mt-2 grid grid-cols-1 gap-1 md:grid-cols-2">
           <p>
@@ -1186,7 +1254,7 @@ export default function AgentsTerminal() {
         </p>
       </details>
 
-      <div className="border-b border-emerald-400/20 px-4 py-2 text-xs text-white/70">
+      <div className="border-b border-emerald-400/20 px-4 py-2 text-[11px] text-white/70">
         <button
           type="button"
           onClick={() => setShowEvidencePanel((prev) => !prev)}
@@ -1229,7 +1297,7 @@ export default function AgentsTerminal() {
 
       <div
         ref={outputRef}
-        className="min-h-0 flex-1 overflow-y-auto px-4 py-4 font-mono text-sm leading-6 text-emerald-200 [&::-webkit-scrollbar]:hidden"
+        className="min-h-0 flex-1 overflow-y-auto px-4 py-3 font-mono text-[13px] leading-6 text-emerald-200 [&::-webkit-scrollbar]:hidden"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         aria-live="polite"
       >
@@ -1237,7 +1305,9 @@ export default function AgentsTerminal() {
           <p
             key={entry.id}
             className={
-              /^\[(local_context|web_context)\]$/.test(entry.text)
+              /^\[(local_context|web_context|citations|citation_groups|confidence|evidence)\]$/.test(
+                entry.text
+              )
                 ? 'mt-1 text-[11px] uppercase tracking-[0.12em] text-cyan-300/85 border-b border-cyan-300/20'
                 : entry.kind === 'command'
                   ? 'text-emerald-300'

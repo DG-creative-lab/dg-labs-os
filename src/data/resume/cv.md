@@ -1,8 +1,8 @@
 # Dessi Georgieva
 
-**Research Engineer — AI Systems & Human Agency**
+**Research Engineer - AI Systems & Human Agency**
 
-London, UK · [LinkedIn](https://www.linkedin.com/in/dessi-georgieva/) · [GitHub](https://github.com/DG-creative-lab) · [AI Knowledge Hub](https://github.com/ai-knowledge-hub) · [AI News Hub](https://ai-news-hub.performics-labs.com/)
+London, UK · [LinkedIn](https://www.linkedin.com/in/dessi-georgieva/) · [GitHub](https://github.com/DG-creative-lab) · [AI Knowledge Hub](https://github.com/ai-knowledge-hub) · [AI News Hub](https://ai-news-hub.performics-labs.com/) · [Contact](dessi.georgieva8@gmail.com)
 
 ---
 
@@ -50,7 +50,7 @@ Open-source ecosystem helping marketing teams adopt AI agents through structured
 - Designed progressive educational architecture from fundamentals to advanced orchestration
 - **Stack**: Go, Next.js/React, Markdown, multi-runtime skill specifications
 
-### AI News Hub — Content Platform
+### AI News Hub - Content Platform
 
 _200+ organic followers · 50+ articles · Active_
 
@@ -61,11 +61,11 @@ AI content platform publishing news analysis and research-grade deep dives on AI
 - Built engaged practitioner community around empowerment-focused AI perspectives
 - **Stack**: Astro
 
-### DG-Labs OS — Portfolio as Operating System
+### DG-Labs OS - Portfolio as Operating System
 
 _Personal · Active_
 
-Cognitive operating system presenting work, research, and ideas as explorable apps, windows, and workflows — with a retrieval-grounded agent runtime.
+Cognitive operating system presenting work, research, and ideas as explorable apps, windows, and workflows - with a retrieval-grounded agent runtime.
 
 - Designed knowledge graph architecture (Sigma.js) with weighted nodes and idea edges
 - Built terminal agent backed by structured knowledge base with provenance tracking
@@ -91,13 +91,13 @@ Designing and building AI systems from the ground up within a marketing intellig
 
 **University of York** · UK
 
-Graduate study in human rights theory and practice. Foundational training in how institutions, policies, and technical systems create or deny human agency — directly informing an empowerment-first approach to AI system design.
+Graduate study in human rights theory and practice. Foundational training in how institutions, policies, and technical systems create or deny human agency - directly informing an empowerment-first approach to AI system design.
 
 ### BA Philosophy (Philosophy of Science)
 
 **Sofia University** · Bulgaria
 
-Specialisation in philosophy of science, epistemology, and the structure of scientific knowledge. Training in how representational frameworks constrain what we can know — the philosophical foundation for treating intent as geometric structure and questioning assumptions embedded in technical systems.
+Specialisation in philosophy of science, epistemology, and the structure of scientific knowledge. Training in how representational frameworks constrain what we can know - the philosophical foundation for treating intent as geometric structure and questioning assumptions embedded in technical systems.
 
 ---
 
@@ -105,8 +105,8 @@ Specialisation in philosophy of science, epistemology, and the structure of scie
 
 **Deep Dive Analysis Series** (published on AI News Hub):
 
-- **The Geometry of Intention** — Argues that consumer intent has geometric structure that categorical taxonomies destroy. Proposes embedding-based models that let intent patterns emerge from behavioral data rather than predefined categories.
-- **The Phenomenology of Search** — Applies phenomenological methods to search behavior, examining what the experience of formulating a query reveals about human intention and the design obligations of search systems.
+- **The Geometry of Intention** - Argues that consumer intent has geometric structure that categorical taxonomies destroy. Proposes embedding-based models that let intent patterns emerge from behavioral data rather than predefined categories.
+- **The Phenomenology of Search** - Applies phenomenological methods to search behavior, examining what the experience of formulating a query reveals about human intention and the design obligations of search systems.
 - 50+ additional articles spanning AI news analysis, marketing intelligence, and human agency perspectives.
 
 ---
@@ -125,4 +125,4 @@ Specialisation in philosophy of science, epistemology, and the structure of scie
 
 Three capabilities rarely found together: **philosophical depth applied as architectural constraint** (not decoration), **full-stack AI system building** from Bayesian learning to production deployment, and **research writing that bridges technical and practitioner audiences** with a growing community of 250+ practitioners.
 
-Core thesis: AI systems should empower human agency, not extract attention. This is not a tagline — it is a design constraint that runs through every project.
+Core thesis: AI systems should empower human agency, not extract attention. This is not a tagline - it is a design constraint that runs through every project.

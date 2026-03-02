@@ -7,7 +7,6 @@ import {
   IoDocumentText,
   IoCodeSlash,
   IoMail,
-  IoCall,
   IoHelpCircle,
 } from 'react-icons/io5';
 import { VscVscode } from 'react-icons/vsc';
@@ -23,12 +22,16 @@ type MenuItem = {
 
 interface MacToolbarProps {
   onOpenContact?: () => void;
+  activeAppId?: 'home' | 'terminal' | 'network' | 'projects' | 'notes' | 'resume' | 'news';
 }
 
-export default function MacToolbar({ onOpenContact }: MacToolbarProps) {
+export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacToolbarProps) {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [showAbout, setShowAbout] = useState(false);
+  const [focusedAppId, setFocusedAppId] = useState<
+    'home' | 'terminal' | 'network' | 'projects' | 'notes' | 'resume' | 'news' | null
+  >(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -38,6 +41,26 @@ export default function MacToolbar({ onOpenContact }: MacToolbarProps) {
 
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    const handleAppFocus = (event: Event) => {
+      const customEvent = event as CustomEvent<{
+        appId?: 'home' | 'terminal' | 'network' | 'projects' | 'notes' | 'resume' | 'news';
+      }>;
+      const next = customEvent.detail?.appId;
+      if (!next) return;
+      setFocusedAppId(next);
+    };
+
+    window.addEventListener('dg-app-focus', handleAppFocus as EventListener);
+    return () => {
+      window.removeEventListener('dg-app-focus', handleAppFocus as EventListener);
+    };
+  }, []);
+
+  useEffect(() => {
+    setFocusedAppId((current) => (current === activeAppId ? current : null));
+  }, [activeAppId]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -89,7 +112,143 @@ export default function MacToolbar({ onOpenContact }: MacToolbarProps) {
     }
   };
 
-  const menus: Record<string, MenuItem[]> = {
+  const openDesktopOrNavigate = (
+    appId: 'terminal' | 'network' | 'projects' | 'notes' | 'resume' | 'news',
+    href: string
+  ) => {
+    const path = window.location.pathname.replace(/\/+$/, '') || '/';
+    const target = href.replace(/\/+$/, '') || '/';
+    const isDesktopShell = path === '/desktop';
+    if (isDesktopShell) {
+      window.dispatchEvent(
+        new CustomEvent('dg-desktop-open-window', {
+          detail: { appId },
+        })
+      );
+      return;
+    }
+    if (path === target) {
+      window.dispatchEvent(
+        new CustomEvent('dg-app-focus', {
+          detail: { appId },
+        })
+      );
+      return;
+    }
+    window.location.href = href;
+  };
+
+  const emitTerminalAction = (
+    action: 'clear_output' | 'set_mode' | 'toggle_sources' | 'verify_profile' | 'verify_projects',
+    payload?: Record<string, unknown>
+  ) => {
+    window.dispatchEvent(
+      new CustomEvent('dg-terminal-menu-action', {
+        detail: { action, ...payload },
+      })
+    );
+  };
+
+  const emitNetworkAction = (
+    action: 'set_filter' | 'set_view' | 'clear_search' | 'apply_query',
+    payload?: Record<string, unknown>
+  ) => {
+    window.dispatchEvent(
+      new CustomEvent('dg-network-menu-action', {
+        detail: { action, ...payload },
+      })
+    );
+  };
+
+  const emitWorkbenchAction = (
+    action: 'jump_section' | 'scroll_top',
+    payload?: Record<string, unknown>
+  ) => {
+    window.dispatchEvent(
+      new CustomEvent('dg-workbench-menu-action', {
+        detail: { action, ...payload },
+      })
+    );
+  };
+
+  const emitNotesAction = (
+    action: 'jump_section' | 'open_news_hub' | 'scroll_top',
+    payload?: Record<string, unknown>
+  ) => {
+    window.dispatchEvent(
+      new CustomEvent('dg-notes-menu-action', {
+        detail: { action, ...payload },
+      })
+    );
+  };
+
+  const emitResumeAction = (
+    action: 'jump_section' | 'download' | 'scroll_top',
+    payload?: Record<string, unknown>
+  ) => {
+    window.dispatchEvent(
+      new CustomEvent('dg-resume-menu-action', {
+        detail: { action, ...payload },
+      })
+    );
+  };
+
+  const openNotesHelpSection = (sectionId: string) => {
+    const path = window.location.pathname.replace(/\/+$/, '') || '/';
+    if (path === '/desktop') {
+      window.dispatchEvent(
+        new CustomEvent('dg-desktop-open-window', {
+          detail: { appId: 'notes' },
+        })
+      );
+      window.dispatchEvent(
+        new CustomEvent('dg-app-focus', {
+          detail: { appId: 'notes' },
+        })
+      );
+      [80, 220, 420].forEach((delay) => {
+        window.setTimeout(() => {
+          emitNotesAction('jump_section', { sectionId });
+        }, delay);
+      });
+      return;
+    }
+    if (path === '/apps/notes') {
+      emitNotesAction('jump_section', { sectionId });
+      return;
+    }
+    window.location.href = `/apps/notes#${sectionId}`;
+  };
+
+  const openTerminalGuide = () => {
+    const path = window.location.pathname.replace(/\/+$/, '') || '/';
+    if (path === '/desktop') {
+      window.dispatchEvent(
+        new CustomEvent('dg-desktop-open-window', {
+          detail: { appId: 'terminal' },
+        })
+      );
+      window.dispatchEvent(
+        new CustomEvent('dg-app-focus', {
+          detail: { appId: 'terminal' },
+        })
+      );
+      window.setTimeout(() => {
+        emitTerminalAction('set_mode', { mode: 'explainer' });
+      }, 120);
+      return;
+    }
+    if (path === '/apps/terminal') {
+      emitTerminalAction('set_mode', { mode: 'explainer' });
+      return;
+    }
+    window.location.href = '/apps/terminal';
+  };
+
+  const commonMenus: Record<
+    'Apple' | 'File' | 'Edit' | 'View' | 'Go' | 'Window' | 'Help',
+    MenuItem[]
+  > = {
     Apple: [
       {
         label: 'About DG-Labs Pro',
@@ -100,7 +259,7 @@ export default function MacToolbar({ onOpenContact }: MacToolbarProps) {
         label: 'System Settings...',
         icon: <IoDocumentText size={16} />,
         action: () => {
-          window.location.href = '/apps/notes';
+          openDesktopOrNavigate('notes', '/apps/notes');
         },
       },
     ],
@@ -109,14 +268,14 @@ export default function MacToolbar({ onOpenContact }: MacToolbarProps) {
         label: 'Resume',
         icon: <IoDocumentText size={16} />,
         action: () => {
-          window.location.href = '/apps/resume';
+          openDesktopOrNavigate('resume', '/apps/resume');
         },
       },
       {
         label: 'Projects',
         icon: <IoCodeSlash size={16} />,
         action: () => {
-          window.location.href = '/apps/projects';
+          openDesktopOrNavigate('projects', '/apps/projects');
         },
       },
       {
@@ -136,42 +295,34 @@ export default function MacToolbar({ onOpenContact }: MacToolbarProps) {
           alert('Email copied to clipboard!');
         },
       },
-      {
-        label: 'Copy Phone',
-        icon: <IoCall size={16} />,
-        action: () => {
-          navigator.clipboard.writeText(userConfig.contact.phone);
-          alert('Phone number copied to clipboard!');
-        },
-      },
     ],
     View: [
       {
         label: 'Projects',
         icon: <IoCodeSlash size={16} />,
         action: () => {
-          window.location.href = '/apps/projects';
+          openDesktopOrNavigate('projects', '/apps/projects');
         },
       },
       {
         label: 'AI News Hub',
         icon: <IoDocumentText size={16} />,
         action: () => {
-          window.location.href = '/apps/news';
+          openDesktopOrNavigate('news', '/apps/news');
         },
       },
       {
         label: 'Notes',
         icon: <IoDocumentText size={16} />,
         action: () => {
-          window.location.href = '/apps/notes';
+          openDesktopOrNavigate('notes', '/apps/notes');
         },
       },
       {
         label: 'Terminal',
         icon: <IoHelpCircle size={16} />,
         action: () => {
-          window.location.href = '/apps/terminal';
+          openDesktopOrNavigate('terminal', '/apps/terminal');
         },
       },
     ],
@@ -198,29 +349,304 @@ export default function MacToolbar({ onOpenContact }: MacToolbarProps) {
           window.location.href = `mailto:${userConfig.contact.email}`;
         },
       },
-      {
-        label: 'Schedule a Call',
-        icon: <IoCall size={16} />,
-        action: () => window.open(userConfig.contact.calendly, '_blank'),
-      },
     ],
     Window: [
       {
         label: 'Contact...',
         icon: <IoMail size={16} />,
-        action: () => (onOpenContact ? onOpenContact() : (window.location.href = '/#contact')),
+        action: () => {
+          if (onOpenContact) {
+            onOpenContact();
+            return;
+          }
+          const path = window.location.pathname.replace(/\/+$/, '') || '/';
+          if (path === '/desktop') {
+            window.dispatchEvent(new CustomEvent('dg-dock-open-links'));
+            return;
+          }
+          window.location.href = `mailto:${userConfig.contact.email}`;
+        },
       },
     ],
     Help: [
       {
-        label: 'Keyboard Shortcuts',
+        label: 'Search Help in Agents...',
         icon: <IoHelpCircle size={16} />,
-        action: () => {},
+        action: () => openTerminalGuide(),
+      },
+      {
+        label: 'DG-Labs User Guide',
+        icon: <IoDocumentText size={16} />,
+        action: () => openNotesHelpSection('notes-principles'),
+      },
+      {
+        label: 'Terminal Command Guide',
+        icon: <IoHelpCircle size={16} />,
+        action: () => openTerminalGuide(),
+      },
+      {
+        label: 'Navigation Tips',
+        icon: <IoDocumentText size={16} />,
+        action: () => openNotesHelpSection('notes-quick-actions'),
+      },
+      {
+        label: 'About DG-Labs OS',
+        icon: <IoHelpCircle size={16} />,
+        action: () => setShowAbout(true),
       },
     ],
   };
 
-  const menuOrder = ['File', 'Edit', 'View', 'Go', 'Window', 'Help'];
+  const terminalMenus: typeof commonMenus = {
+    ...commonMenus,
+    View: [
+      {
+        label: 'Set Mode: Concise',
+        icon: <IoHelpCircle size={16} />,
+        action: () => emitTerminalAction('set_mode', { mode: 'concise' }),
+      },
+      {
+        label: 'Set Mode: Explainer',
+        icon: <IoHelpCircle size={16} />,
+        action: () => emitTerminalAction('set_mode', { mode: 'explainer' }),
+      },
+      {
+        label: 'Set Mode: Research',
+        icon: <IoHelpCircle size={16} />,
+        action: () => emitTerminalAction('set_mode', { mode: 'research' }),
+      },
+      {
+        label: 'Toggle Sources Footer',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitTerminalAction('toggle_sources'),
+      },
+    ],
+    Window: [
+      {
+        label: 'Clear Output',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitTerminalAction('clear_output'),
+      },
+      {
+        label: 'Verify LinkedIn Profile',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitTerminalAction('verify_profile'),
+      },
+      {
+        label: 'Verify Project Footprint',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitTerminalAction('verify_projects'),
+      },
+    ],
+    Help: [
+      ...commonMenus.Help,
+      {
+        label: 'Terminal Help',
+        icon: <IoHelpCircle size={16} />,
+        action: () => emitTerminalAction('set_mode', { mode: 'explainer' }),
+      },
+    ],
+  };
+
+  const networkMenus: typeof commonMenus = {
+    ...commonMenus,
+    View: [
+      {
+        label: 'List Mode',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitNetworkAction('set_view', { view: 'LIST' }),
+      },
+      {
+        label: 'Graph Mode',
+        icon: <IoCodeSlash size={16} />,
+        action: () => emitNetworkAction('set_view', { view: 'GRAPH' }),
+      },
+      {
+        label: 'Clear Search',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitNetworkAction('clear_search'),
+      },
+    ],
+    Window: [
+      {
+        label: 'Filter: All',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitNetworkAction('set_filter', { filter: 'ALL' }),
+      },
+      {
+        label: 'Filter: Education',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitNetworkAction('set_filter', { filter: 'Education' }),
+      },
+      {
+        label: 'Filter: Research',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitNetworkAction('set_filter', { filter: 'Research' }),
+      },
+      {
+        label: 'Filter: Projects',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitNetworkAction('set_filter', { filter: 'Projects' }),
+      },
+      {
+        label: 'Filter: Experience',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitNetworkAction('set_filter', { filter: 'Experience' }),
+      },
+    ],
+    Help: [
+      ...commonMenus.Help,
+      {
+        label: 'Find: Human Agency',
+        icon: <IoHelpCircle size={16} />,
+        action: () => emitNetworkAction('apply_query', { query: 'human agency empowerment' }),
+      },
+    ],
+  };
+
+  const workbenchMenus: typeof commonMenus = {
+    ...commonMenus,
+    View: [
+      {
+        label: 'Open Workbench',
+        icon: <IoCodeSlash size={16} />,
+        action: () => openDesktopOrNavigate('projects', '/apps/projects'),
+      },
+      {
+        label: 'Research Systems',
+        icon: <IoCodeSlash size={16} />,
+        action: () =>
+          emitWorkbenchAction('jump_section', { sectionId: 'workbench-research-systems' }),
+      },
+      {
+        label: 'Platforms',
+        icon: <IoCodeSlash size={16} />,
+        action: () => emitWorkbenchAction('jump_section', { sectionId: 'workbench-platforms' }),
+      },
+      {
+        label: 'Writing',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitWorkbenchAction('jump_section', { sectionId: 'workbench-writing' }),
+      },
+      {
+        label: 'Hackathons',
+        icon: <IoHelpCircle size={16} />,
+        action: () => emitWorkbenchAction('jump_section', { sectionId: 'workbench-hackathons' }),
+      },
+    ],
+    Window: [
+      {
+        label: 'Back to Top',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitWorkbenchAction('scroll_top'),
+      },
+    ],
+  };
+
+  const notesMenus: typeof commonMenus = {
+    ...commonMenus,
+    View: [
+      {
+        label: 'Principles',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitNotesAction('jump_section', { sectionId: 'notes-principles' }),
+      },
+      {
+        label: 'Quick Actions',
+        icon: <IoHelpCircle size={16} />,
+        action: () => emitNotesAction('jump_section', { sectionId: 'notes-quick-actions' }),
+      },
+      {
+        label: 'Pinned Deep Dives',
+        icon: <IoCodeSlash size={16} />,
+        action: () => emitNotesAction('jump_section', { sectionId: 'notes-deep-dives' }),
+      },
+      {
+        label: 'News Analysis',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitNotesAction('jump_section', { sectionId: 'notes-news-analysis' }),
+      },
+    ],
+    Window: [
+      {
+        label: 'Back to Top',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitNotesAction('scroll_top'),
+      },
+      {
+        label: 'Open AI News Hub',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitNotesAction('open_news_hub'),
+      },
+    ],
+  };
+
+  const resumeMenus: typeof commonMenus = {
+    ...commonMenus,
+    View: [
+      {
+        label: 'Summary',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitResumeAction('jump_section', { sectionId: 'resume-summary' }),
+      },
+      {
+        label: 'Downloads',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitResumeAction('jump_section', { sectionId: 'resume-downloads' }),
+      },
+      {
+        label: 'Resume Body',
+        icon: <IoCodeSlash size={16} />,
+        action: () => emitResumeAction('jump_section', { sectionId: 'resume-body' }),
+      },
+    ],
+    Window: [
+      {
+        label: 'Download PDF',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitResumeAction('download', { format: 'pdf' }),
+      },
+      {
+        label: 'Download DOCX',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitResumeAction('download', { format: 'docx' }),
+      },
+      {
+        label: 'Download Markdown',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitResumeAction('download', { format: 'markdown' }),
+      },
+      {
+        label: 'Back to Top',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitResumeAction('scroll_top'),
+      },
+    ],
+  };
+
+  const resolvedAppId = focusedAppId ?? activeAppId;
+
+  const menus =
+    resolvedAppId === 'terminal'
+      ? terminalMenus
+      : resolvedAppId === 'network'
+        ? networkMenus
+        : resolvedAppId === 'projects'
+          ? workbenchMenus
+          : resolvedAppId === 'notes'
+            ? notesMenus
+            : resolvedAppId === 'resume'
+              ? resumeMenus
+              : commonMenus;
+
+  const menuOrder: Array<'File' | 'Edit' | 'View' | 'Go' | 'Window' | 'Help'> = [
+    'File',
+    'Edit',
+    'View',
+    'Go',
+    'Window',
+    'Help',
+  ];
 
   const renderMenu = (menuItems: MenuItem[]) => (
     <div

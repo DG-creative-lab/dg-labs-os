@@ -43,8 +43,10 @@ Primary metaphor:
   - Reading scrim for content legibility
   - Mac-like toolbar and dock
 - Toolbar includes Apple menu and app menus (File/Edit/View/Go/Window/Help).
+- Menubar behavior is context-aware by focused app (desktop shell events + route fallback).
 - Dock includes current modules:
   - Workbench, Lab Notes, Timeline, News Hub, Network, Links, Agents
+- `Window -> Contact...` opens the dock Links panel on desktop (mailto fallback on app routes).
 
 ### 2.3 Mobile Shell
 
@@ -77,7 +79,11 @@ Primary metaphor:
 
 - OpenRouter-backed chat API exists at `/api/chat`
 - model currently configured to `openai/gpt-oss-120b`
-- terminal UI currently basic and not yet full CLI command runtime
+- Terminal runtime now supports:
+  - deterministic commands (`help`, `open`, `search`, `context`, `sources`, etc.)
+  - answer modes (`ask`, `brief`, `cv`, `projects`)
+  - local retrieval-grounded context + citations footer
+  - links-registry-informed verification query planning
 
 ### 2.7 Quality and Delivery
 
@@ -103,10 +109,18 @@ This means roadmap execution can be incremental without redesigning the whole in
 
 ### 4.1 Product/UX Gaps
 
-- Terminal is visually present but not yet functionally a real CLI runtime.
 - Resume is too thin relative to your actual depth.
 - News app needs a stronger in-app experience (embedded curated view vs plain external jump).
 - Toolbar actions are useful but not yet fully aligned to the cognitive-OS story.
+
+### 4.4 Help UX Gap (New)
+
+- Help menu currently mixes useful entry points with duplicated app-navigation items.
+- Next iteration should replace duplicated Help items with dedicated instruction windows:
+  - DG-Labs OS User Guide
+  - Terminal Command Guide
+  - Navigation Tips
+  - Troubleshooting / FAQ
 
 ### 4.2 Content Architecture Gaps
 
@@ -185,6 +199,15 @@ Goal: make current modules feel intentionally connected.
 - Make "About" values consistent with current story (DG-Labs Pro, chip/memory/OS narrative).
 - Ensure close/minimize behavior matches other windows.
 
+6. Dedicated Help instruction windows
+
+- Replace duplicated Help links with guide-first windows and structured in-app help content.
+- Keep `Search Help in Agents` as the action entry point to terminal.
+- Add acceptance criteria:
+  - each Help item triggers unique guidance content
+  - no dead/duplicate app-link behavior
+  - guidance content is reachable from both desktop shell and page routes
+
 ## Phase 2 - Content Operating System (2-3 weeks)
 
 Goal: map all high-value content into app-native modules.
@@ -208,6 +231,23 @@ Goal: map all high-value content into app-native modules.
 - Re-map actions to meaningful system controls:
   - Apple: About, Preferences, Lock, Sleep (dim), Restart (seed refresh)
   - File/View/Go/Window/Help tied to real app actions.
+- Dynamic menu model per active app (Mac-like context switch):
+  - when Terminal is active: show terminal-relevant actions (history, mode, clear, verify presets)
+  - when Network is active: show graph/filter/search/layout actions
+  - when Workbench/Notes/Resume are active: show module-specific actions
+  - fallback to global menu set on desktop home
+  - labels and shortcuts should update on app-focus change, not only on route change
+  - acceptance criteria:
+    - active app switch updates menu content within one frame
+    - no dead menu items (each menu entry must trigger a real action)
+    - mobile keeps simplified status bar behavior (no desktop-style menu expansion)
+  - implementation slices:
+    - route-aware menubar (`activeAppId`) wired through desktop layout
+    - terminal vertical slice: menu actions can change mode, clear output, and trigger verify presets
+    - network slice: menu actions can change list/graph mode, apply category filters, and run query presets
+  - workbench/notes/resume slice: menu actions trigger section jumps and module-specific actions
+  - focus slice: draggable windows emit app-focus events (`dg-app-focus`) and menubar resolves focused app before route app
+  - next slice: full single-page multi-window desktop (focus by active window instance, including non-draggable frames)
 
 ## Phase 3 - Visual System and Originality (2 weeks)
 
@@ -248,6 +288,9 @@ Goal: production confidence.
   - navigation from dock
   - toolbar menu actions
   - mobile unlock flow
+  - status:
+    - desktop shell now supports single-page multi-window open/close + focus-aware menubar
+    - pending: commit Playwright smoke test once `@playwright/test` can be installed in environment
 
 3. Deployment hardening (Vercel)
 
@@ -272,16 +315,18 @@ Recommended steady-state modules:
 
 P0 (next):
 
-- Terminal deterministic commands
-- Links registry -> `web_verify` wiring (single source of truth for external profile/project links)
+- Dedicated Help instruction windows (replace duplicated app links in Help menu)
 - Resume app enrichment
 - About window behavior/design parity
 
 P1:
 
+- Terminal deterministic commands hardening (UX + tests)
+- Links registry -> `web_verify` wiring hardening (single source of truth for external profile/project links)
 - News app curation mode
 - Network deep links into other apps
 - Toolbar action model finalization
+- Dynamic Mac menubar per active app (contextual menu sets and shortcuts)
 
 P2:
 

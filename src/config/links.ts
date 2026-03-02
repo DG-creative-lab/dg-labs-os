@@ -76,16 +76,6 @@ export const publicLinks: readonly PublicLink[] = [
     inDockLinks: true,
     verifyEligible: false,
   },
-  {
-    id: 'call',
-    label: 'Call',
-    url: `tel:${contact.phone}`,
-    kind: 'contact',
-    tags: ['call', 'phone', 'contact'],
-    trust: 'high',
-    inDockLinks: true,
-    verifyEligible: false,
-  },
 ];
 
 export const dockLinks = publicLinks.filter((item) => item.inDockLinks);
