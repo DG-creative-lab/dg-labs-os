@@ -4,14 +4,17 @@ import { labNotes } from '../src/config/labNotes';
 import { networkNodes } from '../src/config/network';
 import { workbench } from '../src/config/workbench';
 import {
+  buildCitationChips,
   buildAgentJsonLines,
   buildLlmMessages,
   buildTerminalSystemContext,
   formatAnswerWithCitations,
   isLlmQuery,
   normalizeLlmQuery,
+  parseLlmModeQuery,
   readAgentJsonPayload,
   readChatMessage,
+  resolveAnswerConfidenceLabel,
   TERMINAL_LLM_HISTORY_CHAR_BUDGET,
   TERMINAL_LLM_MAX_QUERY_CHARS,
   TERMINAL_LLM_SYSTEM_CHAR_BUDGET,
@@ -33,6 +36,21 @@ describe('terminal llm helpers', () => {
   it('normalizes ask prefix and enforces max length', () => {
     const q = normalizeLlmQuery(`ask ${'x'.repeat(TERMINAL_LLM_MAX_QUERY_CHARS + 100)}`);
     expect(q.length).toBe(TERMINAL_LLM_MAX_QUERY_CHARS);
+  });
+
+  it('parses llm answer modes from command prefixes', () => {
+    expect(parseLlmModeQuery('brief top 3 projects')).toEqual({
+      mode: 'brief',
+      query: 'top 3 projects',
+    });
+    expect(parseLlmModeQuery('cv current role')).toEqual({
+      mode: 'cv',
+      query: 'current role',
+    });
+    expect(parseLlmModeQuery('projects intent systems')).toEqual({
+      mode: 'projects',
+      query: 'intent systems',
+    });
   });
 
   it('builds grounded system context and messages', () => {
@@ -69,7 +87,19 @@ describe('terminal llm helpers', () => {
     expect(messages[0].role).toBe('system');
     expect(messages[0].content).toContain('Grounded context snippets');
     expect(messages[0].content).toContain('Intent Recognition Agent');
+    expect(messages[0].content).toContain('Answer style: ask.');
     expect(messages[messages.length - 1].content).toBe('What is DG-Labs OS?');
+  });
+
+  it('injects answer mode instruction for projects mode', () => {
+    const ctx = {
+      user: userConfig,
+      workbench,
+      notes: labNotes,
+      network: networkNodes,
+    };
+    const messages = buildLlmMessages('show systems', ctx, [], [], null, 'concise', 'projects');
+    expect(messages[0].content).toContain('Answer style: projects.');
   });
 
   it('applies context budget and prioritizes high-score grounding', () => {
@@ -181,5 +211,41 @@ describe('terminal llm helpers', () => {
     );
     expect(result.answer).toContain('Insufficient evidence');
     expect(result.unverifiedCount).toBe(1);
+  });
+
+  it('resolves confidence labels for local/web combinations', () => {
+    expect(resolveAnswerConfidenceLabel(2, 0)).toBe('local-only');
+    expect(resolveAnswerConfidenceLabel(2, 1)).toBe('local+verified');
+    expect(resolveAnswerConfidenceLabel(0, 1)).toBe('verified-only');
+    expect(resolveAnswerConfidenceLabel(0, 0)).toBe('low-confidence');
+  });
+
+  it('builds grouped citation chips with local + web sources', () => {
+    const chips = buildCitationChips(
+      [
+        {
+          source: 'personal',
+          title: 'Profile',
+          snippet: 'summary',
+          url: 'https://example.com/profile',
+          score: 10,
+        },
+        {
+          source: 'workbench',
+          title: 'Intent Recognition Agent',
+          snippet: 'system',
+          url: 'https://example.com/project',
+          score: 20,
+        },
+      ],
+      [
+        {
+          title: 'External validation',
+          url: 'https://example.com/web',
+          snippet: 'verified',
+        },
+      ]
+    );
+    expect(chips.map((chip) => chip.group)).toEqual(['Profile', 'Projects', 'Web']);
   });
 });

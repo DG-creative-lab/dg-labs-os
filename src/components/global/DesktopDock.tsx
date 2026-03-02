@@ -33,6 +33,14 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
     setShowLinksPopup(!showLinksPopup);
   };
 
+  const normalizedPath =
+    typeof window !== 'undefined' ? window.location.pathname.replace(/\/+$/, '') || '/' : '/';
+  const isPathActive = (...paths: string[]) =>
+    paths.some((path) => {
+      const normalized = path.replace(/\/+$/, '') || '/';
+      return normalized === normalizedPath;
+    });
+
   const getLinkGlyph = (id: string): React.ComponentProps<typeof DockGlyph>['name'] => {
     if (id.includes('linkedin')) return 'network';
     if (id.includes('github')) return 'workbench';
@@ -144,7 +152,7 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
       },
       glyph: 'workbench',
       color: 'from-slate-900 to-slate-700',
-      active: activeApps.github,
+      active: activeApps.github || isPathActive('/apps/projects'),
     },
     {
       id: 'notes',
@@ -154,7 +162,7 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
       },
       glyph: 'notes',
       color: 'from-amber-500 to-yellow-300',
-      active: activeApps.notes,
+      active: activeApps.notes || isPathActive('/apps/notes'),
     },
     {
       id: 'timeline',
@@ -164,7 +172,7 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
       },
       glyph: 'timeline',
       color: 'from-rose-600 to-rose-400',
-      active: activeApps.resume,
+      active: activeApps.resume || isPathActive('/apps/resume'),
     },
     {
       id: 'news',
@@ -174,7 +182,7 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
       },
       glyph: 'news',
       color: 'from-sky-600 to-indigo-700',
-      active: false,
+      active: isPathActive('/apps/news'),
     },
     {
       id: 'network',
@@ -185,7 +193,7 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
       },
       glyph: 'network',
       color: 'from-indigo-600 to-fuchsia-700',
-      active: typeof window !== 'undefined' && window.location.pathname === '/apps/network',
+      active: isPathActive('/apps/network'),
     },
     {
       id: 'links',
@@ -193,7 +201,7 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
       onClick: handleLinksClick,
       glyph: 'links',
       color: 'from-slate-800 to-slate-600',
-      active: false,
+      active: showLinksPopup,
     },
     {
       id: 'terminal',
@@ -206,11 +214,7 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
       glyph: 'agents',
       glyphClassName: 'text-emerald-300',
       color: 'from-slate-950 to-slate-800',
-      active:
-        activeApps.terminal ||
-        (typeof window !== 'undefined' &&
-          (window.location.pathname === '/apps/terminal' ||
-            window.location.pathname === '/apps/terminal/')),
+      active: activeApps.terminal || isPathActive('/apps/terminal'),
     },
   ];
 
@@ -231,7 +235,10 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
               return (
                 <button
                   key={item.id}
-                  onClick={item.onClick}
+                  onClick={() => {
+                    setHoveredIcon(null);
+                    item.onClick();
+                  }}
                   aria-label={item.label}
                   aria-haspopup={item.id === 'links' ? 'menu' : undefined}
                   aria-expanded={item.id === 'links' ? showLinksPopup : undefined}
@@ -267,7 +274,7 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
                       />
                     )}
                   </div>
-                  {hoveredIcon === item.id && <Tooltip text={item.label} />}
+                  {hoveredIcon === item.id && !showLinksPopup && <Tooltip text={item.label} />}
                   {item.id === 'links' && showLinksPopup && <LinksPopup />}
                 </button>
               );

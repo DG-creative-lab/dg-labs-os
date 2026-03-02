@@ -10,13 +10,18 @@ import {
 } from '../../utils/terminalCommands';
 import { routeNaturalLanguageCommand } from '../../utils/terminalRouter';
 import {
+  buildCitationChips,
   buildAgentJsonLines,
   buildLlmMessages,
   formatAnswerWithCitations,
   isLlmQuery,
   normalizeLlmQuery,
+  parseLlmModeQuery,
   readAgentJsonPayload,
   readChatMessage,
+  resolveAnswerConfidenceLabel,
+  type CitationChip,
+  type LlmConfidenceLabel,
 } from '../../utils/terminalLlm';
 import { buildAskEnvelopeLines, buildVerifyEnvelopeLines } from '../../utils/terminalEnvelope';
 import { retrieveKnowledge } from '../../utils/terminalKnowledge';
@@ -84,6 +89,11 @@ type EvidenceState = {
   fromCache: boolean;
 };
 
+type LastAnswerMeta = {
+  confidence: LlmConfidenceLabel;
+  chips: CitationChip[];
+};
+
 const INITIAL_TOOL_USAGE: ToolUsage = {
   local_context: 0,
   web_verify: 0,
@@ -148,6 +158,7 @@ export default function AgentsTerminal() {
   const [llmHistory, setLlmHistory] = useState<LlmHistoryMessage[]>([]);
   const [showEvidencePanel, setShowEvidencePanel] = useState(false);
   const [lastEvidence, setLastEvidence] = useState<EvidenceState | null>(null);
+  const [lastAnswerMeta, setLastAnswerMeta] = useState<LastAnswerMeta | null>(null);
   const [history, setHistory] = useState<TerminalEntry[]>([
     { id: 1, kind: 'system', text: 'DG-Labs Agents Runtime v2' },
     {
@@ -332,9 +343,13 @@ export default function AgentsTerminal() {
   ];
 
   const askLlm = async (rawQuery: string) => {
-    const query = normalizeLlmQuery(rawQuery);
+    const parsed = parseLlmModeQuery(rawQuery);
+    const query = normalizeLlmQuery(parsed.query);
     if (!query) {
-      setHistory((prev) => [...prev, pushLine('output', 'Usage: ask <question>')]);
+      setHistory((prev) => [
+        ...prev,
+        pushLine('output', 'Usage: ask|brief|cv|projects <question>'),
+      ]);
       return;
     }
 
@@ -427,7 +442,8 @@ export default function AgentsTerminal() {
             llmHistory,
             grounding,
             lastWebVerifyContext,
-            settings.brainMode
+            settings.brainMode,
+            parsed.mode
           ),
           responseMode: settings.responseMode,
         }),
@@ -459,6 +475,12 @@ export default function AgentsTerminal() {
         score: hit.score,
       }));
       const cited = formatAnswerWithCitations(message, evidenceRefs, settings.strictEvidenceMode);
+      const confidence = resolveAnswerConfidenceLabel(
+        evidenceRefs.length,
+        lastWebVerifyContext?.sources.length ?? 0
+      );
+      const chips = buildCitationChips(evidenceRefs, lastWebVerifyContext?.sources ?? []);
+      setLastAnswerMeta({ confidence, chips });
 
       const envelopeLines = buildAskEnvelopeLines(
         grounding,
@@ -469,7 +491,16 @@ export default function AgentsTerminal() {
       setHistory((prev) => [
         ...prev,
         ...retrievalLines.map((line) => pushLine('system', line)),
+        pushLine('system', `[confidence] ${confidence}`),
         pushLine('output', cited.answer),
+        ...(chips.length > 0
+          ? [
+              pushLine('system', '[citation_groups]'),
+              ...chips
+                .slice(0, 10)
+                .map((chip) => pushLine('system', `${chip.group}: ${chip.label} — ${chip.url}`)),
+            ]
+          : []),
         ...(cited.citationLines.length > 0
           ? [
               pushLine('system', '[citations]'),
@@ -1146,7 +1177,9 @@ export default function AgentsTerminal() {
           </p>
         ) : null}
         <p className="mt-2 text-white/50">
-          Commands: <code>tools</code> | <code>tool local_context intent modeling</code> |{' '}
+          Commands: <code>tools</code> | <code>brief top 3 projects</code> |{' '}
+          <code>cv latest role</code> | <code>projects intent systems</code> |{' '}
+          <code>tool local_context intent modeling</code> |{' '}
           <code>tool web_verify Dessi Georgieva LinkedIn projects</code> |{' '}
           <code>tool list_projects</code> | <code>tool retrieve intent recognition projects</code> |{' '}
           <code>tool cite Dessi built intent recognition systems</code>
@@ -1196,7 +1229,7 @@ export default function AgentsTerminal() {
 
       <div
         ref={outputRef}
-        className="min-h-[180px] flex-1 overflow-y-auto px-4 py-4 font-mono text-sm leading-6 text-emerald-200 [&::-webkit-scrollbar]:hidden"
+        className="min-h-0 flex-1 overflow-y-auto px-4 py-4 font-mono text-sm leading-6 text-emerald-200 [&::-webkit-scrollbar]:hidden"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         aria-live="polite"
       >
@@ -1219,6 +1252,25 @@ export default function AgentsTerminal() {
       </div>
 
       <form onSubmit={handleSubmit} className="border-t border-emerald-400/20 px-4 py-3">
+        {lastAnswerMeta ? (
+          <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
+            <span className="rounded-full border border-emerald-300/50 bg-emerald-400/10 px-2 py-0.5 text-emerald-200">
+              confidence: {lastAnswerMeta.confidence}
+            </span>
+            {lastAnswerMeta.chips.slice(0, 8).map((chip) => (
+              <a
+                key={`${chip.group}-${chip.url}`}
+                href={chip.url}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-full border border-white/20 bg-white/5 px-2 py-0.5 text-white/80 hover:bg-white/10"
+                title={`${chip.group}: ${chip.label}`}
+              >
+                {chip.group}
+              </a>
+            ))}
+          </div>
+        ) : null}
         <label className="flex items-center gap-2 font-mono text-sm">
           <span className="text-emerald-300">{prompt}</span>
           <input
@@ -1226,7 +1278,7 @@ export default function AgentsTerminal() {
             value={input}
             onChange={(event) => setInput(event.target.value)}
             className="w-full bg-transparent text-emerald-100 outline-none placeholder:text-emerald-200/30 caret-emerald-200"
-            placeholder='Try: help, open network, search intent, ask "Explain DG-Labs OS"'
+            placeholder='Try: ask "Explain DG-Labs OS", brief top 3 projects, cv current role'
             autoComplete="off"
             autoCapitalize="off"
             spellCheck={false}
