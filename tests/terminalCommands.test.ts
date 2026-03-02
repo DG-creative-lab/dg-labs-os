@@ -90,6 +90,24 @@ describe('executeTerminalCommand', () => {
     }
   });
 
+  it('routes retrieve tool command to tool_call action', () => {
+    const result = executeTerminalCommand('tool retrieve intent recognition', ctx);
+    expect(result.action.type).toBe('tool_call');
+    if (result.action.type === 'tool_call') {
+      expect(result.action.tool).toBe('retrieve');
+      expect(result.action.input?.query).toBe('intent recognition');
+    }
+  });
+
+  it('routes cite tool command to tool_call action', () => {
+    const result = executeTerminalCommand('tool cite Dessi built agentic systems', ctx);
+    expect(result.action.type).toBe('tool_call');
+    if (result.action.type === 'tool_call') {
+      expect(result.action.tool).toBe('cite');
+      expect(result.action.input?.claim).toBe('dessi built agentic systems');
+    }
+  });
+
   it('returns clear action', () => {
     const result = executeTerminalCommand('clear', ctx);
     expect(result.action.type).toBe('clear');

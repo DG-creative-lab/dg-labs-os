@@ -26,6 +26,7 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
   const [showLinksPopup, setShowLinksPopup] = useState(false);
   const [mouseX, setMouseX] = useState<number | null>(null);
   const dockRef = useRef<HTMLDivElement>(null);
+  const dockNavRef = useRef<HTMLElement>(null);
   const linksPopupRef = useRef<HTMLDivElement>(null);
 
   const handleLinksClick = () => {
@@ -68,6 +69,27 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, []);
+
+  useEffect(() => {
+    const setDockInsetVar = () => {
+      if (typeof window === 'undefined') return;
+      const nav = dockNavRef.current;
+      if (!nav) return;
+      const rect = nav.getBoundingClientRect();
+      // Pixels from dock top to viewport bottom, plus a small safety margin.
+      const safeBottom = Math.max(96, Math.ceil(window.innerHeight - rect.top + 8));
+      document.documentElement.style.setProperty('--dg-dock-safe-bottom', `${safeBottom}px`);
+    };
+
+    setDockInsetVar();
+    window.addEventListener('resize', setDockInsetVar);
+    const ro = new ResizeObserver(() => setDockInsetVar());
+    if (dockNavRef.current) ro.observe(dockNavRef.current);
+    return () => {
+      window.removeEventListener('resize', setDockInsetVar);
+      ro.disconnect();
     };
   }, []);
 
@@ -195,6 +217,7 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
   return (
     <>
       <nav
+        ref={dockNavRef}
         aria-label="Dock"
         className="fixed bottom-0 left-0 right-0 flex justify-center pb-4 z-50"
       >

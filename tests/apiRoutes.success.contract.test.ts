@@ -240,4 +240,36 @@ describe('API route success contracts', () => {
     if (!isToolSuccessEnvelope(body)) return;
     expect(body.tool).toBe('web_verify');
   });
+
+  it('tools retrieve returns classified local evidence hits', async () => {
+    const { POST } = await import('../src/pages/api/tools');
+    const request = new Request('http://localhost/api/tools', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tool: 'retrieve', input: { query: 'intent recognition projects' } }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as unknown;
+    expect(isToolSuccessEnvelope(body)).toBe(true);
+    if (!isToolSuccessEnvelope(body)) return;
+    expect(body.tool).toBe('retrieve');
+  });
+
+  it('tools cite returns evidence verdict', async () => {
+    const { POST } = await import('../src/pages/api/tools');
+    const request = new Request('http://localhost/api/tools', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tool: 'cite', input: { claim: 'Dessi built intent systems' } }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as unknown;
+    expect(isToolSuccessEnvelope(body)).toBe(true);
+    if (!isToolSuccessEnvelope(body)) return;
+    expect(body.tool).toBe('cite');
+  });
 });

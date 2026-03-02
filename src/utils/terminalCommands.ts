@@ -16,7 +16,7 @@ export type TerminalAction =
   | { type: 'list_tools' }
   | {
       type: 'tool_call';
-      tool: 'local_context' | 'web_verify' | 'open_app' | 'list_projects';
+      tool: 'local_context' | 'web_verify' | 'open_app' | 'list_projects' | 'retrieve' | 'cite';
       input?: Record<string, unknown>;
     }
   | { type: 'clear' }
@@ -89,7 +89,7 @@ const HELP_TEXT = [
   '  mode <concise|explainer|research>  Set LLM answer style',
   '  verify <query>               Verify with web sources and citations',
   '  tools                        List available tools and status',
-  '  tool <name> <input>          Run a tool (local_context|web_verify|open_app|list_projects)',
+  '  tool <name> <input>          Run a tool (local_context|web_verify|open_app|list_projects|retrieve|cite)',
   '  clear                        Clear terminal output',
 ];
 
@@ -187,7 +187,9 @@ export const executeTerminalCommand = (
     return {
       lines: [
         'Timeline module ready.',
-        `PDF: ${ctx.user.resume.url}`,
+        `PDF: ${ctx.user.resume.pdf}`,
+        `DOCX: ${ctx.user.resume.docx}`,
+        `Markdown: ${ctx.user.resume.markdown}`,
         'Use "open resume" to navigate.',
       ],
       action: { type: 'none' },
@@ -322,7 +324,7 @@ export const executeTerminalCommand = (
 
   if (command === 'tools') {
     return {
-      lines: ['Tools registry: local_context, web_verify, open_app, list_projects'],
+      lines: ['Tools registry: local_context, web_verify, open_app, list_projects, retrieve, cite'],
       action: { type: 'list_tools' },
     };
   }
@@ -330,7 +332,9 @@ export const executeTerminalCommand = (
   if (command === 'tool') {
     if (!args) {
       return {
-        lines: ['Usage: tool <local_context|web_verify|open_app|list_projects> <input>'],
+        lines: [
+          'Usage: tool <local_context|web_verify|open_app|list_projects|retrieve|cite> <input>',
+        ],
         action: { type: 'none' },
       };
     }
@@ -375,9 +379,29 @@ export const executeTerminalCommand = (
       };
     }
 
+    if (toolName === 'retrieve') {
+      if (!toolInput) {
+        return { lines: ['Usage: tool retrieve <query>'], action: { type: 'none' } };
+      }
+      return {
+        lines: [`Running tool: retrieve ("${toolInput}")`],
+        action: { type: 'tool_call', tool: 'retrieve', input: { query: toolInput } },
+      };
+    }
+
+    if (toolName === 'cite') {
+      if (!toolInput) {
+        return { lines: ['Usage: tool cite <claim>'], action: { type: 'none' } };
+      }
+      return {
+        lines: [`Running tool: cite ("${toolInput}")`],
+        action: { type: 'tool_call', tool: 'cite', input: { claim: toolInput } },
+      };
+    }
+
     return {
       lines: [
-        `Unknown tool "${toolName}". Use: local_context, web_verify, open_app, list_projects.`,
+        `Unknown tool "${toolName}". Use: local_context, web_verify, open_app, list_projects, retrieve, cite.`,
       ],
       action: { type: 'none' },
     };

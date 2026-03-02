@@ -46,7 +46,7 @@ export const POST: APIRoute = async ({ request }) => {
   if (!call) {
     return err(
       'INVALID_TOOL_CALL',
-      'tool must be one of: local_context, web_verify, open_app, list_projects',
+      'tool must be one of: local_context, web_verify, open_app, list_projects, retrieve, cite',
       400
     );
   }
@@ -107,6 +107,73 @@ export const POST: APIRoute = async ({ request }) => {
         return err('INVALID_INPUT', `Unknown app target "${target}"`, 400);
       }
       return jsonResponse(toolSuccess('open_app', { target, href }), 200);
+    }
+
+    if (call.tool === 'retrieve') {
+      const query = asString(call.input?.query);
+      const limitRaw = call.input?.limit;
+      const limit =
+        typeof limitRaw === 'number' && Number.isFinite(limitRaw)
+          ? Math.max(1, Math.min(12, Math.floor(limitRaw)))
+          : 6;
+      if (!query || query.length < 2) {
+        return err('INVALID_INPUT', 'retrieve requires input.query (min 2 chars)', 400);
+      }
+
+      const classification = /research|paper|analysis|article/i.test(query)
+        ? 'research'
+        : /project|build|system|tool/i.test(query)
+          ? 'project'
+          : /experience|role|company|work/i.test(query)
+            ? 'experience'
+            : 'general';
+
+      const hits = retrieveKnowledge(
+        query,
+        {
+          user: userConfig,
+          workbench,
+          notes: labNotes,
+          network: networkNodes,
+        },
+        limit
+      ).map((hit) => ({
+        id: hit.id,
+        source: hit.source,
+        title: hit.title,
+        snippet: hit.snippet,
+        url: hit.url,
+        score: hit.score,
+      }));
+      return jsonResponse(toolSuccess('retrieve', { query, classification, hits }), 200);
+    }
+
+    if (call.tool === 'cite') {
+      const claim = asString(call.input?.claim);
+      if (!claim || claim.length < 2) {
+        return err('INVALID_INPUT', 'cite requires input.claim (min 2 chars)', 400);
+      }
+      const evidence = retrieveKnowledge(
+        claim,
+        {
+          user: userConfig,
+          workbench,
+          notes: labNotes,
+          network: networkNodes,
+        },
+        5
+      ).map((hit) => ({
+        id: hit.id,
+        source: hit.source,
+        title: hit.title,
+        snippet: hit.snippet,
+        url: hit.url,
+        score: hit.score,
+      }));
+
+      const topScore = evidence[0]?.score ?? 0;
+      const verdict = topScore >= 12 ? 'supported' : topScore >= 6 ? 'partial' : 'insufficient';
+      return jsonResponse(toolSuccess('cite', { claim, verdict, evidence }), 200);
     }
 
     const projects = workbench.map((item) => ({

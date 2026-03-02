@@ -73,6 +73,13 @@ describe('request schemas', () => {
     expect(parsed?.tool).toBe('local_context');
   });
 
+  it('parses retrieve/cite tool call input', () => {
+    const retrieve = parseToolCallInput({ tool: 'retrieve', input: { query: 'projects' } });
+    const cite = parseToolCallInput({ tool: 'cite', input: { claim: 'Dessi built X' } });
+    expect(retrieve?.tool).toBe('retrieve');
+    expect(cite?.tool).toBe('cite');
+  });
+
   it('rejects invalid tool call input', () => {
     expect(parseToolCallInput({ tool: 'bad_tool' })).toBeNull();
   });

@@ -60,5 +60,20 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
+      - name: Build resume assets (Pandoc optional)
+        run: |
+          if command -v pandoc >/dev/null 2>&1; then
+            if command -v xelatex >/dev/null 2>&1 || command -v pdflatex >/dev/null 2>&1 || command -v lualatex >/dev/null 2>&1 || command -v tectonic >/dev/null 2>&1 || command -v wkhtmltopdf >/dev/null 2>&1 || command -v weasyprint >/dev/null 2>&1; then
+              echo "Pandoc + PDF engine detected. Running resume:build..."
+              pnpm resume:build
+            else
+              echo "Pandoc detected but no supported PDF engine found. Running resume:sync only."
+              pnpm resume:sync
+            fi
+          else
+            echo "Pandoc not detected. Running resume:sync only."
+            pnpm resume:sync
+          fi
+
       - name: Build
         run: pnpm build
