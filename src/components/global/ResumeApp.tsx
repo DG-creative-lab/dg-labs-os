@@ -6,6 +6,12 @@ type ResumeAppProps = {
   resume: ResumeConfig;
 };
 
+type ResumeMenuEventDetail = {
+  action: 'jump_section' | 'download' | 'scroll_top';
+  sectionId?: string;
+  format?: 'pdf' | 'docx' | 'markdown';
+};
+
 export default function ResumeApp({ resume }: ResumeAppProps) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
@@ -35,8 +41,44 @@ export default function ResumeApp({ resume }: ResumeAppProps) {
     };
   }, [resume.markdown]);
 
+  useEffect(() => {
+    const onResumeMenuAction = (event: Event) => {
+      const customEvent = event as CustomEvent<ResumeMenuEventDetail>;
+      const detail = customEvent.detail;
+      if (!detail?.action) return;
+
+      if (detail.action === 'jump_section' && typeof detail.sectionId === 'string') {
+        const el = document.getElementById(detail.sectionId);
+        if (!el) return;
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+
+      if (detail.action === 'download' && detail.format) {
+        const id =
+          detail.format === 'pdf'
+            ? 'resume-download-pdf'
+            : detail.format === 'docx'
+              ? 'resume-download-docx'
+              : 'resume-download-markdown';
+        const el = document.getElementById(id) as HTMLAnchorElement | null;
+        if (el) el.click();
+        return;
+      }
+
+      if (detail.action === 'scroll_top') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+
+    window.addEventListener('dg-resume-menu-action', onResumeMenuAction as EventListener);
+    return () => {
+      window.removeEventListener('dg-resume-menu-action', onResumeMenuAction as EventListener);
+    };
+  }, []);
+
   return (
-    <section>
+    <section id="resume-summary">
       <div className="flex items-start justify-between gap-6">
         <div>
           <h1 className="text-2xl font-semibold">Resume</h1>
@@ -50,8 +92,9 @@ export default function ResumeApp({ resume }: ResumeAppProps) {
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div id="resume-downloads" className="mt-4 flex flex-wrap gap-2">
         <a
+          id="resume-download-pdf"
           className="rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-1.5 text-sm text-sky-100 transition hover:bg-sky-400/20"
           href={resume.pdf}
           target="_blank"
@@ -60,6 +103,7 @@ export default function ResumeApp({ resume }: ResumeAppProps) {
           Download PDF
         </a>
         <a
+          id="resume-download-docx"
           className="rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-1.5 text-sm text-sky-100 transition hover:bg-sky-400/20"
           href={resume.docx}
           target="_blank"
@@ -68,6 +112,7 @@ export default function ResumeApp({ resume }: ResumeAppProps) {
           Download DOCX
         </a>
         <a
+          id="resume-download-markdown"
           className="rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-1.5 text-sm text-sky-100 transition hover:bg-sky-400/20"
           href={resume.markdown}
           target="_blank"
@@ -77,7 +122,7 @@ export default function ResumeApp({ resume }: ResumeAppProps) {
         </a>
       </div>
 
-      <div className="mt-5 rounded-xl border border-white/10 bg-white/5 p-5">
+      <div id="resume-body" className="mt-5 rounded-xl border border-white/10 bg-white/5 p-5">
         {loading ? <p className="text-white/60">Loading resume...</p> : null}
         {!loading && error ? <p className="text-red-300/90">{error}</p> : null}
         {!loading && !error ? (

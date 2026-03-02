@@ -21,6 +21,7 @@ interface Props {
     github: boolean;
     resume: boolean;
   };
+  activeAppId?: 'home' | 'terminal' | 'network' | 'projects' | 'notes' | 'resume' | 'news';
 }
 
 const {
@@ -39,6 +40,7 @@ const {
     github: false,
     resume: false,
   },
+  activeAppId = 'home',
 } = Astro.props;
 ---
 
@@ -63,7 +65,7 @@ const {
     >
     </div>
     <div class="relative z-30">
-      <MacToolbar client:load />
+      <MacToolbar client:load activeAppId={activeAppId} />
     </div>
     <main class="relative z-10 min-h-screen pt-10 pb-24">
       <slot />

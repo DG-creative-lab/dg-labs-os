@@ -1,14 +1,21 @@
 ---
 import DesktopLayout from '../../layouts/DesktopLayout.astro';
-import WindowFrame from '../../components/global/WindowFrame.astro';
+import DraggableAppWindow from '../../components/global/DraggableAppWindow';
 import ResumeApp from '../../components/global/ResumeApp';
 import { userConfig } from '../../config/index';
 ---
 
-<DesktopLayout>
-  <main class="mx-auto max-w-4xl px-6 pt-16 text-white">
-    <WindowFrame title="Resume">
+<DesktopLayout activeAppId="resume">
+  <main class="relative min-h-[calc(100vh-4rem)] px-6 pt-12 text-white">
+    <DraggableAppWindow
+      client:load
+      appId="resume"
+      title="Resume"
+      closeHref="/desktop"
+      initialSize={{ width: 920, height: 660 }}
+      initialPosition={{ x: 130, y: 110 }}
+    >
       <ResumeApp client:load resume={userConfig.resume} />
-    </WindowFrame>
+    </DraggableAppWindow>
   </main>
 </DesktopLayout>

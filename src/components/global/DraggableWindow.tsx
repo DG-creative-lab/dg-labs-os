@@ -24,6 +24,7 @@ interface DraggableWindowProps {
   title: string;
   onClose: () => void;
   children: React.ReactNode;
+  appId?: 'home' | 'terminal' | 'network' | 'projects' | 'notes' | 'resume' | 'news';
   initialPosition?: { x: number; y: number };
   initialSize?: { width: number; height: number };
   className?: string;
@@ -36,6 +37,7 @@ export default function DraggableWindow({
   title,
   onClose,
   children,
+  appId,
   initialPosition = { x: 0, y: 0 },
   initialSize = { width: 400, height: 300 },
   className = '',
@@ -117,6 +119,13 @@ export default function DraggableWindow({
   const bringToFront = () => {
     globalZIndex += 1;
     setZIndex(globalZIndex);
+    if (appId && typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('dg-app-focus', {
+          detail: { appId },
+        })
+      );
+    }
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {

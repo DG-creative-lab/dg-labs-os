@@ -1,5 +1,6 @@
 ---
 import DesktopLayout from '../layouts/DesktopLayout.astro';
+import DesktopWorkspace from '../components/global/DesktopWorkspace';
 import { userConfig } from '../config/index';
 ---
 
@@ -13,4 +14,6 @@ import { userConfig } from '../config/index';
     description: userConfig.seo.description,
     site_name: userConfig.name,
   }}
-/>
+>
+  <DesktopWorkspace client:load />
+</DesktopLayout>

@@ -1,12 +1,19 @@
 ---
 import DesktopLayout from '../../layouts/DesktopLayout.astro';
-import WindowFrame from '../../components/global/WindowFrame.astro';
+import DraggableAppWindow from '../../components/global/DraggableAppWindow';
 import { labNotes, labPrinciples } from '../../config/labNotes';
 ---
 
-<DesktopLayout>
-  <main class="mx-auto max-w-4xl px-6 pt-16 text-white">
-    <WindowFrame title="Lab Notes" closeHref="/desktop">
+<DesktopLayout activeAppId="notes">
+  <main class="relative min-h-[calc(100vh-4rem)] px-6 pt-12 text-white">
+    <DraggableAppWindow
+      client:load
+      appId="notes"
+      title="Lab Notes"
+      closeHref="/desktop"
+      initialSize={{ width: 920, height: 640 }}
+      initialPosition={{ x: 110, y: 95 }}
+    >
       <div class="flex items-start justify-between gap-6">
         <div>
           <h1 class="text-2xl font-semibold">Lab Notes</h1>
@@ -22,7 +29,7 @@ import { labNotes, labPrinciples } from '../../config/labNotes';
       </div>
 
       <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <section class="rounded-xl border border-white/10 bg-white/5 p-4">
+        <section id="notes-principles" class="rounded-xl border border-white/10 bg-white/5 p-4">
           <h2 class="text-sm font-semibold tracking-wide text-white/80">Principles</h2>
           <div class="mt-3 space-y-2 text-sm">
             {
@@ -46,7 +53,7 @@ import { labNotes, labPrinciples } from '../../config/labNotes';
           </div>
         </section>
 
-        <section class="rounded-xl border border-white/10 bg-white/5 p-4">
+        <section id="notes-quick-actions" class="rounded-xl border border-white/10 bg-white/5 p-4">
           <h2 class="text-sm font-semibold tracking-wide text-white/80">Quick Actions</h2>
           <div class="mt-3 grid grid-cols-1 gap-2">
             <a
@@ -71,7 +78,7 @@ import { labNotes, labPrinciples } from '../../config/labNotes';
         </section>
       </div>
 
-      <section class="mt-6">
+      <section id="notes-deep-dives" class="mt-6">
         <h2 class="text-sm font-semibold tracking-wide text-white/80">Pinned Deep Dives</h2>
         <div class="mt-3 grid grid-cols-1 gap-3">
           {
@@ -106,7 +113,7 @@ import { labNotes, labPrinciples } from '../../config/labNotes';
         </div>
       </section>
 
-      <section class="mt-6">
+      <section id="notes-news-analysis" class="mt-6">
         <h2 class="text-sm font-semibold tracking-wide text-white/80">News Analysis</h2>
         {
           labNotes
@@ -131,6 +138,33 @@ import { labNotes, labPrinciples } from '../../config/labNotes';
             ))
         }
       </section>
-    </WindowFrame>
+    </DraggableAppWindow>
   </main>
 </DesktopLayout>
+
+<script is:inline>
+  const jumpTo = (sectionId) => {
+    if (!sectionId) return;
+    const el = document.getElementById(sectionId);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const onNotesMenuAction = (event) => {
+    const detail = event.detail;
+    if (!detail || !detail.action) return;
+    if (detail.action === 'jump_section' && typeof detail.sectionId === 'string') {
+      jumpTo(detail.sectionId);
+      return;
+    }
+    if (detail.action === 'open_news_hub') {
+      window.open('https://ai-news-hub.performics-labs.com/', '_blank', 'noopener,noreferrer');
+      return;
+    }
+    if (detail.action === 'scroll_top') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  window.addEventListener('dg-notes-menu-action', onNotesMenuAction);
+</script>

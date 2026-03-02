@@ -6,7 +6,7 @@
 import type { ContactInfo } from '../types';
 
 export const contact: ContactInfo = {
-  email: 'hello@dg-labs.com',
+  email: 'dessi.georgieva8@gmail.com',
   phone: '+1-000-000-0000',
   calendly: 'https://calendly.com/dg-labs',
 };
