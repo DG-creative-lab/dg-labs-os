@@ -6,6 +6,19 @@ let globalZIndex = 10;
 // Minimum window dimensions
 const MIN_WIDTH = 400;
 const MIN_HEIGHT = 300;
+const TOP_INSET = 56;
+const SIDE_INSET = 8;
+const DEFAULT_BOTTOM_INSET = 118; // Keep windows clear of desktop dock.
+
+const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(value, max));
+const getBottomInset = () => {
+  if (typeof window === 'undefined') return DEFAULT_BOTTOM_INSET;
+  const raw = getComputedStyle(document.documentElement)
+    .getPropertyValue('--dg-dock-safe-bottom')
+    .trim();
+  const parsed = Number.parseFloat(raw);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_BOTTOM_INSET;
+};
 
 interface DraggableWindowProps {
   title: string;
@@ -53,23 +66,53 @@ export default function DraggableWindow({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Focus and optionally center on mount for better UX
+  // Optionally center on mount for better UX
   useEffect(() => {
-    windowRef.current?.focus();
     if (!isMobile && centerOnMount) {
-      const width = initialSize.width;
-      const height = initialSize.height;
-      const x = Math.max(0, Math.round((window.innerWidth - width) / 2));
-      const y = Math.max(24, Math.round((window.innerHeight - height) / 2));
+      const bottomInset = getBottomInset();
+      const maxWidth = Math.max(MIN_WIDTH, window.innerWidth - SIDE_INSET * 2);
+      const maxHeight = Math.max(MIN_HEIGHT, window.innerHeight - TOP_INSET - bottomInset);
+      const width = clamp(initialSize.width, MIN_WIDTH, maxWidth);
+      const height = clamp(initialSize.height, MIN_HEIGHT, maxHeight);
+      const x = clamp(
+        Math.round((window.innerWidth - width) / 2),
+        SIDE_INSET,
+        Math.max(SIDE_INSET, window.innerWidth - width - SIDE_INSET)
+      );
+      const y = clamp(
+        Math.round((window.innerHeight - TOP_INSET - bottomInset - height) / 2) + TOP_INSET,
+        TOP_INSET,
+        Math.max(TOP_INSET, window.innerHeight - bottomInset - height)
+      );
+      setSize({ width, height });
       setPosition({ x, y });
     }
   }, [centerOnMount, initialSize.width, initialSize.height, isMobile]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Escape') {
-      onClose();
-    }
-  };
+  // Keep existing windows visible if viewport size changes.
+  useEffect(() => {
+    if (isMobile) return;
+    const clampInViewport = () => {
+      const bottomInset = getBottomInset();
+      setSize((prev) => {
+        const maxWidth = Math.max(MIN_WIDTH, window.innerWidth - SIDE_INSET * 2);
+        const maxHeight = Math.max(MIN_HEIGHT, window.innerHeight - TOP_INSET - bottomInset);
+        const width = clamp(prev.width, MIN_WIDTH, maxWidth);
+        const height = clamp(prev.height, MIN_HEIGHT, maxHeight);
+        return width === prev.width && height === prev.height ? prev : { width, height };
+      });
+      setPosition((prev) => {
+        const maxX = Math.max(SIDE_INSET, window.innerWidth - size.width - SIDE_INSET);
+        const maxY = Math.max(TOP_INSET, window.innerHeight - bottomInset - size.height);
+        const x = clamp(prev.x, SIDE_INSET, maxX);
+        const y = clamp(prev.y, TOP_INSET, maxY);
+        return x === prev.x && y === prev.y ? prev : { x, y };
+      });
+    };
+    window.addEventListener('resize', clampInViewport);
+    clampInViewport();
+    return () => window.removeEventListener('resize', clampInViewport);
+  }, [isMobile, size.width, size.height]);
 
   const bringToFront = () => {
     globalZIndex += 1;
@@ -111,46 +154,50 @@ export default function DraggableWindow({
     if (isMobile) return;
 
     if (isDragging) {
+      const bottomInset = getBottomInset();
       const newX = e.clientX - dragOffset.x;
       const newY = e.clientY - dragOffset.y;
 
       const windowWidth = windowRef.current?.offsetWidth || 0;
       const windowHeight = windowRef.current?.offsetHeight || 0;
 
-      const maxX = window.innerWidth - windowWidth / 2;
-      const maxY = window.innerHeight - windowHeight / 2;
-      const minX = -windowWidth / 2;
-      const minY = 24;
+      const maxX = Math.max(SIDE_INSET, window.innerWidth - windowWidth - SIDE_INSET);
+      const maxY = Math.max(TOP_INSET, window.innerHeight - bottomInset - windowHeight);
 
       setPosition({
-        x: Math.max(minX, Math.min(newX, maxX)),
-        y: Math.max(minY, Math.min(newY, maxY)),
+        x: clamp(newX, SIDE_INSET, maxX),
+        y: clamp(newY, TOP_INSET, maxY),
       });
     } else if (isResizing) {
+      const bottomInset = getBottomInset();
       const rect = windowRef.current?.getBoundingClientRect();
       if (rect) {
         const newSize = { ...size };
         const newPosition = { ...position };
+        const maxWidth = Math.max(MIN_WIDTH, window.innerWidth - newPosition.x - SIDE_INSET);
+        const maxHeight = Math.max(MIN_HEIGHT, window.innerHeight - bottomInset - newPosition.y);
 
         if (resizeDirection?.includes('right')) {
-          newSize.width = Math.max(MIN_WIDTH, e.clientX - rect.left);
+          newSize.width = clamp(e.clientX - rect.left, MIN_WIDTH, maxWidth);
         }
 
         if (resizeDirection?.includes('left')) {
-          const newWidth = Math.max(MIN_WIDTH, rect.right - e.clientX);
+          const boundedLeft = clamp(e.clientX, SIDE_INSET, rect.right - MIN_WIDTH);
+          const newWidth = Math.max(MIN_WIDTH, rect.right - boundedLeft);
           newSize.width = newWidth;
-          newPosition.x = rect.right - newWidth;
+          newPosition.x = clamp(rect.right - newWidth, SIDE_INSET, rect.right - MIN_WIDTH);
         }
 
         if (resizeDirection?.includes('bottom')) {
-          newSize.height = Math.max(MIN_HEIGHT, e.clientY - rect.top);
+          newSize.height = clamp(e.clientY - rect.top, MIN_HEIGHT, maxHeight);
         }
 
         if (resizeDirection?.includes('bottom-left')) {
-          const newWidth = Math.max(MIN_WIDTH, rect.right - e.clientX);
+          const boundedLeft = clamp(e.clientX, SIDE_INSET, rect.right - MIN_WIDTH);
+          const newWidth = Math.max(MIN_WIDTH, rect.right - boundedLeft);
           newSize.width = newWidth;
-          newPosition.x = rect.right - newWidth;
-          newSize.height = Math.max(MIN_HEIGHT, e.clientY - rect.top);
+          newPosition.x = clamp(rect.right - newWidth, SIDE_INSET, rect.right - MIN_WIDTH);
+          newSize.height = clamp(e.clientY - rect.top, MIN_HEIGHT, maxHeight);
         }
 
         setSize(newSize);
@@ -189,7 +236,6 @@ export default function DraggableWindow({
       role="dialog"
       aria-modal="true"
       aria-labelledby="window-title"
-      tabIndex={0}
       className={`${
         isMobile ? 'fixed inset-0 m-4 rounded-xl' : 'absolute rounded-xl'
       } bg-[#1d1d1f] shadow-xl overflow-hidden p-0 transition-all duration-300 ${
@@ -208,7 +254,6 @@ export default function DraggableWindow({
         transition: isDragging || isResizing ? 'none' : 'all 0.2s ease-out',
       }}
       onMouseDown={handleMouseDown}
-      onKeyDown={handleKeyDown}
     >
       {!hideHeader && (
         <div className="window-header bg-gray-800 h-6 flex items-center space-x-2 px-4 rounded-t-xl sticky top-0 left-0 right-0 z-10">
@@ -235,23 +280,23 @@ export default function DraggableWindow({
         {!isMobile && (
           <>
             <div
-              className="resize-handle absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize"
+              className="resize-handle absolute bottom-0 left-0 right-0 h-3 cursor-ns-resize z-20"
               data-direction="bottom"
             />
             <div
-              className="resize-handle absolute right-0 top-0 bottom-0 w-2 cursor-ew-resize"
+              className="resize-handle absolute right-0 top-0 bottom-0 w-3 cursor-ew-resize z-20"
               data-direction="right"
             />
             <div
-              className="resize-handle absolute left-0 top-0 bottom-0 w-2 cursor-ew-resize"
+              className="resize-handle absolute left-0 top-0 bottom-0 w-3 cursor-ew-resize z-20"
               data-direction="left"
             />
             <div
-              className="resize-handle absolute bottom-0 right-0 w-3 h-3 cursor-nwse-resize"
+              className="resize-handle absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize z-20"
               data-direction="bottom-right"
             />
             <div
-              className="resize-handle absolute bottom-0 left-0 w-3 h-3 cursor-nesw-resize"
+              className="resize-handle absolute bottom-0 left-0 w-4 h-4 cursor-nesw-resize z-20"
               data-direction="bottom-left"
             />
           </>

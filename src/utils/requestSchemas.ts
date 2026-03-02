@@ -29,7 +29,13 @@ export type VerifyInput = {
   query: string;
 };
 
-export type ToolName = 'local_context' | 'web_verify' | 'open_app' | 'list_projects';
+export type ToolName =
+  | 'local_context'
+  | 'web_verify'
+  | 'open_app'
+  | 'list_projects'
+  | 'retrieve'
+  | 'cite';
 
 export type ToolCallInput = {
   tool: ToolName;
@@ -128,7 +134,9 @@ export const parseToolCallInput = (input: unknown): ToolCallInput | null => {
     tool !== 'local_context' &&
     tool !== 'web_verify' &&
     tool !== 'open_app' &&
-    tool !== 'list_projects'
+    tool !== 'list_projects' &&
+    tool !== 'retrieve' &&
+    tool !== 'cite'
   ) {
     return null;
   }

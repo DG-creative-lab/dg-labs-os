@@ -22,6 +22,7 @@ describe('terminal settings', () => {
     );
     expect(parsed.routerDebug).toBe(true);
     expect(parsed.showLlmSources).toBe(true);
+    expect(parsed.strictEvidenceMode).toBe(false);
     expect(parsed.brainMode).toBe('concise');
     expect(parsed.responseMode).toBe('narrative');
   });
@@ -33,6 +34,7 @@ describe('terminal settings', () => {
       llmFallbackForUnknown: true,
       routerDebug: false,
       showLlmSources: false,
+      strictEvidenceMode: true,
       llmSessionCap: 1000,
       llmTimeoutMs: 200000,
     });
@@ -40,6 +42,7 @@ describe('terminal settings', () => {
     expect(s.responseMode).toBe('agent_json');
     expect(s.routerDebug).toBe(false);
     expect(s.showLlmSources).toBe(false);
+    expect(s.strictEvidenceMode).toBe(true);
     expect(s.llmSessionCap).toBe(100);
     expect(s.llmTimeoutMs).toBe(120000);
   });
@@ -51,6 +54,7 @@ describe('terminal settings', () => {
     expect(summary).toContain('fallback=');
     expect(summary).toContain('router-debug=');
     expect(summary).toContain('llm-sources=');
+    expect(summary).toContain('strict-evidence=');
     expect(summary).toContain('timeout=');
     expect(summary).toContain('session-cap=');
   });

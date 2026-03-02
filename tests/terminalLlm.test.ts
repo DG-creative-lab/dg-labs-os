@@ -7,6 +7,7 @@ import {
   buildAgentJsonLines,
   buildLlmMessages,
   buildTerminalSystemContext,
+  formatAnswerWithCitations,
   isLlmQuery,
   normalizeLlmQuery,
   readAgentJsonPayload,
@@ -151,5 +152,34 @@ describe('terminal llm helpers', () => {
     expect(lines[0]).toBe('[agent_json]');
     expect(lines.join('\n')).toContain('Intent Recognition Agent');
     expect(lines.join('\n')).toContain('[suggested_follow_up]');
+  });
+
+  it('formats answer with numbered citations', () => {
+    const result = formatAnswerWithCitations(
+      'Dessi built an Intent Recognition Agent. It supports intent modeling workflows.',
+      [
+        {
+          source: 'workbench',
+          title: 'Intent Recognition Agent',
+          snippet: 'Intent modeling system with multi-agent workflow support.',
+          url: 'https://example.com/intent',
+          score: 20,
+        },
+      ],
+      false
+    );
+    expect(result.answer).toContain('[1]');
+    expect(result.citationLines[0]).toContain('[1] Intent Recognition Agent');
+    expect(result.unverifiedCount).toBe(0);
+  });
+
+  it('returns insufficient evidence in strict mode when unsupported', () => {
+    const result = formatAnswerWithCitations(
+      'This unrelated statement has no evidence overlap.',
+      [],
+      true
+    );
+    expect(result.answer).toContain('Insufficient evidence');
+    expect(result.unverifiedCount).toBe(1);
   });
 });

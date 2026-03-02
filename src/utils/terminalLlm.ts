@@ -242,10 +242,117 @@ export type AgentJsonPayload = {
   suggestedFollowUp: string[];
 };
 
+export type EvidenceReference = {
+  source: string;
+  title: string;
+  snippet: string;
+  url?: string;
+  score: number;
+};
+
+export type CitationFormatResult = {
+  answer: string;
+  citationLines: string[];
+  unverifiedCount: number;
+};
+
 const asRecord = (value: unknown): Record<string, unknown> | null =>
   value && typeof value === 'object' && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : null;
+
+const sentenceTokens = (value: string): string[] =>
+  value
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .map((token) => token.trim())
+    .filter((token) => token.length > 2);
+
+const evidenceTokens = (value: EvidenceReference): Set<string> =>
+  new Set(sentenceTokens(`${value.title} ${value.snippet}`));
+
+const bestEvidenceIndex = (
+  sentence: string,
+  evidences: readonly EvidenceReference[]
+): number | null => {
+  const st = sentenceTokens(sentence);
+  if (st.length === 0 || evidences.length === 0) return null;
+  let bestIndex: number | null = null;
+  let bestScore = 0;
+  for (const [index, evidence] of evidences.entries()) {
+    const et = evidenceTokens(evidence);
+    let score = 0;
+    for (const token of st) {
+      if (et.has(token)) score += 1;
+    }
+    score += Math.max(0, Math.min(3, evidence.score / 8));
+    if (score > bestScore) {
+      bestScore = score;
+      bestIndex = index;
+    }
+  }
+  return bestScore > 0 ? bestIndex : null;
+};
+
+export const formatAnswerWithCitations = (
+  answer: string,
+  evidences: readonly EvidenceReference[],
+  strictEvidenceMode = false
+): CitationFormatResult => {
+  const segments = answer
+    .split(/(?<=[.!?])\s+|\n+/)
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+
+  if (segments.length === 0) {
+    return { answer, citationLines: [], unverifiedCount: 0 };
+  }
+
+  const evidenceToCitation = new Map<number, number>();
+  const citationOrder: number[] = [];
+  let nextCitation = 1;
+  let unverifiedCount = 0;
+
+  const outSegments = segments.map((segment) => {
+    const evidenceIndex = bestEvidenceIndex(segment, evidences);
+    if (evidenceIndex === null) {
+      unverifiedCount += 1;
+      if (strictEvidenceMode) {
+        return '[insufficient evidence]';
+      }
+      return `${segment} [unverified]`;
+    }
+    let citation = evidenceToCitation.get(evidenceIndex);
+    if (!citation) {
+      citation = nextCitation++;
+      evidenceToCitation.set(evidenceIndex, citation);
+      citationOrder.push(evidenceIndex);
+    }
+    return `${segment} [${citation}]`;
+  });
+
+  const citationLines = citationOrder.map((evidenceIndex) => {
+    const citation = evidenceToCitation.get(evidenceIndex)!;
+    const evidence = evidences[evidenceIndex];
+    const tail = evidence.url ? ` — ${evidence.url}` : '';
+    return `[${citation}] ${evidence.title}${tail}`;
+  });
+
+  if (strictEvidenceMode && outSegments.every((segment) => segment === '[insufficient evidence]')) {
+    return {
+      answer:
+        'Insufficient evidence for this query in the current DG-Labs knowledge context. Try refine, retrieve, or verify.',
+      citationLines,
+      unverifiedCount,
+    };
+  }
+
+  return {
+    answer: outSegments.join(' '),
+    citationLines,
+    unverifiedCount,
+  };
+};
 
 export const readAgentJsonPayload = (data: unknown): AgentJsonPayload | null => {
   const root = asRecord(data);

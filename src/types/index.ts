@@ -144,8 +144,10 @@ export interface PersonalInfo {
 }
 
 export interface ResumeConfig {
-  url: string;
-  localPath: string;
+  pdf: string;
+  docx: string;
+  markdown: string;
+  sourcePath: string;
 }
 
 export interface SEOConfig {

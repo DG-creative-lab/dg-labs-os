@@ -12,19 +12,20 @@ import DraggableAppWindow from '../../components/global/DraggableAppWindow';
     resume: false,
   }}
 >
-  <main class="relative min-h-[calc(100vh-4rem)] px-6 pt-10 text-white">
+  <main class="relative min-h-[calc(100vh-4rem)] px-6 pt-12 text-white">
     <DraggableAppWindow
       client:load
       title="Agents Terminal"
-      initialSize={{ width: 980, height: 680 }}
+      initialSize={{ width: 920, height: 600 }}
       initialPosition={{ x: 80, y: 80 }}
+      contentClassName="h-full min-h-0 flex flex-col overflow-hidden p-4 text-white"
     >
       <h1 class="text-2xl font-semibold">Agents Runtime</h1>
       <p class="mt-2 text-white/70">
-        Command surface for DG-Labs OS. Deterministic commands run locally; LLM orchestration comes
-        next.
+        Use <code>ask &lt;question&gt;</code> for reasoned answers with citations. Use
+        <code>context &lt;query&gt;</code> when you want raw retrieved snippets.
       </p>
-      <div class="mt-5">
+      <div class="mt-4 min-h-0 flex-1">
         <AgentsTerminal client:load />
       </div>
     </DraggableAppWindow>

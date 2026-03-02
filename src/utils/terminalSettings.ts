@@ -13,6 +13,7 @@ export type TerminalSettings = {
   llmFallbackForUnknown: boolean;
   routerDebug: boolean;
   showLlmSources: boolean;
+  strictEvidenceMode: boolean;
   llmTimeoutMs: number;
   llmSessionCap: number;
 };
@@ -25,6 +26,7 @@ export const defaultTerminalSettings: TerminalSettings = {
   llmFallbackForUnknown: true,
   routerDebug: true,
   showLlmSources: true,
+  strictEvidenceMode: false,
   llmTimeoutMs: TERMINAL_LLM_TIMEOUT_MS,
   llmSessionCap: TERMINAL_LLM_MAX_SESSION_REQUESTS,
 };
@@ -60,6 +62,10 @@ export const sanitizeTerminalSettings = (
       typeof partial?.showLlmSources === 'boolean'
         ? partial.showLlmSources
         : defaultTerminalSettings.showLlmSources,
+    strictEvidenceMode:
+      typeof partial?.strictEvidenceMode === 'boolean'
+        ? partial.strictEvidenceMode
+        : defaultTerminalSettings.strictEvidenceMode,
     llmTimeoutMs: clamp(
       typeof partial?.llmTimeoutMs === 'number'
         ? partial.llmTimeoutMs
@@ -97,6 +103,7 @@ export const terminalSettingsSummary = (settings: TerminalSettings): string =>
     `fallback=${settings.llmFallbackForUnknown ? 'on' : 'off'}`,
     `router-debug=${settings.routerDebug ? 'on' : 'off'}`,
     `llm-sources=${settings.showLlmSources ? 'on' : 'off'}`,
+    `strict-evidence=${settings.strictEvidenceMode ? 'on' : 'off'}`,
     `timeout=${Math.round(settings.llmTimeoutMs / 1000)}s`,
     `session-cap=${settings.llmSessionCap}`,
     `query-max=${TERMINAL_LLM_MAX_QUERY_CHARS}`,

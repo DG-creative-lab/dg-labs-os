@@ -5,6 +5,8 @@
 import type { ResumeConfig } from '../types';
 
 export const resume: ResumeConfig = {
-  url: 'https://drive.google.com/',
-  localPath: '/resume.pdf',
+  pdf: '/cv/Dessi_Georgieva_CV.pdf',
+  docx: '/cv/Dessi_Georgieva_CV.docx',
+  markdown: '/cv/Dessi_Georgieva_CV.md',
+  sourcePath: '/src/data/resume/cv.md',
 };

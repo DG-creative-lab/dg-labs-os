@@ -12,6 +12,7 @@ import { routeNaturalLanguageCommand } from '../../utils/terminalRouter';
 import {
   buildAgentJsonLines,
   buildLlmMessages,
+  formatAnswerWithCitations,
   isLlmQuery,
   normalizeLlmQuery,
   readAgentJsonPayload,
@@ -42,7 +43,7 @@ type LlmHistoryMessage = {
   content: string;
 };
 
-type ToolName = 'local_context' | 'web_verify' | 'open_app' | 'list_projects';
+type ToolName = 'local_context' | 'web_verify' | 'open_app' | 'list_projects' | 'retrieve' | 'cite';
 
 type ToolUsage = Record<ToolName, number>;
 
@@ -52,17 +53,61 @@ type LastWebVerifyContext = {
   sources: VerifySource[];
 };
 
+type RetrievedHit = {
+  id: string;
+  source: string;
+  title: string;
+  snippet: string;
+  url?: string;
+  score: number;
+};
+
+type RetrieveResult = {
+  query: string;
+  classification: string;
+  hits: RetrievedHit[];
+  fromCache: boolean;
+};
+
+type CiteResult = {
+  claim: string;
+  verdict: string;
+  evidence: RetrievedHit[];
+  fromCache: boolean;
+};
+
+type EvidenceState = {
+  query: string;
+  classification: string;
+  verdict: string;
+  hits: RetrievedHit[];
+  fromCache: boolean;
+};
+
 const INITIAL_TOOL_USAGE: ToolUsage = {
   local_context: 0,
   web_verify: 0,
   open_app: 0,
   list_projects: 0,
+  retrieve: 0,
+  cite: 0,
 };
 
 const LLM_COUNT_KEY = 'dg_labs_terminal_llm_count';
 const VERIFY_COUNT_KEY = 'dg_labs_terminal_verify_count';
 const ROUTER_CONFIDENCE_THRESHOLD = 0.8;
 const VERIFY_SESSION_CAP = 12;
+
+const isRetrievedHit = (value: unknown): value is RetrievedHit =>
+  !!value &&
+  typeof value === 'object' &&
+  typeof (value as { id?: unknown }).id === 'string' &&
+  typeof (value as { source?: unknown }).source === 'string' &&
+  typeof (value as { title?: unknown }).title === 'string' &&
+  typeof (value as { snippet?: unknown }).snippet === 'string' &&
+  typeof (value as { score?: unknown }).score === 'number' &&
+  (typeof (value as { url?: unknown }).url === 'string' ||
+    typeof (value as { url?: unknown }).url === 'undefined');
 
 const runAction = (action: TerminalAction) => {
   if (typeof window === 'undefined') return;
@@ -101,6 +146,8 @@ export default function AgentsTerminal() {
     null
   );
   const [llmHistory, setLlmHistory] = useState<LlmHistoryMessage[]>([]);
+  const [showEvidencePanel, setShowEvidencePanel] = useState(false);
+  const [lastEvidence, setLastEvidence] = useState<EvidenceState | null>(null);
   const [history, setHistory] = useState<TerminalEntry[]>([
     { id: 1, kind: 'system', text: 'DG-Labs Agents Runtime v2' },
     {
@@ -111,7 +158,11 @@ export default function AgentsTerminal() {
   ]);
   const nextIdRef = useRef(3);
   const toolAbortRef = useRef<AbortController | null>(null);
+  const llmAbortRef = useRef<AbortController | null>(null);
+  const retrieveCacheRef = useRef<Map<string, Omit<RetrieveResult, 'fromCache'>>>(new Map());
+  const citeCacheRef = useRef<Map<string, Omit<CiteResult, 'fromCache'>>>(new Map());
   const outputRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const prompt = useMemo(() => `${userConfig.name}:~$`, []);
 
@@ -132,7 +183,13 @@ export default function AgentsTerminal() {
       top: outputRef.current.scrollHeight,
       behavior: 'smooth',
     });
+    // Keep terminal input alive after output updates.
+    inputRef.current?.focus();
   }, [history]);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   useEffect(() => {
     if (!isLlmBusy) {
@@ -177,12 +234,101 @@ export default function AgentsTerminal() {
     setToolUsage((prev) => ({ ...prev, [tool]: prev[tool] + 1 }));
   };
 
+  const normalizeCacheKey = (value: string) => value.trim().toLowerCase();
+
+  const trimCache = (cache: Map<string, unknown>, max = 40) => {
+    while (cache.size > max) {
+      const oldestKey = cache.keys().next().value as string | undefined;
+      if (!oldestKey) break;
+      cache.delete(oldestKey);
+    }
+  };
+
+  const runRetrieveTool = async (
+    query: string,
+    signal?: AbortSignal,
+    limit = 6
+  ): Promise<RetrieveResult | null> => {
+    const key = normalizeCacheKey(query);
+    incrementToolUsage('retrieve');
+    const cached = retrieveCacheRef.current.get(key);
+    if (cached) {
+      return { ...cached, fromCache: true };
+    }
+
+    const response = await fetch('/api/tools', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tool: 'retrieve', input: { query, limit } }),
+      signal,
+    });
+    const payload = (await response.json().catch(() => ({}))) as
+      | {
+          ok?: boolean;
+          tool?: string;
+          result?: { query?: unknown; classification?: unknown; hits?: unknown };
+        }
+      | undefined;
+
+    if (!response.ok || !payload?.ok || payload.tool !== 'retrieve' || !payload.result) {
+      return null;
+    }
+
+    const result = payload.result;
+    const resolvedQuery = typeof result.query === 'string' ? result.query : query;
+    const classification =
+      typeof result.classification === 'string' ? result.classification : 'general';
+    const hits = Array.isArray(result.hits) ? result.hits.filter(isRetrievedHit) : [];
+    const materialized = { query: resolvedQuery, classification, hits };
+    retrieveCacheRef.current.set(key, materialized);
+    trimCache(retrieveCacheRef.current);
+    return { ...materialized, fromCache: false };
+  };
+
+  const runCiteTool = async (claim: string, signal?: AbortSignal): Promise<CiteResult | null> => {
+    const key = normalizeCacheKey(claim);
+    incrementToolUsage('cite');
+    const cached = citeCacheRef.current.get(key);
+    if (cached) {
+      return { ...cached, fromCache: true };
+    }
+
+    const response = await fetch('/api/tools', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tool: 'cite', input: { claim } }),
+      signal,
+    });
+    const payload = (await response.json().catch(() => ({}))) as
+      | {
+          ok?: boolean;
+          tool?: string;
+          result?: { claim?: unknown; verdict?: unknown; evidence?: unknown };
+        }
+      | undefined;
+
+    if (!response.ok || !payload?.ok || payload.tool !== 'cite' || !payload.result) {
+      return null;
+    }
+
+    const result = payload.result;
+    const resolvedClaim = typeof result.claim === 'string' ? result.claim : claim;
+    const verdict = typeof result.verdict === 'string' ? result.verdict : 'unknown';
+    const evidence = Array.isArray(result.evidence) ? result.evidence.filter(isRetrievedHit) : [];
+    const materialized = { claim: resolvedClaim, verdict, evidence };
+    citeCacheRef.current.set(key, materialized);
+    trimCache(citeCacheRef.current);
+    return { ...materialized, fromCache: false };
+  };
+
   const toolStatusLines = (): string[] => [
     'Tool status:',
     `- local_context: used ${toolUsage.local_context} time(s)`,
     `- web_verify: used ${toolUsage.web_verify} time(s), cap ${VERIFY_SESSION_CAP}`,
     `- open_app: used ${toolUsage.open_app} time(s)`,
     `- list_projects: used ${toolUsage.list_projects} time(s)`,
+    `- retrieve: used ${toolUsage.retrieve} time(s)`,
+    `- cite: used ${toolUsage.cite} time(s)`,
   ];
 
   const askLlm = async (rawQuery: string) => {
@@ -205,11 +351,12 @@ export default function AgentsTerminal() {
     }
 
     const controller = new AbortController();
+    llmAbortRef.current = controller;
     const timeout = setTimeout(() => controller.abort(), settings.llmTimeoutMs);
 
     setIsLlmBusy(true);
     try {
-      const grounding = retrieveKnowledge(
+      const fallbackGrounding = retrieveKnowledge(
         query,
         {
           user: userConfig,
@@ -219,6 +366,56 @@ export default function AgentsTerminal() {
         },
         4
       );
+      let grounding = fallbackGrounding;
+      let retrievalLines: string[] = [];
+
+      const retrieveResult = await runRetrieveTool(query, controller.signal, 6);
+      if (retrieveResult) {
+        const hits = retrieveResult.hits;
+        if (hits.length > 0) {
+          grounding = hits.map((hit) => ({
+            id: hit.id,
+            source: hit.source as 'personal' | 'workbench' | 'notes' | 'network' | 'brain',
+            title: hit.title,
+            snippet: hit.snippet,
+            url: hit.url,
+            score: hit.score,
+            tags: [],
+          }));
+        }
+        const classification = retrieveResult.classification;
+        retrievalLines = [
+          '[evidence]',
+          `- workflow: classify -> retrieve -> cite -> answer`,
+          `- classification: ${classification}`,
+          `- retrieved: ${hits.length}`,
+          `- retrieve cache: ${retrieveResult.fromCache ? 'hit' : 'miss'}`,
+        ];
+      }
+
+      const citeResult = await runCiteTool(query, controller.signal);
+      if (citeResult) {
+        const verdict = citeResult.verdict;
+        const evidence = citeResult.evidence;
+        retrievalLines.push(`- citation verdict: ${verdict}`);
+        retrievalLines.push(`- evidence refs: ${evidence.length}`);
+        retrievalLines.push(`- cite cache: ${citeResult.fromCache ? 'hit' : 'miss'}`);
+        setLastEvidence({
+          query: retrieveResult?.query ?? query,
+          classification: retrieveResult?.classification ?? 'general',
+          verdict,
+          hits: evidence.length > 0 ? evidence : (retrieveResult?.hits ?? []),
+          fromCache: (retrieveResult?.fromCache ?? false) && citeResult.fromCache,
+        });
+      } else if (retrieveResult) {
+        setLastEvidence({
+          query: retrieveResult.query,
+          classification: retrieveResult.classification,
+          verdict: 'unknown',
+          hits: retrieveResult.hits,
+          fromCache: retrieveResult.fromCache,
+        });
+      }
 
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -253,6 +450,16 @@ export default function AgentsTerminal() {
         { role: 'user', content: query },
         { role: 'assistant', content: message },
       ]);
+
+      const evidenceRefs = (citeResult?.evidence ?? retrieveResult?.hits ?? []).map((hit) => ({
+        source: hit.source,
+        title: hit.title,
+        snippet: hit.snippet,
+        url: hit.url,
+        score: hit.score,
+      }));
+      const cited = formatAnswerWithCitations(message, evidenceRefs, settings.strictEvidenceMode);
+
       const envelopeLines = buildAskEnvelopeLines(
         grounding,
         settings.showLlmSources,
@@ -261,7 +468,17 @@ export default function AgentsTerminal() {
       const agentLines = agentPayload ? buildAgentJsonLines(agentPayload) : [];
       setHistory((prev) => [
         ...prev,
-        pushLine('output', message),
+        ...retrievalLines.map((line) => pushLine('system', line)),
+        pushLine('output', cited.answer),
+        ...(cited.citationLines.length > 0
+          ? [
+              pushLine('system', '[citations]'),
+              ...cited.citationLines.map((line) => pushLine('system', line)),
+            ]
+          : []),
+        ...(cited.unverifiedCount > 0
+          ? [pushLine('system', `- unverified claims: ${cited.unverifiedCount}`)]
+          : []),
         ...agentLines.map((line) => pushLine('output', line)),
         ...envelopeLines.map((line) => pushLine('system', line)),
       ]);
@@ -272,6 +489,9 @@ export default function AgentsTerminal() {
           : 'LLM request failed unexpectedly.';
       setHistory((prev) => [...prev, pushLine('output', timeoutMessage)]);
     } finally {
+      if (llmAbortRef.current === controller) {
+        llmAbortRef.current = null;
+      }
       clearTimeout(timeout);
       setIsLlmBusy(false);
     }
@@ -310,6 +530,68 @@ export default function AgentsTerminal() {
     }
 
     try {
+      if (tool === 'retrieve') {
+        const query =
+          typeof input?.query === 'string' && input.query.trim().length > 0 ? input.query : 'query';
+        const limit = typeof input?.limit === 'number' ? input.limit : 6;
+        const result = await runRetrieveTool(query, controller.signal, limit);
+        if (!result) {
+          setHistory((prev) => [...prev, pushLine('output', 'Tool retrieve failed.')]);
+          return;
+        }
+        const lines: string[] = [
+          '[retrieve]',
+          `- query: ${result.query}`,
+          `- classification: ${result.classification}`,
+          `- hits: ${result.hits.length}`,
+          `- cache: ${result.fromCache ? 'hit' : 'miss'}`,
+        ];
+        for (const [index, hit] of result.hits.slice(0, 8).entries()) {
+          lines.push(`${index + 1}. [${hit.source}] ${hit.title} (score=${hit.score})`);
+          lines.push(`   ${hit.snippet}`);
+          if (hit.url) lines.push(`   ${hit.url}`);
+        }
+        setLastEvidence({
+          query: result.query,
+          classification: result.classification,
+          verdict: 'unknown',
+          hits: result.hits,
+          fromCache: result.fromCache,
+        });
+        setHistory((prev) => [...prev, ...lines.map((line) => pushLine('output', line))]);
+        return;
+      }
+
+      if (tool === 'cite') {
+        const claim =
+          typeof input?.claim === 'string' && input.claim.trim().length > 0 ? input.claim : 'claim';
+        const result = await runCiteTool(claim, controller.signal);
+        if (!result) {
+          setHistory((prev) => [...prev, pushLine('output', 'Tool cite failed.')]);
+          return;
+        }
+        const lines: string[] = [
+          '[cite]',
+          `- claim: ${result.claim}`,
+          `- verdict: ${result.verdict}`,
+          `- evidence: ${result.evidence.length}`,
+          `- cache: ${result.fromCache ? 'hit' : 'miss'}`,
+        ];
+        for (const [index, hit] of result.evidence.slice(0, 5).entries()) {
+          lines.push(`${index + 1}. [${hit.source}] ${hit.title} (score=${hit.score})`);
+          if (hit.url) lines.push(`   ${hit.url}`);
+        }
+        setLastEvidence({
+          query: result.claim,
+          classification: 'general',
+          verdict: result.verdict,
+          hits: result.evidence,
+          fromCache: result.fromCache,
+        });
+        setHistory((prev) => [...prev, ...lines.map((line) => pushLine('output', line))]);
+        return;
+      }
+
       const response = await fetch('/api/tools', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -449,10 +731,34 @@ export default function AgentsTerminal() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const command = input.trim();
-    if (!command || isLlmBusy) return;
+    if (!command) return;
+
+    if (isLlmBusy && /^cancel$/i.test(command)) {
+      llmAbortRef.current?.abort();
+      llmAbortRef.current = null;
+      setIsLlmBusy(false);
+      setInput('');
+      setHistory((prev) => [
+        ...prev,
+        pushLine('command', `${prompt} ${command}`),
+        pushLine('system', 'Canceled in-flight LLM request.'),
+      ]);
+      inputRef.current?.focus();
+      return;
+    }
+
+    if (isLlmBusy) {
+      setHistory((prev) => [
+        ...prev,
+        pushLine('system', 'LLM is still running. Type "cancel" to abort current request.'),
+      ]);
+      inputRef.current?.focus();
+      return;
+    }
 
     setHistory((prev) => [...prev, pushLine('command', `${prompt} ${command}`)]);
     setInput('');
+    inputRef.current?.focus();
 
     let commandToRun = command;
     const isDeterministic = isDeterministicTerminalCommand(commandToRun);
@@ -535,7 +841,7 @@ export default function AgentsTerminal() {
       : quickButtonClass;
 
   return (
-    <div className="rounded-xl border border-emerald-300/20 bg-black/60 shadow-[0_14px_60px_rgba(0,0,0,0.45)] overflow-hidden">
+    <div className="h-full min-h-0 rounded-xl border border-emerald-300/20 bg-black/60 shadow-[0_14px_60px_rgba(0,0,0,0.45)] overflow-hidden flex flex-col">
       <div className="flex items-center justify-between border-b border-emerald-400/20 px-4 py-2 text-xs text-emerald-300/80">
         <span>
           Runtime: deterministic commands + LLM (`ask`) | {terminalSettingsSummary(settings)}
@@ -625,6 +931,19 @@ export default function AgentsTerminal() {
             <span>Show LLM source footer</span>
           </label>
           <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={settings.strictEvidenceMode}
+              onChange={(event) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  strictEvidenceMode: event.target.checked,
+                }))
+              }
+            />
+            <span>Strict evidence mode</span>
+          </label>
+          <label className="flex items-center gap-2">
             <span>Timeout (seconds)</span>
             <input
               type="number"
@@ -692,6 +1011,14 @@ export default function AgentsTerminal() {
           <p>
             <span className="text-emerald-300">list_projects</span>: enumerate workbench projects (
             {toolUsage.list_projects})
+          </p>
+          <p>
+            <span className="text-emerald-300">retrieve</span>: ranked local evidence retrieval (
+            {toolUsage.retrieve})
+          </p>
+          <p>
+            <span className="text-emerald-300">cite</span>: claim {'->'} evidence verdict (
+            {toolUsage.cite})
           </p>
         </div>
         <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
@@ -821,13 +1148,55 @@ export default function AgentsTerminal() {
         <p className="mt-2 text-white/50">
           Commands: <code>tools</code> | <code>tool local_context intent modeling</code> |{' '}
           <code>tool web_verify Dessi Georgieva LinkedIn projects</code> |{' '}
-          <code>tool list_projects</code>
+          <code>tool list_projects</code> | <code>tool retrieve intent recognition projects</code> |{' '}
+          <code>tool cite Dessi built intent recognition systems</code>
         </p>
       </details>
 
+      <div className="border-b border-emerald-400/20 px-4 py-2 text-xs text-white/70">
+        <button
+          type="button"
+          onClick={() => setShowEvidencePanel((prev) => !prev)}
+          className="rounded border border-white/20 bg-white/10 px-2 py-1 text-xs text-white/90 hover:bg-white/20"
+        >
+          {showEvidencePanel ? 'Hide evidence panel' : 'Show evidence panel'}
+        </button>
+        {showEvidencePanel && lastEvidence ? (
+          <div className="mt-2 rounded border border-white/10 bg-white/5 p-2">
+            <p className="text-emerald-300/90">
+              Evidence: {lastEvidence.query} | class={lastEvidence.classification} | verdict=
+              {lastEvidence.verdict} | cache={lastEvidence.fromCache ? 'hit' : 'miss'}
+            </p>
+            <ul className="mt-1 space-y-1 text-white/80">
+              {lastEvidence.hits.slice(0, 6).map((hit) => (
+                <li key={hit.id} className="leading-5">
+                  <span className="text-emerald-200">
+                    [{hit.source}] {hit.title}
+                  </span>{' '}
+                  <span className="text-white/50">(score={hit.score})</span>
+                  {hit.url ? (
+                    <>
+                      {' '}
+                      <a
+                        href={hit.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-cyan-300 hover:text-cyan-200 underline"
+                      >
+                        source
+                      </a>
+                    </>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+      </div>
+
       <div
         ref={outputRef}
-        className="h-[340px] overflow-y-auto px-4 py-4 font-mono text-sm leading-6 text-emerald-200 [&::-webkit-scrollbar]:hidden"
+        className="min-h-[180px] flex-1 overflow-y-auto px-4 py-4 font-mono text-sm leading-6 text-emerald-200 [&::-webkit-scrollbar]:hidden"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         aria-live="polite"
       >
@@ -853,14 +1222,14 @@ export default function AgentsTerminal() {
         <label className="flex items-center gap-2 font-mono text-sm">
           <span className="text-emerald-300">{prompt}</span>
           <input
+            ref={inputRef}
             value={input}
             onChange={(event) => setInput(event.target.value)}
-            className="w-full bg-transparent text-emerald-100 outline-none placeholder:text-emerald-200/30"
+            className="w-full bg-transparent text-emerald-100 outline-none placeholder:text-emerald-200/30 caret-emerald-200"
             placeholder='Try: help, open network, search intent, ask "Explain DG-Labs OS"'
             autoComplete="off"
             autoCapitalize="off"
             spellCheck={false}
-            disabled={isLlmBusy}
             aria-label="Terminal command input"
           />
         </label>

@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "resume:sync": "node scripts/resume/sync-resume-assets.mjs",
+    "resume:build": "node scripts/resume/build-with-pandoc.mjs",
+    "resume:refresh": "pnpm resume:build",
     "preview": "astro preview",
     "astro": "astro",
     "test": "vitest run",

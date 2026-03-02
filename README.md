@@ -145,8 +145,42 @@ Edit the config files in `src/config/`:
 - `contact.ts` - email, phone, Calendly
 - `education.ts`, `experience.ts`, `skills.ts`
 - `projects.ts` + `src/config/projects/*.json`
-- `apps.ts` - resume URL
+- `apps.ts` - resume asset links (`pdf`, `docx`, `markdown`)
 - `site.ts` - SEO + theme colors
+
+## Resume Module
+
+Resume is now served from local static assets instead of Google Drive:
+
+- `/cv/Dessi_Georgieva_CV.pdf`
+- `/cv/Dessi_Georgieva_CV.docx`
+- `/cv/Dessi_Georgieva_CV.md`
+
+Canonical source markdown lives at:
+
+- `src/data/resume/cv.md`
+
+Sync canonical markdown into downloadable public assets:
+
+```bash
+pnpm resume:sync
+```
+
+Generate PDF + DOCX + Markdown from the canonical source using Pandoc:
+
+```bash
+pnpm resume:build
+```
+
+Requirements for `resume:build`:
+
+- `pandoc` installed
+- one PDF engine installed:
+  - `xelatex` or `pdflatex` or `lualatex` or `tectonic`
+  - or `wkhtmltopdf`
+  - or `weasyprint`
+
+If only markdown sync is needed (no PDF/DOCX regeneration), use `pnpm resume:sync`.
 
 ## Deployment
 
