@@ -48,6 +48,11 @@ export type CitationChip = {
   url: string;
 };
 
+export type CitationChipGroupBucket = {
+  group: CitationChipGroup;
+  chips: CitationChip[];
+};
+
 const truncate = (value: string, maxChars: number): string =>
   value.length <= maxChars ? value : `${value.slice(0, Math.max(0, maxChars - 1)).trimEnd()}…`;
 
@@ -329,6 +334,44 @@ export const buildCitationChips = (
   }
 
   return chips;
+};
+
+const CITATION_GROUP_ORDER: CitationChipGroup[] = ['Profile', 'Projects', 'Research', 'Web'];
+
+export const groupCitationChips = (chips: readonly CitationChip[]): CitationChipGroupBucket[] => {
+  const grouped = new Map<CitationChipGroup, CitationChip[]>();
+  for (const chip of chips) {
+    const bucket = grouped.get(chip.group) ?? [];
+    bucket.push(chip);
+    grouped.set(chip.group, bucket);
+  }
+
+  return CITATION_GROUP_ORDER.map((group) => ({
+    group,
+    chips: grouped.get(group) ?? [],
+  })).filter((bucket) => bucket.chips.length > 0);
+};
+
+export const explainConfidenceLabel = (label: LlmConfidenceLabel): string => {
+  if (label === 'local+verified') {
+    return 'Trust level: local evidence corroborated by web verification.';
+  }
+  if (label === 'local-only') {
+    return 'Trust level: grounded in local DG-Labs knowledge; run verify for web corroboration.';
+  }
+  if (label === 'verified-only') {
+    return 'Trust level: web-verified sources present; local index support was limited.';
+  }
+  return 'Trust level: low evidence. Refine query or run verify/context before relying on this answer.';
+};
+
+export const explainVerificationGap = (
+  verifiedWebSourceCount: number,
+  query: string
+): string | null => {
+  if (verifiedWebSourceCount > 0) return null;
+  const safeQuery = query.trim() || 'your query';
+  return `Verification gap: no corroborating web sources were found for "${safeQuery}". Refine the query or verify a specific profile/project link.`;
 };
 
 type AgentChunk = {

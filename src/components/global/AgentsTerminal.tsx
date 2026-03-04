@@ -13,7 +13,10 @@ import {
   buildCitationChips,
   buildAgentJsonLines,
   buildLlmMessages,
+  explainConfidenceLabel,
+  explainVerificationGap,
   formatAnswerWithCitations,
+  groupCitationChips,
   isLlmQuery,
   normalizeLlmQuery,
   parseLlmModeQuery,
@@ -485,6 +488,7 @@ export default function AgentsTerminal() {
       );
       const chips = buildCitationChips(evidenceRefs, lastWebVerifyContext?.sources ?? []);
       setLastAnswerMeta({ confidence, chips });
+      const confidenceGuidance = explainConfidenceLabel(confidence);
 
       const envelopeLines = buildAskEnvelopeLines(
         grounding,
@@ -496,6 +500,7 @@ export default function AgentsTerminal() {
         ...prev,
         ...retrievalLines.map((line) => pushLine('system', line)),
         pushLine('system', `[confidence] ${confidence}`),
+        pushLine('system', `- ${confidenceGuidance}`),
         pushLine('output', cited.answer),
         ...(chips.length > 0
           ? [
@@ -671,13 +676,38 @@ export default function AgentsTerminal() {
         const summary =
           typeof result.summary === 'string' ? result.summary : 'Verification complete.';
         const verifiedQuery = typeof result.query === 'string' ? result.query : '';
+        const confidence = resolveAnswerConfidenceLabel(0, sources.length);
+        const confidenceGuidance = explainConfidenceLabel(confidence);
+        const verificationGap = explainVerificationGap(sources.length, verifiedQuery || 'verify');
+        const chips = buildCitationChips([], sources);
         const lines = buildVerifyEnvelopeLines(summary, sources);
         setLastWebVerifyContext({
           query: verifiedQuery || 'verify',
           summary,
           sources,
         });
-        setHistory((prev) => [...prev, ...lines.map((line) => pushLine('output', line))]);
+        setLastAnswerMeta({ confidence, chips });
+        setHistory((prev) => [
+          ...prev,
+          ...lines.map((line) => pushLine('output', line)),
+          pushLine('system', `[confidence] ${confidence}`),
+          pushLine('system', `- ${confidenceGuidance}`),
+          ...(verificationGap ? [pushLine('system', `- ${verificationGap}`)] : []),
+          ...(chips.length > 0
+            ? [
+                pushLine('system', '[citation_groups]'),
+                ...groupCitationChips(chips)
+                  .slice(0, 4)
+                  .flatMap((bucket) =>
+                    bucket.chips
+                      .slice(0, 2)
+                      .map((chip) =>
+                        pushLine('system', `${bucket.group}: ${chip.label} — ${chip.url}`)
+                      )
+                  ),
+              ]
+            : []),
+        ]);
         return;
       }
 
@@ -925,6 +955,19 @@ export default function AgentsTerminal() {
     activeQuickAction === key
       ? 'rounded border border-emerald-300/70 bg-emerald-400/20 px-2 py-1 text-xs text-emerald-100 shadow-[0_0_0_1px_rgba(52,211,153,0.25)]'
       : quickButtonClass;
+
+  const confidenceBadgeClass = (confidence: LlmConfidenceLabel) => {
+    if (confidence === 'local+verified') {
+      return 'border-emerald-300/50 bg-emerald-400/10 text-emerald-200';
+    }
+    if (confidence === 'local-only') {
+      return 'border-cyan-300/50 bg-cyan-400/10 text-cyan-200';
+    }
+    if (confidence === 'verified-only') {
+      return 'border-indigo-300/50 bg-indigo-400/10 text-indigo-200';
+    }
+    return 'border-amber-300/50 bg-amber-400/10 text-amber-200';
+  };
 
   return (
     <div className="h-full min-h-0 rounded-xl border border-emerald-300/20 bg-black/60 shadow-[0_14px_60px_rgba(0,0,0,0.45)] overflow-hidden flex flex-col">
@@ -1310,22 +1353,31 @@ export default function AgentsTerminal() {
 
       <form onSubmit={handleSubmit} className="border-t border-emerald-400/20 px-4 py-3">
         {lastAnswerMeta ? (
-          <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
-            <span className="rounded-full border border-emerald-300/50 bg-emerald-400/10 px-2 py-0.5 text-emerald-200">
+          <div className="mb-2 space-y-2 text-xs">
+            <span
+              className={`inline-flex rounded-full border px-2 py-0.5 ${confidenceBadgeClass(lastAnswerMeta.confidence)}`}
+            >
               confidence: {lastAnswerMeta.confidence}
             </span>
-            {lastAnswerMeta.chips.slice(0, 8).map((chip) => (
-              <a
-                key={`${chip.group}-${chip.url}`}
-                href={chip.url}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-full border border-white/20 bg-white/5 px-2 py-0.5 text-white/80 hover:bg-white/10"
-                title={`${chip.group}: ${chip.label}`}
-              >
-                {chip.group}
-              </a>
-            ))}
+            <p className="text-white/60">{explainConfidenceLabel(lastAnswerMeta.confidence)}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              {groupCitationChips(lastAnswerMeta.chips)
+                .slice(0, 4)
+                .flatMap((bucket) =>
+                  bucket.chips.slice(0, 2).map((chip) => (
+                    <a
+                      key={`${bucket.group}-${chip.url}`}
+                      href={chip.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="rounded-full border border-white/20 bg-white/5 px-2 py-0.5 text-white/80 hover:bg-white/10"
+                      title={`${bucket.group}: ${chip.label}`}
+                    >
+                      [{bucket.group}] {chip.label}
+                    </a>
+                  ))
+                )}
+            </div>
           </div>
         ) : null}
         <label className="flex items-center gap-2 font-mono text-sm">
