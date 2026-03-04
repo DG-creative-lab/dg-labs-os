@@ -27,6 +27,10 @@ import { buildAskEnvelopeLines, buildVerifyEnvelopeLines } from '../../utils/ter
 import { retrieveKnowledge } from '../../utils/terminalKnowledge';
 import type { VerifySource } from '../../utils/apiContracts';
 import {
+  handleTerminalMenuAction,
+  type TerminalMenuEventDetail,
+} from '../../services/menuActionHandlers';
+import {
   defaultTerminalSettings,
   parseTerminalSettings,
   serializeTerminalSettings,
@@ -51,11 +55,6 @@ type LlmHistoryMessage = {
 type ToolName = 'local_context' | 'web_verify' | 'open_app' | 'list_projects' | 'retrieve' | 'cite';
 
 type ToolUsage = Record<ToolName, number>;
-
-type TerminalMenuEventDetail = {
-  action: 'clear_output' | 'set_mode' | 'toggle_sources' | 'verify_profile' | 'verify_projects';
-  mode?: TerminalBrainMode;
-};
 
 type LastWebVerifyContext = {
   query: string;
@@ -767,55 +766,43 @@ export default function AgentsTerminal() {
   useEffect(() => {
     const handleMenuAction = (event: Event) => {
       const customEvent = event as CustomEvent<TerminalMenuEventDetail>;
-      const detail = customEvent.detail;
-      if (!detail?.action) return;
-
-      if (detail.action === 'clear_output') {
-        setHistory([
-          pushLine('system', 'DG-Labs Agents Runtime v2'),
-          pushLine(
-            'system',
-            'Modes: ask|brief|cv|projects <question>  •  help for deterministic commands'
-          ),
-        ]);
-        return;
-      }
-
-      if (detail.action === 'set_mode') {
-        const mode = detail.mode;
-        if (mode === 'concise' || mode === 'explainer' || mode === 'research') {
+      handleTerminalMenuAction(customEvent.detail, {
+        clearOutput: () => {
+          setHistory([
+            pushLine('system', 'DG-Labs Agents Runtime v2'),
+            pushLine(
+              'system',
+              'Modes: ask|brief|cv|projects <question>  •  help for deterministic commands'
+            ),
+          ]);
+        },
+        setMode: (mode) => {
           setSettings((prev) => ({ ...prev, brainMode: mode }));
           setHistory((prev) => [...prev, pushLine('system', `Mode set to ${mode}.`)]);
-        }
-        return;
-      }
-
-      if (detail.action === 'toggle_sources') {
-        setSettings((prev) => {
-          const next = !prev.showLlmSources;
-          setHistory((historyPrev) => [
-            ...historyPrev,
-            pushLine('system', `LLM sources footer ${next ? 'enabled' : 'disabled'}.`),
-          ]);
-          return { ...prev, showLlmSources: next };
-        });
-        return;
-      }
-
-      if (detail.action === 'verify_profile') {
-        void runQuickAction('verify-profile-menu', () =>
-          runVerify('Dessi Georgieva LinkedIn profile work experience education')
-        );
-        return;
-      }
-
-      if (detail.action === 'verify_projects') {
-        void runQuickAction('verify-projects-menu', () =>
-          runVerify(
-            'Dessi Georgieva projects DG-creative-lab ai-knowledge-hub AI News Hub skills ai-knowledge-hub'
-          )
-        );
-      }
+        },
+        toggleSources: () => {
+          setSettings((prev) => {
+            const next = !prev.showLlmSources;
+            setHistory((historyPrev) => [
+              ...historyPrev,
+              pushLine('system', `LLM sources footer ${next ? 'enabled' : 'disabled'}.`),
+            ]);
+            return { ...prev, showLlmSources: next };
+          });
+        },
+        verifyProfile: () => {
+          void runQuickAction('verify-profile-menu', () =>
+            runVerify('Dessi Georgieva LinkedIn profile work experience education')
+          );
+        },
+        verifyProjects: () => {
+          void runQuickAction('verify-projects-menu', () =>
+            runVerify(
+              'Dessi Georgieva projects DG-creative-lab ai-knowledge-hub AI News Hub skills ai-knowledge-hub'
+            )
+          );
+        },
+      });
     };
 
     window.addEventListener('dg-terminal-menu-action', handleMenuAction as EventListener);

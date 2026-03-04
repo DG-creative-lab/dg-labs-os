@@ -1,25 +1,29 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useReducer } from 'react';
 import { labNotes, labPrinciples } from '../../config/labNotes';
 import { networkIdeaEdges, networkNodes } from '../../config/network';
 import { userConfig } from '../../config';
 import { workbench } from '../../config/workbench';
+import {
+  dispatchDesktopState,
+  onDesktopAppFocus,
+  onDesktopOpenWindow,
+  onDesktopToggleWindow,
+} from '../../services/desktopEvents';
+import {
+  desktopShellReducer,
+  INITIAL_DESKTOP_SHELL_STATE,
+} from '../../services/desktopShellReducer';
+import {
+  handleNotesMenuAction,
+  handleWorkbenchMenuAction,
+  type NotesMenuEventDetail,
+  type WorkbenchMenuEventDetail,
+} from '../../services/menuActionHandlers';
+import { type DesktopAppId } from '../../services/desktopWindowService';
 import NetworkApp from '../network/NetworkApp';
 import AgentsTerminal from './AgentsTerminal';
 import DraggableAppWindow from './DraggableAppWindow';
 import ResumeApp from './ResumeApp';
-
-type AppId = 'terminal' | 'network' | 'projects' | 'notes' | 'resume' | 'news';
-
-type OpenState = Record<AppId, boolean>;
-
-const INITIAL_OPEN_STATE: OpenState = {
-  terminal: false,
-  network: false,
-  projects: false,
-  notes: false,
-  resume: false,
-  news: false,
-};
 
 const toWorkbenchSectionId = (category: string) =>
   `workbench-${category.toLowerCase().replace(/\s+/g, '-')}`;
@@ -39,19 +43,13 @@ const jumpTo = (id: string) => {
 function ProjectsPanel() {
   useEffect(() => {
     const onWorkbenchMenuAction = (event: Event) => {
-      const customEvent = event as CustomEvent<{
-        action?: 'jump_section' | 'scroll_top';
-        sectionId?: string;
-      }>;
-      const detail = customEvent.detail;
-      if (!detail?.action) return;
-      if (detail.action === 'jump_section' && typeof detail.sectionId === 'string') {
-        jumpTo(detail.sectionId);
-        return;
-      }
-      if (detail.action === 'scroll_top') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+      const customEvent = event as CustomEvent<WorkbenchMenuEventDetail>;
+      handleWorkbenchMenuAction(customEvent.detail, {
+        jumpToSection: jumpTo,
+        scrollTop: () => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+      });
     };
     window.addEventListener('dg-workbench-menu-action', onWorkbenchMenuAction as EventListener);
     return () => {
@@ -106,23 +104,16 @@ function ProjectsPanel() {
 function NotesPanel() {
   useEffect(() => {
     const onNotesMenuAction = (event: Event) => {
-      const customEvent = event as CustomEvent<{
-        action?: 'jump_section' | 'open_news_hub' | 'scroll_top';
-        sectionId?: string;
-      }>;
-      const detail = customEvent.detail;
-      if (!detail?.action) return;
-      if (detail.action === 'jump_section' && typeof detail.sectionId === 'string') {
-        jumpTo(detail.sectionId);
-        return;
-      }
-      if (detail.action === 'open_news_hub') {
-        window.open('https://ai-news-hub.performics-labs.com/', '_blank', 'noopener,noreferrer');
-        return;
-      }
-      if (detail.action === 'scroll_top') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+      const customEvent = event as CustomEvent<NotesMenuEventDetail>;
+      handleNotesMenuAction(customEvent.detail, {
+        jumpToSection: jumpTo,
+        openNewsHub: () => {
+          window.open('https://ai-news-hub.performics-labs.com/', '_blank', 'noopener,noreferrer');
+        },
+        scrollTop: () => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+      });
     };
     window.addEventListener('dg-notes-menu-action', onNotesMenuAction as EventListener);
     return () => {
@@ -232,61 +223,37 @@ function NewsPanel() {
 }
 
 export default function DesktopWorkspace() {
-  const [open, setOpen] = useState<OpenState>(INITIAL_OPEN_STATE);
-  const [focusedAppId, setFocusedAppId] = useState<AppId | 'home'>('home');
+  const [state, dispatch] = useReducer(desktopShellReducer, INITIAL_DESKTOP_SHELL_STATE);
+  const { open } = state;
 
-  const closeWindow = (appId: AppId) => {
-    setOpen((prev) => ({ ...prev, [appId]: false }));
-    setFocusedAppId((prev) => (prev === appId ? 'home' : prev));
+  const closeWindow = (appId: DesktopAppId) => {
+    dispatch({ type: 'CLOSE_WINDOW', appId });
   };
 
   useEffect(() => {
-    const publishState = (nextOpen: OpenState, nextFocused: AppId | 'home') => {
-      window.dispatchEvent(
-        new CustomEvent('dg-desktop-state', {
-          detail: { open: nextOpen, focusedAppId: nextFocused },
-        })
-      );
-    };
-
-    publishState(open, focusedAppId);
-  }, [open, focusedAppId]);
+    dispatchDesktopState(window, state.open, state.focusedAppId);
+  }, [state]);
 
   useEffect(() => {
-    const onToggleWindow = (event: Event) => {
-      const customEvent = event as CustomEvent<{ appId?: AppId }>;
-      const appId = customEvent.detail?.appId;
+    const unsubscribeToggle = onDesktopToggleWindow(window, ({ appId }) => {
       if (!appId) return;
-      setOpen((prev) => {
-        const nextOpen = { ...prev, [appId]: !prev[appId] };
-        if (nextOpen[appId]) setFocusedAppId(appId);
-        else setFocusedAppId((current) => (current === appId ? 'home' : current));
-        return nextOpen;
-      });
-    };
+      dispatch({ type: 'TOGGLE_WINDOW', appId });
+    });
 
-    const onAppFocus = (event: Event) => {
-      const customEvent = event as CustomEvent<{ appId?: AppId }>;
-      const appId = customEvent.detail?.appId;
+    const unsubscribeFocus = onDesktopAppFocus(window, ({ appId }) => {
       if (!appId) return;
-      setFocusedAppId(appId);
-    };
+      dispatch({ type: 'FOCUS_APP', appId });
+    });
 
-    const onOpenWindow = (event: Event) => {
-      const customEvent = event as CustomEvent<{ appId?: AppId }>;
-      const appId = customEvent.detail?.appId;
+    const unsubscribeOpen = onDesktopOpenWindow(window, ({ appId }) => {
       if (!appId) return;
-      setOpen((prev) => ({ ...prev, [appId]: true }));
-      setFocusedAppId(appId);
-    };
+      dispatch({ type: 'OPEN_WINDOW', appId });
+    });
 
-    window.addEventListener('dg-desktop-toggle-window', onToggleWindow as EventListener);
-    window.addEventListener('dg-app-focus', onAppFocus as EventListener);
-    window.addEventListener('dg-desktop-open-window', onOpenWindow as EventListener);
     return () => {
-      window.removeEventListener('dg-desktop-toggle-window', onToggleWindow as EventListener);
-      window.removeEventListener('dg-app-focus', onAppFocus as EventListener);
-      window.removeEventListener('dg-desktop-open-window', onOpenWindow as EventListener);
+      unsubscribeToggle();
+      unsubscribeFocus();
+      unsubscribeOpen();
     };
   }, []);
 

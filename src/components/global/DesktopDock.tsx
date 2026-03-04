@@ -1,5 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { dockLinks } from '../../config/links';
+import {
+  dispatchDesktopToggleWindow,
+  onDesktopState,
+  onDockCloseLinks,
+  onDockOpenLinks,
+} from '../../services/desktopEvents';
 import DockGlyph from './DockGlyph';
 
 interface DesktopDockProps {
@@ -53,11 +59,7 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
   const toggleDesktopWindow = (
     appId: 'terminal' | 'notes' | 'projects' | 'resume' | 'news' | 'network'
   ) => {
-    window.dispatchEvent(
-      new CustomEvent('dg-desktop-toggle-window', {
-        detail: { appId },
-      })
-    );
+    dispatchDesktopToggleWindow(window, appId);
   };
 
   const getLinkGlyph = (id: string): React.ComponentProps<typeof DockGlyph>['name'] => {
@@ -100,18 +102,7 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
   }, []);
 
   useEffect(() => {
-    const onDesktopState = (event: Event) => {
-      const customEvent = event as CustomEvent<{
-        open?: {
-          terminal?: boolean;
-          notes?: boolean;
-          projects?: boolean;
-          resume?: boolean;
-          news?: boolean;
-          network?: boolean;
-        };
-      }>;
-      const open = customEvent.detail?.open;
+    const unsubscribe = onDesktopState(window, ({ open }) => {
       if (!open) return;
       setDesktopOpen((prev) => ({
         terminal: open.terminal ?? prev.terminal,
@@ -121,21 +112,20 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
         news: open.news ?? prev.news,
         network: open.network ?? prev.network,
       }));
-    };
-    window.addEventListener('dg-desktop-state', onDesktopState as EventListener);
+    });
     return () => {
-      window.removeEventListener('dg-desktop-state', onDesktopState as EventListener);
+      unsubscribe();
     };
   }, []);
 
   useEffect(() => {
     const onOpenLinks = () => setShowLinksPopup(true);
     const onCloseLinks = () => setShowLinksPopup(false);
-    window.addEventListener('dg-dock-open-links', onOpenLinks as EventListener);
-    window.addEventListener('dg-dock-close-links', onCloseLinks as EventListener);
+    const unsubscribeOpen = onDockOpenLinks(window, onOpenLinks);
+    const unsubscribeClose = onDockCloseLinks(window, onCloseLinks);
     return () => {
-      window.removeEventListener('dg-dock-open-links', onOpenLinks as EventListener);
-      window.removeEventListener('dg-dock-close-links', onCloseLinks as EventListener);
+      unsubscribeOpen();
+      unsubscribeClose();
     };
   }, []);
 

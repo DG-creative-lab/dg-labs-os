@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import {
+  handleResumeMenuAction,
+  type ResumeMenuEventDetail,
+} from '../../services/menuActionHandlers';
 import type { ResumeConfig } from '../../types';
 
 type ResumeAppProps = {
   resume: ResumeConfig;
-};
-
-type ResumeMenuEventDetail = {
-  action: 'jump_section' | 'download' | 'scroll_top';
-  sectionId?: string;
-  format?: 'pdf' | 'docx' | 'markdown';
 };
 
 export default function ResumeApp({ resume }: ResumeAppProps) {
@@ -44,31 +42,26 @@ export default function ResumeApp({ resume }: ResumeAppProps) {
   useEffect(() => {
     const onResumeMenuAction = (event: Event) => {
       const customEvent = event as CustomEvent<ResumeMenuEventDetail>;
-      const detail = customEvent.detail;
-      if (!detail?.action) return;
-
-      if (detail.action === 'jump_section' && typeof detail.sectionId === 'string') {
-        const el = document.getElementById(detail.sectionId);
-        if (!el) return;
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        return;
-      }
-
-      if (detail.action === 'download' && detail.format) {
-        const id =
-          detail.format === 'pdf'
-            ? 'resume-download-pdf'
-            : detail.format === 'docx'
-              ? 'resume-download-docx'
-              : 'resume-download-markdown';
-        const el = document.getElementById(id) as HTMLAnchorElement | null;
-        if (el) el.click();
-        return;
-      }
-
-      if (detail.action === 'scroll_top') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+      handleResumeMenuAction(customEvent.detail, {
+        jumpToSection: (sectionId) => {
+          const el = document.getElementById(sectionId);
+          if (!el) return;
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        },
+        download: (format) => {
+          const id =
+            format === 'pdf'
+              ? 'resume-download-pdf'
+              : format === 'docx'
+                ? 'resume-download-docx'
+                : 'resume-download-markdown';
+          const el = document.getElementById(id) as HTMLAnchorElement | null;
+          if (el) el.click();
+        },
+        scrollTop: () => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+      });
     };
 
     window.addEventListener('dg-resume-menu-action', onResumeMenuAction as EventListener);

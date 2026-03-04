@@ -11,6 +11,17 @@ import {
 } from 'react-icons/io5';
 import { VscVscode } from 'react-icons/vsc';
 import { userConfig } from '../../config/index';
+import { onDesktopAppFocus } from '../../services/desktopEvents';
+import { openAppFromMenu, openContactFromMenu } from '../../services/appOpenHandlers';
+import { copyTextWithFallback } from '../../services/clipboardService';
+import { openTerminalGuideFromMenu } from '../../services/terminalGuideService';
+import {
+  emitNetworkMenuAction,
+  emitNotesMenuAction,
+  emitResumeMenuAction,
+  emitTerminalMenuAction,
+  emitWorkbenchMenuAction,
+} from '../../services/menubarActions';
 import AboutDGWindow from './AboutDGWindow';
 import HelpGuideWindow, { type HelpTopic } from './HelpGuideWindow';
 
@@ -45,18 +56,17 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
   }, []);
 
   useEffect(() => {
-    const handleAppFocus = (event: Event) => {
-      const customEvent = event as CustomEvent<{
-        appId?: 'home' | 'terminal' | 'network' | 'projects' | 'notes' | 'resume' | 'news';
-      }>;
-      const next = customEvent.detail?.appId;
+    const unsubscribe = onDesktopAppFocus(window, ({ appId }) => {
+      const next = appId;
       if (!next) return;
+      if (next === 'home') {
+        setFocusedAppId(null);
+        return;
+      }
       setFocusedAppId(next);
-    };
-
-    window.addEventListener('dg-app-focus', handleAppFocus as EventListener);
+    });
     return () => {
-      window.removeEventListener('dg-app-focus', handleAppFocus as EventListener);
+      unsubscribe();
     };
   }, []);
 
@@ -115,127 +125,16 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
   };
 
   const copyText = async (text: string, label: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
+    const copied = await copyTextWithFallback(text);
+    if (copied) {
       alert(`${label} copied to clipboard.`);
-    } catch {
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      textarea.setAttribute('readonly', '');
-      textarea.style.position = 'absolute';
-      textarea.style.left = '-9999px';
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-      alert(`${label} copied to clipboard.`);
-    }
-  };
-
-  const openDesktopOrNavigate = (
-    appId: 'terminal' | 'network' | 'projects' | 'notes' | 'resume' | 'news',
-    href: string
-  ) => {
-    const path = window.location.pathname.replace(/\/+$/, '') || '/';
-    const target = href.replace(/\/+$/, '') || '/';
-    const isDesktopShell = path === '/desktop';
-    if (isDesktopShell) {
-      window.dispatchEvent(
-        new CustomEvent('dg-desktop-open-window', {
-          detail: { appId },
-        })
-      );
       return;
     }
-    if (path === target) {
-      window.dispatchEvent(
-        new CustomEvent('dg-app-focus', {
-          detail: { appId },
-        })
-      );
-      return;
-    }
-    window.location.href = href;
-  };
-
-  const emitTerminalAction = (
-    action: 'clear_output' | 'set_mode' | 'toggle_sources' | 'verify_profile' | 'verify_projects',
-    payload?: Record<string, unknown>
-  ) => {
-    window.dispatchEvent(
-      new CustomEvent('dg-terminal-menu-action', {
-        detail: { action, ...payload },
-      })
-    );
-  };
-
-  const emitNetworkAction = (
-    action: 'set_filter' | 'set_view' | 'clear_search' | 'apply_query',
-    payload?: Record<string, unknown>
-  ) => {
-    window.dispatchEvent(
-      new CustomEvent('dg-network-menu-action', {
-        detail: { action, ...payload },
-      })
-    );
-  };
-
-  const emitWorkbenchAction = (
-    action: 'jump_section' | 'scroll_top',
-    payload?: Record<string, unknown>
-  ) => {
-    window.dispatchEvent(
-      new CustomEvent('dg-workbench-menu-action', {
-        detail: { action, ...payload },
-      })
-    );
-  };
-
-  const emitNotesAction = (
-    action: 'jump_section' | 'open_news_hub' | 'scroll_top',
-    payload?: Record<string, unknown>
-  ) => {
-    window.dispatchEvent(
-      new CustomEvent('dg-notes-menu-action', {
-        detail: { action, ...payload },
-      })
-    );
-  };
-
-  const emitResumeAction = (
-    action: 'jump_section' | 'download' | 'scroll_top',
-    payload?: Record<string, unknown>
-  ) => {
-    window.dispatchEvent(
-      new CustomEvent('dg-resume-menu-action', {
-        detail: { action, ...payload },
-      })
-    );
+    alert(`Unable to copy ${label.toLowerCase()}.`);
   };
 
   const openTerminalGuide = () => {
-    const path = window.location.pathname.replace(/\/+$/, '') || '/';
-    if (path === '/desktop') {
-      window.dispatchEvent(
-        new CustomEvent('dg-desktop-open-window', {
-          detail: { appId: 'terminal' },
-        })
-      );
-      window.dispatchEvent(
-        new CustomEvent('dg-app-focus', {
-          detail: { appId: 'terminal' },
-        })
-      );
-      window.setTimeout(() => {
-        emitTerminalAction('set_mode', { mode: 'explainer' });
-      }, 120);
-      return;
-    }
-    if (path === '/apps/terminal') {
-      emitTerminalAction('set_mode', { mode: 'explainer' });
-      return;
-    }
-    window.location.href = '/apps/terminal';
+    openTerminalGuideFromMenu();
   };
 
   const commonMenus: Record<
@@ -252,7 +151,7 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
         label: 'System Settings...',
         icon: <IoDocumentText size={16} />,
         action: () => {
-          openDesktopOrNavigate('notes', '/apps/notes');
+          openAppFromMenu('notes');
         },
       },
     ],
@@ -261,14 +160,14 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
         label: 'Resume',
         icon: <IoDocumentText size={16} />,
         action: () => {
-          openDesktopOrNavigate('resume', '/apps/resume');
+          openAppFromMenu('resume');
         },
       },
       {
         label: 'Projects',
         icon: <IoCodeSlash size={16} />,
         action: () => {
-          openDesktopOrNavigate('projects', '/apps/projects');
+          openAppFromMenu('projects');
         },
       },
     ],
@@ -312,28 +211,28 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
         label: 'Projects',
         icon: <IoCodeSlash size={16} />,
         action: () => {
-          openDesktopOrNavigate('projects', '/apps/projects');
+          openAppFromMenu('projects');
         },
       },
       {
         label: 'AI News Hub',
         icon: <IoDocumentText size={16} />,
         action: () => {
-          openDesktopOrNavigate('news', '/apps/news');
+          openAppFromMenu('news');
         },
       },
       {
         label: 'Notes',
         icon: <IoDocumentText size={16} />,
         action: () => {
-          openDesktopOrNavigate('notes', '/apps/notes');
+          openAppFromMenu('notes');
         },
       },
       {
         label: 'Terminal',
         icon: <IoHelpCircle size={16} />,
         action: () => {
-          openDesktopOrNavigate('terminal', '/apps/terminal');
+          openAppFromMenu('terminal');
         },
       },
     ],
@@ -366,16 +265,10 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
         label: 'Contact...',
         icon: <IoMail size={16} />,
         action: () => {
-          if (onOpenContact) {
-            onOpenContact();
-            return;
-          }
-          const path = window.location.pathname.replace(/\/+$/, '') || '/';
-          if (path === '/desktop') {
-            window.dispatchEvent(new CustomEvent('dg-dock-open-links'));
-            return;
-          }
-          window.location.href = `mailto:${userConfig.contact.email}`;
+          openContactFromMenu({
+            email: userConfig.contact.email,
+            onOpenContact,
+          });
         },
       },
     ],
@@ -414,39 +307,39 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
       {
         label: 'Set Mode: Concise',
         icon: <IoHelpCircle size={16} />,
-        action: () => emitTerminalAction('set_mode', { mode: 'concise' }),
+        action: () => emitTerminalMenuAction(window, 'set_mode', { mode: 'concise' }),
       },
       {
         label: 'Set Mode: Explainer',
         icon: <IoHelpCircle size={16} />,
-        action: () => emitTerminalAction('set_mode', { mode: 'explainer' }),
+        action: () => emitTerminalMenuAction(window, 'set_mode', { mode: 'explainer' }),
       },
       {
         label: 'Set Mode: Research',
         icon: <IoHelpCircle size={16} />,
-        action: () => emitTerminalAction('set_mode', { mode: 'research' }),
+        action: () => emitTerminalMenuAction(window, 'set_mode', { mode: 'research' }),
       },
       {
         label: 'Toggle Sources Footer',
         icon: <IoDocumentText size={16} />,
-        action: () => emitTerminalAction('toggle_sources'),
+        action: () => emitTerminalMenuAction(window, 'toggle_sources'),
       },
     ],
     Window: [
       {
         label: 'Clear Output',
         icon: <IoDocumentText size={16} />,
-        action: () => emitTerminalAction('clear_output'),
+        action: () => emitTerminalMenuAction(window, 'clear_output'),
       },
       {
         label: 'Verify LinkedIn Profile',
         icon: <IoDocumentText size={16} />,
-        action: () => emitTerminalAction('verify_profile'),
+        action: () => emitTerminalMenuAction(window, 'verify_profile'),
       },
       {
         label: 'Verify Project Footprint',
         icon: <IoDocumentText size={16} />,
-        action: () => emitTerminalAction('verify_projects'),
+        action: () => emitTerminalMenuAction(window, 'verify_projects'),
       },
     ],
     Help: [
@@ -454,7 +347,7 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
       {
         label: 'Terminal Help',
         icon: <IoHelpCircle size={16} />,
-        action: () => emitTerminalAction('set_mode', { mode: 'explainer' }),
+        action: () => emitTerminalMenuAction(window, 'set_mode', { mode: 'explainer' }),
       },
     ],
   };
@@ -465,44 +358,44 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
       {
         label: 'List Mode',
         icon: <IoDocumentText size={16} />,
-        action: () => emitNetworkAction('set_view', { view: 'LIST' }),
+        action: () => emitNetworkMenuAction(window, 'set_view', { view: 'LIST' }),
       },
       {
         label: 'Graph Mode',
         icon: <IoCodeSlash size={16} />,
-        action: () => emitNetworkAction('set_view', { view: 'GRAPH' }),
+        action: () => emitNetworkMenuAction(window, 'set_view', { view: 'GRAPH' }),
       },
       {
         label: 'Clear Search',
         icon: <IoDocumentText size={16} />,
-        action: () => emitNetworkAction('clear_search'),
+        action: () => emitNetworkMenuAction(window, 'clear_search'),
       },
     ],
     Window: [
       {
         label: 'Filter: All',
         icon: <IoDocumentText size={16} />,
-        action: () => emitNetworkAction('set_filter', { filter: 'ALL' }),
+        action: () => emitNetworkMenuAction(window, 'set_filter', { filter: 'ALL' }),
       },
       {
         label: 'Filter: Education',
         icon: <IoDocumentText size={16} />,
-        action: () => emitNetworkAction('set_filter', { filter: 'Education' }),
+        action: () => emitNetworkMenuAction(window, 'set_filter', { filter: 'Education' }),
       },
       {
         label: 'Filter: Research',
         icon: <IoDocumentText size={16} />,
-        action: () => emitNetworkAction('set_filter', { filter: 'Research' }),
+        action: () => emitNetworkMenuAction(window, 'set_filter', { filter: 'Research' }),
       },
       {
         label: 'Filter: Projects',
         icon: <IoDocumentText size={16} />,
-        action: () => emitNetworkAction('set_filter', { filter: 'Projects' }),
+        action: () => emitNetworkMenuAction(window, 'set_filter', { filter: 'Projects' }),
       },
       {
         label: 'Filter: Experience',
         icon: <IoDocumentText size={16} />,
-        action: () => emitNetworkAction('set_filter', { filter: 'Experience' }),
+        action: () => emitNetworkMenuAction(window, 'set_filter', { filter: 'Experience' }),
       },
     ],
     Help: [
@@ -510,7 +403,8 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
       {
         label: 'Find: Human Agency',
         icon: <IoHelpCircle size={16} />,
-        action: () => emitNetworkAction('apply_query', { query: 'human agency empowerment' }),
+        action: () =>
+          emitNetworkMenuAction(window, 'apply_query', { query: 'human agency empowerment' }),
       },
     ],
   };
@@ -521,35 +415,40 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
       {
         label: 'Open Workbench',
         icon: <IoCodeSlash size={16} />,
-        action: () => openDesktopOrNavigate('projects', '/apps/projects'),
+        action: () => openAppFromMenu('projects'),
       },
       {
         label: 'Research Systems',
         icon: <IoCodeSlash size={16} />,
         action: () =>
-          emitWorkbenchAction('jump_section', { sectionId: 'workbench-research-systems' }),
+          emitWorkbenchMenuAction(window, 'jump_section', {
+            sectionId: 'workbench-research-systems',
+          }),
       },
       {
         label: 'Platforms',
         icon: <IoCodeSlash size={16} />,
-        action: () => emitWorkbenchAction('jump_section', { sectionId: 'workbench-platforms' }),
+        action: () =>
+          emitWorkbenchMenuAction(window, 'jump_section', { sectionId: 'workbench-platforms' }),
       },
       {
         label: 'Writing',
         icon: <IoDocumentText size={16} />,
-        action: () => emitWorkbenchAction('jump_section', { sectionId: 'workbench-writing' }),
+        action: () =>
+          emitWorkbenchMenuAction(window, 'jump_section', { sectionId: 'workbench-writing' }),
       },
       {
         label: 'Hackathons',
         icon: <IoHelpCircle size={16} />,
-        action: () => emitWorkbenchAction('jump_section', { sectionId: 'workbench-hackathons' }),
+        action: () =>
+          emitWorkbenchMenuAction(window, 'jump_section', { sectionId: 'workbench-hackathons' }),
       },
     ],
     Window: [
       {
         label: 'Back to Top',
         icon: <IoDocumentText size={16} />,
-        action: () => emitWorkbenchAction('scroll_top'),
+        action: () => emitWorkbenchMenuAction(window, 'scroll_top'),
       },
     ],
   };
@@ -560,34 +459,38 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
       {
         label: 'Principles',
         icon: <IoDocumentText size={16} />,
-        action: () => emitNotesAction('jump_section', { sectionId: 'notes-principles' }),
+        action: () =>
+          emitNotesMenuAction(window, 'jump_section', { sectionId: 'notes-principles' }),
       },
       {
         label: 'Quick Actions',
         icon: <IoHelpCircle size={16} />,
-        action: () => emitNotesAction('jump_section', { sectionId: 'notes-quick-actions' }),
+        action: () =>
+          emitNotesMenuAction(window, 'jump_section', { sectionId: 'notes-quick-actions' }),
       },
       {
         label: 'Pinned Deep Dives',
         icon: <IoCodeSlash size={16} />,
-        action: () => emitNotesAction('jump_section', { sectionId: 'notes-deep-dives' }),
+        action: () =>
+          emitNotesMenuAction(window, 'jump_section', { sectionId: 'notes-deep-dives' }),
       },
       {
         label: 'News Analysis',
         icon: <IoDocumentText size={16} />,
-        action: () => emitNotesAction('jump_section', { sectionId: 'notes-news-analysis' }),
+        action: () =>
+          emitNotesMenuAction(window, 'jump_section', { sectionId: 'notes-news-analysis' }),
       },
     ],
     Window: [
       {
         label: 'Back to Top',
         icon: <IoDocumentText size={16} />,
-        action: () => emitNotesAction('scroll_top'),
+        action: () => emitNotesMenuAction(window, 'scroll_top'),
       },
       {
         label: 'Open AI News Hub',
         icon: <IoDocumentText size={16} />,
-        action: () => emitNotesAction('open_news_hub'),
+        action: () => emitNotesMenuAction(window, 'open_news_hub'),
       },
     ],
   };
@@ -598,39 +501,40 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
       {
         label: 'Summary',
         icon: <IoDocumentText size={16} />,
-        action: () => emitResumeAction('jump_section', { sectionId: 'resume-summary' }),
+        action: () => emitResumeMenuAction(window, 'jump_section', { sectionId: 'resume-summary' }),
       },
       {
         label: 'Downloads',
         icon: <IoDocumentText size={16} />,
-        action: () => emitResumeAction('jump_section', { sectionId: 'resume-downloads' }),
+        action: () =>
+          emitResumeMenuAction(window, 'jump_section', { sectionId: 'resume-downloads' }),
       },
       {
         label: 'Resume Body',
         icon: <IoCodeSlash size={16} />,
-        action: () => emitResumeAction('jump_section', { sectionId: 'resume-body' }),
+        action: () => emitResumeMenuAction(window, 'jump_section', { sectionId: 'resume-body' }),
       },
     ],
     Window: [
       {
         label: 'Download PDF',
         icon: <IoDocumentText size={16} />,
-        action: () => emitResumeAction('download', { format: 'pdf' }),
+        action: () => emitResumeMenuAction(window, 'download', { format: 'pdf' }),
       },
       {
         label: 'Download DOCX',
         icon: <IoDocumentText size={16} />,
-        action: () => emitResumeAction('download', { format: 'docx' }),
+        action: () => emitResumeMenuAction(window, 'download', { format: 'docx' }),
       },
       {
         label: 'Download Markdown',
         icon: <IoDocumentText size={16} />,
-        action: () => emitResumeAction('download', { format: 'markdown' }),
+        action: () => emitResumeMenuAction(window, 'download', { format: 'markdown' }),
       },
       {
         label: 'Back to Top',
         icon: <IoDocumentText size={16} />,
-        action: () => emitResumeAction('scroll_top'),
+        action: () => emitResumeMenuAction(window, 'scroll_top'),
       },
     ],
   };

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { dispatchDesktopAppFocus } from '../../services/desktopEvents';
 
 // Global z-index counter
 let globalZIndex = 10;
@@ -120,11 +121,7 @@ export default function DraggableWindow({
     globalZIndex += 1;
     setZIndex(globalZIndex);
     if (appId && typeof window !== 'undefined') {
-      window.dispatchEvent(
-        new CustomEvent('dg-app-focus', {
-          detail: { appId },
-        })
-      );
+      dispatchDesktopAppFocus(window, appId);
     }
   };
 
