@@ -31,3 +31,7 @@ pnpm-debug.log*
 
 # vercel setting folder
 .vercel/
+
+# playwright artifacts
+test-results/
+playwright-report/

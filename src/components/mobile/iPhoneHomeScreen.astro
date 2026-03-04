@@ -1,7 +1,7 @@
 ---
-import iPhoneStatusBar from './iPhoneStatusBar.astro';
-import iPhoneHomeIndicator from './iPhoneHomeIndicator.astro';
-import iPhoneAppIcon from './iPhoneAppIcon.astro';
+import IPhoneStatusBar from './iPhoneStatusBar.astro';
+import IPhoneHomeIndicator from './iPhoneHomeIndicator.astro';
+import IPhoneAppIcon from './iPhoneAppIcon.astro';
 import { userConfig } from '../../config/index';
 ---
 
@@ -9,64 +9,64 @@ import { userConfig } from '../../config/index';
   class="min-h-screen flex flex-col justify-between bg-gradient-to-br from-slate-900 via-slate-950 to-indigo-950"
 >
   <div>
-    <iPhoneStatusBar></iPhoneStatusBar>
+    <IPhoneStatusBar />
     <div class="mt-8 grid grid-cols-4 gap-5 px-6">
-      <iPhoneAppIcon label="Notes" href="/mobile/apps/notes" className="text-yellow-200">
+      <IPhoneAppIcon label="Notes" href="/mobile/apps/notes" className="text-yellow-200">
         <div
           class="h-10 w-10 rounded-xl bg-gradient-to-br from-yellow-300 to-amber-500 flex items-center justify-center text-black font-semibold"
         >
           N
         </div>
-      </iPhoneAppIcon>
-      <iPhoneAppIcon label="Projects" href="/mobile/apps/projects">
+      </IPhoneAppIcon>
+      <IPhoneAppIcon label="Projects" href="/mobile/apps/projects">
         <div
           class="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white font-semibold"
         >
           DG
         </div>
-      </iPhoneAppIcon>
-      <iPhoneAppIcon label="Resume" href="/mobile/apps/resume">
+      </IPhoneAppIcon>
+      <IPhoneAppIcon label="Resume" href="/mobile/apps/resume">
         <div
           class="h-10 w-10 rounded-xl bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center text-white font-semibold"
         >
           CV
         </div>
-      </iPhoneAppIcon>
-      <iPhoneAppIcon label="Network" href="/mobile/apps/network">
+      </IPhoneAppIcon>
+      <IPhoneAppIcon label="Network" href="/mobile/apps/network">
         <div
           class="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-600 to-fuchsia-700 flex items-center justify-center text-white font-semibold"
         >
           NW
         </div>
-      </iPhoneAppIcon>
-      <iPhoneAppIcon label="Terminal" href="/mobile/apps/terminal" className="text-emerald-200">
+      </IPhoneAppIcon>
+      <IPhoneAppIcon label="Terminal" href="/mobile/apps/terminal" className="text-emerald-200">
         <div
           class="h-10 w-10 rounded-xl bg-gradient-to-br from-black to-slate-900 border border-emerald-400/40 flex items-center justify-center text-emerald-400 font-semibold"
         >
           $
         </div>
-      </iPhoneAppIcon>
-      <iPhoneAppIcon label="Contact" href="/#contact">
+      </IPhoneAppIcon>
+      <IPhoneAppIcon label="Contact" href="/#contact">
         <div
           class="h-10 w-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-700 flex items-center justify-center text-white font-semibold"
         >
           @
         </div>
-      </iPhoneAppIcon>
-      <iPhoneAppIcon label="LinkedIn" href={userConfig.social.linkedin}>
+      </IPhoneAppIcon>
+      <IPhoneAppIcon label="LinkedIn" href={userConfig.social.linkedin}>
         <div
           class="h-10 w-10 rounded-xl bg-[#0a66c2] flex items-center justify-center text-white font-semibold"
         >
           in
         </div>
-      </iPhoneAppIcon>
-      <iPhoneAppIcon label="GitHub" href={userConfig.social.github}>
+      </IPhoneAppIcon>
+      <IPhoneAppIcon label="GitHub" href={userConfig.social.github}>
         <div
           class="h-10 w-10 rounded-xl bg-slate-900 flex items-center justify-center text-white font-semibold"
         >
           GH
         </div>
-      </iPhoneAppIcon>
+      </IPhoneAppIcon>
     </div>
   </div>
 
@@ -106,6 +106,6 @@ import { userConfig } from '../../config/index';
         </a>
       </div>
     </div>
-    <iPhoneHomeIndicator></iPhoneHomeIndicator>
+    <IPhoneHomeIndicator />
   </div>
 </div>
