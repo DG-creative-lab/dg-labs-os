@@ -15,6 +15,24 @@ Track stabilization work that makes the codebase predictable and easy to evolve 
 - API contract coverage exists for core endpoints (chat/contact/tools/verify).
 - Desktop shell supports single-page multi-window behavior with focus-aware menubar.
 - Terminal runtime has deterministic commands + LLM mode with retrieval-grounded citations.
+- Service-layer extraction started and shipped for core paths:
+  - `chatService` (route orchestration extracted from `/api/chat`)
+  - `navigationService` + `desktopWindowService` for desktop open/toggle/focus logic
+- Desktop interaction event bus is centralized in `desktopEvents`:
+  - open/toggle/focus/state + dock links events
+  - component wiring now uses shared dispatch/listener helpers
+- Desktop shell state is reducer-driven via `desktopShellReducer`:
+  - deterministic action handling for open/toggle/focus/close
+  - integration-style reducer tests for event-sequence behavior
+- Menubar action adapter extracted via `menubarActions`:
+  - terminal/network/workbench/notes/resume menu intents mapped to typed events
+  - menu-action dispatch behavior covered by unit tests
+- Initial service-level behavior tests added:
+  - `tests/navigationService.test.ts`
+  - `tests/desktopWindowService.test.ts`
+  - `tests/desktopEvents.test.ts`
+  - `tests/desktopShellReducer.test.ts`
+  - `tests/menubarActions.test.ts`
 
 ### In Progress
 
@@ -23,21 +41,22 @@ Track stabilization work that makes the codebase predictable and easy to evolve 
 
 ### Remaining Stabilization Work
 
-1. Desktop interaction test harness
+1. Desktop interaction test harness (first slice complete)
 
-- Add behavior tests for window focus and menubar action dispatch.
-- Add tests for shell events:
+- Added behavior tests for shell events:
   - `dg-desktop-open-window`
   - `dg-desktop-toggle-window`
   - `dg-app-focus`
   - `dg-dock-open-links`
+  - `dg-dock-close-links`
+- Remaining: add higher-level integration tests around menubar action dispatch to visible UI changes.
 
-2. Service-layer extraction
+2. Service-layer extraction (complete for first slice)
 
-- Introduce `src/services/*` for side-effect orchestration:
-  - `chatService`
-  - `navigationService`
-- Keep API routes thin: parse -> validate -> service -> normalized response.
+- Added `src/services/chatService.ts` and `src/services/navigationService.ts`.
+- Added `src/services/desktopWindowService.ts` for deterministic desktop state transitions.
+- `/api/chat` now follows: parse -> validate -> service -> normalized response.
+- Remaining service extraction can be done opportunistically for other routes.
 
 3. Component behavior test coverage
 

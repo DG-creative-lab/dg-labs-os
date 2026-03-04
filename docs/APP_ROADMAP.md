@@ -86,6 +86,10 @@ Primary metaphor:
   - content config sanity
   - mobile UA detection
   - network graph and network search utilities
+- Service layer now includes:
+  - `chatService` (LLM + grounding orchestration)
+  - `navigationService` (desktop open/focus/navigation dispatch)
+  - `desktopWindowService` (window open/toggle/close/focus state transitions)
 - CI exists (`.github/workflows/ci.yml`) for quality + build on push/PR
 
 ## 3. Intent Already Stored In Code (Source of Truth)
