@@ -89,7 +89,7 @@ export const workbench: readonly WorkbenchItem[] = [
     highlights: [
       'Deep dives: Geometry of Intention, Memory & Agency, Phenomenology of Search, Empowerment Imperative.',
       'Bridges philosophy + systems engineering for real builders.',
-      'Grew to 200+ organic followers in 6 months via consistent depth.',
+      'Grew to 250+ organic followers in 6 months via consistent depth.',
     ],
   },
   {

@@ -26,6 +26,53 @@ const kindColor: Record<string, string> = {
   Experience: '#a3a3a3',
 };
 
+function shortestPathToCore(
+  startId: string,
+  edges: readonly GraphEdge[],
+  coreNodeIds: ReadonlySet<string>
+): string[] {
+  if (coreNodeIds.has(startId)) return [startId];
+
+  const adjacency = new Map<string, Set<string>>();
+  for (const edge of edges) {
+    if (!adjacency.has(edge.from.id)) adjacency.set(edge.from.id, new Set());
+    if (!adjacency.has(edge.to.id)) adjacency.set(edge.to.id, new Set());
+    adjacency.get(edge.from.id)?.add(edge.to.id);
+    adjacency.get(edge.to.id)?.add(edge.from.id);
+  }
+
+  const queue: string[] = [startId];
+  const visited = new Set<string>([startId]);
+  const parent = new Map<string, string | null>([[startId, null]]);
+
+  while (queue.length > 0) {
+    const current = queue.shift();
+    if (!current) break;
+
+    if (coreNodeIds.has(current)) {
+      const path: string[] = [];
+      let cursor: string | null = current;
+      while (cursor) {
+        path.push(cursor);
+        cursor = parent.get(cursor) ?? null;
+      }
+      path.reverse();
+      return path;
+    }
+
+    const neighbors = adjacency.get(current);
+    if (!neighbors) continue;
+    for (const next of neighbors) {
+      if (visited.has(next)) continue;
+      visited.add(next);
+      parent.set(next, current);
+      queue.push(next);
+    }
+  }
+
+  return [];
+}
+
 export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const hoveredRef = useRef<string | null>(null);
@@ -34,6 +81,7 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
   const edgeFocusRef = useRef<Set<string>>(new Set());
   const [activeNodeId, setActiveNodeId] = useState<string | null>(null);
   const [inspectedNodeId, setInspectedNodeId] = useState<string | null>(null);
+  const [navigationEnabled, setNavigationEnabled] = useState(false);
 
   const connectedNodeIds = useMemo(() => {
     const ids = new Set<string>();
@@ -163,8 +211,8 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
           iterations: 260,
           settings: {
             ...inferred,
-            gravity: 0.3,
-            scalingRatio: 9,
+            gravity: 0.7,
+            scalingRatio: 6,
             strongGravityMode: false,
             barnesHutOptimize: true,
             barnesHutTheta: 0.8,
@@ -315,6 +363,9 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
         labelWeight: '500',
         defaultDrawNodeLabel: drawPillLabel,
         defaultDrawNodeHover: drawDarkNodeHover,
+        // Default keeps window scroll usable; toggle can enable graph navigation.
+        enableCameraPanning: navigationEnabled,
+        enableCameraZooming: navigationEnabled,
         allowInvalidContainer: true,
       });
       sigmaInstance = sigma;
@@ -423,7 +474,7 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
       disposed = true;
       sigmaInstance?.kill();
     };
-  }, [connectedEdges, connectedNodes, lanes, majorNodeIds, onNodeClick]);
+  }, [connectedEdges, connectedNodes, lanes, majorNodeIds, navigationEnabled, onNodeClick]);
 
   const activeNode = activeNodeId ? nodeById.get(activeNodeId) : null;
   const inspectedNode = inspectedNodeId ? nodeById.get(inspectedNodeId) : null;
@@ -437,6 +488,14 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
         (edge) => edge.from.id === inspectedNode.id || edge.to.id === inspectedNode.id
       )
     : [];
+  const pathToCore = useMemo(() => {
+    if (!inspectedNodeId) return [];
+    return shortestPathToCore(inspectedNodeId, connectedEdges, majorNodeIds);
+  }, [connectedEdges, inspectedNodeId, majorNodeIds]);
+  const pathToCoreTitles = useMemo(
+    () => pathToCore.map((id) => nodeById.get(id)?.title ?? id),
+    [nodeById, pathToCore]
+  );
 
   return (
     <div className="relative">
@@ -449,13 +508,33 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
             {lane}
           </span>
         ))}
+        <button
+          type="button"
+          onClick={() => setNavigationEnabled((value) => !value)}
+          className={`ml-auto text-[11px] rounded-full border px-2.5 py-1 transition ${
+            navigationEnabled
+              ? 'bg-sky-400/20 border-sky-300/35 text-sky-100'
+              : 'bg-white/10 border-white/10 text-white/70 hover:bg-white/15'
+          }`}
+        >
+          {navigationEnabled ? 'Navigate graph: On' : 'Navigate graph: Off'}
+        </button>
       </div>
 
       <div
-        ref={containerRef}
-        style={{ height: `${Math.max(460, height)}px` }}
-        className="w-full bg-[radial-gradient(circle_at_40%_0%,rgba(148,163,184,0.06),rgba(2,6,23,0.2)_45%,rgba(2,6,23,0.28)_100%)]"
-      />
+        onWheelCapture={(event) => {
+          if (!navigationEnabled) {
+            // Let parent scroll container handle wheel gestures while over the graph.
+            event.stopPropagation();
+          }
+        }}
+      >
+        <div
+          ref={containerRef}
+          style={{ height: `${Math.max(460, height)}px` }}
+          className="w-full bg-[radial-gradient(circle_at_40%_0%,rgba(148,163,184,0.06),rgba(2,6,23,0.2)_45%,rgba(2,6,23,0.28)_100%)]"
+        />
+      </div>
 
       <aside className="absolute right-4 top-14 w-[300px] max-w-[38vw] rounded-xl border border-white/10 bg-slate-950/85 backdrop-blur-md p-3 text-xs text-slate-200 shadow-2xl">
         {inspectedNode ? (
@@ -510,6 +589,18 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
                 })}
               </div>
             </div>
+
+            {pathToCoreTitles.length > 1 ? (
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.12em] text-slate-400">
+                  Path To Core ({pathToCoreTitles.length - 1} hops)
+                </p>
+                <p className="mt-1 text-slate-200/90">
+                  {pathToCoreTitles.slice(0, 7).join(' -> ')}
+                  {pathToCoreTitles.length > 7 ? ' -> ...' : ''}
+                </p>
+              </div>
+            ) : null}
 
             <div className="flex flex-wrap gap-2 pt-1">
               {inspectedNode.links?.url && (

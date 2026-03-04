@@ -34,19 +34,6 @@ export type ToolSuccessEnvelope<T = unknown> = {
   result: T;
 };
 
-export type AdminLoginSuccessEnvelope = {
-  ok: true;
-  success: true;
-};
-
-export type AdminMessagesSuccessEnvelope<T = unknown> = {
-  ok: true;
-  data: T[];
-  count: number | null;
-  limit: number;
-  offset: number;
-};
-
 export const healthSuccess = (): HealthSuccessEnvelope => ({ ok: true });
 
 export const chatSuccess = (message: string): ChatSuccessEnvelope => ({ ok: true, message });
@@ -67,15 +54,6 @@ export const toolSuccess = <T>(tool: string, result: T): ToolSuccessEnvelope<T> 
   tool,
   result,
 });
-
-export const adminLoginSuccess = (): AdminLoginSuccessEnvelope => ({ ok: true, success: true });
-
-export const adminMessagesSuccess = <T>(
-  data: T[],
-  count: number | null,
-  limit: number,
-  offset: number
-): AdminMessagesSuccessEnvelope<T> => ({ ok: true, data, count, limit, offset });
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === 'object' && !Array.isArray(value);
@@ -110,16 +88,3 @@ export const isVerifySuccessEnvelope = (value: unknown): value is VerifySuccessE
 
 export const isToolSuccessEnvelope = (value: unknown): value is ToolSuccessEnvelope =>
   isRecord(value) && value.ok === true && typeof value.tool === 'string' && 'result' in value;
-
-export const isAdminLoginSuccessEnvelope = (value: unknown): value is AdminLoginSuccessEnvelope =>
-  isRecord(value) && value.ok === true && value.success === true;
-
-export const isAdminMessagesSuccessEnvelope = (
-  value: unknown
-): value is AdminMessagesSuccessEnvelope =>
-  isRecord(value) &&
-  value.ok === true &&
-  Array.isArray(value.data) &&
-  (typeof value.count === 'number' || value.count === null) &&
-  typeof value.limit === 'number' &&
-  typeof value.offset === 'number';

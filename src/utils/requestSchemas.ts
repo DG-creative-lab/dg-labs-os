@@ -12,11 +12,6 @@ export type ChatRequestInput = {
   responseMode: ChatResponseMode;
 };
 
-export type AdminLoginInput = {
-  username: string;
-  password: string;
-};
-
 export type ContactInput = {
   name: string;
   email: string;
@@ -45,15 +40,6 @@ export type ToolCallInput = {
 const asRecord = (input: unknown): Record<string, unknown> | null => {
   if (!input || typeof input !== 'object' || Array.isArray(input)) return null;
   return input as Record<string, unknown>;
-};
-
-export const parseAdminLoginInput = (input: unknown): AdminLoginInput | null => {
-  const body = asRecord(input);
-  if (!body) return null;
-  const username = body.username;
-  const password = body.password;
-  if (typeof username !== 'string' || typeof password !== 'string') return null;
-  return { username, password };
 };
 
 export const parseContactInput = (input: unknown): ContactInput | null => {

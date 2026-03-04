@@ -142,7 +142,7 @@ export const networkNodes: readonly NetworkNode[] = [
       'thought leadership',
     ],
     bullets: [
-      'Grew to 200+ organic followers in 6 months.',
+      'Grew to 250+ organic followers in 6 months.',
       'Combines news analysis with deep technical research.',
       'Public interface for the empowerment thesis.',
     ],
@@ -421,7 +421,11 @@ export const networkNodes: readonly NetworkNode[] = [
     period: 'Nov 2023 - Present',
     weight: 2,
     tags: ['databricks', 'aws', 'agentic systems', 'innovation lab'],
-    bullets: ['Current role: production AI systems for marketing intelligence.'],
+    bullets: [
+      'Research-engineer scope: built agentic systems from architecture to deployment.',
+      'Core systems delivered: Intent Recognition Agent and Agentic Commerce Learning Loop.',
+      'Production AI engineering in a marketing intelligence environment.',
+    ],
   },
   {
     id: 'org-publicis-media',
@@ -431,7 +435,10 @@ export const networkNodes: readonly NetworkNode[] = [
     period: 'Mar 2023 - Nov 2023',
     weight: 2,
     tags: ['databricks', 'plotly dash', 'analytics'],
-    bullets: ['Scaled enterprise analytics and experimentation systems.'],
+    bullets: [
+      'Bridged enterprise analytics and production decision systems.',
+      'Transitional layer from reporting pipelines to intelligence workflows.',
+    ],
   },
   {
     id: 'org-jellyfish',
@@ -441,7 +448,10 @@ export const networkNodes: readonly NetworkNode[] = [
     period: 'Jan 2021 - Mar 2023',
     weight: 2,
     tags: ['r shiny', 'aws etl', 'terraform', 'data lake'],
-    bullets: ['Production reporting engineering and cloud data pipelines.'],
+    bullets: [
+      'Built production-grade Shiny analytics systems.',
+      'Engineered AWS ETL and data-lake foundations used by later AI-native systems.',
+    ],
   },
   {
     id: 'org-founders-forum',
@@ -932,6 +942,92 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     to: 'org-performics',
     idea: 'enterprise scale to innovation lab',
     strength: 1,
+  },
+
+  // Experience -> Core systems / research bridges
+  {
+    from: 'org-performics',
+    to: 'intent-recognition-agent',
+    idea: 'production agent engineering',
+    strength: 4,
+  },
+  {
+    from: 'org-performics',
+    to: 'agentic-commerce-loop',
+    idea: 'bayesian learning systems',
+    strength: 4,
+  },
+  {
+    from: 'org-performics',
+    to: 'research-intent-recognition',
+    idea: 'research to production loop',
+    strength: 3,
+    style: 'dotted',
+  },
+  {
+    from: 'org-publicis-media',
+    to: 'research-intelligent-marketing',
+    idea: 'enterprise intelligence workflows',
+    strength: 3,
+  },
+  {
+    from: 'org-jellyfish',
+    to: 'agentic-commerce-loop',
+    idea: 'etl and data-lake foundations',
+    strength: 3,
+    style: 'dotted',
+  },
+  {
+    from: 'org-jellyfish',
+    to: 'iowa-liquor-dashboard',
+    idea: 'production analytics lineage',
+    strength: 2,
+  },
+  {
+    from: 'org-founders-forum',
+    to: 'startup-scraper',
+    idea: 'data extraction and migration',
+    strength: 2,
+  },
+  {
+    from: 'org-toaster',
+    to: 'customer-segmentation',
+    idea: 'experiment analytics foundations',
+    strength: 2,
+  },
+  {
+    from: 'org-grapeshot',
+    to: 'customer-segmentation',
+    idea: 'crm intelligence patterns',
+    strength: 2,
+  },
+  {
+    from: 'org-reed-bi',
+    to: 'ai-news-hub',
+    idea: 'content and analytics operations',
+    strength: 2,
+    style: 'dotted',
+  },
+  {
+    from: 'org-rnib',
+    to: 'research-empowering-agents',
+    idea: 'human-centered impact baseline',
+    strength: 2,
+    style: 'dotted',
+  },
+  {
+    from: 'org-friends-earth',
+    to: 'research-empowering-agents',
+    idea: 'policy and ethics grounding',
+    strength: 2,
+    style: 'dotted',
+  },
+  {
+    from: 'org-centre-democracy',
+    to: 'research-phenomenology-search',
+    idea: 'policy reasoning foundations',
+    strength: 2,
+    style: 'dotted',
   },
 ] as const;
 

@@ -40,7 +40,7 @@ const matchesCategory = (node: NetworkNode, filter: CategoryFilter) => {
 export default function NetworkApp({ nodes, ideas = [] }: Props) {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<CategoryFilter>('ALL');
-  const [view, setView] = useState<ViewMode>('LIST');
+  const [view, setView] = useState<ViewMode>('GRAPH');
 
   useEffect(() => {
     const handleMenuAction = (event: Event) => {
@@ -123,20 +123,20 @@ export default function NetworkApp({ nodes, ideas = [] }: Props) {
           <span className="text-xs text-white/50">{filtered.length} nodes</span>
           <div className="flex rounded-full border border-white/10 bg-white/5 p-1">
             <button
-              onClick={() => setView('LIST')}
-              className={`text-xs rounded-full px-3 py-1.5 transition ${
-                view === 'LIST' ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white'
-              }`}
-            >
-              List
-            </button>
-            <button
               onClick={() => setView('GRAPH')}
               className={`text-xs rounded-full px-3 py-1.5 transition ${
                 view === 'GRAPH' ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white'
               }`}
             >
               Graph
+            </button>
+            <button
+              onClick={() => setView('LIST')}
+              className={`text-xs rounded-full px-3 py-1.5 transition ${
+                view === 'LIST' ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white'
+              }`}
+            >
+              List
             </button>
           </div>
         </div>

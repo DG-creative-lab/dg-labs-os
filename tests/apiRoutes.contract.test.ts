@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { isApiErrorEnvelope, isHealthSuccessEnvelope } from '../src/utils/apiContracts';
-import { GET as adminMessagesGet } from '../src/pages/api/admin/messages';
-import { POST as adminLoginPost } from '../src/pages/api/admin/login';
 import { POST as chatPost } from '../src/pages/api/chat';
 import { GET as contactGet, POST as contactPost } from '../src/pages/api/contact';
 import { POST as toolsPost } from '../src/pages/api/tools';
@@ -88,33 +86,6 @@ describe('API route contracts', () => {
     expect(isApiErrorEnvelope(body)).toBe(true);
     if (!isApiErrorEnvelope(body)) return;
     expect(body.code).toBe('UNCONFIGURED');
-    expect(body.error).toBe(body.message);
-  });
-
-  it('admin login returns CONFIG_ERROR when credentials are not configured', async () => {
-    const request = new Request('http://localhost/api/admin/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: 'admin', password: 'secret' }),
-    });
-
-    const response = await adminLoginPost(ctx(request));
-    expect(response.status).toBe(503);
-    const body = (await response.json()) as unknown;
-    expect(isApiErrorEnvelope(body)).toBe(true);
-    if (!isApiErrorEnvelope(body)) return;
-    expect(body.code).toBe('CONFIG_ERROR');
-    expect(body.error).toBe(body.message);
-  });
-
-  it('admin messages returns UNAUTHORIZED without a valid session token', async () => {
-    const request = new Request('http://localhost/api/admin/messages');
-    const response = await adminMessagesGet(ctx(request));
-    expect(response.status).toBe(401);
-    const body = (await response.json()) as unknown;
-    expect(isApiErrorEnvelope(body)).toBe(true);
-    if (!isApiErrorEnvelope(body)) return;
-    expect(body.code).toBe('UNAUTHORIZED');
     expect(body.error).toBe(body.message);
   });
 

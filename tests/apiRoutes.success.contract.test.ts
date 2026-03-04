@@ -1,7 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  isAdminLoginSuccessEnvelope,
-  isAdminMessagesSuccessEnvelope,
   isChatSuccessEnvelope,
   isHealthSuccessEnvelope,
   isToolSuccessEnvelope,
@@ -35,9 +33,6 @@ vi.mock('@supabase/supabase-js', () => ({
 describe('API route success contracts', () => {
   beforeEach(() => {
     process.env.OPENROUTER_API_KEY = 'test-key';
-    process.env.ADMIN_USERNAME = 'admin';
-    process.env.ADMIN_PASSWORD = 'super-secret';
-    process.env.ADMIN_SESSION_SECRET = 'very-secret-signing-key';
     process.env.SUPABASE_URL = 'https://example.supabase.co';
     process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-role';
     mockOpenRouterSend.mockReset();
@@ -49,9 +44,6 @@ describe('API route success contracts', () => {
 
   afterEach(() => {
     delete process.env.OPENROUTER_API_KEY;
-    delete process.env.ADMIN_USERNAME;
-    delete process.env.ADMIN_PASSWORD;
-    delete process.env.ADMIN_SESSION_SECRET;
     delete process.env.SUPABASE_URL;
     delete process.env.SUPABASE_SERVICE_ROLE_KEY;
     vi.unstubAllGlobals();
@@ -122,46 +114,6 @@ describe('API route success contracts', () => {
     expect(response.status).toBe(200);
     const body = (await response.json()) as unknown;
     expect(isHealthSuccessEnvelope(body)).toBe(true);
-  });
-
-  it('admin login returns success and sets cookie', async () => {
-    const { POST } = await import('../src/pages/api/admin/login');
-    const request = new Request('http://localhost/api/admin/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: 'admin', password: 'super-secret' }),
-    });
-
-    const response = await POST({ request } as Parameters<typeof POST>[0]);
-    expect(response.status).toBe(200);
-    const body = (await response.json()) as unknown;
-    expect(isAdminLoginSuccessEnvelope(body)).toBe(true);
-    const setCookie = response.headers.get('Set-Cookie') ?? '';
-    expect(setCookie).toContain('admin_session=');
-    expect(setCookie).toContain('HttpOnly');
-  });
-
-  it('admin messages GET returns ok:true with data for valid session cookie', async () => {
-    mockSupabaseRange.mockResolvedValue({
-      data: [{ id: 'm1', name: 'Dessi' }],
-      error: null,
-      count: 1,
-    });
-
-    const { createAdminSessionToken } = await import('../src/utils/adminAuth');
-    const token = createAdminSessionToken('admin', 'very-secret-signing-key');
-    const { GET } = await import('../src/pages/api/admin/messages');
-    const request = new Request('http://localhost/api/admin/messages?limit=10', {
-      headers: { cookie: `admin_session=${token}` },
-    });
-
-    const response = await GET({ request } as Parameters<typeof GET>[0]);
-    expect(response.status).toBe(200);
-    const body = (await response.json()) as unknown;
-    expect(isAdminMessagesSuccessEnvelope(body)).toBe(true);
-    if (!isAdminMessagesSuccessEnvelope(body)) return;
-    expect(body.data.length).toBe(1);
-    expect(body.count).toBe(1);
   });
 
   it('verify returns ok:true with citations when provider responds', async () => {

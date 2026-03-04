@@ -22,7 +22,7 @@ DG-Labs OS is a portfolio presented as a personal operating system - an interfac
 - Apple menu "About DG-Labs Pro" window
 - `Window -> Contact...` opens dock Links panel on desktop (email fallback on page routes)
 - Modular config in `src/config/`
-- API routes for chat + contact + admin dashboard
+- API routes for chat + contact
 
 ## Current Priority
 
@@ -79,7 +79,6 @@ pnpm check
 Focused unit test suites:
 
 ```bash
-pnpm test:auth
 pnpm test:network
 pnpm test:terminal
 pnpm test:terminal:llm
@@ -98,7 +97,6 @@ Or use `make` shortcuts:
 ```bash
 make lint
 make test-unit
-make test-auth
 make test-network
 make test-terminal
 make test-terminal-llm
@@ -129,9 +127,6 @@ OPENROUTER_API_KEY=your_openrouter_api_key_here
 SUPABASE_URL=https://YOUR-PROJECT.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
-# Admin dashboard credentials (server-only)
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=change_me
 ```
 
 Security notes:
