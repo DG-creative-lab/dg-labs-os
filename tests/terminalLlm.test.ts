@@ -5,10 +5,13 @@ import { networkNodes } from '../src/config/network';
 import { workbench } from '../src/config/workbench';
 import {
   buildCitationChips,
+  explainConfidenceLabel,
+  explainVerificationGap,
   buildAgentJsonLines,
   buildLlmMessages,
   buildTerminalSystemContext,
   formatAnswerWithCitations,
+  groupCitationChips,
   isLlmQuery,
   normalizeLlmQuery,
   parseLlmModeQuery,
@@ -247,5 +250,27 @@ describe('terminal llm helpers', () => {
       ]
     );
     expect(chips.map((chip) => chip.group)).toEqual(['Profile', 'Projects', 'Web']);
+  });
+
+  it('groups citation chips by display category in stable order', () => {
+    const grouped = groupCitationChips([
+      { group: 'Web', label: 'External validation', url: 'https://example.com/web' },
+      { group: 'Projects', label: 'Intent Recognition Agent', url: 'https://example.com/project' },
+      { group: 'Profile', label: 'LinkedIn', url: 'https://example.com/profile' },
+    ]);
+    expect(grouped.map((bucket) => bucket.group)).toEqual(['Profile', 'Projects', 'Web']);
+  });
+
+  it('explains confidence label with trust guidance', () => {
+    expect(explainConfidenceLabel('local+verified')).toContain('corroborated');
+    expect(explainConfidenceLabel('local-only')).toContain('run verify');
+    expect(explainConfidenceLabel('verified-only')).toContain('web-verified');
+    expect(explainConfidenceLabel('low-confidence')).toContain('low evidence');
+  });
+
+  it('reports verification gap when web verification has no corroborating sources', () => {
+    expect(explainVerificationGap(0, 'dessi projects')).toContain('Verification gap');
+    expect(explainVerificationGap(0, 'dessi projects')).toContain('dessi projects');
+    expect(explainVerificationGap(2, 'dessi projects')).toBeNull();
   });
 });

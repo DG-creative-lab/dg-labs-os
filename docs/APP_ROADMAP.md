@@ -91,6 +91,7 @@ Primary metaphor:
   - `navigationService` (desktop open/focus/navigation dispatch)
   - `desktopWindowService` (window open/toggle/close/focus state transitions)
 - CI exists (`.github/workflows/ci.yml`) for quality + build on push/PR
+- Playwright smoke suite is active and runs in CI (`test:e2e:smoke`) for desktop/mobile core UX flows.
 
 ## 3. Intent Already Stored In Code (Source of Truth)
 
@@ -111,14 +112,14 @@ This means roadmap execution can be incremental without redesigning the whole in
 - News app needs a stronger in-app experience (embedded curated view vs plain external jump).
 - Toolbar actions are useful but not yet fully aligned to the cognitive-OS story.
 
-### 4.4 Help UX Gap (New)
+### 4.4 Help UX
 
-- Help menu currently mixes useful entry points with duplicated app-navigation items.
-- Next iteration should replace duplicated Help items with dedicated instruction windows:
-  - DG-Labs OS User Guide
+- Dedicated Help windows are now implemented:
+  - DG-Labs User Guide
   - Terminal Command Guide
   - Navigation Tips
-  - Troubleshooting / FAQ
+  - About DG-Labs OS
+- Next iteration: add a lightweight Troubleshooting / FAQ panel.
 
 ### 4.2 Content Architecture Gaps
 
@@ -131,7 +132,7 @@ This means roadmap execution can be incremental without redesigning the whole in
 
 - No central planning document currently in repo (this file fixes that baseline).
 - No content schema validation that enforces required links/fields by module.
-- No E2E smoke tests yet for key UX flows (desktop nav, mobile unlock, toolbar actions).
+- Need deeper E2E coverage beyond smoke (terminal tool interactions, graph interaction modes, window lifecycle edge cases).
 
 ## 5. Roadmap (Phased)
 
@@ -205,6 +206,7 @@ Goal: make current modules feel intentionally connected.
   - each Help item triggers unique guidance content
   - no dead/duplicate app-link behavior
   - guidance content is reachable from both desktop shell and page routes
+  - status: completed
 
 ## Phase 2 - Content Operating System (2-3 weeks)
 
@@ -286,9 +288,8 @@ Goal: production confidence.
   - navigation from dock
   - toolbar menu actions
   - mobile unlock flow
-  - status:
-    - desktop shell now supports single-page multi-window open/close + focus-aware menubar
-    - pending: commit Playwright smoke test once `@playwright/test` can be installed in environment
+  - status: completed (committed and CI-wired)
+  - next: expand coverage for terminal tool flows, graph interaction mode toggles, and window lifecycle edges
 
 3. Deployment hardening (Vercel)
 
@@ -313,7 +314,10 @@ Recommended steady-state modules:
 
 P0 (next):
 
-- Dedicated Help instruction windows (replace duplicated app links in Help menu)
+- Agent Runtime v3 quality/trust UX:
+  - structured response rendering polish (`ask`, `brief`, `cv`, `projects`)
+  - confidence labeling and citation grouping in answer footer
+  - fallback messaging when verification has low/no evidence
 - Resume app enrichment
 - About window behavior/design parity
 
@@ -329,7 +333,7 @@ P1:
 P2:
 
 - Icon system redesign
-- E2E suite
+- E2E suite expansion beyond smoke
 - Preferences + Activity Monitor modules
 
 ## 8. Definition of Done (for each module)

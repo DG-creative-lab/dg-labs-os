@@ -4,7 +4,11 @@
 
 Track stabilization work that makes the codebase predictable and easy to evolve with AI coding agents.
 
-## Snapshot (2026-03-03)
+## Snapshot (2026-03-04)
+
+## Status
+
+Stabilization objectives are now met. This document is retained as a completion log and should be treated as archived for active planning.
 
 ### Completed
 
@@ -27,55 +31,20 @@ Track stabilization work that makes the codebase predictable and easy to evolve 
 - Menubar action adapter extracted via `menubarActions`:
   - terminal/network/workbench/notes/resume menu intents mapped to typed events
   - menu-action dispatch behavior covered by unit tests
-- Initial service-level behavior tests added:
+- Service-level behavior tests added:
   - `tests/navigationService.test.ts`
   - `tests/desktopWindowService.test.ts`
   - `tests/desktopEvents.test.ts`
   - `tests/desktopShellReducer.test.ts`
   - `tests/menubarActions.test.ts`
-
-### In Progress
-
-- Help system redesign:
-  - replace duplicated Help links with dedicated instruction windows.
-
-### Remaining Stabilization Work
-
-1. Desktop interaction test harness (first slice complete)
-
-- Added behavior tests for shell events:
-  - `dg-desktop-open-window`
-  - `dg-desktop-toggle-window`
-  - `dg-app-focus`
-  - `dg-dock-open-links`
-  - `dg-dock-close-links`
-- Remaining: add higher-level integration tests around menubar action dispatch to visible UI changes.
-
-2. Service-layer extraction (complete for first slice)
-
-- Added `src/services/chatService.ts` and `src/services/navigationService.ts`.
-- Added `src/services/desktopWindowService.ts` for deterministic desktop state transitions.
-- `/api/chat` now follows: parse -> validate -> service -> normalized response.
-- Remaining service extraction can be done opportunistically for other routes.
-
-3. Component behavior test coverage
-
-- Add UI-level tests for:
-  - terminal interaction flows
-  - dock/menu behaviors
-  - draggable window lifecycle (open/focus/close)
-
-4. Type-safety tightening
-
-- Continue removing boundary `any` usage.
-- Centralize request schema validation where duplicated.
-
-5. Optional E2E smoke layer
-
-- Add Playwright smoke checks for:
-  - desktop shell navigation
-  - mobile lock -> home flow
-  - key toolbar actions
+- Help system redesign shipped:
+  - dedicated Help windows (User Guide, Terminal Command Guide, Navigation Tips, About DG-Labs OS)
+  - no duplicate/dead app-link behavior in Help menu
+- Playwright smoke layer shipped:
+  - desktop shell + dock flows
+  - menubar action flows (View, Window -> Contact, Help guide open/close)
+  - mobile redirect and lock/home flow
+- Typecheck baseline is clean (`astro check`: 0 errors, 0 warnings, 0 hints).
 
 ## Definition of “Stabilized”
 
@@ -87,7 +56,8 @@ This document can be archived when all conditions are true:
 - Service layer exists for major side-effect paths (chat + navigation).
 - Critical UX paths have behavior-level test coverage (unit/integration and/or smoke).
 
+Current state: all conditions satisfied.
+
 ## Notes
 
-- Keep this file as a short operational checklist.
-- When “Stabilized” is reached, merge remaining evergreen items into `docs/APP_ROADMAP.md` and archive this file.
+- Active roadmap tracking now lives in `docs/APP_ROADMAP.md`.
