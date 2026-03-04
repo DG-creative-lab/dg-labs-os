@@ -14,6 +14,8 @@
     "test:unit": "vitest run tests",
     "test:watch": "vitest",
     "test:unit:watch": "vitest tests",
+    "test:e2e": "playwright test",
+    "test:e2e:smoke": "playwright test tests/e2e/smoke.spec.ts",
     "test:network": "vitest run tests/networkGraph.test.ts tests/networkSearch.test.ts",
     "test:terminal": "vitest run tests/terminalCommands.test.ts",
     "test:terminal:llm": "vitest run tests/terminalLlm.test.ts",
@@ -56,6 +58,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
     "@eslint/js": "^9.35.0",
+    "@playwright/test": "^1.58.2",
     "eslint": "^9.35.0",
     "eslint-plugin-astro": "^0.34.0",
     "globals": "^15.10.0",
