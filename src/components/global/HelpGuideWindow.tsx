@@ -176,10 +176,17 @@ export default function HelpGuideWindow({ isOpen, topic, onClose }: HelpGuideWin
           <div className="mt-0.5 rounded-lg border border-white/10 bg-white/5 p-2 text-white/80">
             <HeaderIcon className="h-5 w-5" />
           </div>
-          <div>
+          <div className="flex-1">
             <h2 className="text-2xl font-semibold">{content.title}</h2>
             <p className="mt-1 text-sm text-white/65">{content.subtitle}</p>
           </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-md border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white/80 transition hover:bg-white/10"
+          >
+            Close Guide
+          </button>
         </div>
 
         <div className="mt-5 space-y-4">

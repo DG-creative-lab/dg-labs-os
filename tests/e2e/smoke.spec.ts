@@ -23,7 +23,7 @@ test.describe('desktop smoke', () => {
     }
     await expect(closeWorkbench).toBeVisible();
 
-    await dockWorkbench.click();
+    await closeWorkbench.click();
     await expect(closeWorkbench).toHaveCount(0);
   });
 
@@ -32,6 +32,49 @@ test.describe('desktop smoke', () => {
     await page.getByRole('button', { name: 'Agents' }).click();
     await expect(page.getByRole('dialog', { name: 'Agents Terminal' })).toBeVisible();
     await expect(page.getByText('Agents Runtime', { exact: true })).toBeVisible();
+  });
+
+  test('menubar View opens Workbench and resets after close', async ({ page }) => {
+    await page.goto('/desktop');
+
+    const viewMenu = page.getByRole('menuitem', { name: 'View', exact: true });
+    await viewMenu.click();
+    await page.getByRole('menuitem', { name: 'Projects', exact: true }).click();
+    const closeWorkbench = page.getByRole('button', { name: 'Close Workbench' });
+    await expect(closeWorkbench).toBeVisible();
+
+    await closeWorkbench.click();
+    await expect(closeWorkbench).toHaveCount(0);
+
+    await viewMenu.click();
+    await expect(page.getByRole('menuitem', { name: 'Projects', exact: true })).toBeVisible();
+    await expect(page.getByRole('menuitem', { name: 'Research Systems', exact: true })).toHaveCount(
+      0
+    );
+  });
+
+  test('menubar Window -> Contact opens Links panel', async ({ page }) => {
+    await page.goto('/desktop');
+
+    await page.getByRole('menuitem', { name: 'Window', exact: true }).click();
+    await page.getByRole('menuitem', { name: 'Contact...' }).click();
+
+    await expect(page.getByRole('link', { name: 'LinkedIn', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'GitHub', exact: true })).toBeVisible();
+  });
+
+  test('menubar Help -> DG-Labs User Guide opens and closes help window', async ({ page }) => {
+    await page.goto('/desktop');
+
+    await page.getByRole('menuitem', { name: 'Help', exact: true }).click();
+    await page.getByRole('menuitem', { name: 'DG-Labs User Guide' }).click();
+
+    const guideDialog = page.getByRole('dialog', { name: 'DG-Labs User Guide' });
+    const closeGuide = page.getByRole('button', { name: 'Close Guide', exact: true });
+
+    await expect(guideDialog).toBeVisible();
+    await closeGuide.click();
+    await expect(guideDialog).toHaveCount(0);
   });
 });
 

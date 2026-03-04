@@ -132,6 +132,10 @@ export default function DraggableWindow({
       bringToFront();
 
       if (e.target.closest('.window-header')) {
+        // Keep header controls (close/minimize etc.) clickable; only drag from empty header space.
+        if (e.target.closest('button, a, input, textarea, select, [role="button"]')) {
+          return;
+        }
         setIsDragging(true);
         const rect = windowRef.current?.getBoundingClientRect();
         if (rect) {
