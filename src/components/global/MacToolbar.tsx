@@ -12,6 +12,7 @@ import {
 import { VscVscode } from 'react-icons/vsc';
 import { userConfig } from '../../config/index';
 import AboutDGWindow from './AboutDGWindow';
+import HelpGuideWindow, { type HelpTopic } from './HelpGuideWindow';
 
 type MenuItem = {
   label: string;
@@ -29,6 +30,7 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [showAbout, setShowAbout] = useState(false);
+  const [helpTopic, setHelpTopic] = useState<HelpTopic | null>(null);
   const [focusedAppId, setFocusedAppId] = useState<
     'home' | 'terminal' | 'network' | 'projects' | 'notes' | 'resume' | 'news' | null
   >(null);
@@ -109,6 +111,24 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
     if (action) {
       action();
       setActiveMenu(null);
+    }
+  };
+
+  const copyText = async (text: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      alert(`${label} copied to clipboard.`);
+    } catch {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'absolute';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      alert(`${label} copied to clipboard.`);
     }
   };
 
@@ -193,33 +213,6 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
     );
   };
 
-  const openNotesHelpSection = (sectionId: string) => {
-    const path = window.location.pathname.replace(/\/+$/, '') || '/';
-    if (path === '/desktop') {
-      window.dispatchEvent(
-        new CustomEvent('dg-desktop-open-window', {
-          detail: { appId: 'notes' },
-        })
-      );
-      window.dispatchEvent(
-        new CustomEvent('dg-app-focus', {
-          detail: { appId: 'notes' },
-        })
-      );
-      [80, 220, 420].forEach((delay) => {
-        window.setTimeout(() => {
-          emitNotesAction('jump_section', { sectionId });
-        }, delay);
-      });
-      return;
-    }
-    if (path === '/apps/notes') {
-      emitNotesAction('jump_section', { sectionId });
-      return;
-    }
-    window.location.href = `/apps/notes#${sectionId}`;
-  };
-
   const openTerminalGuide = () => {
     const path = window.location.pathname.replace(/\/+$/, '') || '/';
     if (path === '/desktop') {
@@ -278,21 +271,39 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
           openDesktopOrNavigate('projects', '/apps/projects');
         },
       },
-      {
-        label: 'Admin Dashboard',
-        icon: <FaWindowRestore size={16} />,
-        action: () => {
-          window.location.href = '/admin';
-        },
-      },
     ],
     Edit: [
       {
-        label: 'Copy Email',
+        label: 'Copy Quick Intro',
+        icon: <IoDocumentText size={16} />,
+        action: () => {
+          void copyText(
+            `${userConfig.ownerName} builds AI systems and research interfaces focused on human agency. DG-Labs OS presents this work as a cognitive operating system across projects, networked ideas, and an agent runtime.`,
+            'Quick intro'
+          );
+        },
+      },
+      {
+        label: 'Copy Public Footprint',
         icon: <IoMail size={16} />,
         action: () => {
-          navigator.clipboard.writeText(userConfig.contact.email);
-          alert('Email copied to clipboard!');
+          const footprint = [
+            `LinkedIn: ${userConfig.social.linkedin}`,
+            `GitHub: ${userConfig.social.github}`,
+            'AI Knowledge Hub: https://github.com/ai-knowledge-hub',
+            'AI News Hub: https://ai-news-hub.performics-labs.com/',
+            'AI Skills Platform: https://skills.ai-knowledge-hub.org/',
+            `Email: ${userConfig.contact.email}`,
+          ].join('\n');
+          void copyText(footprint, 'Public footprint');
+        },
+      },
+      {
+        label: 'Copy Current View Link',
+        icon: <IoCodeSlash size={16} />,
+        action: () => {
+          const href = window.location.href;
+          void copyText(href, 'Current view link');
         },
       },
     ],
@@ -377,22 +388,22 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
       {
         label: 'DG-Labs User Guide',
         icon: <IoDocumentText size={16} />,
-        action: () => openNotesHelpSection('notes-principles'),
+        action: () => setHelpTopic('user-guide'),
       },
       {
         label: 'Terminal Command Guide',
         icon: <IoHelpCircle size={16} />,
-        action: () => openTerminalGuide(),
+        action: () => setHelpTopic('terminal-guide'),
       },
       {
         label: 'Navigation Tips',
         icon: <IoDocumentText size={16} />,
-        action: () => openNotesHelpSection('notes-quick-actions'),
+        action: () => setHelpTopic('navigation-tips'),
       },
       {
         label: 'About DG-Labs OS',
         icon: <IoHelpCircle size={16} />,
-        action: () => setShowAbout(true),
+        action: () => setHelpTopic('about-os'),
       },
     ],
   };
@@ -750,6 +761,11 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
         onMoreInfo={() => {
           window.location.href = '/apps/notes';
         }}
+      />
+      <HelpGuideWindow
+        isOpen={helpTopic !== null}
+        topic={helpTopic}
+        onClose={() => setHelpTopic(null)}
       />
     </>
   );

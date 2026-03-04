@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-  parseAdminLoginInput,
   parseChatRequestInput,
   parseChatMessagesInput,
   parseContactInput,
@@ -9,15 +8,6 @@ import {
 } from '../src/utils/requestSchemas';
 
 describe('request schemas', () => {
-  it('parses valid admin login input', () => {
-    const parsed = parseAdminLoginInput({ username: 'admin', password: 'secret' });
-    expect(parsed).toEqual({ username: 'admin', password: 'secret' });
-  });
-
-  it('rejects invalid admin login input', () => {
-    expect(parseAdminLoginInput({ username: 'admin' })).toBeNull();
-  });
-
   it('parses valid contact input', () => {
     const parsed = parseContactInput({
       name: 'Dessi',

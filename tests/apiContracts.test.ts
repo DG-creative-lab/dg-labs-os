@@ -1,11 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
-  adminLoginSuccess,
-  adminMessagesSuccess,
   chatSuccess,
   healthSuccess,
-  isAdminLoginSuccessEnvelope,
-  isAdminMessagesSuccessEnvelope,
   isApiErrorEnvelope,
   isChatSuccessEnvelope,
   isHealthSuccessEnvelope,
@@ -28,8 +24,6 @@ describe('api contracts', () => {
       )
     ).toBe(true);
     expect(isToolSuccessEnvelope(toolSuccess('local_context', { hits: [] }))).toBe(true);
-    expect(isAdminLoginSuccessEnvelope(adminLoginSuccess())).toBe(true);
-    expect(isAdminMessagesSuccessEnvelope(adminMessagesSuccess([], 0, 50, 0))).toBe(true);
   });
 
   it('recognizes normalized error envelope', async () => {

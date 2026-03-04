@@ -1,171 +1,74 @@
 # DG-Labs OS Codebase Stabilization Plan
 
-## Objective
+## Purpose
 
-Make the codebase stable, predictable, and easy for AI coding agents to modify safely:
+Track stabilization work that makes the codebase predictable and easy to evolve with AI coding agents.
 
-- clear architectural boundaries
-- deterministic local quality gates
-- focused test commands
-- explicit refactor backlog with priorities
+## Snapshot (2026-03-03)
 
-## Status Snapshot (2026-03-02)
+### Completed
 
-Recently completed:
+- Quality gates are standardized and enforced:
+  - `pnpm check` (lint + format + tests + typecheck)
+  - CI runs quality + build on push/PR
+- Focused scripts and test suites are in place for network/terminal/api/content/device/schema.
+- API contract coverage exists for core endpoints (chat/contact/tools/verify).
+- Desktop shell supports single-page multi-window behavior with focus-aware menubar.
+- Terminal runtime has deterministic commands + LLM mode with retrieval-grounded citations.
 
-- Quality command matrix and Makefile shortcuts are in place (`lint`, `format`, `test`, `typecheck`, `check` and focused suites).
-- API contract/unit test coverage expanded across chat/contact/admin and terminal utilities.
-- Admin authentication hardened with signed `HttpOnly` session cookies (`src/utils/adminAuth.ts` + API route integration).
-- Desktop shell moved to single-page multi-window behavior with focus-aware menubar actions.
-- Terminal runtime upgraded to hybrid deterministic + LLM mode with retrieval context and citation footer controls.
+### In Progress
 
-Current focus:
+- Help system redesign:
+  - replace duplicated Help links with dedicated instruction windows.
 
-- Dedicated Help instruction windows (replace duplicated Help menu app links).
-- Resume module enrichment and tighter cross-linking between Resume/Workbench/Network.
+### Remaining Stabilization Work
 
-## Current Snapshot (Audit)
+1. Desktop interaction test harness
 
-### Strengths
+- Add behavior tests for window focus and menubar action dispatch.
+- Add tests for shell events:
+  - `dg-desktop-open-window`
+  - `dg-desktop-toggle-window`
+  - `dg-app-focus`
+  - `dg-dock-open-links`
 
-- Good baseline quality tooling exists:
-  - lint (`eslint`)
-  - formatting (`prettier`)
-  - unit tests (`vitest`)
-  - typecheck (`astro check`)
-  - CI workflow with quality + build
-- Focused `pnpm` and `make` commands support incremental local validation per domain.
-- Strong domain-oriented config modules already exist:
-  - `src/config/workbench.ts`
-  - `src/config/labNotes.ts`
-  - `src/config/network.ts`
-- Critical security improvement now present:
-  - signed `HttpOnly` admin session cookie flow (`src/utils/adminAuth.ts`)
+2. Service-layer extraction
 
-### Gaps
+- Introduce `src/services/*` for side-effect orchestration:
+  - `chatService`
+  - `navigationService`
+- Keep API routes thin: parse -> validate -> service -> normalized response.
 
-1. **Boundary clarity**
+3. Component behavior test coverage
 
-- Business logic appears in UI and API handlers together.
-- Navigation and side-effects (`window.location.href`) are scattered through components.
+- Add UI-level tests for:
+  - terminal interaction flows
+  - dock/menu behaviors
+  - draggable window lifecycle (open/focus/close)
 
-2. **Test coverage breadth**
+4. Type-safety tightening
 
-- Utility and API contracts are now covered, but component behavior coverage is still light.
-- No component-level tests for draggable window/menu interaction paths.
-- No committed Playwright smoke flow yet for desktop shell + mobile unlock.
+- Continue removing boundary `any` usage.
+- Centralize request schema validation where duplicated.
 
-3. **Operational consistency**
+5. Optional E2E smoke layer
 
-- Scripts exist but are not grouped by concern (content/network/auth/terminal).
-- Makefile can be more expressive for focused local workflows.
+- Add Playwright smoke checks for:
+  - desktop shell navigation
+  - mobile lock -> home flow
+  - key toolbar actions
 
-4. **Type safety debt**
+## Definition of “Stabilized”
 
-- `any` usage remains in API parsing and some component catch blocks.
-- Request payload validation is ad-hoc and duplicated.
+This document can be archived when all conditions are true:
 
-## Target Architecture
+- `pnpm check` passes locally and in CI by default.
+- Help system redesign is shipped (no duplicate/dead Help items).
+- Desktop interaction tests exist for focus and event dispatch.
+- Service layer exists for major side-effect paths (chat + navigation).
+- Critical UX paths have behavior-level test coverage (unit/integration and/or smoke).
 
-## 1) Layers
+## Notes
 
-- `src/config/*`: source-of-truth content and static domain data
-- `src/utils/*`: pure logic (search, graph transforms, terminal parsing, auth token utils)
-- `src/services/*` (next): side-effect orchestration (API clients, navigation, storage adapters)
-- `src/pages/api/*`: thin request/response adapters + validation + service calls
-- `src/components/*`: presentational + interaction orchestration only
-
-## 2) Rules for AI-agent friendliness
-
-- Keep domain logic pure and exported from `utils`/`services`.
-- Keep components thin: call pure functions, render returned state.
-- Keep API routes small: validate input -> call service -> normalize output.
-- Add/extend tests in same PR as behavior changes.
-
-## Stabilization Backlog (Prioritized)
-
-## P0 (Immediate)
-
-1. **Desktop interaction test harness**
-
-- Add behavior tests for focus-aware menubar action dispatch.
-- Add tests for shell events (`dg-desktop-open-window`, `dg-app-focus`, dock link-open events).
-
-2. **Help system implementation**
-
-- Add dedicated instruction windows and remove duplicated app-link Help behavior.
-
-3. **Lock quality gates**
-
-- Keep CI as mandatory quality gate:
-  - lint + format + unit tests + typecheck + build
-
-## P1 (Next)
-
-1. **Extract service modules**
-
-- `src/services/chatService.ts`
-- `src/services/adminService.ts`
-- `src/services/navigation.ts`
-
-2. **Add API contract tests**
-
-- happy/error paths for:
-  - chat
-  - contact
-  - admin login/messages
-
-3. **Terminal behavior tests (UI-level)**
-
-- command history rendering
-- clear/reset behavior
-- local command vs action dispatch contract
-
-## P2 (After)
-
-1. **Component test harness**
-
-- add React Testing Library for component-level behavior tests
-
-2. **Schema validation layer**
-
-- unify payload validation and error typing
-
-3. **Observability hooks**
-
-- structured error logs for API endpoints
-- request-id propagation for debugging
-
-## Unit Test Matrix (Current + Planned)
-
-Current:
-
-- `tests/adminAuth.test.ts`
-- `tests/contentConfig.test.ts`
-- `tests/deviceDetection.test.ts`
-- `tests/networkGraph.test.ts`
-- `tests/networkSearch.test.ts`
-- `tests/terminalCommands.test.ts`
-
-Planned additions:
-
-- `tests/api/chat.contract.test.ts`
-- `tests/api/contact.contract.test.ts`
-- `tests/api/admin.contract.test.ts`
-- `tests/terminal.ui.test.tsx`
-
-## Definition of Stable (for this repo)
-
-Stable means:
-
-- `make check` passes locally and in CI.
-- No `any` in API boundary parsing paths.
-- Every changed utility/service has unit tests.
-- Every endpoint has at least one success and one failure contract test.
-- Critical UX modules (Terminal, Network) have behavior-level test coverage.
-
-## Execution Notes
-
-- Prefer incremental hardening over large rewrites.
-- Preserve current product momentum (Terminal + Network + content mapping).
-- Treat architecture changes as enabling work for faster, safer AI-assisted development.
+- Keep this file as a short operational checklist.
+- When “Stabilized” is reached, merge remaining evergreen items into `docs/APP_ROADMAP.md` and archive this file.

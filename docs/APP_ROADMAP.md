@@ -17,16 +17,10 @@ Primary metaphor:
 
 ## 2. What Is Already Implemented (Current State)
 
-### 2.0 Authentication Checkpoint (Applied)
+### 2.0 Access Model
 
-- Admin authentication has been hardened from client-stored token to signed `HttpOnly` cookie session:
-  - Added HMAC-based session helpers in `src/utils/adminAuth.ts`.
-  - `POST /api/admin/login` now issues signed cookie session.
-  - `GET /api/admin/messages` verifies signed cookie or bearer token.
-  - `DELETE /api/admin/messages` clears admin session cookie.
-  - Admin dashboard now uses `credentials: 'include'` instead of `sessionStorage` token.
-- Added optional `ADMIN_SESSION_SECRET` env var (falls back to `ADMIN_PASSWORD`).
-- Added unit tests for session token creation/verification and timing-safe match.
+- Public portfolio routes are intentionally open.
+- Private admin inbox/dashboard functionality has been removed to keep the product surface focused.
 
 ### 2.1 Platform and Routing
 
