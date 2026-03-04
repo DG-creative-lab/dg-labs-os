@@ -11,8 +11,12 @@ import {
 } from 'react-icons/io5';
 import { VscVscode } from 'react-icons/vsc';
 import { userConfig } from '../../config/index';
-import { onDesktopAppFocus } from '../../services/desktopEvents';
-import { openAppFromMenu, openContactFromMenu } from '../../services/appOpenHandlers';
+import { onDesktopAppFocus, onDesktopState } from '../../services/desktopEvents';
+import {
+  openAppFromMenu,
+  openContactFromMenu,
+  openWorkbenchSectionFromMenu,
+} from '../../services/appOpenHandlers';
 import { copyTextWithFallback } from '../../services/clipboardService';
 import { openTerminalGuideFromMenu } from '../../services/terminalGuideService';
 import {
@@ -56,7 +60,7 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
   }, []);
 
   useEffect(() => {
-    const unsubscribe = onDesktopAppFocus(window, ({ appId }) => {
+    const unsubscribeFocus = onDesktopAppFocus(window, ({ appId }) => {
       const next = appId;
       if (!next) return;
       if (next === 'home') {
@@ -65,8 +69,17 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
       }
       setFocusedAppId(next);
     });
+    const unsubscribeState = onDesktopState(window, ({ focusedAppId: next }) => {
+      if (!next) return;
+      if (next === 'home') {
+        setFocusedAppId(null);
+        return;
+      }
+      setFocusedAppId(next);
+    });
     return () => {
-      unsubscribe();
+      unsubscribeFocus();
+      unsubscribeState();
     };
   }, []);
 
@@ -413,35 +426,24 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
     ...commonMenus,
     View: [
       {
-        label: 'Open Workbench',
-        icon: <IoCodeSlash size={16} />,
-        action: () => openAppFromMenu('projects'),
-      },
-      {
         label: 'Research Systems',
         icon: <IoCodeSlash size={16} />,
-        action: () =>
-          emitWorkbenchMenuAction(window, 'jump_section', {
-            sectionId: 'workbench-research-systems',
-          }),
+        action: () => openWorkbenchSectionFromMenu('workbench-research-systems'),
       },
       {
         label: 'Platforms',
         icon: <IoCodeSlash size={16} />,
-        action: () =>
-          emitWorkbenchMenuAction(window, 'jump_section', { sectionId: 'workbench-platforms' }),
+        action: () => openWorkbenchSectionFromMenu('workbench-platforms'),
       },
       {
         label: 'Writing',
         icon: <IoDocumentText size={16} />,
-        action: () =>
-          emitWorkbenchMenuAction(window, 'jump_section', { sectionId: 'workbench-writing' }),
+        action: () => openWorkbenchSectionFromMenu('workbench-writing'),
       },
       {
         label: 'Hackathons',
         icon: <IoHelpCircle size={16} />,
-        action: () =>
-          emitWorkbenchMenuAction(window, 'jump_section', { sectionId: 'workbench-hackathons' }),
+        action: () => openWorkbenchSectionFromMenu('workbench-hackathons'),
       },
     ],
     Window: [
