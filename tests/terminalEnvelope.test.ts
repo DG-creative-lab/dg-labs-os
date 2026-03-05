@@ -31,4 +31,14 @@ describe('terminal envelope', () => {
     expect(lines.join('\n')).toContain('[web_context]');
     expect(lines.join('\n')).toContain('https://example.com');
   });
+
+  it('keeps verify envelope compact when no web citations are found', () => {
+    const summary =
+      'No high-confidence web matches were found for "Dessi Georgieva projects". Refine the query and retry verify.';
+    const lines = buildVerifyEnvelopeLines(summary, []);
+
+    expect(lines.join('\n')).toContain('[web_context]');
+    expect(lines.join('\n')).toContain('- citations: 0');
+    expect(lines).toHaveLength(5);
+  });
 });

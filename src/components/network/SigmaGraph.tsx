@@ -197,9 +197,10 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
           edge.ideas.length > 1 ? `${edge.ideas[0]} (+${edge.ideas.length - 1})` : edge.ideas[0];
         graph.addEdgeWithKey(`edge-${edgeIndex}`, edge.from, edge.to, {
           color: isDotted ? 'rgba(148,163,184,0.36)' : 'rgba(148,163,184,0.6)',
-          size: isDotted ? 0.8 + edge.strength * 0.35 : 1 + edge.strength * 0.6,
+          size: isDotted ? 0.45 + edge.strength * 0.2 : 0.55 + edge.strength * 0.32,
           label,
           style: edge.style,
+          strength: edge.strength,
           ideas: edge.ideas,
         });
         edgeIndex += 1;
@@ -407,11 +408,16 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
 
         sigma.setSetting('edgeReducer', (edge, data) => {
           if (!source) {
-            const d = data as { size: number };
+            const d = data as { size: number; strength?: number; style?: 'solid' | 'dotted' };
+            const strength = d.strength ?? 2;
+            const dotted = d.style === 'dotted';
+            // De-emphasize low-signal lineage links unless user focuses a node.
+            const hidden = strength <= 1 || (dotted && strength <= 2);
+            const alpha = strength >= 4 ? 0.3 : strength === 3 ? 0.2 : 0.12;
             return {
               ...d,
-              color: 'rgba(148,163,184,0.28)',
-              hidden: false,
+              color: `rgba(148,163,184,${dotted ? Math.max(0.06, alpha - 0.05) : alpha})`,
+              hidden,
             };
           }
 

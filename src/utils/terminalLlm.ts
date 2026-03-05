@@ -365,6 +365,13 @@ export const explainConfidenceLabel = (label: LlmConfidenceLabel): string => {
   return 'Trust level: low evidence. Refine query or run verify/context before relying on this answer.';
 };
 
+export const confidenceBadgeText = (label: LlmConfidenceLabel): string => {
+  if (label === 'local+verified') return 'corroborated';
+  if (label === 'local-only') return 'local only';
+  if (label === 'verified-only') return 'verified only';
+  return 'low confidence';
+};
+
 export const explainVerificationGap = (
   verifiedWebSourceCount: number,
   query: string

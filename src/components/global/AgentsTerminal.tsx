@@ -11,6 +11,7 @@ import {
 import { routeNaturalLanguageCommand } from '../../utils/terminalRouter';
 import {
   buildCitationChips,
+  confidenceBadgeText,
   buildAgentJsonLines,
   buildLlmMessages,
   explainConfidenceLabel,
@@ -99,6 +100,7 @@ type EvidenceState = {
 type LastAnswerMeta = {
   confidence: LlmConfidenceLabel;
   chips: CitationChip[];
+  unverifiedCount?: number;
 };
 
 const INITIAL_TOOL_USAGE: ToolUsage = {
@@ -166,6 +168,7 @@ export default function AgentsTerminal() {
   const [showEvidencePanel, setShowEvidencePanel] = useState(false);
   const [lastEvidence, setLastEvidence] = useState<EvidenceState | null>(null);
   const [lastAnswerMeta, setLastAnswerMeta] = useState<LastAnswerMeta | null>(null);
+  const [showCitationDetails, setShowCitationDetails] = useState(false);
   const [history, setHistory] = useState<TerminalEntry[]>([
     { id: 1, kind: 'system', text: 'DG-Labs Agents Runtime v2' },
     {
@@ -487,7 +490,12 @@ export default function AgentsTerminal() {
         lastWebVerifyContext?.sources.length ?? 0
       );
       const chips = buildCitationChips(evidenceRefs, lastWebVerifyContext?.sources ?? []);
-      setLastAnswerMeta({ confidence, chips });
+      setLastAnswerMeta({
+        confidence,
+        chips,
+        unverifiedCount: cited.unverifiedCount,
+      });
+      setShowCitationDetails(false);
       const confidenceGuidance = explainConfidenceLabel(confidence);
 
       const envelopeLines = buildAskEnvelopeLines(
@@ -503,21 +511,10 @@ export default function AgentsTerminal() {
         pushLine('system', `- ${confidenceGuidance}`),
         pushLine('output', cited.answer),
         ...(chips.length > 0
-          ? [
-              pushLine('system', '[citation_groups]'),
-              ...chips
-                .slice(0, 10)
-                .map((chip) => pushLine('system', `${chip.group}: ${chip.label} — ${chip.url}`)),
-            ]
-          : []),
-        ...(cited.citationLines.length > 0
-          ? [
-              pushLine('system', '[citations]'),
-              ...cited.citationLines.map((line) => pushLine('system', line)),
-            ]
+          ? [pushLine('system', `[citations] ${chips.length} source link(s) available below`)]
           : []),
         ...(cited.unverifiedCount > 0
-          ? [pushLine('system', `- unverified claims: ${cited.unverifiedCount}`)]
+          ? [pushLine('system', `[verification_gap] ${cited.unverifiedCount} claim(s)`)]
           : []),
         ...agentLines.map((line) => pushLine('output', line)),
         ...envelopeLines.map((line) => pushLine('system', line)),
@@ -687,6 +684,7 @@ export default function AgentsTerminal() {
           sources,
         });
         setLastAnswerMeta({ confidence, chips });
+        setShowCitationDetails(false);
         setHistory((prev) => [
           ...prev,
           ...lines.map((line) => pushLine('output', line)),
@@ -694,18 +692,7 @@ export default function AgentsTerminal() {
           pushLine('system', `- ${confidenceGuidance}`),
           ...(verificationGap ? [pushLine('system', `- ${verificationGap}`)] : []),
           ...(chips.length > 0
-            ? [
-                pushLine('system', '[citation_groups]'),
-                ...groupCitationChips(chips)
-                  .slice(0, 4)
-                  .flatMap((bucket) =>
-                    bucket.chips
-                      .slice(0, 2)
-                      .map((chip) =>
-                        pushLine('system', `${bucket.group}: ${chip.label} — ${chip.url}`)
-                      )
-                  ),
-              ]
+            ? [pushLine('system', `[citations] ${chips.length} web citation(s) available below`)]
             : []),
         ]);
         return;
@@ -968,7 +955,8 @@ export default function AgentsTerminal() {
     }
     return 'border-amber-300/50 bg-amber-400/10 text-amber-200';
   };
-
+  const groupedCitations = groupCitationChips(lastAnswerMeta?.chips ?? []);
+  const totalCitationCount = lastAnswerMeta?.chips.length ?? 0;
   return (
     <div className="h-full min-h-0 rounded-xl border border-emerald-300/20 bg-black/60 shadow-[0_14px_60px_rgba(0,0,0,0.45)] overflow-hidden flex flex-col">
       <div className="flex items-center justify-between border-b border-emerald-400/20 px-4 py-2 text-[11px] text-emerald-300/75">
@@ -1335,7 +1323,7 @@ export default function AgentsTerminal() {
           <p
             key={entry.id}
             className={
-              /^\[(local_context|web_context|citations|citation_groups|confidence|evidence)\]$/.test(
+              /^\[(local_context|web_context|citations|confidence|evidence|verification_gap)\]/.test(
                 entry.text
               )
                 ? 'mt-1 text-[11px] uppercase tracking-[0.12em] text-cyan-300/85 border-b border-cyan-300/20'
@@ -1354,30 +1342,58 @@ export default function AgentsTerminal() {
       <form onSubmit={handleSubmit} className="border-t border-emerald-400/20 px-4 py-3">
         {lastAnswerMeta ? (
           <div className="mb-2 space-y-2 text-xs">
-            <span
-              className={`inline-flex rounded-full border px-2 py-0.5 ${confidenceBadgeClass(lastAnswerMeta.confidence)}`}
-            >
-              confidence: {lastAnswerMeta.confidence}
-            </span>
-            <p className="text-white/60">{explainConfidenceLabel(lastAnswerMeta.confidence)}</p>
             <div className="flex flex-wrap items-center gap-2">
-              {groupCitationChips(lastAnswerMeta.chips)
-                .slice(0, 4)
-                .flatMap((bucket) =>
-                  bucket.chips.slice(0, 2).map((chip) => (
-                    <a
-                      key={`${bucket.group}-${chip.url}`}
-                      href={chip.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="rounded-full border border-white/20 bg-white/5 px-2 py-0.5 text-white/80 hover:bg-white/10"
-                      title={`${bucket.group}: ${chip.label}`}
-                    >
-                      [{bucket.group}] {chip.label}
-                    </a>
-                  ))
-                )}
+              <span
+                className={`inline-flex rounded-full border px-2 py-0.5 ${confidenceBadgeClass(lastAnswerMeta.confidence)}`}
+                title={explainConfidenceLabel(lastAnswerMeta.confidence)}
+              >
+                {confidenceBadgeText(lastAnswerMeta.confidence)}
+              </span>
+              <span className="text-white/55">
+                {totalCitationCount} citation{totalCitationCount === 1 ? '' : 's'}
+              </span>
+              {typeof lastAnswerMeta.unverifiedCount === 'number' &&
+              lastAnswerMeta.unverifiedCount > 0 ? (
+                <span className="text-amber-200/90">
+                  {lastAnswerMeta.unverifiedCount} unverified
+                </span>
+              ) : null}
+              {totalCitationCount > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setShowCitationDetails((prev) => !prev)}
+                  className="rounded border border-white/20 bg-white/10 px-2 py-0.5 text-white/90 hover:bg-white/20"
+                >
+                  {showCitationDetails ? 'Hide sources' : 'Show sources'}
+                </button>
+              ) : null}
             </div>
+            {showCitationDetails && totalCitationCount > 0 ? (
+              <div className="space-y-1">
+                {groupedCitations.map((bucket) => (
+                  <div key={bucket.group} className="flex flex-wrap items-center gap-1.5">
+                    <span className="text-[10px] uppercase tracking-[0.08em] text-white/45">
+                      {bucket.group}
+                    </span>
+                    {bucket.chips.slice(0, 3).map((chip) => (
+                      <a
+                        key={`${bucket.group}-${chip.url}`}
+                        href={chip.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full border border-white/20 bg-white/5 px-2 py-0.5 text-white/80 hover:bg-white/10"
+                        title={`${bucket.group}: ${chip.label}`}
+                      >
+                        {chip.label}
+                      </a>
+                    ))}
+                    {bucket.chips.length > 3 ? (
+                      <span className="text-white/45">+{bucket.chips.length - 3}</span>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </div>
         ) : null}
         <label className="flex items-center gap-2 font-mono text-sm">

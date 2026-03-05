@@ -134,6 +134,53 @@ export const workbench: readonly WorkbenchItem[] = [
     ],
   },
   {
+    id: 'aion-enterprise-auth',
+    category: 'Platforms',
+    title: 'Aion Enterprise Auth Platform',
+    subtitle: 'Multi-tenant authentication and authorization architecture',
+    summary:
+      'Enterprise authentication platform with tenant isolation, hierarchical role boundaries, and product-tier capability control for multi-tenant AI applications.',
+    stack: [
+      'Next.js',
+      'FastAPI',
+      'Microsoft Entra SSO',
+      'OIDC',
+      'Postgres',
+      'RBAC',
+      'Policy enforcement',
+    ],
+    links: {},
+    highlights: [
+      'Multi-tenant auth boundaries with strict tenant and organization scoping.',
+      'Layered role model aligned to client, brand, and workspace contexts.',
+      'Product-tier capability gating for enterprise feature control.',
+      'Clean architecture patterns for auth and policy domain separation.',
+    ],
+  },
+  {
+    id: 'onesuite-labs-infra',
+    category: 'Platforms',
+    title: 'OneSuite Labs Ephemeral Infrastructure',
+    subtitle: 'Decommissioning and scratch-environment control plane',
+    summary:
+      'AWS decommissioning and replacement strategy for legacy untagged infrastructure, rebuilt as ephemeral reproducible stacks for safe experimentation and systems validation.',
+    stack: [
+      'Terraform',
+      'AWS',
+      'Infrastructure as code',
+      'Drift checks',
+      'Runtime contracts',
+      'Ephemeral environments',
+    ],
+    links: {},
+    highlights: [
+      'Infra cleanup for non-terraform and untagged legacy surfaces.',
+      'Ephemeral up/down stacks mirroring app contracts for idea testing.',
+      'Contract gates and drift detection in deployment workflows.',
+      'Systematic infra governance for safer platform iteration.',
+    ],
+  },
+  {
     id: 'hackathons',
     category: 'Hackathons',
     title: 'Hackathon Prototypes',
