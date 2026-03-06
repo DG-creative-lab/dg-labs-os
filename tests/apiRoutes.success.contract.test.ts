@@ -72,6 +72,105 @@ describe('API route success contracts', () => {
     expect(body.message).toBe('Hello from model');
   });
 
+  it('chat supports openai provider via responses API', async () => {
+    mockGlobalFetch.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          output_text: 'Hello from OpenAI',
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      )
+    );
+
+    const { POST } = await import('../src/pages/api/chat');
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider: 'openai',
+        model: 'gpt-4.1-mini',
+        byokApiKey: 'test-openai-key',
+        messages: [{ role: 'user', content: 'hello' }],
+      }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as unknown;
+    expect(isChatSuccessEnvelope(body)).toBe(true);
+    if (!isChatSuccessEnvelope(body)) return;
+    expect(body.message).toBe('Hello from OpenAI');
+    expect(mockGlobalFetch).toHaveBeenCalled();
+  });
+
+  it('chat supports anthropic provider via messages API', async () => {
+    mockGlobalFetch.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          content: [{ type: 'text', text: 'Hello from Anthropic' }],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      )
+    );
+
+    const { POST } = await import('../src/pages/api/chat');
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider: 'anthropic',
+        model: 'claude-3-5-sonnet-latest',
+        byokApiKey: 'test-anthropic-key',
+        messages: [{ role: 'user', content: 'hello' }],
+      }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as unknown;
+    expect(isChatSuccessEnvelope(body)).toBe(true);
+    if (!isChatSuccessEnvelope(body)) return;
+    expect(body.message).toBe('Hello from Anthropic');
+    expect(mockGlobalFetch).toHaveBeenCalled();
+  });
+
+  it('chat supports gemini provider via generateContent API', async () => {
+    mockGlobalFetch.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          candidates: [
+            {
+              content: {
+                parts: [{ text: 'Hello from Gemini' }],
+              },
+            },
+          ],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      )
+    );
+
+    const { POST } = await import('../src/pages/api/chat');
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider: 'gemini',
+        model: 'gemini-2.0-flash',
+        byokApiKey: 'test-gemini-key',
+        messages: [{ role: 'user', content: 'hello' }],
+      }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as unknown;
+    expect(isChatSuccessEnvelope(body)).toBe(true);
+    if (!isChatSuccessEnvelope(body)) return;
+    expect(body.message).toBe('Hello from Gemini');
+    expect(mockGlobalFetch).toHaveBeenCalled();
+  });
+
   it('chat agent_json mode returns structured data', async () => {
     const { POST } = await import('../src/pages/api/chat');
     const request = new Request('http://localhost/api/chat', {
@@ -163,6 +262,42 @@ describe('API route success contracts', () => {
     expect(isToolSuccessEnvelope(body)).toBe(true);
     if (!isToolSuccessEnvelope(body)) return;
     expect(body.tool).toBe('local_context');
+  });
+
+  it('llm health POST probes selected provider with BYOK', async () => {
+    mockGlobalFetch.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          output_text: 'pong',
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      )
+    );
+
+    const { POST } = await import('../src/pages/api/llm/health');
+    const request = new Request('http://localhost/api/llm/health', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider: 'openai',
+        model: 'gpt-4.1-mini',
+        byokApiKey: 'test-openai-key',
+        probe: true,
+      }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      ok?: boolean;
+      probe?: boolean;
+      providers?: Array<{ provider?: string; status?: string; configured?: boolean }>;
+    };
+    expect(body.ok).toBe(true);
+    expect(body.probe).toBe(true);
+    expect(body.providers?.[0]?.provider).toBe('openai');
+    expect(body.providers?.[0]?.status).toBe('healthy');
+    expect(body.providers?.[0]?.configured).toBe(true);
   });
 
   it('tools web_verify returns citations', async () => {

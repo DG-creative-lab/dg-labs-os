@@ -6,10 +6,13 @@ import {
 
 export type TerminalBrainMode = 'concise' | 'explainer' | 'research';
 export type TerminalResponseMode = 'narrative' | 'agent_json';
+export type TerminalLlmProvider = 'openrouter' | 'openai' | 'anthropic' | 'gemini';
 
 export type TerminalSettings = {
   brainMode: TerminalBrainMode;
   responseMode: TerminalResponseMode;
+  llmProvider: TerminalLlmProvider;
+  llmModel: string;
   llmFallbackForUnknown: boolean;
   routerDebug: boolean;
   showLlmSources: boolean;
@@ -18,11 +21,13 @@ export type TerminalSettings = {
   llmSessionCap: number;
 };
 
-export const TERMINAL_SETTINGS_KEY = 'dg_labs_terminal_settings_v1';
+export const TERMINAL_SETTINGS_KEY = 'dg_labs_terminal_settings_v2';
 
 export const defaultTerminalSettings: TerminalSettings = {
   brainMode: 'concise',
   responseMode: 'narrative',
+  llmProvider: 'openrouter',
+  llmModel: 'openai/gpt-oss-120b',
   llmFallbackForUnknown: true,
   routerDebug: true,
   showLlmSources: true,
@@ -46,10 +51,23 @@ export const sanitizeTerminalSettings = (
     partial?.responseMode === 'narrative' || partial?.responseMode === 'agent_json'
       ? partial.responseMode
       : defaultTerminalSettings.responseMode;
+  const llmProvider =
+    partial?.llmProvider === 'openrouter' ||
+    partial?.llmProvider === 'openai' ||
+    partial?.llmProvider === 'anthropic' ||
+    partial?.llmProvider === 'gemini'
+      ? partial.llmProvider
+      : defaultTerminalSettings.llmProvider;
+  const llmModel =
+    typeof partial?.llmModel === 'string' && partial.llmModel.trim().length > 0
+      ? partial.llmModel.trim().slice(0, 200)
+      : defaultTerminalSettings.llmModel;
 
   return {
     brainMode,
     responseMode,
+    llmProvider,
+    llmModel,
     llmFallbackForUnknown:
       typeof partial?.llmFallbackForUnknown === 'boolean'
         ? partial.llmFallbackForUnknown
@@ -100,6 +118,8 @@ export const terminalSettingsSummary = (settings: TerminalSettings): string =>
   [
     `mode=${settings.brainMode}`,
     `response=${settings.responseMode}`,
+    `provider=${settings.llmProvider}`,
+    `model=${settings.llmModel}`,
     `fallback=${settings.llmFallbackForUnknown ? 'on' : 'off'}`,
     `router-debug=${settings.routerDebug ? 'on' : 'off'}`,
     `llm-sources=${settings.showLlmSources ? 'on' : 'off'}`,

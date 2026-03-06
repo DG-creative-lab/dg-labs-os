@@ -6,10 +6,14 @@ export type ChatMessageInput = {
 };
 
 export type ChatResponseMode = 'narrative' | 'agent_json';
+export type ChatProvider = 'openrouter' | 'openai' | 'anthropic' | 'gemini';
 
 export type ChatRequestInput = {
   messages: ChatMessageInput[];
   responseMode: ChatResponseMode;
+  provider: ChatProvider;
+  model: string;
+  byokApiKey?: string;
 };
 
 export type ContactInput = {
@@ -99,7 +103,30 @@ export const parseChatRequestInput = (input: unknown): ChatRequestInput | null =
       ? responseModeRaw
       : 'narrative';
 
-  return { messages, responseMode };
+  const providerRaw = body.provider;
+  const provider: ChatProvider =
+    providerRaw === 'openrouter' ||
+    providerRaw === 'openai' ||
+    providerRaw === 'anthropic' ||
+    providerRaw === 'gemini'
+      ? providerRaw
+      : 'openrouter';
+
+  const modelRaw = body.model;
+  const model =
+    typeof modelRaw === 'string' && modelRaw.trim().length > 0
+      ? modelRaw.trim().slice(0, 200)
+      : provider === 'openrouter'
+        ? 'openai/gpt-oss-120b'
+        : '';
+
+  const byokApiKeyRaw = body.byokApiKey;
+  const byokApiKey =
+    typeof byokApiKeyRaw === 'string' && byokApiKeyRaw.trim().length > 0
+      ? byokApiKeyRaw.trim()
+      : undefined;
+
+  return { messages, responseMode, provider, model, byokApiKey };
 };
 
 export const parseVerifyInput = (input: unknown): VerifyInput | null => {

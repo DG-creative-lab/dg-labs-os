@@ -25,12 +25,16 @@ describe('terminal settings', () => {
     expect(parsed.strictEvidenceMode).toBe(false);
     expect(parsed.brainMode).toBe('concise');
     expect(parsed.responseMode).toBe('narrative');
+    expect(parsed.llmProvider).toBe('openrouter');
+    expect(parsed.llmModel).toBe('openai/gpt-oss-120b');
   });
 
   it('sanitizes ranges', () => {
     const s = sanitizeTerminalSettings({
       brainMode: 'research',
       responseMode: 'agent_json',
+      llmProvider: 'openrouter',
+      llmModel: 'openai/gpt-oss-120b',
       llmFallbackForUnknown: true,
       routerDebug: false,
       showLlmSources: false,
@@ -51,6 +55,8 @@ describe('terminal settings', () => {
     const summary = terminalSettingsSummary(defaultTerminalSettings);
     expect(summary).toContain('mode=');
     expect(summary).toContain('response=');
+    expect(summary).toContain('provider=');
+    expect(summary).toContain('model=');
     expect(summary).toContain('fallback=');
     expect(summary).toContain('router-debug=');
     expect(summary).toContain('llm-sources=');

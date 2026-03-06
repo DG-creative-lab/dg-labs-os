@@ -78,6 +78,9 @@ Primary metaphor:
   - answer modes (`ask`, `brief`, `cv`, `projects`)
   - local retrieval-grounded context + citations footer
   - links-registry-informed verification query planning
+- next platform step:
+  - BYOK support for user-supplied provider keys
+  - provider gateway abstraction for OpenAI, Anthropic (Claude), Gemini, OpenRouter
 
 ### 2.7 Quality and Delivery
 
@@ -133,6 +136,14 @@ This means roadmap execution can be incremental without redesigning the whole in
 - No central planning document currently in repo (this file fixes that baseline).
 - No content schema validation that enforces required links/fields by module.
 - Need deeper E2E coverage beyond smoke (terminal tool interactions, graph interaction modes, window lifecycle edge cases).
+- Terminal provider layer is still single-provider in runtime behavior; needs BYOK + provider gateway with consistent response envelope.
+- Deployment is not yet fully hardened for Vercel production (secrets, provider routing, runtime checks, observability).
+
+### 4.5 LLM Platform and Deployment Gaps
+
+- BYOK UX is missing in terminal settings (no secure user-key entry/rotation flow yet).
+- No multi-provider runtime contract (`openai`/`anthropic`/`google`/`openrouter`) with failover policy.
+- No deployment runbook yet for Vercel preview/prod, env scopes, and rollback protocol.
 
 ## 5. Roadmap (Phased)
 
@@ -185,7 +196,21 @@ Goal: make current modules feel intentionally connected.
   - support domain-priority and per-link trust metadata
   - remove hardcoded footprint URLs from verifier internals
 
-4. Timeline/Resume upgrade
+4. BYOK + Provider Gateway (terminal)
+
+- Add BYOK mode in terminal settings:
+  - user can select provider (`openrouter`, `openai`, `anthropic`, `gemini`)
+  - user can provide key in session scope (and optional local persistence if explicitly enabled)
+  - clear warning for public/shared device usage
+- Add `llmGateway` service with provider adapters:
+  - normalized input/output contract (`message`, `usage`, `model`, `provider`, `error`)
+  - consistent timeout/retry behavior across providers
+  - deterministic fallback order when selected provider fails
+- Add provider health checks and explicit terminal feedback:
+  - “provider unavailable”, “invalid key”, “rate limited”, “timeout”
+  - no silent fallback without user-facing note
+
+5. Timeline/Resume upgrade
 
 - Convert `/apps/resume` from single button to:
   - summary section
@@ -193,12 +218,12 @@ Goal: make current modules feel intentionally connected.
   - downloadable PDF action
   - link-outs to Workbench/Network nodes
 
-5. About DG-Labs Pro alignment
+6. About DG-Labs Pro alignment
 
 - Make "About" values consistent with current story (DG-Labs Pro, chip/memory/OS narrative).
 - Ensure close/minimize behavior matches other windows.
 
-6. Dedicated Help instruction windows
+7. Dedicated Help instruction windows
 
 - Replace duplicated Help links with guide-first windows and structured in-app help content.
 - Keep `Search Help in Agents` as the action entry point to terminal.
@@ -293,9 +318,22 @@ Goal: production confidence.
 
 3. Deployment hardening (Vercel)
 
-- Confirm envs for OpenRouter and Supabase.
-- Keep chat persistence in `localStorage` initially.
-- Move to server persistence only when product behavior is stable.
+- Add Vercel deployment runbook:
+  - preview and production projects
+  - env variable matrix (public vs server-only)
+  - protected branch + deploy gating rules
+- Define provider secret strategy:
+  - server-owned default keys (`OPENROUTER_API_KEY`, optional provider keys)
+  - BYOK request path where user keys are never logged
+  - redact provider errors and key material from client-visible traces
+- Add runtime hardening checks:
+  - startup env validation
+  - `/api/health` provider readiness summary
+  - graceful degraded behavior when any provider is down
+- Add release safety:
+  - rollback checklist
+  - smoke validation after deploy (`/desktop`, terminal ask/verify, network graph load)
+  - basic observability and alerting hooks
 
 ## 6. Information Architecture Target (App Map)
 
@@ -314,10 +352,13 @@ Recommended steady-state modules:
 
 P0 (next):
 
-- Agent Runtime v3 quality/trust UX:
-  - structured response rendering polish (`ask`, `brief`, `cv`, `projects`)
-  - confidence labeling and citation grouping in answer footer
-  - fallback messaging when verification has low/no evidence
+- BYOK + multi-provider LLM gateway:
+  - terminal provider selector + BYOK session flow
+  - gateway adapters for OpenAI / Claude / Gemini / OpenRouter
+  - normalized errors + fallback policy
+- Vercel deployment hardening:
+  - deploy runbook + env matrix + health checks + rollback flow
+- Content schema validation for core configs (`workbench`, `network`, `notes`, `links`)
 - Resume app enrichment
 - About window behavior/design parity
 
@@ -329,6 +370,7 @@ P1:
 - Network deep links into other apps
 - Toolbar action model finalization
 - Dynamic Mac menubar per active app (contextual menu sets and shortcuts)
+- Troubleshooting/FAQ help panel
 
 P2:
 

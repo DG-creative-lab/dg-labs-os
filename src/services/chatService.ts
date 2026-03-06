@@ -1,7 +1,8 @@
-import { OpenRouter } from '@openrouter/sdk';
 import { chatSuccess } from '../utils/apiContracts';
 import type { ChatMessageInput, ChatRequestInput } from '../utils/requestSchemas';
 import { getServerEnv, isServerDev } from '../utils/serverEnv';
+import { runLlmGateway } from './llmGateway';
+import { defaultModelForProvider } from './llmProviderDefaults';
 import {
   classifyKnowledgeQuery,
   getKnowledgeById,
@@ -13,7 +14,8 @@ export type ChatServiceErrorCode =
   | 'CONFIG_ERROR'
   | 'INVALID_RESPONSE'
   | 'INTERNAL_ERROR'
-  | 'TIMEOUT';
+  | 'TIMEOUT'
+  | 'NOT_IMPLEMENTED';
 
 type AgentJsonResponse = {
   ok: true;
@@ -46,24 +48,6 @@ export type ChatServiceResult =
       code: ChatServiceErrorCode;
       message: string;
     };
-
-const normalizeAssistantContent = (content: unknown): string | null => {
-  if (typeof content === 'string') return content;
-  if (!Array.isArray(content)) return null;
-
-  const textParts = content
-    .map((item) => {
-      if (!item || typeof item !== 'object') return '';
-      const record = item as Record<string, unknown>;
-      if (typeof record.text === 'string') return record.text;
-      if (typeof record.content === 'string') return record.content;
-      return '';
-    })
-    .filter(Boolean);
-
-  if (textParts.length > 0) return textParts.join('\n').trim();
-  return null;
-};
 
 const latestUserQuery = (messages: readonly ChatMessageInput[]): string =>
   [...messages]
@@ -151,6 +135,9 @@ const buildAgentJsonResponse = (
 export const runChatService = async ({
   messages,
   responseMode,
+  provider,
+  model,
+  byokApiKey,
 }: ChatRequestInput): Promise<ChatServiceResult> => {
   const query = latestUserQuery(messages);
   const localHits = query ? searchKnowledge(query, 6) : [];
@@ -163,50 +150,76 @@ export const runChatService = async ({
     };
   }
 
-  const openRouterApiKey = getServerEnv('OPENROUTER_API_KEY');
-  if (!openRouterApiKey) {
-    console.error('[Chat API] Missing OPENROUTER_API_KEY');
-    return {
-      ok: false,
-      status: 503,
-      code: 'CONFIG_ERROR',
-      message: 'Chat service is not configured. Please contact the site administrator.',
-    };
-  }
+  const serverKeys = {
+    openrouter: getServerEnv('OPENROUTER_API_KEY'),
+    openai: getServerEnv('OPENAI_API_KEY'),
+    anthropic: getServerEnv('ANTHROPIC_API_KEY'),
+    gemini: getServerEnv('GEMINI_API_KEY'),
+  } as const;
 
   try {
-    const openRouter = new OpenRouter({
-      apiKey: openRouterApiKey,
-    });
-
     const knowledgeGrounding = buildKnowledgeGrounding(query, localHits);
     const requestMessages = knowledgeGrounding
       ? [{ role: 'system' as const, content: knowledgeGrounding }, ...messages]
       : messages;
 
-    const completion = await openRouter.chat.send({
-      model: 'openai/gpt-oss-120b',
+    const gateway = await runLlmGateway({
+      provider,
+      model: model || defaultModelForProvider(provider),
       messages: requestMessages,
-      stream: false,
-      temperature: 0.7,
-      maxTokens: 500,
+      apiKey: byokApiKey || serverKeys[provider],
     });
 
-    const content = normalizeAssistantContent(completion?.choices?.[0]?.message?.content);
-    if (!content) {
-      console.error('[Chat API] Invalid response from OpenRouter');
+    if (!gateway.ok) {
+      const code = gateway.code;
+      if (code === 'CONFIG_ERROR') {
+        console.error('[Chat API] Missing provider API key for', provider);
+        return {
+          ok: false,
+          status: 503,
+          code: 'CONFIG_ERROR',
+          message: 'Chat service is not configured. Please contact the site administrator.',
+        };
+      }
+      if (code === 'NOT_IMPLEMENTED') {
+        return {
+          ok: false,
+          status: 501,
+          code: 'NOT_IMPLEMENTED',
+          message: gateway.message,
+        };
+      }
+      if (code === 'INVALID_RESPONSE') {
+        console.error('[Chat API] Invalid response from provider', provider);
+        return {
+          ok: false,
+          status: 500,
+          code: 'INVALID_RESPONSE',
+          message: 'Received invalid response from AI service',
+        };
+      }
+      if (code === 'TIMEOUT') {
+        return {
+          ok: false,
+          status: 504,
+          code: 'TIMEOUT',
+          message: gateway.message,
+        };
+      }
       return {
         ok: false,
         status: 500,
-        code: 'INVALID_RESPONSE',
-        message: 'Received invalid response from AI service',
+        code: 'INTERNAL_ERROR',
+        message: isServerDev()
+          ? gateway.message
+          : 'An unexpected error occurred. Please try again later.',
       };
     }
 
     return {
       ok: true,
       status: 200,
-      payload: chatSuccess(content),
+      payload: chatSuccess(gateway.message),
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
