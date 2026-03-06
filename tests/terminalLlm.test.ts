@@ -5,6 +5,7 @@ import { networkNodes } from '../src/config/network';
 import { workbench } from '../src/config/workbench';
 import {
   buildCitationChips,
+  confidenceBadgeText,
   explainConfidenceLabel,
   explainVerificationGap,
   buildAgentJsonLines,
@@ -221,6 +222,30 @@ describe('terminal llm helpers', () => {
     expect(resolveAnswerConfidenceLabel(2, 1)).toBe('local+verified');
     expect(resolveAnswerConfidenceLabel(0, 1)).toBe('verified-only');
     expect(resolveAnswerConfidenceLabel(0, 0)).toBe('low-confidence');
+  });
+
+  it('maps confidence labels to compact badge text', () => {
+    expect(confidenceBadgeText('local+verified')).toBe('corroborated');
+    expect(confidenceBadgeText('local-only')).toBe('local only');
+    expect(confidenceBadgeText('verified-only')).toBe('verified only');
+    expect(confidenceBadgeText('low-confidence')).toBe('low confidence');
+  });
+
+  it('injects mode-specific instruction for ask, brief, cv and projects', () => {
+    const ctx = {
+      user: userConfig,
+      workbench,
+      notes: labNotes,
+      network: networkNodes,
+    };
+    const ask = buildLlmMessages('q', ctx, [], [], null, 'concise', 'ask')[0].content;
+    const brief = buildLlmMessages('q', ctx, [], [], null, 'concise', 'brief')[0].content;
+    const cv = buildLlmMessages('q', ctx, [], [], null, 'concise', 'cv')[0].content;
+    const projects = buildLlmMessages('q', ctx, [], [], null, 'concise', 'projects')[0].content;
+    expect(ask).toContain('Answer style: ask.');
+    expect(brief).toContain('Answer style: brief.');
+    expect(cv).toContain('Answer style: cv.');
+    expect(projects).toContain('Answer style: projects.');
   });
 
   it('builds grouped citation chips with local + web sources', () => {

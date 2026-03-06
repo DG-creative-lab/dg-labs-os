@@ -11,6 +11,7 @@ import {
 import { routeNaturalLanguageCommand } from '../../utils/terminalRouter';
 import {
   buildCitationChips,
+  confidenceBadgeText,
   buildAgentJsonLines,
   buildLlmMessages,
   explainConfidenceLabel,
@@ -40,6 +41,7 @@ import {
   terminalSettingsSummary,
   TERMINAL_SETTINGS_KEY,
   type TerminalBrainMode,
+  type TerminalLlmProvider,
   type TerminalResponseMode,
   type TerminalSettings,
 } from '../../utils/terminalSettings';
@@ -99,6 +101,17 @@ type EvidenceState = {
 type LastAnswerMeta = {
   confidence: LlmConfidenceLabel;
   chips: CitationChip[];
+  unverifiedCount?: number;
+};
+
+type ProviderHealthStatus = 'checking' | 'healthy' | 'missing_key' | 'timeout' | 'error';
+
+type ProviderHealth = {
+  provider: TerminalLlmProvider;
+  status: ProviderHealthStatus;
+  message: string;
+  configured: boolean;
+  latencyMs?: number;
 };
 
 const INITIAL_TOOL_USAGE: ToolUsage = {
@@ -112,6 +125,7 @@ const INITIAL_TOOL_USAGE: ToolUsage = {
 
 const LLM_COUNT_KEY = 'dg_labs_terminal_llm_count';
 const VERIFY_COUNT_KEY = 'dg_labs_terminal_verify_count';
+const BYOK_STORAGE_KEY = 'dg_labs_terminal_byok_v1';
 const ROUTER_CONFIDENCE_THRESHOLD = 0.8;
 const VERIFY_SESSION_CAP = 12;
 
@@ -156,6 +170,14 @@ export default function AgentsTerminal() {
   const [input, setInput] = useState('');
   const [isLlmBusy, setIsLlmBusy] = useState(false);
   const [thinkingFrame, setThinkingFrame] = useState(0);
+  const [byokApiKey, setByokApiKey] = useState('');
+  const [rememberByok, setRememberByok] = useState(false);
+  const [providerHealth, setProviderHealth] = useState<ProviderHealth>({
+    provider: 'openrouter',
+    status: 'checking',
+    message: 'Checking provider health…',
+    configured: false,
+  });
   const [settings, setSettings] = useState<TerminalSettings>(defaultTerminalSettings);
   const [toolUsage, setToolUsage] = useState<ToolUsage>(INITIAL_TOOL_USAGE);
   const [activeQuickAction, setActiveQuickAction] = useState<string | null>(null);
@@ -166,6 +188,7 @@ export default function AgentsTerminal() {
   const [showEvidencePanel, setShowEvidencePanel] = useState(false);
   const [lastEvidence, setLastEvidence] = useState<EvidenceState | null>(null);
   const [lastAnswerMeta, setLastAnswerMeta] = useState<LastAnswerMeta | null>(null);
+  const [showCitationDetails, setShowCitationDetails] = useState(false);
   const [history, setHistory] = useState<TerminalEntry[]>([
     { id: 1, kind: 'system', text: 'DG-Labs Agents Runtime v2' },
     {
@@ -192,8 +215,66 @@ export default function AgentsTerminal() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    const raw = localStorage.getItem(BYOK_STORAGE_KEY);
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw) as Partial<Record<TerminalLlmProvider, string>>;
+      const existing =
+        (typeof parsed.openrouter === 'string' && parsed.openrouter.trim()) ||
+        (typeof parsed.openai === 'string' && parsed.openai.trim()) ||
+        (typeof parsed.anthropic === 'string' && parsed.anthropic.trim()) ||
+        (typeof parsed.gemini === 'string' && parsed.gemini.trim()) ||
+        '';
+      if (existing) {
+        setRememberByok(true);
+      }
+    } catch {
+      localStorage.removeItem(BYOK_STORAGE_KEY);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
     localStorage.setItem(TERMINAL_SETTINGS_KEY, serializeTerminalSettings(settings));
   }, [settings]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!rememberByok) return;
+    try {
+      const raw = localStorage.getItem(BYOK_STORAGE_KEY);
+      const parsed = raw
+        ? (JSON.parse(raw) as Partial<Record<TerminalLlmProvider, string>>)
+        : ({} as Partial<Record<TerminalLlmProvider, string>>);
+      const providerKey = parsed[settings.llmProvider];
+      if (typeof providerKey === 'string' && providerKey.trim().length > 0) {
+        setByokApiKey(providerKey);
+      } else {
+        setByokApiKey('');
+      }
+    } catch {
+      localStorage.removeItem(BYOK_STORAGE_KEY);
+      setByokApiKey('');
+    }
+  }, [rememberByok, settings.llmProvider]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!rememberByok) {
+      localStorage.removeItem(BYOK_STORAGE_KEY);
+      return;
+    }
+    try {
+      const raw = localStorage.getItem(BYOK_STORAGE_KEY);
+      const parsed = raw
+        ? (JSON.parse(raw) as Partial<Record<TerminalLlmProvider, string>>)
+        : ({} as Partial<Record<TerminalLlmProvider, string>>);
+      parsed[settings.llmProvider] = byokApiKey.trim();
+      localStorage.setItem(BYOK_STORAGE_KEY, JSON.stringify(parsed));
+    } catch {
+      localStorage.removeItem(BYOK_STORAGE_KEY);
+    }
+  }, [rememberByok, settings.llmProvider, byokApiKey]);
 
   useEffect(() => {
     if (!outputRef.current) return;
@@ -208,6 +289,74 @@ export default function AgentsTerminal() {
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  useEffect(() => {
+    let isActive = true;
+    const timer = window.setTimeout(async () => {
+      setProviderHealth((prev) => ({
+        ...prev,
+        provider: settings.llmProvider,
+        status: 'checking',
+        message: 'Checking provider health…',
+      }));
+
+      try {
+        const response = await fetch('/api/llm/health', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            provider: settings.llmProvider,
+            model: settings.llmModel,
+            byokApiKey: byokApiKey.trim().length > 0 ? byokApiKey.trim() : undefined,
+            probe: true,
+          }),
+        });
+        const payload = (await response.json().catch(() => null)) as {
+          ok?: boolean;
+          providers?: Array<{
+            provider?: unknown;
+            configured?: unknown;
+            status?: unknown;
+            message?: unknown;
+            latencyMs?: unknown;
+          }>;
+        } | null;
+
+        const provider = payload?.providers?.[0];
+        if (!isActive || !provider) return;
+        const status =
+          provider.status === 'healthy' ||
+          provider.status === 'missing_key' ||
+          provider.status === 'timeout' ||
+          provider.status === 'error'
+            ? provider.status
+            : 'error';
+        setProviderHealth({
+          provider: settings.llmProvider,
+          status,
+          configured: typeof provider.configured === 'boolean' ? provider.configured : false,
+          message:
+            typeof provider.message === 'string' && provider.message.trim().length > 0
+              ? provider.message
+              : 'Provider health check failed.',
+          latencyMs: typeof provider.latencyMs === 'number' ? provider.latencyMs : undefined,
+        });
+      } catch {
+        if (!isActive) return;
+        setProviderHealth({
+          provider: settings.llmProvider,
+          status: 'error',
+          configured: false,
+          message: 'Health check failed. Check network or API key.',
+        });
+      }
+    }, 250);
+
+    return () => {
+      isActive = false;
+      window.clearTimeout(timer);
+    };
+  }, [settings.llmProvider, settings.llmModel, byokApiKey]);
 
   useEffect(() => {
     if (!isLlmBusy) {
@@ -453,6 +602,9 @@ export default function AgentsTerminal() {
             parsed.mode
           ),
           responseMode: settings.responseMode,
+          provider: settings.llmProvider,
+          model: settings.llmModel,
+          byokApiKey: byokApiKey.trim().length > 0 ? byokApiKey.trim() : undefined,
         }),
         signal: controller.signal,
       });
@@ -487,7 +639,12 @@ export default function AgentsTerminal() {
         lastWebVerifyContext?.sources.length ?? 0
       );
       const chips = buildCitationChips(evidenceRefs, lastWebVerifyContext?.sources ?? []);
-      setLastAnswerMeta({ confidence, chips });
+      setLastAnswerMeta({
+        confidence,
+        chips,
+        unverifiedCount: cited.unverifiedCount,
+      });
+      setShowCitationDetails(false);
       const confidenceGuidance = explainConfidenceLabel(confidence);
 
       const envelopeLines = buildAskEnvelopeLines(
@@ -503,21 +660,10 @@ export default function AgentsTerminal() {
         pushLine('system', `- ${confidenceGuidance}`),
         pushLine('output', cited.answer),
         ...(chips.length > 0
-          ? [
-              pushLine('system', '[citation_groups]'),
-              ...chips
-                .slice(0, 10)
-                .map((chip) => pushLine('system', `${chip.group}: ${chip.label} — ${chip.url}`)),
-            ]
-          : []),
-        ...(cited.citationLines.length > 0
-          ? [
-              pushLine('system', '[citations]'),
-              ...cited.citationLines.map((line) => pushLine('system', line)),
-            ]
+          ? [pushLine('system', `[citations] ${chips.length} source link(s) available below`)]
           : []),
         ...(cited.unverifiedCount > 0
-          ? [pushLine('system', `- unverified claims: ${cited.unverifiedCount}`)]
+          ? [pushLine('system', `[verification_gap] ${cited.unverifiedCount} claim(s)`)]
           : []),
         ...agentLines.map((line) => pushLine('output', line)),
         ...envelopeLines.map((line) => pushLine('system', line)),
@@ -687,6 +833,7 @@ export default function AgentsTerminal() {
           sources,
         });
         setLastAnswerMeta({ confidence, chips });
+        setShowCitationDetails(false);
         setHistory((prev) => [
           ...prev,
           ...lines.map((line) => pushLine('output', line)),
@@ -694,18 +841,7 @@ export default function AgentsTerminal() {
           pushLine('system', `- ${confidenceGuidance}`),
           ...(verificationGap ? [pushLine('system', `- ${verificationGap}`)] : []),
           ...(chips.length > 0
-            ? [
-                pushLine('system', '[citation_groups]'),
-                ...groupCitationChips(chips)
-                  .slice(0, 4)
-                  .flatMap((bucket) =>
-                    bucket.chips
-                      .slice(0, 2)
-                      .map((chip) =>
-                        pushLine('system', `${bucket.group}: ${chip.label} — ${chip.url}`)
-                      )
-                  ),
-              ]
+            ? [pushLine('system', `[citations] ${chips.length} web citation(s) available below`)]
             : []),
         ]);
         return;
@@ -968,7 +1104,18 @@ export default function AgentsTerminal() {
     }
     return 'border-amber-300/50 bg-amber-400/10 text-amber-200';
   };
-
+  const groupedCitations = groupCitationChips(lastAnswerMeta?.chips ?? []);
+  const totalCitationCount = lastAnswerMeta?.chips.length ?? 0;
+  const healthBadgeClass =
+    providerHealth.status === 'healthy'
+      ? 'text-emerald-200 bg-emerald-400/15 border-emerald-300/40'
+      : providerHealth.status === 'missing_key'
+        ? 'text-amber-200 bg-amber-400/15 border-amber-300/40'
+        : providerHealth.status === 'timeout'
+          ? 'text-orange-200 bg-orange-400/15 border-orange-300/40'
+          : providerHealth.status === 'checking'
+            ? 'text-cyan-200 bg-cyan-400/15 border-cyan-300/40'
+            : 'text-rose-200 bg-rose-400/15 border-rose-300/40';
   return (
     <div className="h-full min-h-0 rounded-xl border border-emerald-300/20 bg-black/60 shadow-[0_14px_60px_rgba(0,0,0,0.45)] overflow-hidden flex flex-col">
       <div className="flex items-center justify-between border-b border-emerald-400/20 px-4 py-2 text-[11px] text-emerald-300/75">
@@ -1033,6 +1180,70 @@ export default function AgentsTerminal() {
               <option value="agent_json">agent_json</option>
             </select>
           </label>
+          <label className="flex items-center gap-2">
+            <span>Provider</span>
+            <select
+              value={settings.llmProvider}
+              onChange={(event) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  llmProvider: event.target.value as TerminalLlmProvider,
+                }))
+              }
+              className="rounded border border-white/20 bg-black/40 px-2 py-1 text-white"
+            >
+              <option value="openrouter">openrouter</option>
+              <option value="openai">openai</option>
+              <option value="anthropic">anthropic</option>
+              <option value="gemini">gemini</option>
+            </select>
+            <span className={`rounded border px-2 py-0.5 text-[10px] ${healthBadgeClass}`}>
+              {providerHealth.status}
+              {typeof providerHealth.latencyMs === 'number'
+                ? ` · ${providerHealth.latencyMs}ms`
+                : ''}
+            </span>
+          </label>
+          <label className="flex items-center gap-2 md:col-span-2">
+            <span>Model</span>
+            <input
+              type="text"
+              value={settings.llmModel}
+              onChange={(event) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  llmModel: event.target.value,
+                }))
+              }
+              className="w-full rounded border border-white/20 bg-black/40 px-2 py-1 text-white"
+              placeholder="openai/gpt-oss-120b"
+            />
+          </label>
+          <label className="flex items-center gap-2 md:col-span-2">
+            <span>BYOK key</span>
+            <input
+              type="password"
+              value={byokApiKey}
+              onChange={(event) => setByokApiKey(event.target.value)}
+              className="w-full rounded border border-white/20 bg-black/40 px-2 py-1 text-white"
+              placeholder="Bring your own key"
+            />
+          </label>
+          <label className="flex items-center gap-2 md:col-span-3">
+            <input
+              type="checkbox"
+              checked={rememberByok}
+              onChange={(event) => setRememberByok(event.target.checked)}
+            />
+            <span>Remember BYOK key in this browser (localStorage)</span>
+          </label>
+          <p className="md:col-span-3 text-[10px] text-amber-200/90">
+            Security note: persisted BYOK keys are stored in browser localStorage and are readable
+            by scripts on this origin. Keep this off on shared devices.
+          </p>
+          <p className="md:col-span-3 text-[10px] text-white/70">
+            Provider status: {providerHealth.message}
+          </p>
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -1335,7 +1546,7 @@ export default function AgentsTerminal() {
           <p
             key={entry.id}
             className={
-              /^\[(local_context|web_context|citations|citation_groups|confidence|evidence)\]$/.test(
+              /^\[(local_context|web_context|citations|confidence|evidence|verification_gap)\]/.test(
                 entry.text
               )
                 ? 'mt-1 text-[11px] uppercase tracking-[0.12em] text-cyan-300/85 border-b border-cyan-300/20'
@@ -1354,30 +1565,58 @@ export default function AgentsTerminal() {
       <form onSubmit={handleSubmit} className="border-t border-emerald-400/20 px-4 py-3">
         {lastAnswerMeta ? (
           <div className="mb-2 space-y-2 text-xs">
-            <span
-              className={`inline-flex rounded-full border px-2 py-0.5 ${confidenceBadgeClass(lastAnswerMeta.confidence)}`}
-            >
-              confidence: {lastAnswerMeta.confidence}
-            </span>
-            <p className="text-white/60">{explainConfidenceLabel(lastAnswerMeta.confidence)}</p>
             <div className="flex flex-wrap items-center gap-2">
-              {groupCitationChips(lastAnswerMeta.chips)
-                .slice(0, 4)
-                .flatMap((bucket) =>
-                  bucket.chips.slice(0, 2).map((chip) => (
-                    <a
-                      key={`${bucket.group}-${chip.url}`}
-                      href={chip.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="rounded-full border border-white/20 bg-white/5 px-2 py-0.5 text-white/80 hover:bg-white/10"
-                      title={`${bucket.group}: ${chip.label}`}
-                    >
-                      [{bucket.group}] {chip.label}
-                    </a>
-                  ))
-                )}
+              <span
+                className={`inline-flex rounded-full border px-2 py-0.5 ${confidenceBadgeClass(lastAnswerMeta.confidence)}`}
+                title={explainConfidenceLabel(lastAnswerMeta.confidence)}
+              >
+                {confidenceBadgeText(lastAnswerMeta.confidence)}
+              </span>
+              <span className="text-white/55">
+                {totalCitationCount} citation{totalCitationCount === 1 ? '' : 's'}
+              </span>
+              {typeof lastAnswerMeta.unverifiedCount === 'number' &&
+              lastAnswerMeta.unverifiedCount > 0 ? (
+                <span className="text-amber-200/90">
+                  {lastAnswerMeta.unverifiedCount} unverified
+                </span>
+              ) : null}
+              {totalCitationCount > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setShowCitationDetails((prev) => !prev)}
+                  className="rounded border border-white/20 bg-white/10 px-2 py-0.5 text-white/90 hover:bg-white/20"
+                >
+                  {showCitationDetails ? 'Hide sources' : 'Show sources'}
+                </button>
+              ) : null}
             </div>
+            {showCitationDetails && totalCitationCount > 0 ? (
+              <div className="space-y-1">
+                {groupedCitations.map((bucket) => (
+                  <div key={bucket.group} className="flex flex-wrap items-center gap-1.5">
+                    <span className="text-[10px] uppercase tracking-[0.08em] text-white/45">
+                      {bucket.group}
+                    </span>
+                    {bucket.chips.slice(0, 3).map((chip) => (
+                      <a
+                        key={`${bucket.group}-${chip.url}`}
+                        href={chip.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full border border-white/20 bg-white/5 px-2 py-0.5 text-white/80 hover:bg-white/10"
+                        title={`${bucket.group}: ${chip.label}`}
+                      >
+                        {chip.label}
+                      </a>
+                    ))}
+                    {bucket.chips.length > 3 ? (
+                      <span className="text-white/45">+{bucket.chips.length - 3}</span>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </div>
         ) : null}
         <label className="flex items-center gap-2 font-mono text-sm">

@@ -5,7 +5,8 @@ DG-Labs OS is a portfolio presented as a personal operating system - an interfac
 ## Documentation
 
 - Product and implementation roadmap: `docs/APP_ROADMAP.md`
-- Codebase stabilization plan: `docs/CODEBASE_STABILIZATION_PLAN.md`
+- React + TypeScript event/state guide: `docs/REACT_TYPESCRIPT_EVENT_STATE_GUIDE.md`
+- Archived stabilization completion log: `docs/archive/CODEBASE_STABILIZATION_PLAN.md`
 
 ## Features
 
@@ -26,7 +27,8 @@ DG-Labs OS is a portfolio presented as a personal operating system - an interfac
 
 ## Current Priority
 
-- Replace duplicated Help dropdown links with dedicated instruction windows (`DG-Labs OS User Guide`, `Terminal Command Guide`, `Navigation Tips`, `Troubleshooting/FAQ`).
+- BYOK + multi-provider LLM gateway for terminal (`OpenAI` / `Claude` / `Gemini` / `OpenRouter`).
+- Vercel deployment hardening (env matrix, health checks, rollback runbook).
 
 ## Tech Stack
 

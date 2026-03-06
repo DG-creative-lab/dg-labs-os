@@ -4,6 +4,7 @@ import { POST as chatPost } from '../src/pages/api/chat';
 import { GET as contactGet, POST as contactPost } from '../src/pages/api/contact';
 import { POST as toolsPost } from '../src/pages/api/tools';
 import { POST as verifyPost } from '../src/pages/api/verify';
+import { GET as llmHealthGet, POST as llmHealthPost } from '../src/pages/api/llm/health';
 
 const ctx = (request: Request) => ({ request }) as Parameters<typeof chatPost>[0];
 
@@ -25,6 +26,25 @@ describe('API route contracts', () => {
     expect(body.code).toBe('CONFIG_ERROR');
     expect(body.error).toBe(body.message);
     expect(typeof body.timestamp).toBe('string');
+  });
+
+  it('chat returns CONFIG_ERROR when selected provider key is missing', async () => {
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider: 'openai',
+        model: 'gpt-4.1-mini',
+        messages: [{ role: 'user', content: 'hello' }],
+      }),
+    });
+
+    const response = await chatPost(ctx(request));
+    expect(response.status).toBe(503);
+    const body = (await response.json()) as unknown;
+    expect(isApiErrorEnvelope(body)).toBe(true);
+    if (!isApiErrorEnvelope(body)) return;
+    expect(body.code).toBe('CONFIG_ERROR');
   });
 
   it('chat agent_json mode returns structured response without LLM provider', async () => {
@@ -51,6 +71,30 @@ describe('API route contracts', () => {
     expect(response.status).toBe(200);
     const body = (await response.json()) as unknown;
     expect(isHealthSuccessEnvelope(body)).toBe(true);
+  });
+
+  it('llm health GET returns provider statuses without probe', async () => {
+    const request = new Request('http://localhost/api/llm/health?probe=0');
+    const response = await llmHealthGet(ctx(request));
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { ok?: boolean; providers?: unknown[] };
+    expect(body.ok).toBe(true);
+    expect(Array.isArray(body.providers)).toBe(true);
+    expect((body.providers ?? []).length).toBeGreaterThan(0);
+  });
+
+  it('llm health POST rejects invalid JSON', async () => {
+    const request = new Request('http://localhost/api/llm/health', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{ bad json',
+    });
+    const response = await llmHealthPost(ctx(request));
+    expect(response.status).toBe(400);
+    const body = (await response.json()) as unknown;
+    expect(isApiErrorEnvelope(body)).toBe(true);
+    if (!isApiErrorEnvelope(body)) return;
+    expect(body.code).toBe('INVALID_JSON');
   });
 
   it('contact POST rejects invalid payload with normalized error', async () => {

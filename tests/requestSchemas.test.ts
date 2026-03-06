@@ -43,9 +43,21 @@ describe('request schemas', () => {
     const parsed = parseChatRequestInput({
       messages: [{ role: 'user', content: 'hello' }],
       responseMode: 'agent_json',
+      provider: 'openrouter',
+      model: 'openai/gpt-oss-120b',
     });
     expect(parsed?.responseMode).toBe('agent_json');
     expect(parsed?.messages.length).toBe(1);
+    expect(parsed?.provider).toBe('openrouter');
+    expect(parsed?.model).toBe('openai/gpt-oss-120b');
+  });
+
+  it('defaults chat provider/model when omitted', () => {
+    const parsed = parseChatRequestInput({
+      messages: [{ role: 'user', content: 'hello' }],
+    });
+    expect(parsed?.provider).toBe('openrouter');
+    expect(parsed?.model).toBe('openai/gpt-oss-120b');
   });
 
   it('parses valid verify input', () => {

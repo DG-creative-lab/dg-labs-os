@@ -15,16 +15,16 @@ test.describe('desktop smoke', () => {
   test('dock opens and closes Workbench window', async ({ page }) => {
     await page.goto('/desktop');
     const dockWorkbench = page.getByRole('button', { name: 'Workbench', exact: true });
-    const closeWorkbench = page.getByRole('button', { name: 'Close Workbench' });
+    const workbenchAnchor = page.getByText('Intent Recognition Agent', { exact: true });
 
     await dockWorkbench.click();
-    if ((await closeWorkbench.count()) === 0) {
+    if ((await workbenchAnchor.count()) === 0) {
       await dockWorkbench.click();
     }
-    await expect(closeWorkbench).toBeVisible();
+    await expect(workbenchAnchor).toBeVisible();
 
-    await closeWorkbench.click();
-    await expect(closeWorkbench).toHaveCount(0);
+    await dockWorkbench.click();
+    await expect(workbenchAnchor).toHaveCount(0);
   });
 
   test('dock opens Agents Terminal window', async ({ page }) => {
@@ -32,6 +32,22 @@ test.describe('desktop smoke', () => {
     await page.getByRole('button', { name: 'Agents' }).click();
     await expect(page.getByRole('dialog', { name: 'Agents Terminal' })).toBeVisible();
     await expect(page.getByText('Agents Runtime', { exact: true })).toBeVisible();
+  });
+
+  test('terminal tools panel runs list_projects quick action', async ({ page }) => {
+    await page.goto('/desktop');
+    const dockAgents = page.getByRole('button', { name: 'Agents', exact: true });
+    await dockAgents.click();
+    const terminalDialog = page.getByRole('dialog', { name: 'Agents Terminal' });
+    await expect(terminalDialog).toBeVisible();
+
+    const toolsSummary = page
+      .locator('details')
+      .filter({ hasText: 'Tools Panel' })
+      .locator('summary');
+    await toolsSummary.click();
+    await page.getByRole('button', { name: 'List projects', exact: true }).click();
+    await expect(page.getByText(/Tool list_projects returned \d+ project\(s\):/)).toBeVisible();
   });
 
   test('menubar View opens Workbench and resets after close', async ({ page }) => {
@@ -75,6 +91,54 @@ test.describe('desktop smoke', () => {
     await expect(guideDialog).toBeVisible();
     await closeGuide.click();
     await expect(guideDialog).toHaveCount(0);
+  });
+
+  test('network graph toggle switches navigation mode', async ({ page }) => {
+    await page.goto('/desktop');
+    const dockNetwork = page.getByRole('button', { name: 'Network', exact: true });
+    await dockNetwork.click();
+    const closeNetwork = page.getByRole('button', { name: 'Close Network', exact: true });
+    if ((await closeNetwork.count()) === 0) {
+      await dockNetwork.click();
+    }
+    await expect(closeNetwork).toBeVisible();
+
+    const toggle = page.getByRole('button', { name: 'Navigate graph: Off', exact: true });
+    await expect(toggle).toBeVisible();
+    await toggle.click();
+    await expect(
+      page.getByRole('button', { name: 'Navigate graph: On', exact: true })
+    ).toBeVisible();
+    await page.getByRole('button', { name: 'Navigate graph: On', exact: true }).click();
+    await expect(
+      page.getByRole('button', { name: 'Navigate graph: Off', exact: true })
+    ).toBeVisible();
+  });
+
+  test('window lifecycle survives rapid open/close and refocus', async ({ page }) => {
+    await page.goto('/desktop');
+
+    const dockWorkbench = page.getByRole('button', { name: 'Workbench', exact: true });
+    const dockAgents = page.getByRole('button', { name: 'Agents', exact: true });
+    const closeWorkbench = page.getByRole('button', { name: 'Close Workbench', exact: true });
+    const closeAgents = page.getByRole('button', { name: 'Close Agents Terminal', exact: true });
+
+    // Rapid lifecycle operations via dock toggles (more stable than titlebar dots during motion).
+    await dockWorkbench.click();
+    await dockAgents.click();
+    await expect(closeWorkbench).toBeVisible();
+    await expect(closeAgents).toBeVisible();
+
+    await dockWorkbench.click();
+    await expect(closeWorkbench).toHaveCount(0);
+    await dockWorkbench.click();
+    await expect(closeWorkbench).toBeVisible();
+
+    await dockAgents.click();
+    await expect(closeAgents).toHaveCount(0);
+    await dockAgents.click();
+    await expect(closeAgents).toBeVisible();
+    await expect(closeWorkbench).toBeVisible();
   });
 });
 

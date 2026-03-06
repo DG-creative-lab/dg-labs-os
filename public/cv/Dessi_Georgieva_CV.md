@@ -72,6 +72,30 @@ Cognitive operating system presenting work, research, and ideas as explorable ap
 - Created Mac-style desktop and iPhone-inspired mobile shells
 - **Stack**: Astro, React, TypeScript, Sigma.js
 
+### Aion Enterprise Auth Platform
+
+_Performics scope · Enterprise architecture_
+
+Multi-tenant authentication and authorization architecture for AI applications requiring strict tenant boundaries, hierarchical role governance, and capability-tier controls.
+
+- Designed layered RBAC model mapped to enterprise organizational structure
+- Implemented tenant-aware auth boundaries and policy enforcement contracts
+- Integrated Microsoft Entra/OIDC identity surfaces into platform access flows
+- Structured auth domain with clean architecture boundaries for maintainability
+- **Stack**: FastAPI, Next.js, OIDC, Microsoft Entra, Postgres, policy enforcement
+
+### OneSuite Labs Ephemeral Infrastructure
+
+_Performics scope · Infrastructure modernization_
+
+Infrastructure cleanup and modernization initiative replacing legacy untagged AWS resources with reproducible ephemeral stacks for safe experimentation and faster idea validation.
+
+- Defined decommissioning strategy for non-terraform legacy resources
+- Built contract-driven ephemeral environment workflows (`up/down/inventory`)
+- Introduced drift-aware infrastructure checks and runtime contract gates
+- Enabled scratch environments mirroring production contracts for testing
+- **Stack**: Terraform, AWS, IaC workflows, contract gates, drift detection
+
 ---
 
 ## Experience
