@@ -21,6 +21,7 @@ import {
   isLlmQuery,
   normalizeLlmQuery,
   parseLlmModeQuery,
+  readChatMeta,
   readAgentJsonPayload,
   readChatMessage,
   resolveAnswerConfidenceLabel,
@@ -605,11 +606,13 @@ export default function AgentsTerminal() {
           provider: settings.llmProvider,
           model: settings.llmModel,
           byokApiKey: byokApiKey.trim().length > 0 ? byokApiKey.trim() : undefined,
+          providerFallbackAllowed: settings.providerFallbackAllowed,
         }),
         signal: controller.signal,
       });
       const payload = (await response.json().catch(() => ({}))) as unknown;
       const message = readChatMessage(payload);
+      const chatMeta = readChatMeta(payload);
       const agentPayload =
         settings.responseMode === 'agent_json' ? readAgentJsonPayload(payload) : null;
 
@@ -656,6 +659,18 @@ export default function AgentsTerminal() {
       setHistory((prev) => [
         ...prev,
         ...retrievalLines.map((line) => pushLine('system', line)),
+        ...(chatMeta
+          ? [
+              pushLine(
+                'system',
+                `[provider] ${chatMeta.provider} | model=${chatMeta.model} | latency=${chatMeta.latencyMs}ms${
+                  chatMeta.fallbackUsed && chatMeta.fallbackFrom
+                    ? ` | fallback ${chatMeta.fallbackFrom} -> ${chatMeta.provider}`
+                    : ''
+                }`
+              ),
+            ]
+          : []),
         pushLine('system', `[confidence] ${confidence}`),
         pushLine('system', `- ${confidenceGuidance}`),
         pushLine('output', cited.answer),
@@ -1146,6 +1161,19 @@ export default function AgentsTerminal() {
               }
             />
             <span>LLM fallback on unknown input</span>
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={settings.providerFallbackAllowed}
+              onChange={(event) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  providerFallbackAllowed: event.target.checked,
+                }))
+              }
+            />
+            <span>Allow provider fallback when selected provider fails</span>
           </label>
           <label className="flex items-center gap-2">
             <span>Brain mode</span>

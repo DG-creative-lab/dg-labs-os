@@ -72,6 +72,62 @@ describe('API route success contracts', () => {
     expect(body.message).toBe('Hello from model');
   });
 
+  it('chat falls back to configured provider when enabled', async () => {
+    mockOpenRouterSend.mockResolvedValue({
+      choices: [{ message: { content: 'Fallback from OpenRouter' } }],
+    });
+
+    const { POST } = await import('../src/pages/api/chat');
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider: 'openai',
+        model: 'gpt-4.1-mini',
+        providerFallbackAllowed: true,
+        messages: [{ role: 'user', content: 'hello with fallback' }],
+      }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      ok?: boolean;
+      message?: string;
+      meta?: { provider?: string; fallbackUsed?: boolean; fallbackFrom?: string };
+    };
+    expect(body.ok).toBe(true);
+    expect(body.message).toBe('Fallback from OpenRouter');
+    expect(body.meta?.provider).toBe('openrouter');
+    expect(body.meta?.fallbackUsed).toBe(true);
+    expect(body.meta?.fallbackFrom).toBe('openai');
+  });
+
+  it('chat does not fallback when fallback is disabled', async () => {
+    mockOpenRouterSend.mockResolvedValue({
+      choices: [{ message: { content: 'Should not be used' } }],
+    });
+
+    const { POST } = await import('../src/pages/api/chat');
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider: 'openai',
+        model: 'gpt-4.1-mini',
+        providerFallbackAllowed: false,
+        messages: [{ role: 'user', content: 'hello strict provider' }],
+      }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(503);
+    const body = (await response.json()) as { ok?: boolean; code?: string };
+    expect(body.ok).toBe(false);
+    expect(body.code).toBe('CONFIG_ERROR');
+    expect(mockOpenRouterSend).not.toHaveBeenCalled();
+  });
+
   it('chat supports openai provider via responses API', async () => {
     mockGlobalFetch.mockResolvedValue(
       new Response(
