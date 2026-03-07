@@ -13,9 +13,12 @@ import {
 export type ChatServiceErrorCode =
   | 'CONFIG_ERROR'
   | 'INVALID_RESPONSE'
-  | 'INTERNAL_ERROR'
   | 'TIMEOUT'
-  | 'NOT_IMPLEMENTED';
+  | 'INVALID_KEY'
+  | 'RATE_LIMITED'
+  | 'QUOTA_EXCEEDED'
+  | 'NETWORK_ERROR'
+  | 'PROVIDER_ERROR';
 
 type AgentJsonResponse = {
   ok: true;
@@ -47,6 +50,12 @@ export type ChatServiceResult =
       status: number;
       code: ChatServiceErrorCode;
       message: string;
+      meta?: {
+        provider: string;
+        hint?: string;
+        errorClass: ChatServiceErrorCode;
+        fallbackAvailable: boolean;
+      };
     };
 
 const latestUserQuery = (messages: readonly ChatMessageInput[]): string =>
@@ -215,10 +224,18 @@ export const runChatService = async ({
         }
       }
 
+      const fallbackAvailable = fallbackCandidates.length > 0;
+      const meta = {
+        provider,
+        hint: primary.result.hint,
+        errorClass: code,
+        fallbackAvailable,
+      } as const;
+
       if (code === 'CONFIG_ERROR') {
         console.error('[Chat API] Missing provider API key for', provider);
         const fallbackHint =
-          providerFallbackAllowed && fallbackCandidates.length === 0
+          providerFallbackAllowed && !fallbackAvailable
             ? ' Fallback unavailable because no alternate provider key is configured.'
             : '';
         return {
@@ -226,14 +243,7 @@ export const runChatService = async ({
           status: 503,
           code: 'CONFIG_ERROR',
           message: `Chat service is not configured for ${provider}.${fallbackHint}`,
-        };
-      }
-      if (code === 'NOT_IMPLEMENTED') {
-        return {
-          ok: false,
-          status: 501,
-          code: 'NOT_IMPLEMENTED',
-          message: primary.result.message,
+          meta,
         };
       }
       if (code === 'INVALID_RESPONSE') {
@@ -243,6 +253,34 @@ export const runChatService = async ({
           status: 500,
           code: 'INVALID_RESPONSE',
           message: `Received invalid response from ${provider}.`,
+          meta,
+        };
+      }
+      if (code === 'INVALID_KEY') {
+        return {
+          ok: false,
+          status: 401,
+          code: 'INVALID_KEY',
+          message: primary.result.message,
+          meta,
+        };
+      }
+      if (code === 'RATE_LIMITED') {
+        return {
+          ok: false,
+          status: 429,
+          code: 'RATE_LIMITED',
+          message: primary.result.message,
+          meta,
+        };
+      }
+      if (code === 'QUOTA_EXCEEDED') {
+        return {
+          ok: false,
+          status: 429,
+          code: 'QUOTA_EXCEEDED',
+          message: primary.result.message,
+          meta,
         };
       }
       if (code === 'TIMEOUT') {
@@ -251,15 +289,24 @@ export const runChatService = async ({
           status: 504,
           code: 'TIMEOUT',
           message: primary.result.message,
+          meta,
+        };
+      }
+      if (code === 'NETWORK_ERROR') {
+        return {
+          ok: false,
+          status: 502,
+          code: 'NETWORK_ERROR',
+          message: primary.result.message,
+          meta,
         };
       }
       return {
         ok: false,
-        status: 500,
-        code: 'INTERNAL_ERROR',
-        message: isServerDev()
-          ? primary.result.message
-          : `Provider ${provider} failed. Please try again later.`,
+        status: 502,
+        code: 'PROVIDER_ERROR',
+        message: isServerDev() ? primary.result.message : `Provider ${provider} failed.`,
+        meta,
       };
     }
 
@@ -288,8 +335,8 @@ export const runChatService = async ({
 
     return {
       ok: false,
-      status: 500,
-      code: 'INTERNAL_ERROR',
+      status: 502,
+      code: 'PROVIDER_ERROR',
       message: isServerDev()
         ? errorMessage
         : 'An unexpected error occurred. Please try again later.',

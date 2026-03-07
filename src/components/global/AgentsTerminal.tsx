@@ -21,6 +21,7 @@ import {
   isLlmQuery,
   normalizeLlmQuery,
   parseLlmModeQuery,
+  readChatErrorMeta,
   readChatMeta,
   readAgentJsonPayload,
   readChatMessage,
@@ -613,13 +614,35 @@ export default function AgentsTerminal() {
       const payload = (await response.json().catch(() => ({}))) as unknown;
       const message = readChatMessage(payload);
       const chatMeta = readChatMeta(payload);
+      const chatErrorMeta = readChatErrorMeta(payload);
       const agentPayload =
         settings.responseMode === 'agent_json' ? readAgentJsonPayload(payload) : null;
 
       if (!response.ok || !message) {
-        const fallback =
-          'LLM request failed. Try again, or use deterministic commands with "help".';
-        setHistory((prev) => [...prev, pushLine('output', fallback)]);
+        const errorRecord =
+          payload && typeof payload === 'object' ? (payload as Record<string, unknown>) : null;
+        const errorCode =
+          errorRecord && typeof errorRecord.code === 'string' ? errorRecord.code : 'PROVIDER_ERROR';
+        const errorMessage =
+          errorRecord && typeof errorRecord.message === 'string'
+            ? errorRecord.message
+            : 'LLM request failed.';
+        const hint =
+          chatErrorMeta?.hint ||
+          'Try again, switch provider, add BYOK, or use deterministic commands.';
+        setHistory((prev) => [
+          ...prev,
+          pushLine(
+            'system',
+            `[provider_error] ${chatErrorMeta?.provider ?? settings.llmProvider} | class=${errorCode}${
+              typeof chatErrorMeta?.fallbackAvailable === 'boolean'
+                ? ` | fallback=${chatErrorMeta.fallbackAvailable ? 'available' : 'unavailable'}`
+                : ''
+            }`
+          ),
+          pushLine('output', errorMessage),
+          pushLine('system', `- hint: ${hint}`),
+        ]);
         return;
       }
 

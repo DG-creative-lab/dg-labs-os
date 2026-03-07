@@ -227,6 +227,105 @@ describe('API route success contracts', () => {
     expect(mockGlobalFetch).toHaveBeenCalled();
   });
 
+  it('chat normalizes invalid_key provider errors', async () => {
+    mockGlobalFetch.mockResolvedValue(
+      new Response(JSON.stringify({ error: { message: 'Invalid API key' } }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    );
+
+    const { POST } = await import('../src/pages/api/chat');
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider: 'openai',
+        model: 'gpt-4.1-mini',
+        byokApiKey: 'bad-key',
+        messages: [{ role: 'user', content: 'hello' }],
+      }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(401);
+    const body = (await response.json()) as {
+      ok?: boolean;
+      code?: string;
+      meta?: { provider?: string; errorClass?: string; hint?: string };
+    };
+    expect(body.ok).toBe(false);
+    expect(body.code).toBe('INVALID_KEY');
+    expect(body.meta?.provider).toBe('openai');
+    expect(body.meta?.errorClass).toBe('INVALID_KEY');
+    expect(body.meta?.hint).toContain('BYOK');
+  });
+
+  it('chat normalizes rate limit provider errors', async () => {
+    mockGlobalFetch.mockResolvedValue(
+      new Response(JSON.stringify({ error: { message: 'Rate limit exceeded' } }), {
+        status: 429,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    );
+
+    const { POST } = await import('../src/pages/api/chat');
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider: 'anthropic',
+        model: 'claude-3-5-sonnet-latest',
+        byokApiKey: 'rate-limited-key',
+        messages: [{ role: 'user', content: 'hello' }],
+      }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(429);
+    const body = (await response.json()) as {
+      ok?: boolean;
+      code?: string;
+      meta?: { provider?: string; errorClass?: string };
+    };
+    expect(body.ok).toBe(false);
+    expect(body.code).toBe('RATE_LIMITED');
+    expect(body.meta?.provider).toBe('anthropic');
+    expect(body.meta?.errorClass).toBe('RATE_LIMITED');
+  });
+
+  it('chat normalizes quota exceeded provider errors', async () => {
+    mockGlobalFetch.mockResolvedValue(
+      new Response(JSON.stringify({ error: { message: 'insufficient_quota' } }), {
+        status: 429,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    );
+
+    const { POST } = await import('../src/pages/api/chat');
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider: 'gemini',
+        model: 'gemini-2.0-flash',
+        byokApiKey: 'quota-key',
+        messages: [{ role: 'user', content: 'hello' }],
+      }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(429);
+    const body = (await response.json()) as {
+      ok?: boolean;
+      code?: string;
+      meta?: { errorClass?: string };
+    };
+    expect(body.ok).toBe(false);
+    expect(body.code).toBe('QUOTA_EXCEEDED');
+    expect(body.meta?.errorClass).toBe('QUOTA_EXCEEDED');
+  });
+
   it('chat agent_json mode returns structured data', async () => {
     const { POST } = await import('../src/pages/api/chat');
     const request = new Request('http://localhost/api/chat', {

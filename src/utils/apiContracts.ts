@@ -4,6 +4,12 @@ export type ApiErrorEnvelope = {
   message: string;
   error: string;
   timestamp: string;
+  meta?: {
+    provider?: string;
+    hint?: string;
+    errorClass?: string;
+    fallbackAvailable?: boolean;
+  };
 };
 
 export type HealthSuccessEnvelope = {

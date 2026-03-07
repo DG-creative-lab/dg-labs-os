@@ -17,14 +17,127 @@ export type LlmGatewayRequest = {
 
 export type LlmGatewayErrorCode =
   | 'CONFIG_ERROR'
-  | 'NOT_IMPLEMENTED'
   | 'INVALID_RESPONSE'
   | 'TIMEOUT'
-  | 'INTERNAL_ERROR';
+  | 'INVALID_KEY'
+  | 'RATE_LIMITED'
+  | 'QUOTA_EXCEEDED'
+  | 'NETWORK_ERROR'
+  | 'PROVIDER_ERROR';
 
 export type LlmGatewayResult =
   | { ok: true; message: string }
-  | { ok: false; code: LlmGatewayErrorCode; message: string };
+  | { ok: false; code: LlmGatewayErrorCode; message: string; hint?: string };
+
+const normalizeLower = (value: string) => value.toLowerCase();
+
+const classifyProviderFailure = (
+  status: number,
+  providerLabel: string,
+  bodyText: string
+): { code: LlmGatewayErrorCode; message: string; hint: string } => {
+  const body = normalizeLower(bodyText);
+
+  if (
+    status === 401 ||
+    status === 403 ||
+    body.includes('invalid api key') ||
+    body.includes('incorrect api key') ||
+    body.includes('authentication') ||
+    body.includes('unauthorized') ||
+    body.includes('permission denied')
+  ) {
+    return {
+      code: 'INVALID_KEY',
+      message: `${providerLabel} rejected the API key.`,
+      hint: 'Add a valid BYOK key or switch to a configured provider.',
+    };
+  }
+
+  if (status === 429 && (body.includes('quota') || body.includes('insufficient_quota'))) {
+    return {
+      code: 'QUOTA_EXCEEDED',
+      message: `${providerLabel} quota was exceeded.`,
+      hint: 'Use a different provider or refresh the provider key with available quota.',
+    };
+  }
+
+  if (status === 429) {
+    return {
+      code: 'RATE_LIMITED',
+      message: `${providerLabel} rate limit was reached.`,
+      hint: 'Retry later or enable provider fallback.',
+    };
+  }
+
+  return {
+    code: 'PROVIDER_ERROR',
+    message: `${providerLabel} returned an upstream error (${status}).`,
+    hint: 'Try again later or switch provider.',
+  };
+};
+
+const classifyTransportFailure = (
+  providerLabel: string,
+  errorMessage: string
+): { code: LlmGatewayErrorCode; message: string; hint: string } => {
+  const text = normalizeLower(errorMessage);
+  if (text.includes('timeout') || text.includes('abort')) {
+    return {
+      code: 'TIMEOUT',
+      message: `${providerLabel} request timed out.`,
+      hint: 'Increase timeout, retry later, or enable provider fallback.',
+    };
+  }
+
+  if (
+    text.includes('fetch failed') ||
+    text.includes('network') ||
+    text.includes('enotfound') ||
+    text.includes('econnreset') ||
+    text.includes('socket')
+  ) {
+    return {
+      code: 'NETWORK_ERROR',
+      message: `Network error while contacting ${providerLabel}.`,
+      hint: 'Check connectivity or switch provider.',
+    };
+  }
+
+  if (
+    text.includes('invalid api key') ||
+    text.includes('incorrect api key') ||
+    text.includes('unauthorized')
+  ) {
+    return {
+      code: 'INVALID_KEY',
+      message: `${providerLabel} rejected the API key.`,
+      hint: 'Add a valid BYOK key or switch to a configured provider.',
+    };
+  }
+
+  if (text.includes('quota')) {
+    return {
+      code: 'QUOTA_EXCEEDED',
+      message: `${providerLabel} quota was exceeded.`,
+      hint: 'Use a different provider or refresh the provider key with available quota.',
+    };
+  }
+
+  if (text.includes('rate limit') || text.includes('too many requests')) {
+    return {
+      code: 'RATE_LIMITED',
+      message: `${providerLabel} rate limit was reached.`,
+      hint: 'Retry later or enable provider fallback.',
+    };
+  }
+
+  return {
+    code: 'PROVIDER_ERROR',
+    message: `${providerLabel} returned an unexpected error.`,
+    hint: 'Try again later or switch provider.',
+  };
+};
 
 const normalizeAssistantContent = (content: unknown): string | null => {
   if (typeof content === 'string') return content;
@@ -111,13 +224,8 @@ const runOpenAiAdapter = async (
 
     if (!response.ok) {
       const bodyText = await response.text();
-      const fallbackMessage = `OpenAI request failed with status ${response.status}`;
-      const message = bodyText.trim().length > 0 ? bodyText.slice(0, 500) : fallbackMessage;
-      return {
-        ok: false,
-        code: 'INTERNAL_ERROR',
-        message,
-      };
+      const failure = classifyProviderFailure(response.status, 'OpenAI', bodyText);
+      return { ok: false, ...failure };
     }
 
     const payload = (await response.json()) as unknown;
@@ -137,14 +245,11 @@ const runOpenAiAdapter = async (
       return {
         ok: false,
         code: 'TIMEOUT',
-        message: 'Request timed out. Please try again.',
+        message: 'OpenAI request timed out.',
+        hint: 'Increase timeout, retry later, or enable provider fallback.',
       };
     }
-    return {
-      ok: false,
-      code: 'INTERNAL_ERROR',
-      message: errorMessage,
-    };
+    return { ok: false, ...classifyTransportFailure('OpenAI', errorMessage) };
   } finally {
     clearTimeout(timer);
   }
@@ -214,13 +319,8 @@ const runAnthropicAdapter = async (
 
     if (!response.ok) {
       const bodyText = await response.text();
-      const fallbackMessage = `Anthropic request failed with status ${response.status}`;
-      const message = bodyText.trim().length > 0 ? bodyText.slice(0, 500) : fallbackMessage;
-      return {
-        ok: false,
-        code: 'INTERNAL_ERROR',
-        message,
-      };
+      const failure = classifyProviderFailure(response.status, 'Anthropic', bodyText);
+      return { ok: false, ...failure };
     }
 
     const payload = (await response.json()) as unknown;
@@ -240,14 +340,11 @@ const runAnthropicAdapter = async (
       return {
         ok: false,
         code: 'TIMEOUT',
-        message: 'Request timed out. Please try again.',
+        message: 'Anthropic request timed out.',
+        hint: 'Increase timeout, retry later, or enable provider fallback.',
       };
     }
-    return {
-      ok: false,
-      code: 'INTERNAL_ERROR',
-      message: errorMessage,
-    };
+    return { ok: false, ...classifyTransportFailure('Anthropic', errorMessage) };
   } finally {
     clearTimeout(timer);
   }
@@ -330,13 +427,8 @@ const runGeminiAdapter = async (
 
     if (!response.ok) {
       const bodyText = await response.text();
-      const fallbackMessage = `Gemini request failed with status ${response.status}`;
-      const message = bodyText.trim().length > 0 ? bodyText.slice(0, 500) : fallbackMessage;
-      return {
-        ok: false,
-        code: 'INTERNAL_ERROR',
-        message,
-      };
+      const failure = classifyProviderFailure(response.status, 'Gemini', bodyText);
+      return { ok: false, ...failure };
     }
 
     const payload = (await response.json()) as unknown;
@@ -356,14 +448,11 @@ const runGeminiAdapter = async (
       return {
         ok: false,
         code: 'TIMEOUT',
-        message: 'Request timed out. Please try again.',
+        message: 'Gemini request timed out.',
+        hint: 'Increase timeout, retry later, or enable provider fallback.',
       };
     }
-    return {
-      ok: false,
-      code: 'INTERNAL_ERROR',
-      message: errorMessage,
-    };
+    return { ok: false, ...classifyTransportFailure('Gemini', errorMessage) };
   } finally {
     clearTimeout(timer);
   }
@@ -389,6 +478,7 @@ export const runLlmGateway = async (request: LlmGatewayRequest): Promise<LlmGate
       ok: false,
       code: 'CONFIG_ERROR',
       message: 'OpenRouter API key is missing.',
+      hint: 'Configure a server key or add a BYOK key for OpenRouter.',
     };
   }
 
@@ -417,6 +507,7 @@ export const runLlmGateway = async (request: LlmGatewayRequest): Promise<LlmGate
         ok: false,
         code: 'INVALID_RESPONSE',
         message: 'Received invalid response from provider.',
+        hint: 'Retry later or switch provider.',
       };
     }
 
@@ -431,14 +522,11 @@ export const runLlmGateway = async (request: LlmGatewayRequest): Promise<LlmGate
       return {
         ok: false,
         code: 'TIMEOUT',
-        message: 'Request timed out. Please try again.',
+        message: 'OpenRouter request timed out.',
+        hint: 'Increase timeout, retry later, or enable provider fallback.',
       };
     }
-    return {
-      ok: false,
-      code: 'INTERNAL_ERROR',
-      message: errorMessage,
-    };
+    return { ok: false, ...classifyTransportFailure('OpenRouter', errorMessage) };
   } finally {
     clearTimeout(timer);
   }

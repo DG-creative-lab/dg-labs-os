@@ -4,6 +4,7 @@ type ApiErrorBody = {
   message: string;
   error: string;
   timestamp: string;
+  meta?: Record<string, unknown>;
 };
 
 const now = () => new Date().toISOString();
@@ -21,7 +22,8 @@ export const errorResponse = (
   code: string,
   message: string,
   status: number,
-  noStore = false
+  noStore = false,
+  meta?: Record<string, unknown>
 ): Response =>
   jsonResponse(
     {
@@ -31,6 +33,7 @@ export const errorResponse = (
       // Backward-compatible alias used by some callers.
       error: message,
       timestamp: now(),
+      ...(meta ? { meta } : {}),
     } satisfies ApiErrorBody,
     status,
     noStore

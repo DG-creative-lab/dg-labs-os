@@ -16,6 +16,7 @@ import {
   isLlmQuery,
   normalizeLlmQuery,
   parseLlmModeQuery,
+  readChatErrorMeta,
   readAgentJsonPayload,
   readChatMeta,
   readChatMessage,
@@ -175,6 +176,25 @@ describe('terminal llm helpers', () => {
       fallbackFrom: undefined,
     });
     expect(readChatMeta({})).toBeNull();
+  });
+
+  it('extracts chat error meta from payload', () => {
+    expect(
+      readChatErrorMeta({
+        meta: {
+          provider: 'openai',
+          hint: 'Add a valid BYOK key',
+          errorClass: 'INVALID_KEY',
+          fallbackAvailable: false,
+        },
+      })
+    ).toEqual({
+      provider: 'openai',
+      hint: 'Add a valid BYOK key',
+      errorClass: 'INVALID_KEY',
+      fallbackAvailable: false,
+    });
+    expect(readChatErrorMeta({})).toBeNull();
   });
 
   it('reads and formats agent_json payload', () => {
