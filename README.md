@@ -212,7 +212,8 @@ Use this quick path before and after each merge to `main`.
 ```bash
 pnpm install --frozen-lockfile
 pnpm check
-pnpm build
+pnpm deploy:preflight
+pnpm build:vercel
 ```
 
 2. Secret hygiene

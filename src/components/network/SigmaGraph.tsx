@@ -13,7 +13,6 @@ type Props = {
   nodes: readonly GraphNode[];
   edges: readonly GraphEdge[];
   lanes: readonly Lane[];
-  height: number;
   onNodeClick?: (id: string) => void;
 };
 
@@ -73,7 +72,7 @@ function shortestPathToCore(
   return [];
 }
 
-export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }: Props) {
+export default function SigmaGraph({ nodes, edges, lanes, onNodeClick }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const hoveredRef = useRef<string | null>(null);
   const selectedRef = useRef<string | null>(null);
@@ -219,6 +218,17 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
             barnesHutTheta: 0.8,
             slowDown: 1 + Math.max(1, graph.order / 120),
           },
+        });
+
+        // Sigma preserves graph aspect ratio when fitting graph-space into the
+        // viewport. Our network has a long vertical experience branch, so the
+        // raw layout becomes too tall and the interesting cluster feels pushed
+        // away. Compress y in graph-space to keep the network dense and visible.
+        graph.forEachNode((nodeId, attrs) => {
+          graph.mergeNodeAttributes(nodeId, {
+            x: attrs.x,
+            y: attrs.y * 0.52,
+          });
         });
       }
 
@@ -411,13 +421,12 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
             const d = data as { size: number; strength?: number; style?: 'solid' | 'dotted' };
             const strength = d.strength ?? 2;
             const dotted = d.style === 'dotted';
-            // De-emphasize low-signal lineage links unless user focuses a node.
-            const hidden = strength <= 1 || (dotted && strength <= 2);
-            const alpha = strength >= 4 ? 0.3 : strength === 3 ? 0.2 : 0.12;
+            // Keep all links visible at rest; low-signal edges should fade, not disappear.
+            const alpha = strength >= 4 ? 0.3 : strength === 3 ? 0.2 : strength === 2 ? 0.14 : 0.09;
             return {
               ...d,
               color: `rgba(148,163,184,${dotted ? Math.max(0.06, alpha - 0.05) : alpha})`,
-              hidden,
+              hidden: false,
             };
           }
 
@@ -537,12 +546,12 @@ export default function SigmaGraph({ nodes, edges, lanes, height, onNodeClick }:
       >
         <div
           ref={containerRef}
-          style={{ height: `${Math.max(460, height)}px` }}
+          style={{ height: 'clamp(360px, 56vh, 620px)' }}
           className="w-full bg-[radial-gradient(circle_at_40%_0%,rgba(148,163,184,0.06),rgba(2,6,23,0.2)_45%,rgba(2,6,23,0.28)_100%)]"
         />
       </div>
 
-      <aside className="absolute right-4 top-14 w-[300px] max-w-[38vw] rounded-xl border border-white/10 bg-slate-950/85 backdrop-blur-md p-3 text-xs text-slate-200 shadow-2xl">
+      <aside className="mx-4 mt-3 rounded-xl border border-white/10 bg-slate-950/85 backdrop-blur-md p-3 text-xs text-slate-200 shadow-2xl">
         {inspectedNode ? (
           <div className="space-y-2">
             <div>

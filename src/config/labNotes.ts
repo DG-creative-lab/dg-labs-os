@@ -16,7 +16,7 @@ export const labNotes: readonly LabNote[] = [
     subtitle: 'Rewriting agentic marketing from extraction to human flourishing',
     readingTime: '18 min',
     url: 'https://ai-news-hub.performics-labs.com/analysis/empowerment-imperative-agentic-marketing-human-flourishing',
-    tags: ['agency', 'ethics', 'systems'],
+    tags: ['agency', 'ethics', 'systems', 'architecture'],
   },
   {
     id: 'geometry-of-intention',
@@ -25,7 +25,7 @@ export const labNotes: readonly LabNote[] = [
     subtitle: 'How LLMs predict human goals in marketing contexts',
     readingTime: '25 min',
     url: 'https://ai-news-hub.performics-labs.com/analysis/geometry-of-intention-llms-human-goals-marketing',
-    tags: ['intent', 'representation', 'evaluation'],
+    tags: ['intent', 'representation', 'evaluation', 'embeddings'],
   },
   {
     id: 'memory-and-agency',
@@ -34,7 +34,7 @@ export const labNotes: readonly LabNote[] = [
     subtitle: 'How to build an LLM agent that remembers',
     readingTime: '25 min',
     url: 'https://ai-news-hub.performics-labs.com/analysis/memory-agency-llm-seo-agent-learns-over-time',
-    tags: ['memory', 'agents', 'learning'],
+    tags: ['memory', 'agents', 'learning', 'runtime design'],
   },
   {
     id: 'phenomenology-of-search',
@@ -59,6 +59,7 @@ export const labNotes: readonly LabNote[] = [
 export const labPrinciples: readonly { label: string; value: string }[] = [
   { label: 'Metric', value: 'Human agency over conversion' },
   { label: 'Method', value: 'Build to learn, then distill' },
-  { label: 'Interface', value: 'Tools that clarify intent' },
-  { label: 'Constraint', value: 'Confidence gating and provenance' },
+  { label: 'Architecture', value: 'Clear boundaries, observable flows, reusable contracts' },
+  { label: 'Interface', value: 'Tools that clarify intent and reduce operational ambiguity' },
+  { label: 'Constraint', value: 'Confidence gating, provenance, and policy-aware controls' },
 ] as const;
