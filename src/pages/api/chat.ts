@@ -5,8 +5,8 @@ import { runChatService, type ChatServiceErrorCode } from '../../services/chatSe
 
 type ErrorCode = 'INVALID_JSON' | 'INVALID_MESSAGES' | ChatServiceErrorCode;
 
-const err = (code: ErrorCode, message: string, status: number) =>
-  errorResponse(code, message, status);
+const err = (code: ErrorCode, message: string, status: number, meta?: Record<string, unknown>) =>
+  errorResponse(code, message, status, false, meta);
 
 export const POST: APIRoute = async ({ request }) => {
   let body: unknown;
@@ -22,6 +22,6 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const result = await runChatService(parsed);
-  if (!result.ok) return err(result.code, result.message, result.status);
+  if (!result.ok) return err(result.code, result.message, result.status, result.meta);
   return jsonResponse(result.payload, result.status);
 };

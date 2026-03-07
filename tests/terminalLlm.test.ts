@@ -16,7 +16,9 @@ import {
   isLlmQuery,
   normalizeLlmQuery,
   parseLlmModeQuery,
+  readChatErrorMeta,
   readAgentJsonPayload,
+  readChatMeta,
   readChatMessage,
   resolveAnswerConfidenceLabel,
   TERMINAL_LLM_HISTORY_CHAR_BUDGET,
@@ -154,6 +156,45 @@ describe('terminal llm helpers', () => {
   it('extracts chat message from payload', () => {
     expect(readChatMessage({ message: 'ok' })).toBe('ok');
     expect(readChatMessage({})).toBeNull();
+  });
+
+  it('extracts chat meta from payload', () => {
+    expect(
+      readChatMeta({
+        meta: {
+          provider: 'openrouter',
+          model: 'openai/gpt-oss-120b',
+          latencyMs: 123,
+          fallbackUsed: false,
+        },
+      })
+    ).toEqual({
+      provider: 'openrouter',
+      model: 'openai/gpt-oss-120b',
+      latencyMs: 123,
+      fallbackUsed: false,
+      fallbackFrom: undefined,
+    });
+    expect(readChatMeta({})).toBeNull();
+  });
+
+  it('extracts chat error meta from payload', () => {
+    expect(
+      readChatErrorMeta({
+        meta: {
+          provider: 'openai',
+          hint: 'Add a valid BYOK key',
+          errorClass: 'INVALID_KEY',
+          fallbackAvailable: false,
+        },
+      })
+    ).toEqual({
+      provider: 'openai',
+      hint: 'Add a valid BYOK key',
+      errorClass: 'INVALID_KEY',
+      fallbackAvailable: false,
+    });
+    expect(readChatErrorMeta({})).toBeNull();
   });
 
   it('reads and formats agent_json payload', () => {

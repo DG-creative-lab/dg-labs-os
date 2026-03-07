@@ -284,6 +284,59 @@ export const readChatMessage = (data: unknown): string | null => {
   return null;
 };
 
+export type ChatResponseMeta = {
+  provider: string;
+  model: string;
+  latencyMs: number;
+  fallbackUsed: boolean;
+  fallbackFrom?: string;
+};
+
+export const readChatMeta = (data: unknown): ChatResponseMeta | null => {
+  if (!data || typeof data !== 'object') return null;
+  const record = data as Record<string, unknown>;
+  const meta = record.meta;
+  if (!meta || typeof meta !== 'object') return null;
+  const metaRecord = meta as Record<string, unknown>;
+  if (
+    typeof metaRecord.provider !== 'string' ||
+    typeof metaRecord.model !== 'string' ||
+    typeof metaRecord.latencyMs !== 'number' ||
+    typeof metaRecord.fallbackUsed !== 'boolean'
+  ) {
+    return null;
+  }
+  return {
+    provider: metaRecord.provider,
+    model: metaRecord.model,
+    latencyMs: metaRecord.latencyMs,
+    fallbackUsed: metaRecord.fallbackUsed,
+    fallbackFrom: typeof metaRecord.fallbackFrom === 'string' ? metaRecord.fallbackFrom : undefined,
+  };
+};
+
+export type ChatErrorMeta = {
+  provider?: string;
+  hint?: string;
+  errorClass?: string;
+  fallbackAvailable?: boolean;
+};
+
+export const readChatErrorMeta = (data: unknown): ChatErrorMeta | null => {
+  if (!data || typeof data !== 'object') return null;
+  const record = data as Record<string, unknown>;
+  const meta = record.meta;
+  if (!meta || typeof meta !== 'object') return null;
+  const metaRecord = meta as Record<string, unknown>;
+  return {
+    provider: typeof metaRecord.provider === 'string' ? metaRecord.provider : undefined,
+    hint: typeof metaRecord.hint === 'string' ? metaRecord.hint : undefined,
+    errorClass: typeof metaRecord.errorClass === 'string' ? metaRecord.errorClass : undefined,
+    fallbackAvailable:
+      typeof metaRecord.fallbackAvailable === 'boolean' ? metaRecord.fallbackAvailable : undefined,
+  };
+};
+
 export const resolveAnswerConfidenceLabel = (
   localEvidenceCount: number,
   verifiedWebSourceCount: number

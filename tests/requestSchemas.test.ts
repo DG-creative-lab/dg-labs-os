@@ -50,6 +50,7 @@ describe('request schemas', () => {
     expect(parsed?.messages.length).toBe(1);
     expect(parsed?.provider).toBe('openrouter');
     expect(parsed?.model).toBe('openai/gpt-oss-120b');
+    expect(parsed?.providerFallbackAllowed).toBe(false);
   });
 
   it('defaults chat provider/model when omitted', () => {
@@ -58,6 +59,7 @@ describe('request schemas', () => {
     });
     expect(parsed?.provider).toBe('openrouter');
     expect(parsed?.model).toBe('openai/gpt-oss-120b');
+    expect(parsed?.providerFallbackAllowed).toBe(false);
   });
 
   it('parses valid verify input', () => {

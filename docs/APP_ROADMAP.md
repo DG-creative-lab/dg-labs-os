@@ -71,16 +71,17 @@ Primary metaphor:
 
 ### 2.6 Agent Runtime (Terminal)
 
-- OpenRouter-backed chat API exists at `/api/chat`
-- model currently configured to `openai/gpt-oss-120b`
+- Multi-provider chat gateway exists at `/api/chat`:
+  - `openrouter`, `openai`, `anthropic`, `gemini`
+- Provider health route exists at `/api/llm/health` (status + probe)
 - Terminal runtime now supports:
   - deterministic commands (`help`, `open`, `search`, `context`, `sources`, etc.)
   - answer modes (`ask`, `brief`, `cv`, `projects`)
   - local retrieval-grounded context + citations footer
+  - provider diagnostics metadata (provider/model/latency/fallback)
+  - BYOK flow (session default, optional local persistence)
+  - capability-aware provider fallback (opt-in)
   - links-registry-informed verification query planning
-- next platform step:
-  - BYOK support for user-supplied provider keys
-  - provider gateway abstraction for OpenAI, Anthropic (Claude), Gemini, OpenRouter
 
 ### 2.7 Quality and Delivery
 
@@ -136,14 +137,13 @@ This means roadmap execution can be incremental without redesigning the whole in
 - No central planning document currently in repo (this file fixes that baseline).
 - No content schema validation that enforces required links/fields by module.
 - Need deeper E2E coverage beyond smoke (terminal tool interactions, graph interaction modes, window lifecycle edge cases).
-- Terminal provider layer is still single-provider in runtime behavior; needs BYOK + provider gateway with consistent response envelope.
 - Deployment is not yet fully hardened for Vercel production (secrets, provider routing, runtime checks, observability).
 
 ### 4.5 LLM Platform and Deployment Gaps
 
-- BYOK UX is missing in terminal settings (no secure user-key entry/rotation flow yet).
-- No multi-provider runtime contract (`openai`/`anthropic`/`google`/`openrouter`) with failover policy.
-- No deployment runbook yet for Vercel preview/prod, env scopes, and rollback protocol.
+- BYOK currently supports session use + optional local persistence; next iteration should add explicit key rotation affordances.
+- Provider fallback policy exists and is capability-aware; next iteration should expose richer provider error guidance.
+- Deployment runbook now exists (`docs/VERCEL_DEPLOYMENT_RUNBOOK.md`); next iteration is enforcement via release checklist automation.
 
 ## 5. Roadmap (Phased)
 
@@ -209,6 +209,7 @@ Goal: make current modules feel intentionally connected.
 - Add provider health checks and explicit terminal feedback:
   - “provider unavailable”, “invalid key”, “rate limited”, “timeout”
   - no silent fallback without user-facing note
+  - status: completed (v1)
 
 5. Timeline/Resume upgrade
 

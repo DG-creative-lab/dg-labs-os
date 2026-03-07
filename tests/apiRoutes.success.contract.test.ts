@@ -72,6 +72,62 @@ describe('API route success contracts', () => {
     expect(body.message).toBe('Hello from model');
   });
 
+  it('chat falls back to configured provider when enabled', async () => {
+    mockOpenRouterSend.mockResolvedValue({
+      choices: [{ message: { content: 'Fallback from OpenRouter' } }],
+    });
+
+    const { POST } = await import('../src/pages/api/chat');
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider: 'openai',
+        model: 'gpt-4.1-mini',
+        providerFallbackAllowed: true,
+        messages: [{ role: 'user', content: 'hello with fallback' }],
+      }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      ok?: boolean;
+      message?: string;
+      meta?: { provider?: string; fallbackUsed?: boolean; fallbackFrom?: string };
+    };
+    expect(body.ok).toBe(true);
+    expect(body.message).toBe('Fallback from OpenRouter');
+    expect(body.meta?.provider).toBe('openrouter');
+    expect(body.meta?.fallbackUsed).toBe(true);
+    expect(body.meta?.fallbackFrom).toBe('openai');
+  });
+
+  it('chat does not fallback when fallback is disabled', async () => {
+    mockOpenRouterSend.mockResolvedValue({
+      choices: [{ message: { content: 'Should not be used' } }],
+    });
+
+    const { POST } = await import('../src/pages/api/chat');
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider: 'openai',
+        model: 'gpt-4.1-mini',
+        providerFallbackAllowed: false,
+        messages: [{ role: 'user', content: 'hello strict provider' }],
+      }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(503);
+    const body = (await response.json()) as { ok?: boolean; code?: string };
+    expect(body.ok).toBe(false);
+    expect(body.code).toBe('CONFIG_ERROR');
+    expect(mockOpenRouterSend).not.toHaveBeenCalled();
+  });
+
   it('chat supports openai provider via responses API', async () => {
     mockGlobalFetch.mockResolvedValue(
       new Response(
@@ -169,6 +225,105 @@ describe('API route success contracts', () => {
     if (!isChatSuccessEnvelope(body)) return;
     expect(body.message).toBe('Hello from Gemini');
     expect(mockGlobalFetch).toHaveBeenCalled();
+  });
+
+  it('chat normalizes invalid_key provider errors', async () => {
+    mockGlobalFetch.mockResolvedValue(
+      new Response(JSON.stringify({ error: { message: 'Invalid API key' } }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    );
+
+    const { POST } = await import('../src/pages/api/chat');
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider: 'openai',
+        model: 'gpt-4.1-mini',
+        byokApiKey: 'bad-key',
+        messages: [{ role: 'user', content: 'hello' }],
+      }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(401);
+    const body = (await response.json()) as {
+      ok?: boolean;
+      code?: string;
+      meta?: { provider?: string; errorClass?: string; hint?: string };
+    };
+    expect(body.ok).toBe(false);
+    expect(body.code).toBe('INVALID_KEY');
+    expect(body.meta?.provider).toBe('openai');
+    expect(body.meta?.errorClass).toBe('INVALID_KEY');
+    expect(body.meta?.hint).toContain('BYOK');
+  });
+
+  it('chat normalizes rate limit provider errors', async () => {
+    mockGlobalFetch.mockResolvedValue(
+      new Response(JSON.stringify({ error: { message: 'Rate limit exceeded' } }), {
+        status: 429,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    );
+
+    const { POST } = await import('../src/pages/api/chat');
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider: 'anthropic',
+        model: 'claude-3-5-sonnet-latest',
+        byokApiKey: 'rate-limited-key',
+        messages: [{ role: 'user', content: 'hello' }],
+      }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(429);
+    const body = (await response.json()) as {
+      ok?: boolean;
+      code?: string;
+      meta?: { provider?: string; errorClass?: string };
+    };
+    expect(body.ok).toBe(false);
+    expect(body.code).toBe('RATE_LIMITED');
+    expect(body.meta?.provider).toBe('anthropic');
+    expect(body.meta?.errorClass).toBe('RATE_LIMITED');
+  });
+
+  it('chat normalizes quota exceeded provider errors', async () => {
+    mockGlobalFetch.mockResolvedValue(
+      new Response(JSON.stringify({ error: { message: 'insufficient_quota' } }), {
+        status: 429,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    );
+
+    const { POST } = await import('../src/pages/api/chat');
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider: 'gemini',
+        model: 'gemini-2.0-flash',
+        byokApiKey: 'quota-key',
+        messages: [{ role: 'user', content: 'hello' }],
+      }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(429);
+    const body = (await response.json()) as {
+      ok?: boolean;
+      code?: string;
+      meta?: { errorClass?: string };
+    };
+    expect(body.ok).toBe(false);
+    expect(body.code).toBe('QUOTA_EXCEEDED');
+    expect(body.meta?.errorClass).toBe('QUOTA_EXCEEDED');
   });
 
   it('chat agent_json mode returns structured data', async () => {

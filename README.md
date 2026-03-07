@@ -19,7 +19,12 @@ DG-Labs OS is a portfolio presented as a personal operating system - an interfac
   - deterministic commands (`help`, `open`, `search`, `context`, `sources`, etc.)
   - natural-language command router (high-confidence phrase -> deterministic command)
   - retrieval-grounded LLM mode (`ask ...`) using local knowledge index
-  - runtime toggles for `LLM fallback`, `router debug`, and `LLM source footer`
+  - answer modes (`ask`, `brief`, `cv`, `projects`)
+  - provider selector (`openrouter`, `openai`, `anthropic`, `gemini`)
+  - BYOK support (session-only or optional browser-local persistence)
+  - provider health diagnostics via `/api/llm/health`
+  - capability-aware provider fallback (opt-in, only when alternate keys exist)
+  - runtime toggles for `LLM fallback`, `provider fallback`, `router debug`, and `LLM source footer`
 - Apple menu "About DG-Labs Pro" window
 - `Window -> Contact...` opens dock Links panel on desktop (email fallback on page routes)
 - Modular config in `src/config/`
@@ -27,8 +32,9 @@ DG-Labs OS is a portfolio presented as a personal operating system - an interfac
 
 ## Current Priority
 
-- BYOK + multi-provider LLM gateway for terminal (`OpenAI` / `Claude` / `Gemini` / `OpenRouter`).
-- Vercel deployment hardening (env matrix, health checks, rollback runbook).
+- Vercel deployment hardening and production runbook execution.
+- Agent Runtime v3 UX polish (provider diagnostics, citation compactness, fallback messaging).
+- Content schema validation and module cross-link integrity.
 
 ## Tech Stack
 
@@ -116,8 +122,11 @@ make check
 Copy `.env.example` to `.env` and fill in:
 
 ```
-# AI Terminal (OpenRouter)
+# AI Terminal (server-owned defaults)
 OPENROUTER_API_KEY=your_openrouter_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 # Optional (used for request headers / OpenRouter rankings)
 # PUBLIC_SITE_URL=https://your-domain.tld
 # PUBLIC_SITE_NAME=DG-Labs OS
@@ -189,6 +198,41 @@ If only markdown sync is needed (no PDF/DOCX regeneration), use `pnpm resume:syn
 ## Deployment
 
 This project runs with Astro SSR (API routes). Deploy anywhere that supports a Node runtime.
+
+For Vercel deployment specifics, use:
+
+- `docs/VERCEL_DEPLOYMENT_RUNBOOK.md`
+
+## Release Checklist
+
+Use this quick path before and after each merge to `main`.
+
+1. Pre-merge local checks
+
+```bash
+pnpm install --frozen-lockfile
+pnpm check
+pnpm build
+```
+
+2. Secret hygiene
+
+```bash
+git ls-files | rg -n "^\\.env"
+```
+
+Expected: only `.env.example`.
+
+3. Post-deploy smoke checks
+
+- Open `/desktop`
+- Open `/apps/network` and toggle List/Graph
+- Open `/apps/terminal`, run `help` and one `ask ...`
+- Check provider status endpoint: `/api/llm/health?probe=0`
+
+4. Full operational guide
+
+- `docs/VERCEL_DEPLOYMENT_RUNBOOK.md`
 
 ## License
 

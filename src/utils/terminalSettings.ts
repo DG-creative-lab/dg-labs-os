@@ -14,6 +14,7 @@ export type TerminalSettings = {
   llmProvider: TerminalLlmProvider;
   llmModel: string;
   llmFallbackForUnknown: boolean;
+  providerFallbackAllowed: boolean;
   routerDebug: boolean;
   showLlmSources: boolean;
   strictEvidenceMode: boolean;
@@ -29,6 +30,7 @@ export const defaultTerminalSettings: TerminalSettings = {
   llmProvider: 'openrouter',
   llmModel: 'openai/gpt-oss-120b',
   llmFallbackForUnknown: true,
+  providerFallbackAllowed: false,
   routerDebug: true,
   showLlmSources: true,
   strictEvidenceMode: false,
@@ -72,6 +74,10 @@ export const sanitizeTerminalSettings = (
       typeof partial?.llmFallbackForUnknown === 'boolean'
         ? partial.llmFallbackForUnknown
         : defaultTerminalSettings.llmFallbackForUnknown,
+    providerFallbackAllowed:
+      typeof partial?.providerFallbackAllowed === 'boolean'
+        ? partial.providerFallbackAllowed
+        : defaultTerminalSettings.providerFallbackAllowed,
     routerDebug:
       typeof partial?.routerDebug === 'boolean'
         ? partial.routerDebug
@@ -121,6 +127,7 @@ export const terminalSettingsSummary = (settings: TerminalSettings): string =>
     `provider=${settings.llmProvider}`,
     `model=${settings.llmModel}`,
     `fallback=${settings.llmFallbackForUnknown ? 'on' : 'off'}`,
+    `provider-fallback=${settings.providerFallbackAllowed ? 'on' : 'off'}`,
     `router-debug=${settings.routerDebug ? 'on' : 'off'}`,
     `llm-sources=${settings.showLlmSources ? 'on' : 'off'}`,
     `strict-evidence=${settings.strictEvidenceMode ? 'on' : 'off'}`,

@@ -13,9 +13,12 @@ import {
 export type ChatServiceErrorCode =
   | 'CONFIG_ERROR'
   | 'INVALID_RESPONSE'
-  | 'INTERNAL_ERROR'
   | 'TIMEOUT'
-  | 'NOT_IMPLEMENTED';
+  | 'INVALID_KEY'
+  | 'RATE_LIMITED'
+  | 'QUOTA_EXCEEDED'
+  | 'NETWORK_ERROR'
+  | 'PROVIDER_ERROR';
 
 type AgentJsonResponse = {
   ok: true;
@@ -47,6 +50,12 @@ export type ChatServiceResult =
       status: number;
       code: ChatServiceErrorCode;
       message: string;
+      meta?: {
+        provider: string;
+        hint?: string;
+        errorClass: ChatServiceErrorCode;
+        fallbackAvailable: boolean;
+      };
     };
 
 const latestUserQuery = (messages: readonly ChatMessageInput[]): string =>
@@ -138,6 +147,7 @@ export const runChatService = async ({
   provider,
   model,
   byokApiKey,
+  providerFallbackAllowed,
 }: ChatRequestInput): Promise<ChatServiceResult> => {
   const query = latestUserQuery(messages);
   const localHits = query ? searchKnowledge(query, 6) : [];
@@ -156,6 +166,7 @@ export const runChatService = async ({
     anthropic: getServerEnv('ANTHROPIC_API_KEY'),
     gemini: getServerEnv('GEMINI_API_KEY'),
   } as const;
+  const providerOrder = ['openrouter', 'openai', 'anthropic', 'gemini'] as const;
 
   try {
     const knowledgeGrounding = buildKnowledgeGrounding(query, localHits);
@@ -163,30 +174,76 @@ export const runChatService = async ({
       ? [{ role: 'system' as const, content: knowledgeGrounding }, ...messages]
       : messages;
 
-    const gateway = await runLlmGateway({
-      provider,
-      model: model || defaultModelForProvider(provider),
-      messages: requestMessages,
-      apiKey: byokApiKey || serverKeys[provider],
-    });
+    const runProvider = async (
+      selectedProvider: typeof provider,
+      apiKey: string | undefined,
+      selectedModel: string
+    ) => {
+      const startedAt = Date.now();
+      const result = await runLlmGateway({
+        provider: selectedProvider,
+        model: selectedModel || defaultModelForProvider(selectedProvider),
+        messages: requestMessages,
+        apiKey,
+      });
+      const latencyMs = Date.now() - startedAt;
+      return { result, latencyMs };
+    };
 
-    if (!gateway.ok) {
-      const code = gateway.code;
+    const primaryModel = model || defaultModelForProvider(provider);
+    const primaryApiKey = byokApiKey || serverKeys[provider];
+    const primary = await runProvider(provider, primaryApiKey, primaryModel);
+
+    if (!primary.result.ok) {
+      const code = primary.result.code;
+      const fallbackCandidates = providerFallbackAllowed
+        ? providerOrder
+            .filter((candidate) => candidate !== provider)
+            .map((candidate) => ({
+              provider: candidate,
+              apiKey: serverKeys[candidate],
+              model: defaultModelForProvider(candidate),
+            }))
+            .filter((candidate) => Boolean(candidate.apiKey))
+        : [];
+
+      for (const candidate of fallbackCandidates) {
+        const fallback = await runProvider(candidate.provider, candidate.apiKey, candidate.model);
+        if (fallback.result.ok) {
+          return {
+            ok: true,
+            status: 200,
+            payload: chatSuccess(fallback.result.message, {
+              provider: candidate.provider,
+              model: candidate.model,
+              latencyMs: fallback.latencyMs,
+              fallbackUsed: true,
+              fallbackFrom: provider,
+            }),
+          };
+        }
+      }
+
+      const fallbackAvailable = fallbackCandidates.length > 0;
+      const meta = {
+        provider,
+        hint: primary.result.hint,
+        errorClass: code,
+        fallbackAvailable,
+      } as const;
+
       if (code === 'CONFIG_ERROR') {
         console.error('[Chat API] Missing provider API key for', provider);
+        const fallbackHint =
+          providerFallbackAllowed && !fallbackAvailable
+            ? ' Fallback unavailable because no alternate provider key is configured.'
+            : '';
         return {
           ok: false,
           status: 503,
           code: 'CONFIG_ERROR',
-          message: 'Chat service is not configured. Please contact the site administrator.',
-        };
-      }
-      if (code === 'NOT_IMPLEMENTED') {
-        return {
-          ok: false,
-          status: 501,
-          code: 'NOT_IMPLEMENTED',
-          message: gateway.message,
+          message: `Chat service is not configured for ${provider}.${fallbackHint}`,
+          meta,
         };
       }
       if (code === 'INVALID_RESPONSE') {
@@ -195,7 +252,35 @@ export const runChatService = async ({
           ok: false,
           status: 500,
           code: 'INVALID_RESPONSE',
-          message: 'Received invalid response from AI service',
+          message: `Received invalid response from ${provider}.`,
+          meta,
+        };
+      }
+      if (code === 'INVALID_KEY') {
+        return {
+          ok: false,
+          status: 401,
+          code: 'INVALID_KEY',
+          message: primary.result.message,
+          meta,
+        };
+      }
+      if (code === 'RATE_LIMITED') {
+        return {
+          ok: false,
+          status: 429,
+          code: 'RATE_LIMITED',
+          message: primary.result.message,
+          meta,
+        };
+      }
+      if (code === 'QUOTA_EXCEEDED') {
+        return {
+          ok: false,
+          status: 429,
+          code: 'QUOTA_EXCEEDED',
+          message: primary.result.message,
+          meta,
         };
       }
       if (code === 'TIMEOUT') {
@@ -203,27 +288,41 @@ export const runChatService = async ({
           ok: false,
           status: 504,
           code: 'TIMEOUT',
-          message: gateway.message,
+          message: primary.result.message,
+          meta,
+        };
+      }
+      if (code === 'NETWORK_ERROR') {
+        return {
+          ok: false,
+          status: 502,
+          code: 'NETWORK_ERROR',
+          message: primary.result.message,
+          meta,
         };
       }
       return {
         ok: false,
-        status: 500,
-        code: 'INTERNAL_ERROR',
-        message: isServerDev()
-          ? gateway.message
-          : 'An unexpected error occurred. Please try again later.',
+        status: 502,
+        code: 'PROVIDER_ERROR',
+        message: isServerDev() ? primary.result.message : `Provider ${provider} failed.`,
+        meta,
       };
     }
 
     return {
       ok: true,
       status: 200,
-      payload: chatSuccess(gateway.message),
+      payload: chatSuccess(primary.result.message, {
+        provider,
+        model: primaryModel,
+        latencyMs: primary.latencyMs,
+        fallbackUsed: false,
+      }),
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('[Chat API] OpenRouter error:', errorMessage);
+    console.error('[Chat API] Gateway error:', errorMessage);
 
     if (errorMessage.includes('timeout')) {
       return {
@@ -236,8 +335,8 @@ export const runChatService = async ({
 
     return {
       ok: false,
-      status: 500,
-      code: 'INTERNAL_ERROR',
+      status: 502,
+      code: 'PROVIDER_ERROR',
       message: isServerDev()
         ? errorMessage
         : 'An unexpected error occurred. Please try again later.',

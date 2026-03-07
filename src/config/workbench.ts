@@ -134,12 +134,12 @@ export const workbench: readonly WorkbenchItem[] = [
     ],
   },
   {
-    id: 'aion-enterprise-auth',
+    id: 'gateplane-enterprise-auth',
     category: 'Platforms',
-    title: 'Aion Enterprise Auth Platform',
+    title: 'Gateplane Enterprise Auth Platform',
     subtitle: 'Multi-tenant authentication and authorization architecture',
     summary:
-      'Enterprise authentication platform with tenant isolation, hierarchical role boundaries, and product-tier capability control for multi-tenant AI applications.',
+      'Enterprise authentication platform with tenant isolation, hierarchical role boundaries, and product-tier capability control for multi-tenant AI applications, now evolving with an agentification roadmap that strengthens product moat.',
     stack: [
       'Next.js',
       'FastAPI',
@@ -154,6 +154,7 @@ export const workbench: readonly WorkbenchItem[] = [
       'Multi-tenant auth boundaries with strict tenant and organization scoping.',
       'Layered role model aligned to client, brand, and workspace contexts.',
       'Product-tier capability gating for enterprise feature control.',
+      'Agentification implementation path adds agent-native workflows and defensive differentiation.',
       'Clean architecture patterns for auth and policy domain separation.',
     ],
   },

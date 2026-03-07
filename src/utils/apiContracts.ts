@@ -4,6 +4,12 @@ export type ApiErrorEnvelope = {
   message: string;
   error: string;
   timestamp: string;
+  meta?: {
+    provider?: string;
+    hint?: string;
+    errorClass?: string;
+    fallbackAvailable?: boolean;
+  };
 };
 
 export type HealthSuccessEnvelope = {
@@ -13,6 +19,13 @@ export type HealthSuccessEnvelope = {
 export type ChatSuccessEnvelope = {
   ok: true;
   message: string;
+  meta?: {
+    provider: string;
+    model: string;
+    latencyMs: number;
+    fallbackUsed: boolean;
+    fallbackFrom?: string;
+  };
 };
 
 export type VerifySource = {
@@ -36,7 +49,10 @@ export type ToolSuccessEnvelope<T = unknown> = {
 
 export const healthSuccess = (): HealthSuccessEnvelope => ({ ok: true });
 
-export const chatSuccess = (message: string): ChatSuccessEnvelope => ({ ok: true, message });
+export const chatSuccess = (
+  message: string,
+  meta?: ChatSuccessEnvelope['meta']
+): ChatSuccessEnvelope => ({ ok: true, message, ...(meta ? { meta } : {}) });
 
 export const verifySuccess = (
   query: string,

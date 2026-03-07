@@ -21,6 +21,8 @@ import {
   isLlmQuery,
   normalizeLlmQuery,
   parseLlmModeQuery,
+  readChatErrorMeta,
+  readChatMeta,
   readAgentJsonPayload,
   readChatMessage,
   resolveAnswerConfidenceLabel,
@@ -605,18 +607,42 @@ export default function AgentsTerminal() {
           provider: settings.llmProvider,
           model: settings.llmModel,
           byokApiKey: byokApiKey.trim().length > 0 ? byokApiKey.trim() : undefined,
+          providerFallbackAllowed: settings.providerFallbackAllowed,
         }),
         signal: controller.signal,
       });
       const payload = (await response.json().catch(() => ({}))) as unknown;
       const message = readChatMessage(payload);
+      const chatMeta = readChatMeta(payload);
+      const chatErrorMeta = readChatErrorMeta(payload);
       const agentPayload =
         settings.responseMode === 'agent_json' ? readAgentJsonPayload(payload) : null;
 
       if (!response.ok || !message) {
-        const fallback =
-          'LLM request failed. Try again, or use deterministic commands with "help".';
-        setHistory((prev) => [...prev, pushLine('output', fallback)]);
+        const errorRecord =
+          payload && typeof payload === 'object' ? (payload as Record<string, unknown>) : null;
+        const errorCode =
+          errorRecord && typeof errorRecord.code === 'string' ? errorRecord.code : 'PROVIDER_ERROR';
+        const errorMessage =
+          errorRecord && typeof errorRecord.message === 'string'
+            ? errorRecord.message
+            : 'LLM request failed.';
+        const hint =
+          chatErrorMeta?.hint ||
+          'Try again, switch provider, add BYOK, or use deterministic commands.';
+        setHistory((prev) => [
+          ...prev,
+          pushLine(
+            'system',
+            `[provider_error] ${chatErrorMeta?.provider ?? settings.llmProvider} | class=${errorCode}${
+              typeof chatErrorMeta?.fallbackAvailable === 'boolean'
+                ? ` | fallback=${chatErrorMeta.fallbackAvailable ? 'available' : 'unavailable'}`
+                : ''
+            }`
+          ),
+          pushLine('output', errorMessage),
+          pushLine('system', `- hint: ${hint}`),
+        ]);
         return;
       }
 
@@ -656,6 +682,18 @@ export default function AgentsTerminal() {
       setHistory((prev) => [
         ...prev,
         ...retrievalLines.map((line) => pushLine('system', line)),
+        ...(chatMeta
+          ? [
+              pushLine(
+                'system',
+                `[provider] ${chatMeta.provider} | model=${chatMeta.model} | latency=${chatMeta.latencyMs}ms${
+                  chatMeta.fallbackUsed && chatMeta.fallbackFrom
+                    ? ` | fallback ${chatMeta.fallbackFrom} -> ${chatMeta.provider}`
+                    : ''
+                }`
+              ),
+            ]
+          : []),
         pushLine('system', `[confidence] ${confidence}`),
         pushLine('system', `- ${confidenceGuidance}`),
         pushLine('output', cited.answer),
@@ -1146,6 +1184,19 @@ export default function AgentsTerminal() {
               }
             />
             <span>LLM fallback on unknown input</span>
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={settings.providerFallbackAllowed}
+              onChange={(event) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  providerFallbackAllowed: event.target.checked,
+                }))
+              }
+            />
+            <span>Allow provider fallback when selected provider fails</span>
           </label>
           <label className="flex items-center gap-2">
             <span>Brain mode</span>

@@ -72,7 +72,7 @@ Cognitive operating system presenting work, research, and ideas as explorable ap
 - Created Mac-style desktop and iPhone-inspired mobile shells
 - **Stack**: Astro, React, TypeScript, Sigma.js
 
-### Aion Enterprise Auth Platform
+### Gateplane Enterprise Auth Platform
 
 _Performics scope · Enterprise architecture_
 
@@ -81,6 +81,7 @@ Multi-tenant authentication and authorization architecture for AI applications r
 - Designed layered RBAC model mapped to enterprise organizational structure
 - Implemented tenant-aware auth boundaries and policy enforcement contracts
 - Integrated Microsoft Entra/OIDC identity surfaces into platform access flows
+- Defined agentification implementation path to add agent-native product capabilities and strengthen moat
 - Structured auth domain with clean architecture boundaries for maintainability
 - **Stack**: FastAPI, Next.js, OIDC, Microsoft Entra, Postgres, policy enforcement
 

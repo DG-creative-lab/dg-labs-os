@@ -27,6 +27,7 @@ describe('terminal settings', () => {
     expect(parsed.responseMode).toBe('narrative');
     expect(parsed.llmProvider).toBe('openrouter');
     expect(parsed.llmModel).toBe('openai/gpt-oss-120b');
+    expect(parsed.providerFallbackAllowed).toBe(false);
   });
 
   it('sanitizes ranges', () => {
@@ -36,6 +37,7 @@ describe('terminal settings', () => {
       llmProvider: 'openrouter',
       llmModel: 'openai/gpt-oss-120b',
       llmFallbackForUnknown: true,
+      providerFallbackAllowed: true,
       routerDebug: false,
       showLlmSources: false,
       strictEvidenceMode: true,
@@ -44,6 +46,7 @@ describe('terminal settings', () => {
     });
     expect(s.brainMode).toBe('research');
     expect(s.responseMode).toBe('agent_json');
+    expect(s.providerFallbackAllowed).toBe(true);
     expect(s.routerDebug).toBe(false);
     expect(s.showLlmSources).toBe(false);
     expect(s.strictEvidenceMode).toBe(true);
@@ -58,6 +61,7 @@ describe('terminal settings', () => {
     expect(summary).toContain('provider=');
     expect(summary).toContain('model=');
     expect(summary).toContain('fallback=');
+    expect(summary).toContain('provider-fallback=');
     expect(summary).toContain('router-debug=');
     expect(summary).toContain('llm-sources=');
     expect(summary).toContain('strict-evidence=');

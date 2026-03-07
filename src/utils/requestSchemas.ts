@@ -14,6 +14,7 @@ export type ChatRequestInput = {
   provider: ChatProvider;
   model: string;
   byokApiKey?: string;
+  providerFallbackAllowed: boolean;
 };
 
 export type ContactInput = {
@@ -126,7 +127,9 @@ export const parseChatRequestInput = (input: unknown): ChatRequestInput | null =
       ? byokApiKeyRaw.trim()
       : undefined;
 
-  return { messages, responseMode, provider, model, byokApiKey };
+  const providerFallbackAllowed = body.providerFallbackAllowed === true;
+
+  return { messages, responseMode, provider, model, byokApiKey, providerFallbackAllowed };
 };
 
 export const parseVerifyInput = (input: unknown): VerifyInput | null => {
