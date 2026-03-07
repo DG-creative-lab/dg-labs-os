@@ -4,6 +4,12 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import node from '@astrojs/node';
+import vercel from '@astrojs/vercel';
+
+const isVercelDeploy =
+  process.env.DEPLOY_TARGET === 'vercel' ||
+  process.env.VERCEL === '1' ||
+  process.env.VERCEL === 'true';
 
 export default defineConfig({
   // Replace with your website URL (required for sitemap generation)
@@ -31,9 +37,11 @@ export default defineConfig({
 
   // Deployment configuration
   output: 'server', // Server-side rendering for API routes
-  adapter: node({
-    mode: 'standalone',
-  }),
+  adapter: isVercelDeploy
+    ? vercel({})
+    : node({
+        mode: 'standalone',
+      }),
   devToolbar: {
     enabled: false,
   },

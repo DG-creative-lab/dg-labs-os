@@ -1,6 +1,5 @@
 ---
 import BaseHead from '../components/global/BaseHead.astro';
-import { ClientRouter } from 'astro:transitions';
 ---
 
 <html lang="en" class="scroll-smooth selection:bg-gray-900 selection:text-white overflow-x-hidden">
@@ -11,7 +10,6 @@ import { ClientRouter } from 'astro:transitions';
       canonical={Astro.props.canonical}
       openGraph={Astro.props.openGraph}
     />
-    <ClientRouter />
   </head>
 
   <body class="overflow-x-hidden bg-gray-900">

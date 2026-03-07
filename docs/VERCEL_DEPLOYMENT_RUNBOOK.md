@@ -24,6 +24,7 @@ Deploy DG-Labs OS safely to Vercel with reproducible env configuration, runtime 
 
 - `main` branch deploys to Production.
 - Feature branches deploy to Preview.
+- Use Node.js `24` locally for closest parity with Vercel Serverless Functions.
 - Required checks before merge:
   - `pnpm check`
   - `pnpm build`
@@ -36,7 +37,8 @@ Run locally before pushing:
 ```bash
 pnpm install --frozen-lockfile
 pnpm check
-pnpm build
+pnpm deploy:preflight
+pnpm build:vercel
 ```
 
 Verify no secrets are committed:
@@ -63,6 +65,9 @@ After Preview/Production deployment:
 
 ## 5) Runtime Expectations
 
+- Astro adapter behavior:
+  - local/default build -> `@astrojs/node` standalone adapter
+  - Vercel build -> `@astrojs/vercel/serverless` when `DEPLOY_TARGET=vercel` or `VERCEL=1`
 - Provider fallback is opt-in and capability-aware:
   - only applies when terminal setting `provider fallback` is enabled
   - only attempts providers with configured server keys

@@ -21,6 +21,50 @@ const getBottomInset = () => {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_BOTTOM_INSET;
 };
 
+const getWindowBounds = (
+  initialPosition: { x: number; y: number },
+  initialSize: { width: number; height: number },
+  centerOnMount: boolean
+) => {
+  if (typeof window === 'undefined') {
+    return { position: initialPosition, size: initialSize };
+  }
+
+  const bottomInset = getBottomInset();
+  const maxWidth = Math.max(MIN_WIDTH, window.innerWidth - SIDE_INSET * 2);
+  const maxHeight = Math.max(MIN_HEIGHT, window.innerHeight - TOP_INSET - bottomInset);
+  const width = clamp(initialSize.width, MIN_WIDTH, maxWidth);
+  const height = clamp(initialSize.height, MIN_HEIGHT, maxHeight);
+
+  if (!centerOnMount || window.innerWidth < 768) {
+    const maxX = Math.max(SIDE_INSET, window.innerWidth - width - SIDE_INSET);
+    const maxY = Math.max(TOP_INSET, window.innerHeight - bottomInset - height);
+    return {
+      size: { width, height },
+      position: {
+        x: clamp(initialPosition.x, SIDE_INSET, maxX),
+        y: clamp(initialPosition.y, TOP_INSET, maxY),
+      },
+    };
+  }
+
+  return {
+    size: { width, height },
+    position: {
+      x: clamp(
+        Math.round((window.innerWidth - width) / 2),
+        SIDE_INSET,
+        Math.max(SIDE_INSET, window.innerWidth - width - SIDE_INSET)
+      ),
+      y: clamp(
+        Math.round((window.innerHeight - TOP_INSET - bottomInset - height) / 2) + TOP_INSET,
+        TOP_INSET,
+        Math.max(TOP_INSET, window.innerHeight - bottomInset - height)
+      ),
+    },
+  };
+};
+
 interface DraggableWindowProps {
   title: string;
   onClose: () => void;
@@ -32,6 +76,7 @@ interface DraggableWindowProps {
   showTitle?: boolean;
   hideHeader?: boolean;
   centerOnMount?: boolean;
+  isFocused?: boolean;
 }
 
 export default function DraggableWindow({
@@ -45,9 +90,14 @@ export default function DraggableWindow({
   showTitle = true,
   hideHeader = false,
   centerOnMount = false,
+  isFocused = true,
 }: DraggableWindowProps) {
-  const [position, setPosition] = useState(initialPosition);
-  const [size, setSize] = useState(initialSize);
+  const [position, setPosition] = useState(
+    () => getWindowBounds(initialPosition, initialSize, centerOnMount).position
+  );
+  const [size, setSize] = useState(
+    () => getWindowBounds(initialPosition, initialSize, centerOnMount).size
+  );
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [resizeDirection, setResizeDirection] = useState<
@@ -56,6 +106,7 @@ export default function DraggableWindow({
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [zIndex, setZIndex] = useState(globalZIndex);
   const [isMobile, setIsMobile] = useState(false);
+  const hasAppliedInitialCenterRef = useRef(false);
   const windowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -69,28 +120,20 @@ export default function DraggableWindow({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Optionally center on mount for better UX
+  // Apply centered geometry once on desktop mount. Do not keep reapplying on
+  // every parent render or the window will snap back after manual resizing.
   useEffect(() => {
-    if (!isMobile && centerOnMount) {
-      const bottomInset = getBottomInset();
-      const maxWidth = Math.max(MIN_WIDTH, window.innerWidth - SIDE_INSET * 2);
-      const maxHeight = Math.max(MIN_HEIGHT, window.innerHeight - TOP_INSET - bottomInset);
-      const width = clamp(initialSize.width, MIN_WIDTH, maxWidth);
-      const height = clamp(initialSize.height, MIN_HEIGHT, maxHeight);
-      const x = clamp(
-        Math.round((window.innerWidth - width) / 2),
-        SIDE_INSET,
-        Math.max(SIDE_INSET, window.innerWidth - width - SIDE_INSET)
-      );
-      const y = clamp(
-        Math.round((window.innerHeight - TOP_INSET - bottomInset - height) / 2) + TOP_INSET,
-        TOP_INSET,
-        Math.max(TOP_INSET, window.innerHeight - bottomInset - height)
-      );
-      setSize({ width, height });
-      setPosition({ x, y });
-    }
-  }, [centerOnMount, initialSize.width, initialSize.height, isMobile]);
+    if (isMobile || !centerOnMount || hasAppliedInitialCenterRef.current) return;
+    const bounds = getWindowBounds(initialPosition, initialSize, centerOnMount);
+    setSize(bounds.size);
+    setPosition(bounds.position);
+    hasAppliedInitialCenterRef.current = true;
+  }, [centerOnMount, initialPosition, initialSize, isMobile]);
+
+  useEffect(() => {
+    if (!isMobile) return;
+    hasAppliedInitialCenterRef.current = false;
+  }, [isMobile]);
 
   // Keep existing windows visible if viewport size changes.
   useEffect(() => {
@@ -246,9 +289,14 @@ export default function DraggableWindow({
       role="dialog"
       aria-modal="true"
       aria-labelledby="window-title"
+      data-desktop-surface="window"
       className={`${
         isMobile ? 'fixed inset-0 m-4 rounded-xl' : 'absolute rounded-xl'
-      } bg-[#1d1d1f] shadow-xl overflow-hidden p-0 transition-all duration-300 ${
+      } overflow-hidden border p-0 ${
+        isFocused
+          ? 'border-white/12 bg-[#1d1d1f] shadow-[0_24px_60px_rgba(0,0,0,0.42)]'
+          : 'border-white/8 bg-[#1a1a1c]/96 shadow-[0_16px_38px_rgba(0,0,0,0.28)]'
+      } ${
         isDragging ? 'cursor-grabbing' : 'cursor-default'
       } outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 ${className}`}
       style={{
@@ -261,12 +309,15 @@ export default function DraggableWindow({
               height: size.height,
             }),
         zIndex,
-        transition: isDragging || isResizing ? 'none' : 'all 0.2s ease-out',
       }}
       onMouseDown={handleMouseDown}
     >
       {!hideHeader && (
-        <div className="window-header bg-gray-800 h-6 flex items-center space-x-2 px-4 rounded-t-xl sticky top-0 left-0 right-0 z-10">
+        <div
+          className={`window-header h-6 flex items-center space-x-2 px-4 rounded-t-xl sticky top-0 left-0 right-0 z-10 ${
+            isFocused ? 'bg-slate-800 text-gray-300' : 'bg-slate-900/90 text-gray-400'
+          }`}
+        >
           <button
             onClick={onClose}
             aria-label={`Close ${title}`}
@@ -278,7 +329,9 @@ export default function DraggableWindow({
           {showTitle && (
             <span
               id="window-title"
-              className="text-sm text-gray-300 flex-grow text-center font-semibold"
+              className={`text-sm flex-grow text-center font-semibold ${
+                isFocused ? 'text-gray-300' : 'text-gray-400'
+              }`}
             >
               {title}
             </span>

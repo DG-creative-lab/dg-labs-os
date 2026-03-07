@@ -4,6 +4,7 @@ import { networkIdeaEdges, networkNodes } from '../../config/network';
 import { userConfig } from '../../config';
 import { workbench } from '../../config/workbench';
 import {
+  dispatchDesktopAppFocus,
   dispatchDesktopState,
   onDesktopAppFocus,
   onDesktopOpenWindow,
@@ -224,7 +225,7 @@ function NewsPanel() {
 
 export default function DesktopWorkspace() {
   const [state, dispatch] = useReducer(desktopShellReducer, INITIAL_DESKTOP_SHELL_STATE);
-  const { open } = state;
+  const { open, focusedAppId } = state;
 
   const closeWindow = (appId: DesktopAppId) => {
     dispatch({ type: 'CLOSE_WINDOW', appId });
@@ -233,6 +234,23 @@ export default function DesktopWorkspace() {
   useEffect(() => {
     dispatchDesktopState(window, state.open, state.focusedAppId);
   }, [state]);
+
+  useEffect(() => {
+    const handleBackgroundMouseDown = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (target.closest('[data-desktop-surface="window"]')) return;
+      if (target.closest('[data-desktop-surface="dock"]')) return;
+      if (target.closest('[data-desktop-surface="menubar"]')) return;
+      if (target.closest('[role="menu"]')) return;
+      dispatchDesktopAppFocus(window, 'home');
+    };
+
+    document.addEventListener('mousedown', handleBackgroundMouseDown);
+    return () => {
+      document.removeEventListener('mousedown', handleBackgroundMouseDown);
+    };
+  }, []);
 
   useEffect(() => {
     const unsubscribeToggle = onDesktopToggleWindow(window, ({ appId }) => {
@@ -266,6 +284,7 @@ export default function DesktopWorkspace() {
           onClose={() => closeWindow('projects')}
           initialSize={{ width: 980, height: 680 }}
           initialPosition={{ x: 80, y: 80 }}
+          isFocused={focusedAppId === 'projects'}
         >
           <ProjectsPanel />
         </DraggableAppWindow>
@@ -278,6 +297,7 @@ export default function DesktopWorkspace() {
           onClose={() => closeWindow('notes')}
           initialSize={{ width: 920, height: 640 }}
           initialPosition={{ x: 110, y: 95 }}
+          isFocused={focusedAppId === 'notes'}
         >
           <NotesPanel />
         </DraggableAppWindow>
@@ -290,6 +310,7 @@ export default function DesktopWorkspace() {
           onClose={() => closeWindow('resume')}
           initialSize={{ width: 920, height: 660 }}
           initialPosition={{ x: 130, y: 110 }}
+          isFocused={focusedAppId === 'resume'}
         >
           <ResumeApp resume={userConfig.resume} />
         </DraggableAppWindow>
@@ -302,6 +323,7 @@ export default function DesktopWorkspace() {
           onClose={() => closeWindow('news')}
           initialSize={{ width: 780, height: 500 }}
           initialPosition={{ x: 150, y: 120 }}
+          isFocused={focusedAppId === 'news'}
         >
           <NewsPanel />
         </DraggableAppWindow>
@@ -314,6 +336,7 @@ export default function DesktopWorkspace() {
           onClose={() => closeWindow('network')}
           initialSize={{ width: 1080, height: 700 }}
           initialPosition={{ x: 70, y: 70 }}
+          isFocused={focusedAppId === 'network'}
           contentClassName="h-full overflow-auto no-scrollbar p-4 text-white"
         >
           <div className="flex items-start justify-between gap-6">
@@ -339,6 +362,7 @@ export default function DesktopWorkspace() {
           onClose={() => closeWindow('terminal')}
           initialSize={{ width: 920, height: 600 }}
           initialPosition={{ x: 80, y: 80 }}
+          isFocused={focusedAppId === 'terminal'}
           contentClassName="h-full min-h-0 flex flex-col overflow-auto no-scrollbar overscroll-contain p-4 text-white"
         >
           <h1 className="text-2xl font-semibold">Agents Runtime</h1>

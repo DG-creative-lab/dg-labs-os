@@ -21,7 +21,7 @@ export const workbench: readonly WorkbenchItem[] = [
     title: 'Intent Recognition Agent',
     subtitle: 'Geometry of Intention -> production marketing intelligence',
     summary:
-      'Four-layer system for intent recognition, pattern discovery, and activation. Built to prove marketing intelligence can optimize for genuine human intent rather than manipulation.',
+      'Four-layer production system for intent recognition, pattern discovery, and activation. Built to turn a research thesis into deployable marketing intelligence architecture.',
     stack: [
       'Python',
       'Gradio',
@@ -51,7 +51,7 @@ export const workbench: readonly WorkbenchItem[] = [
     title: 'Agentic Commerce Learning Loop',
     subtitle: 'Bayesian-style closed loop: simulate -> validate -> update beliefs',
     summary:
-      'Multi-tenant platform that iteratively improves product discoverability with synthetic + observed validation, memory distillation, and confidence gating.',
+      'Multi-tenant product intelligence platform that iteratively improves discoverability with synthetic + observed validation, memory distillation, and confidence gating.',
     stack: [
       'Next.js',
       'TypeScript',
@@ -81,7 +81,7 @@ export const workbench: readonly WorkbenchItem[] = [
     title: 'AI Knowledge Hub (Performics Labs)',
     subtitle: 'Technical writing as infrastructure',
     summary:
-      'Content platform: daily news analysis + deep research pieces + community All Hands. Focused on practitioners building marketing infrastructure with AI.',
+      'Technical publishing system: daily news analysis, deep research pieces, and community All Hands for practitioners building AI-enabled infrastructure.',
     stack: ['Astro', 'Content ops'],
     links: {
       site: 'https://ai-news-hub.performics-labs.com/',
@@ -98,7 +98,7 @@ export const workbench: readonly WorkbenchItem[] = [
     title: 'Multi-Tenant Marketing Automation (Performics)',
     subtitle: 'Enterprise orchestration across global clients',
     summary:
-      'Contributed to multi-tenant architecture, row-level security patterns, authentication hierarchy design, and AI orchestration layers for campaign optimization.',
+      'Enterprise production platform spanning multi-tenant architecture, row-level security, authentication hierarchy design, and AI orchestration for campaign optimization.',
     stack: [
       'AWS',
       'OIDC (Microsoft Entra)',
@@ -121,7 +121,7 @@ export const workbench: readonly WorkbenchItem[] = [
     title: 'Amazon Optimization Platform (Warehouse)',
     subtitle: 'Award-winning ecommerce marketing optimization',
     summary:
-      'Built backend services and AWS data processing for an ecommerce marketing optimization platform using microservice patterns.',
+      'Built backend services and AWS data workflows for an ecommerce optimization platform using production microservice patterns.',
     stack: ['FastAPI', 'AWS Glue', 'Lambda', 'Postgres (RDS)', 'Microservices'],
     links: {
       article:
@@ -139,7 +139,7 @@ export const workbench: readonly WorkbenchItem[] = [
     title: 'Gateplane Enterprise Auth Platform',
     subtitle: 'Multi-tenant authentication and authorization architecture',
     summary:
-      'Enterprise authentication platform with tenant isolation, hierarchical role boundaries, and product-tier capability control for multi-tenant AI applications, now evolving with an agentification roadmap that strengthens product moat.',
+      'Enterprise auth platform with tenant isolation, hierarchical role boundaries, and capability-tier controls for multi-tenant AI applications, now evolving toward agent-native workflows.',
     stack: [
       'Next.js',
       'FastAPI',
@@ -164,7 +164,7 @@ export const workbench: readonly WorkbenchItem[] = [
     title: 'OneSuite Labs Ephemeral Infrastructure',
     subtitle: 'Decommissioning and scratch-environment control plane',
     summary:
-      'AWS decommissioning and replacement strategy for legacy untagged infrastructure, rebuilt as ephemeral reproducible stacks for safe experimentation and systems validation.',
+      'AWS decommissioning and replacement strategy for legacy untagged infrastructure, rebuilt as reproducible ephemeral stacks for safe experimentation and systems validation.',
     stack: [
       'Terraform',
       'AWS',

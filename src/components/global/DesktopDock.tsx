@@ -302,10 +302,12 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
       <nav
         ref={dockNavRef}
         aria-label="Dock"
+        data-desktop-surface="dock"
         className="fixed bottom-0 left-0 right-0 flex justify-center pb-4 z-50"
       >
         <div
           ref={dockRef}
+          data-desktop-surface="dock"
           className="bg-white/10 backdrop-blur-md rounded-2xl px-3 py-2 shadow-[0_18px_60px_rgba(0,0,0,0.45)] border border-white/10"
         >
           <div className="flex space-x-2" role="menubar">

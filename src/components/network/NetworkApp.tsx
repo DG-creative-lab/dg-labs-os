@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import type { NetworkIdeaEdge, NetworkNode } from '../../config/network';
 import {
   handleNetworkMenuAction,
@@ -38,6 +38,7 @@ export default function NetworkApp({ nodes, ideas = [] }: Props) {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<CategoryFilter>('ALL');
   const [view, setView] = useState<ViewMode>('GRAPH');
+  const graphSectionRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const handleMenuAction = (event: Event) => {
@@ -59,6 +60,15 @@ export default function NetworkApp({ nodes, ideas = [] }: Props) {
     const searched = filterNetworkNodes(nodes, 'ALL', query);
     return searched.filter((node) => matchesCategory(node, filter));
   }, [nodes, query, filter]);
+
+  useEffect(() => {
+    if (view !== 'GRAPH') return;
+    const target = graphSectionRef.current;
+    if (!target) return;
+    requestAnimationFrame(() => {
+      target.scrollIntoView({ behavior: 'auto', block: 'start' });
+    });
+  }, [view, filter]);
 
   return (
     <div>
@@ -113,7 +123,11 @@ export default function NetworkApp({ nodes, ideas = [] }: Props) {
         </div>
       </div>
 
-      {view === 'GRAPH' ? <Graph nodes={filtered} ideas={ideas} /> : <List nodes={filtered} />}
+      {view === 'GRAPH' ? (
+        <Graph ref={graphSectionRef} nodes={filtered} ideas={ideas} />
+      ) : (
+        <List nodes={filtered} />
+      )}
     </div>
   );
 }
@@ -213,17 +227,14 @@ function List({ nodes }: { nodes: readonly NetworkNode[] }) {
   );
 }
 
-function Graph({
-  nodes,
-  ideas,
-}: {
-  nodes: readonly NetworkNode[];
-  ideas: readonly NetworkIdeaEdge[];
-}) {
-  const { graphNodes, edges, lanes, height } = useMemo(
-    () => buildGraph(nodes, ideas),
-    [nodes, ideas]
-  );
+const Graph = forwardRef<
+  HTMLDivElement,
+  {
+    nodes: readonly NetworkNode[];
+    ideas: readonly NetworkIdeaEdge[];
+  }
+>(function Graph({ nodes, ideas }, ref) {
+  const { graphNodes, edges, lanes } = useMemo(() => buildGraph(nodes, ideas), [nodes, ideas]);
 
   const jumpTo = (id: string) => {
     const el = document.getElementById(`node-${id}`);
@@ -232,20 +243,17 @@ function Graph({
   };
 
   return (
-    <div className="mt-6 rounded-xl border border-white/10 bg-black/30 backdrop-blur-xl overflow-hidden">
+    <div
+      ref={ref}
+      className="mt-4 rounded-xl border border-white/10 bg-black/30 backdrop-blur-xl overflow-hidden"
+    >
       <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
         <p className="text-sm font-semibold">Graph Mode</p>
         <p className="text-xs text-white/50">
           {graphNodes.length} nodes, {edges.length} edges
         </p>
       </div>
-      <SigmaGraph
-        nodes={graphNodes}
-        edges={edges}
-        lanes={lanes}
-        height={height}
-        onNodeClick={(id) => jumpTo(id)}
-      />
+      <SigmaGraph nodes={graphNodes} edges={edges} lanes={lanes} onNodeClick={(id) => jumpTo(id)} />
     </div>
   );
-}
+});

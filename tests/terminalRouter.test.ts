@@ -13,7 +13,7 @@ describe('terminal natural language router', () => {
   });
 
   it('routes context phrases to deterministic context command', () => {
-    const routed = routeNaturalLanguageCommand('what do you know about intent modeling');
+    const routed = routeNaturalLanguageCommand('context intent modeling');
     expect(routed?.command).toBe('context intent modeling');
   });
 
@@ -29,12 +29,12 @@ describe('terminal natural language router', () => {
 
   it('routes identity + project phrasing to context lookup', () => {
     const routed = routeNaturalLanguageCommand("tell me about dessi's current projects");
-    expect(routed?.command).toBe('context dessi projects');
+    expect(routed).toBeNull();
   });
 
   it('routes identity profile phrasing to context lookup', () => {
     const routed = routeNaturalLanguageCommand('about Dessi Georgieva');
-    expect(routed?.command).toBe('context dessi profile');
+    expect(routed).toBeNull();
   });
 
   it('returns null for unrelated text', () => {

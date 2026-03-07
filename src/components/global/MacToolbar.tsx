@@ -11,7 +11,11 @@ import {
 } from 'react-icons/io5';
 import { VscVscode } from 'react-icons/vsc';
 import { userConfig } from '../../config/index';
-import { onDesktopAppFocus, onDesktopState } from '../../services/desktopEvents';
+import {
+  dispatchDesktopToggleWindow,
+  onDesktopAppFocus,
+  onDesktopState,
+} from '../../services/desktopEvents';
 import {
   openAppFromMenu,
   openContactFromMenu,
@@ -35,6 +39,8 @@ type MenuItem = {
   action?: () => void;
   submenu?: MenuItem[];
 };
+
+type ToolbarAppId = 'home' | 'terminal' | 'network' | 'projects' | 'notes' | 'resume' | 'news';
 
 interface MacToolbarProps {
   onOpenContact?: () => void;
@@ -148,6 +154,23 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
 
   const openTerminalGuide = () => {
     openTerminalGuideFromMenu();
+  };
+
+  const normalizePath = (path: string) => path.replace(/\/+$/, '') || '/';
+
+  const closeApp = (appId: Exclude<ToolbarAppId, 'home'>) => {
+    const path = normalizePath(window.location.pathname);
+    if (path === '/desktop') {
+      dispatchDesktopToggleWindow(window, appId);
+      return;
+    }
+
+    if (path === `/apps/${appId === 'projects' ? 'projects' : appId}`) {
+      window.location.href = '/desktop';
+      return;
+    }
+
+    window.location.href = '/desktop';
   };
 
   const commonMenus: Record<
@@ -305,6 +328,71 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
         label: 'Navigation Tips',
         icon: <IoDocumentText size={16} />,
         action: () => setHelpTopic('navigation-tips'),
+      },
+      {
+        label: 'About DG-Labs OS',
+        icon: <IoHelpCircle size={16} />,
+        action: () => setHelpTopic('about-os'),
+      },
+    ],
+  };
+
+  const homeMenus: typeof commonMenus = {
+    ...commonMenus,
+    View: [
+      {
+        label: 'Open Workbench',
+        icon: <IoCodeSlash size={16} />,
+        action: () => openAppFromMenu('projects'),
+      },
+      {
+        label: 'Open Network',
+        icon: <IoDocumentText size={16} />,
+        action: () => openAppFromMenu('network'),
+      },
+      {
+        label: 'Open Lab Notes',
+        icon: <IoDocumentText size={16} />,
+        action: () => openAppFromMenu('notes'),
+      },
+      {
+        label: 'Open Agents Runtime',
+        icon: <IoHelpCircle size={16} />,
+        action: () => openAppFromMenu('terminal'),
+      },
+    ],
+    Window: [
+      {
+        label: 'Open Links Panel',
+        icon: <IoMail size={16} />,
+        action: () => {
+          openContactFromMenu({
+            email: userConfig.contact.email,
+            onOpenContact,
+          });
+        },
+      },
+      {
+        label: 'Open Resume',
+        icon: <IoDocumentText size={16} />,
+        action: () => openAppFromMenu('resume'),
+      },
+    ],
+    Help: [
+      {
+        label: 'DG-Labs User Guide',
+        icon: <IoDocumentText size={16} />,
+        action: () => setHelpTopic('user-guide'),
+      },
+      {
+        label: 'Navigation Tips',
+        icon: <IoDocumentText size={16} />,
+        action: () => setHelpTopic('navigation-tips'),
+      },
+      {
+        label: 'Search Help in Agents...',
+        icon: <IoHelpCircle size={16} />,
+        action: () => openTerminalGuide(),
       },
       {
         label: 'About DG-Labs OS',
@@ -543,18 +631,158 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
 
   const resolvedAppId = focusedAppId ?? activeAppId;
 
+  const appMenuLabelMap: Record<ToolbarAppId, string> = {
+    home: userConfig.name,
+    terminal: 'Agents Runtime',
+    network: 'Network',
+    projects: 'Workbench',
+    notes: 'Lab Notes',
+    resume: 'Resume',
+    news: 'AI News Hub',
+  };
+
+  const appMenuItemsMap: Record<ToolbarAppId, MenuItem[]> = {
+    home: [
+      {
+        label: 'About DG-Labs Pro',
+        icon: <FaWindowRestore size={16} />,
+        action: () => setShowAbout(true),
+      },
+      {
+        label: 'Open Workbench',
+        icon: <IoCodeSlash size={16} />,
+        action: () => openAppFromMenu('projects'),
+      },
+      {
+        label: 'Open Network',
+        icon: <IoDocumentText size={16} />,
+        action: () => openAppFromMenu('network'),
+      },
+      {
+        label: 'Open Agents Runtime',
+        icon: <IoHelpCircle size={16} />,
+        action: () => openAppFromMenu('terminal'),
+      },
+    ],
+    terminal: [
+      {
+        label: 'Terminal Help',
+        icon: <IoHelpCircle size={16} />,
+        action: () => emitTerminalMenuAction(window, 'set_mode', { mode: 'explainer' }),
+      },
+      {
+        label: 'Clear Output',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitTerminalMenuAction(window, 'clear_output'),
+      },
+      {
+        label: 'Close Agents Runtime',
+        icon: <FaWindowRestore size={16} />,
+        action: () => closeApp('terminal'),
+      },
+    ],
+    network: [
+      {
+        label: 'Reset Network Search',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitNetworkMenuAction(window, 'clear_search'),
+      },
+      {
+        label: 'Switch to Graph Mode',
+        icon: <IoCodeSlash size={16} />,
+        action: () => emitNetworkMenuAction(window, 'set_view', { view: 'GRAPH' }),
+      },
+      {
+        label: 'Close Network',
+        icon: <FaWindowRestore size={16} />,
+        action: () => closeApp('network'),
+      },
+    ],
+    projects: [
+      {
+        label: 'Jump to Research Systems',
+        icon: <IoCodeSlash size={16} />,
+        action: () => openWorkbenchSectionFromMenu('workbench-research-systems'),
+      },
+      {
+        label: 'Jump to Platforms',
+        icon: <IoDocumentText size={16} />,
+        action: () => openWorkbenchSectionFromMenu('workbench-platforms'),
+      },
+      {
+        label: 'Close Workbench',
+        icon: <FaWindowRestore size={16} />,
+        action: () => closeApp('projects'),
+      },
+    ],
+    notes: [
+      {
+        label: 'Open Principles',
+        icon: <IoDocumentText size={16} />,
+        action: () =>
+          emitNotesMenuAction(window, 'jump_section', { sectionId: 'notes-principles' }),
+      },
+      {
+        label: 'Open AI News Hub',
+        icon: <IoCodeSlash size={16} />,
+        action: () => emitNotesMenuAction(window, 'open_news_hub'),
+      },
+      {
+        label: 'Close Lab Notes',
+        icon: <FaWindowRestore size={16} />,
+        action: () => closeApp('notes'),
+      },
+    ],
+    resume: [
+      {
+        label: 'Download PDF',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitResumeMenuAction(window, 'download', { format: 'pdf' }),
+      },
+      {
+        label: 'Download DOCX',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitResumeMenuAction(window, 'download', { format: 'docx' }),
+      },
+      {
+        label: 'Close Resume',
+        icon: <FaWindowRestore size={16} />,
+        action: () => closeApp('resume'),
+      },
+    ],
+    news: [
+      {
+        label: 'Open AI News Hub Site',
+        icon: <IoDocumentText size={16} />,
+        action: () => openAppFromMenu('news'),
+      },
+      {
+        label: 'Open Lab Notes',
+        icon: <IoCodeSlash size={16} />,
+        action: () => openAppFromMenu('notes'),
+      },
+      {
+        label: 'Close AI News Hub',
+        icon: <FaWindowRestore size={16} />,
+        action: () => closeApp('news'),
+      },
+    ],
+  };
+
   const menus =
-    resolvedAppId === 'terminal'
-      ? terminalMenus
-      : resolvedAppId === 'network'
-        ? networkMenus
-        : resolvedAppId === 'projects'
-          ? workbenchMenus
-          : resolvedAppId === 'notes'
-            ? notesMenus
-            : resolvedAppId === 'resume'
-              ? resumeMenus
-              : commonMenus;
+    resolvedAppId === 'home'
+      ? homeMenus
+      : resolvedAppId === 'terminal'
+        ? terminalMenus
+        : resolvedAppId === 'network'
+          ? networkMenus
+          : resolvedAppId === 'projects'
+            ? workbenchMenus
+            : resolvedAppId === 'notes'
+              ? notesMenus
+              : resolvedAppId === 'resume'
+                ? resumeMenus
+                : commonMenus;
 
   const menuOrder: Array<'File' | 'Edit' | 'View' | 'Go' | 'Window' | 'Help'> = [
     'File',
@@ -615,6 +843,7 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
       </div>
 
       <div
+        data-desktop-surface="menubar"
         className="sticky top-0 z-50 hidden md:flex bg-black/20 backdrop-blur-md text-white h-6 px-4 items-center justify-between text-sm"
         role="menubar"
         aria-label="Application menu bar"
@@ -633,7 +862,21 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
             </button>
             {activeMenu === 'Apple' && <div id="menu-Apple">{renderMenu(menus.Apple)}</div>}
           </div>
-          <span className="font-semibold text-white/90">{userConfig.name}</span>
+          <div className="relative">
+            <button
+              className="cursor-pointer font-semibold text-white/90 hover:text-gray-300 transition-colors"
+              onClick={() => handleMenuClick('App')}
+              aria-haspopup="menu"
+              aria-expanded={activeMenu === 'App'}
+              aria-controls="menu-App"
+              role="menuitem"
+            >
+              {appMenuLabelMap[resolvedAppId]}
+            </button>
+            {activeMenu === 'App' && (
+              <div id="menu-App">{renderMenu(appMenuItemsMap[resolvedAppId])}</div>
+            )}
+          </div>
           {menuOrder.map((menu) => (
             <div key={menu} className="relative">
               <button

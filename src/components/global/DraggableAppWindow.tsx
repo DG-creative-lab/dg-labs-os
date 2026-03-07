@@ -10,6 +10,7 @@ interface DraggableAppWindowProps {
   initialPosition?: { x: number; y: number };
   className?: string;
   contentClassName?: string;
+  isFocused?: boolean;
   children: ReactNode;
 }
 
@@ -22,6 +23,7 @@ export default function DraggableAppWindow({
   initialPosition = { x: 80, y: 80 },
   className = '',
   contentClassName = 'h-full overflow-auto no-scrollbar p-4 text-white',
+  isFocused = true,
   children,
 }: DraggableAppWindowProps) {
   return (
@@ -37,6 +39,7 @@ export default function DraggableAppWindow({
       initialSize={initialSize}
       initialPosition={initialPosition}
       centerOnMount={true}
+      isFocused={isFocused}
       className={className}
     >
       <div className={contentClassName}>{children}</div>

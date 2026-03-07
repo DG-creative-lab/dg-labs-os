@@ -20,6 +20,7 @@ import {
   groupCitationChips,
   isLlmQuery,
   normalizeLlmQuery,
+  normalizeTerminalNarrativeAnswer,
   parseLlmModeQuery,
   readChatErrorMeta,
   readChatMeta,
@@ -29,7 +30,7 @@ import {
   type CitationChip,
   type LlmConfidenceLabel,
 } from '../../utils/terminalLlm';
-import { buildAskEnvelopeLines, buildVerifyEnvelopeLines } from '../../utils/terminalEnvelope';
+import { buildVerifyEnvelopeLines } from '../../utils/terminalEnvelope';
 import { retrieveKnowledge } from '../../utils/terminalKnowledge';
 import type { VerifySource } from '../../utils/apiContracts';
 import {
@@ -196,7 +197,7 @@ export default function AgentsTerminal() {
     {
       id: 2,
       kind: 'system',
-      text: 'Modes: ask|brief|cv|projects <question>  •  help for deterministic commands',
+      text: 'Talk naturally. Commands still work: help, open <app>, search <query>, verify <query>.',
     },
   ]);
   const nextIdRef = useRef(3);
@@ -523,6 +524,21 @@ export default function AgentsTerminal() {
       return;
     }
 
+    if (!byokApiKey.trim() && providerHealth.status === 'missing_key') {
+      setHistory((prev) => [
+        ...prev,
+        pushLine(
+          'system',
+          `LLM is not configured for ${settings.llmProvider}. Add a BYOK key in Terminal Settings or switch provider.`
+        ),
+        pushLine(
+          'output',
+          'Fallback options: help, search <query>, context <query>, projects, open <app>, or verify <query>.'
+        ),
+      ]);
+      return;
+    }
+
     const controller = new AbortController();
     llmAbortRef.current = controller;
     const timeout = setTimeout(() => controller.abort(), settings.llmTimeoutMs);
@@ -660,6 +676,10 @@ export default function AgentsTerminal() {
         score: hit.score,
       }));
       const cited = formatAnswerWithCitations(message, evidenceRefs, settings.strictEvidenceMode);
+      const answerText =
+        settings.responseMode === 'narrative'
+          ? normalizeTerminalNarrativeAnswer(message)
+          : normalizeTerminalNarrativeAnswer(cited.answer);
       const confidence = resolveAnswerConfidenceLabel(
         evidenceRefs.length,
         lastWebVerifyContext?.sources.length ?? 0
@@ -672,12 +692,6 @@ export default function AgentsTerminal() {
       });
       setShowCitationDetails(false);
       const confidenceGuidance = explainConfidenceLabel(confidence);
-
-      const envelopeLines = buildAskEnvelopeLines(
-        grounding,
-        settings.showLlmSources,
-        lastWebVerifyContext
-      );
       const agentLines = agentPayload ? buildAgentJsonLines(agentPayload) : [];
       setHistory((prev) => [
         ...prev,
@@ -694,17 +708,32 @@ export default function AgentsTerminal() {
               ),
             ]
           : []),
-        pushLine('system', `[confidence] ${confidence}`),
-        pushLine('system', `- ${confidenceGuidance}`),
-        pushLine('output', cited.answer),
+        pushLine('output', answerText),
+        pushLine('system', `${confidenceBadgeText(confidence)} confidence • ${confidenceGuidance}`),
         ...(chips.length > 0
-          ? [pushLine('system', `[citations] ${chips.length} source link(s) available below`)]
+          ? [pushLine('system', `${chips.length} source link(s) available below.`)]
           : []),
         ...(cited.unverifiedCount > 0
-          ? [pushLine('system', `[verification_gap] ${cited.unverifiedCount} claim(s)`)]
+          ? [
+              pushLine(
+                'system',
+                `${cited.unverifiedCount} claim(s) are not directly evidenced in the current context.`
+              ),
+            ]
           : []),
         ...agentLines.map((line) => pushLine('output', line)),
-        ...envelopeLines.map((line) => pushLine('system', line)),
+        ...(settings.showLlmSources
+          ? [
+              pushLine(
+                'system',
+                `Grounded in ${grounding.length} local source(s)${
+                  lastWebVerifyContext?.sources.length
+                    ? ` and ${lastWebVerifyContext.sources.length} verified web source(s)`
+                    : ''
+                }.`
+              ),
+            ]
+          : []),
       ]);
     } catch (error) {
       const timeoutMessage =
@@ -976,7 +1005,7 @@ export default function AgentsTerminal() {
             pushLine('system', 'DG-Labs Agents Runtime v2'),
             pushLine(
               'system',
-              'Modes: ask|brief|cv|projects <question>  •  help for deterministic commands'
+              'Talk naturally. Commands still work: help, open <app>, search <query>, verify <query>.'
             ),
           ]);
         },
@@ -1050,7 +1079,7 @@ export default function AgentsTerminal() {
     let commandToRun = command;
     const isDeterministic = isDeterministicTerminalCommand(commandToRun);
 
-    if (!isDeterministic && !/^ask\s+/i.test(commandToRun)) {
+    if (!isDeterministic) {
       const routed = routeNaturalLanguageCommand(commandToRun);
       if (routed && routed.confidence >= ROUTER_CONFIDENCE_THRESHOLD) {
         commandToRun = routed.command;
@@ -1069,7 +1098,7 @@ export default function AgentsTerminal() {
     const isDeterministicAfterRouting = isDeterministicTerminalCommand(commandToRun);
     const llmRoute = settings.llmFallbackForUnknown
       ? isLlmQuery(commandToRun, isDeterministicAfterRouting)
-      : /^ask\s+/i.test(commandToRun);
+      : /^(ask|brief|cv|projects)\s*:?\s+/i.test(commandToRun);
     if (llmRoute) {
       await askLlm(commandToRun);
       return;
@@ -1087,7 +1116,7 @@ export default function AgentsTerminal() {
         pushLine('system', 'DG-Labs Agents Runtime v2'),
         pushLine(
           'system',
-          'Modes: ask|brief|cv|projects <question>  •  help for deterministic commands'
+          'Talk naturally. Commands still work: help, open <app>, search <query>, verify <query>.'
         ),
       ]);
       return;
@@ -1158,7 +1187,7 @@ export default function AgentsTerminal() {
     <div className="h-full min-h-0 rounded-xl border border-emerald-300/20 bg-black/60 shadow-[0_14px_60px_rgba(0,0,0,0.45)] overflow-hidden flex flex-col">
       <div className="flex items-center justify-between border-b border-emerald-400/20 px-4 py-2 text-[11px] text-emerald-300/75">
         <span>
-          Runtime: deterministic commands + LLM (`ask`) | {terminalSettingsSummary(settings)}
+          Runtime: natural language first + commands on demand | {terminalSettingsSummary(settings)}
         </span>
         {isLlmBusy ? (
           <span className="inline-flex items-center gap-2 text-emerald-200/90">
@@ -1183,7 +1212,7 @@ export default function AgentsTerminal() {
                 }))
               }
             />
-            <span>LLM fallback on unknown input</span>
+            <span>Use the LLM for natural input by default</span>
           </label>
           <label className="flex items-center gap-2">
             <input
@@ -1589,7 +1618,7 @@ export default function AgentsTerminal() {
 
       <div
         ref={outputRef}
-        className="min-h-0 flex-1 overflow-y-auto px-4 py-3 font-mono text-[13px] leading-6 text-emerald-200 [&::-webkit-scrollbar]:hidden"
+        className="min-h-0 flex-1 overflow-y-auto px-4 py-3 font-mono text-[12px] leading-6 text-emerald-200 [&::-webkit-scrollbar]:hidden"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         aria-live="polite"
       >

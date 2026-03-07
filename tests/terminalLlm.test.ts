@@ -49,6 +49,10 @@ describe('terminal llm helpers', () => {
       mode: 'brief',
       query: 'top 3 projects',
     });
+    expect(parseLlmModeQuery('ask: tell me about gateplane')).toEqual({
+      mode: 'ask',
+      query: 'tell me about gateplane',
+    });
     expect(parseLlmModeQuery('cv current role')).toEqual({
       mode: 'cv',
       query: 'current role',
@@ -67,11 +71,12 @@ describe('terminal llm helpers', () => {
       network: networkNodes,
     };
     const system = buildTerminalSystemContext(ctx, 'research');
-    expect(system).toContain('DG-Labs OS terminal brain');
+    expect(system).toContain('DG-Labs OS brain');
     expect(system).toContain(
       'Identity contract: DG-Labs OS is the cognitive interface of Dessi Georgieva'
     );
     expect(system).toContain('Response mode: research');
+    expect(system).toContain('dryly funny');
     const messages = buildLlmMessages(
       'What is DG-Labs OS?',
       ctx,

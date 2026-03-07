@@ -73,6 +73,7 @@ export const isDeterministicTerminalCommand = (rawInput: string): boolean => {
 };
 
 const HELP_TEXT = [
+  'Talk naturally by default. Use commands when you want something exact.',
   'Available commands:',
   '  help                         Show this list',
   '  whoami                       DG-Labs summary',
@@ -87,6 +88,9 @@ const HELP_TEXT = [
   '  sources                      Show indexed context sources',
   '  context <query>              Retrieve top local context snippets',
   '  mode <concise|explainer|research>  Set LLM answer style',
+  '  brief <question>             Short bullet answer',
+  '  cv <question>                Experience-first answer',
+  '  projects <question>          Builds-first answer',
   '  verify <query>               Verify with web sources and citations',
   '  tools                        List available tools and status',
   '  tool <name> <input>          Run a tool (local_context|web_verify|open_app|list_projects|retrieve|cite)',
