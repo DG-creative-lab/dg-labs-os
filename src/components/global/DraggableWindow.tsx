@@ -21,7 +21,7 @@ const getBottomInset = () => {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_BOTTOM_INSET;
 };
 
-const getWindowBounds = (
+export const getWindowBounds = (
   initialPosition: { x: number; y: number },
   initialSize: { width: number; height: number },
   centerOnMount: boolean

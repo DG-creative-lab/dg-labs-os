@@ -180,7 +180,11 @@ export default function HelpGuideWindow({ isOpen, topic, onClose }: HelpGuideWin
       centerOnMount={true}
       className="bg-[#1f1f24]"
     >
-      <div className="h-full overflow-auto no-scrollbar px-6 py-5 text-white">
+      <div
+        data-testid="help-guide-window"
+        data-help-topic={topic}
+        className="h-full overflow-auto no-scrollbar px-6 py-5 text-white"
+      >
         <div className="flex items-start gap-3">
           <div className="mt-0.5 rounded-lg border border-white/10 bg-white/5 p-2 text-white/80">
             <HeaderIcon className="h-5 w-5" />
