@@ -46,13 +46,45 @@ test.describe('desktop smoke', () => {
     const terminalDialog = page.getByRole('dialog', { name: 'Agents Terminal' });
     await expect(terminalDialog).toBeVisible();
 
-    const toolsSummary = page
-      .locator('details')
-      .filter({ hasText: 'Tools Panel' })
-      .locator('summary');
-    await toolsSummary.click();
+    await page.getByRole('button', { name: 'Tools', exact: true }).click();
     await page.getByRole('button', { name: 'List projects', exact: true }).click();
     await expect(page.getByText(/Tool list_projects returned \d+ project\(s\):/)).toBeVisible();
+  });
+
+  test('terminal shows streaming status before final answer', async ({ page }) => {
+    await page.route('**/api/chat/stream', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      await route.fulfill({
+        status: 200,
+        contentType: 'text/event-stream; charset=utf-8',
+        body: [
+          'event: delta',
+          'data: {"type":"delta","delta":"Dessi builds "}',
+          '',
+          'event: delta',
+          'data: {"type":"delta","delta":"agentic systems."}',
+          '',
+          'event: result',
+          'data: {"ok":true,"message":"Dessi builds agentic systems.","meta":{"provider":"openrouter","model":"openai/gpt-oss-120b","latencyMs":1200,"fallbackUsed":false}}',
+          '',
+          'event: done',
+          'data: {"ok":true}',
+          '',
+        ].join('\n'),
+      });
+    });
+
+    await page.goto('/desktop');
+    await waitForDesktopReady(page);
+    await page.getByRole('button', { name: 'Agents', exact: true }).click();
+    await expect(page.getByRole('dialog', { name: 'Agents Terminal' })).toBeVisible();
+
+    const input = page.getByRole('textbox', { name: 'Terminal command input' });
+    await input.fill('tell me about dessi');
+    await input.press('Enter');
+
+    await expect(page.getByText('Preparing answer…', { exact: true })).toBeVisible();
+    await expect(page.getByText('Dessi builds agentic systems.', { exact: true })).toBeVisible();
   });
 
   test('menubar View opens Workbench and resets after close', async ({ page }) => {

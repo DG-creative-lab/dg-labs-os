@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { isApiErrorEnvelope, isHealthSuccessEnvelope } from '../src/utils/apiContracts';
 import { POST as chatPost } from '../src/pages/api/chat';
+import { POST as chatStreamPost } from '../src/pages/api/chat/stream';
 import { GET as contactGet, POST as contactPost } from '../src/pages/api/contact';
 import { POST as toolsPost } from '../src/pages/api/tools';
 import { POST as verifyPost } from '../src/pages/api/verify';
@@ -63,6 +64,21 @@ describe('API route contracts', () => {
     expect(body.ok).toBe(true);
     expect(body.mode).toBe('agent_json');
     expect(body.data).toBeTruthy();
+  });
+
+  it('chat stream rejects invalid json', async () => {
+    const request = new Request('http://localhost/api/chat/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{ bad json',
+    });
+
+    const response = await chatStreamPost(ctx(request));
+    expect(response.status).toBe(400);
+    const body = (await response.json()) as unknown;
+    expect(isApiErrorEnvelope(body)).toBe(true);
+    if (!isApiErrorEnvelope(body)) return;
+    expect(body.code).toBe('INVALID_JSON');
   });
 
   it('contact GET health returns ok', async () => {

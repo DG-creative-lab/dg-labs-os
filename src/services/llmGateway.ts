@@ -29,6 +29,15 @@ export type LlmGatewayResult =
   | { ok: true; message: string }
   | { ok: false; code: LlmGatewayErrorCode; message: string; hint?: string };
 
+export type LlmGatewayStreamEvent =
+  | { type: 'delta'; delta: string }
+  | { type: 'done'; message: string }
+  | { type: 'error'; code: LlmGatewayErrorCode; message: string; hint?: string };
+
+export type LlmGatewayStreamResult =
+  | { ok: true; stream: AsyncGenerator<LlmGatewayStreamEvent> }
+  | { ok: false; code: LlmGatewayErrorCode; message: string; hint?: string };
+
 const normalizeLower = (value: string) => value.toLowerCase();
 
 const classifyProviderFailure = (
@@ -157,6 +166,71 @@ const normalizeAssistantContent = (content: unknown): string | null => {
   return null;
 };
 
+const extractOpenRouterDelta = (payload: unknown): string | null => {
+  if (!payload || typeof payload !== 'object') return null;
+  const record = payload as Record<string, unknown>;
+  const choices = record.choices;
+  if (!Array.isArray(choices) || choices.length === 0) return null;
+  const first = choices[0];
+  if (!first || typeof first !== 'object') return null;
+  const delta = (first as Record<string, unknown>).delta;
+  if (!delta || typeof delta !== 'object') return null;
+  const content = (delta as Record<string, unknown>).content;
+  return typeof content === 'string' && content.length > 0 ? content : null;
+};
+
+const extractOpenAiResponseDelta = (payload: unknown): string | null => {
+  if (!payload || typeof payload !== 'object') return null;
+  const record = payload as Record<string, unknown>;
+  return typeof record.delta === 'string' && record.delta.length > 0 ? record.delta : null;
+};
+
+async function* parseJsonSseStream(
+  response: Response,
+  onPayload?: (payload: unknown) => void
+): AsyncGenerator<{ event: string; payload: unknown }> {
+  const reader = response.body?.getReader();
+  if (!reader) return;
+
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { value, done } = await reader.read();
+    buffer += decoder.decode(value ?? new Uint8Array(), { stream: !done });
+
+    let boundaryIndex = buffer.indexOf('\n\n');
+    while (boundaryIndex !== -1) {
+      const block = buffer.slice(0, boundaryIndex);
+      buffer = buffer.slice(boundaryIndex + 2);
+      const eventLines = block.split('\n').map((line) => line.trimEnd());
+      const eventName =
+        eventLines
+          .find((line) => line.startsWith('event:'))
+          ?.slice(6)
+          .trim() || 'message';
+      const lines = eventLines
+        .filter((line) => line.startsWith('data:'))
+        .map((line) => line.slice(5).trimStart());
+
+      if (lines.length > 0) {
+        const raw = lines.join('\n');
+        if (raw === '[DONE]') return;
+        try {
+          const payload = JSON.parse(raw) as unknown;
+          onPayload?.(payload);
+          yield { event: eventName, payload };
+        } catch {
+          // ignore malformed event frames
+        }
+      }
+      boundaryIndex = buffer.indexOf('\n\n');
+    }
+
+    if (done) break;
+  }
+}
+
 const mapToOpenAiInput = (messages: readonly LlmGatewayMessage[]) =>
   messages.map((message) => ({
     type: 'message',
@@ -252,6 +326,109 @@ const runOpenAiAdapter = async (
     return { ok: false, ...classifyTransportFailure('OpenAI', errorMessage) };
   } finally {
     clearTimeout(timer);
+  }
+};
+
+const runOpenAiStreamAdapter = async (
+  request: LlmGatewayRequest,
+  timeoutMs: number
+): Promise<LlmGatewayStreamResult> => {
+  if (!request.apiKey) {
+    return {
+      ok: false,
+      code: 'CONFIG_ERROR',
+      message: 'OpenAI API key is missing.',
+    };
+  }
+
+  const abort = new AbortController();
+  const timer = setTimeout(() => abort.abort(), timeoutMs);
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/responses', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${request.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: request.model || 'gpt-4.1-mini',
+        store: false,
+        stream: true,
+        input: mapToOpenAiInput(request.messages),
+      }),
+      signal: abort.signal,
+    });
+
+    if (!response.ok) {
+      const bodyText = await response.text();
+      const failure = classifyProviderFailure(response.status, 'OpenAI', bodyText);
+      return { ok: false, ...failure };
+    }
+
+    async function* stream(): AsyncGenerator<LlmGatewayStreamEvent> {
+      let finalMessage = '';
+      try {
+        for await (const { payload } of parseJsonSseStream(response)) {
+          if (!payload || typeof payload !== 'object') continue;
+          const type = (payload as Record<string, unknown>).type;
+
+          if (type === 'response.output_text.delta') {
+            const delta = extractOpenAiResponseDelta(payload);
+            if (delta) {
+              finalMessage += delta;
+              yield { type: 'delta', delta };
+            }
+            continue;
+          }
+
+          if (type === 'response.completed') {
+            const content = normalizeOpenAiResponseText(
+              (payload as Record<string, unknown>).response ?? payload
+            );
+            if (content && content.length > finalMessage.length) {
+              finalMessage = content;
+            }
+          }
+
+          if (type === 'error') {
+            const message =
+              typeof (payload as Record<string, unknown>).message === 'string'
+                ? ((payload as Record<string, unknown>).message as string)
+                : 'OpenAI streaming request failed.';
+            yield { type: 'error', code: 'PROVIDER_ERROR', message };
+            return;
+          }
+        }
+
+        if (!finalMessage.trim()) {
+          yield {
+            type: 'error',
+            code: 'INVALID_RESPONSE',
+            message: 'Received invalid response from provider.',
+          };
+          return;
+        }
+
+        yield { type: 'done', message: finalMessage.trim() };
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    return { ok: true, stream: stream() };
+  } catch (error) {
+    clearTimeout(timer);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    if (error instanceof DOMException || errorMessage.toLowerCase().includes('abort')) {
+      return {
+        ok: false,
+        code: 'TIMEOUT',
+        message: 'OpenAI request timed out.',
+        hint: 'Increase timeout, retry later, or enable provider fallback.',
+      };
+    }
+    return { ok: false, ...classifyTransportFailure('OpenAI', errorMessage) };
   }
 };
 
@@ -458,6 +635,308 @@ const runGeminiAdapter = async (
   }
 };
 
+const runOpenRouterStreamAdapter = async (
+  request: LlmGatewayRequest,
+  timeoutMs: number
+): Promise<LlmGatewayStreamResult> => {
+  if (!request.apiKey) {
+    return {
+      ok: false,
+      code: 'CONFIG_ERROR',
+      message: 'OpenRouter API key is missing.',
+      hint: 'Configure a server key or add a BYOK key for OpenRouter.',
+    };
+  }
+
+  const abort = new AbortController();
+  const timer = setTimeout(() => abort.abort(), timeoutMs);
+
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${request.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: request.model,
+        messages: request.messages,
+        stream: true,
+        temperature: 0.7,
+        max_tokens: 500,
+      }),
+      signal: abort.signal,
+    });
+
+    if (!response.ok) {
+      const bodyText = await response.text();
+      const failure = classifyProviderFailure(response.status, 'OpenRouter', bodyText);
+      return { ok: false, ...failure };
+    }
+
+    async function* stream(): AsyncGenerator<LlmGatewayStreamEvent> {
+      let finalMessage = '';
+      try {
+        for await (const { payload } of parseJsonSseStream(response)) {
+          const delta = extractOpenRouterDelta(payload);
+          if (delta) {
+            finalMessage += delta;
+            yield { type: 'delta', delta };
+          }
+        }
+
+        const normalized = finalMessage.trim();
+        if (!normalized) {
+          yield {
+            type: 'error',
+            code: 'INVALID_RESPONSE',
+            message: 'Received invalid response from provider.',
+            hint: 'Retry later or switch provider.',
+          };
+          return;
+        }
+
+        yield { type: 'done', message: normalized };
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    return { ok: true, stream: stream() };
+  } catch (error) {
+    clearTimeout(timer);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    if (
+      error instanceof DOMException ||
+      errorMessage.toLowerCase().includes('timeout') ||
+      errorMessage.toLowerCase().includes('abort')
+    ) {
+      return {
+        ok: false,
+        code: 'TIMEOUT',
+        message: 'OpenRouter request timed out.',
+        hint: 'Increase timeout, retry later, or enable provider fallback.',
+      };
+    }
+    return { ok: false, ...classifyTransportFailure('OpenRouter', errorMessage) };
+  }
+};
+
+const runAnthropicStreamAdapter = async (
+  request: LlmGatewayRequest,
+  timeoutMs: number
+): Promise<LlmGatewayStreamResult> => {
+  if (!request.apiKey) {
+    return {
+      ok: false,
+      code: 'CONFIG_ERROR',
+      message: 'Anthropic API key is missing.',
+    };
+  }
+
+  const abort = new AbortController();
+  const timer = setTimeout(() => abort.abort(), timeoutMs);
+
+  try {
+    const systemParts = request.messages
+      .filter((message) => message.role === 'system')
+      .map((message) => message.content.trim())
+      .filter(Boolean);
+    const messages = request.messages
+      .filter((message) => message.role !== 'system')
+      .map((message) => ({
+        role: message.role,
+        content: message.content,
+      }));
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': request.apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: request.model || 'claude-3-5-sonnet-latest',
+        max_tokens: 900,
+        stream: true,
+        system: systemParts.length > 0 ? systemParts.join('\n\n') : undefined,
+        messages,
+      }),
+      signal: abort.signal,
+    });
+
+    if (!response.ok) {
+      const bodyText = await response.text();
+      const failure = classifyProviderFailure(response.status, 'Anthropic', bodyText);
+      return { ok: false, ...failure };
+    }
+
+    async function* stream(): AsyncGenerator<LlmGatewayStreamEvent> {
+      let finalMessage = '';
+      try {
+        for await (const { event, payload } of parseJsonSseStream(response)) {
+          if (!payload || typeof payload !== 'object') continue;
+
+          if (event === 'content_block_delta') {
+            const deltaRecord = (payload as Record<string, unknown>).delta;
+            const delta =
+              deltaRecord &&
+              typeof deltaRecord === 'object' &&
+              typeof (deltaRecord as Record<string, unknown>).text === 'string'
+                ? ((deltaRecord as Record<string, unknown>).text as string)
+                : '';
+            if (delta) {
+              finalMessage += delta;
+              yield { type: 'delta', delta };
+            }
+            continue;
+          }
+
+          if (event === 'error') {
+            const errorObj = (payload as Record<string, unknown>).error;
+            const message =
+              errorObj &&
+              typeof errorObj === 'object' &&
+              typeof (errorObj as Record<string, unknown>).message === 'string'
+                ? ((errorObj as Record<string, unknown>).message as string)
+                : 'Anthropic streaming request failed.';
+            yield { type: 'error', code: 'PROVIDER_ERROR', message };
+            return;
+          }
+        }
+
+        const normalized = finalMessage.trim();
+        if (!normalized) {
+          yield {
+            type: 'error',
+            code: 'INVALID_RESPONSE',
+            message: 'Received invalid response from provider.',
+          };
+          return;
+        }
+
+        yield { type: 'done', message: normalized };
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    return { ok: true, stream: stream() };
+  } catch (error) {
+    clearTimeout(timer);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    if (error instanceof DOMException || errorMessage.toLowerCase().includes('abort')) {
+      return {
+        ok: false,
+        code: 'TIMEOUT',
+        message: 'Anthropic request timed out.',
+        hint: 'Increase timeout, retry later, or enable provider fallback.',
+      };
+    }
+    return { ok: false, ...classifyTransportFailure('Anthropic', errorMessage) };
+  }
+};
+
+const runGeminiStreamAdapter = async (
+  request: LlmGatewayRequest,
+  timeoutMs: number
+): Promise<LlmGatewayStreamResult> => {
+  if (!request.apiKey) {
+    return {
+      ok: false,
+      code: 'CONFIG_ERROR',
+      message: 'Gemini API key is missing.',
+    };
+  }
+
+  const abort = new AbortController();
+  const timer = setTimeout(() => abort.abort(), timeoutMs);
+
+  try {
+    const systemParts = request.messages
+      .filter((message) => message.role === 'system')
+      .map((message) => message.content.trim())
+      .filter(Boolean);
+
+    const contents = request.messages
+      .filter((message) => message.role !== 'system')
+      .map((message) => ({
+        role: message.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: message.content }],
+      }));
+
+    const model = request.model || 'gemini-2.0-flash';
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:streamGenerateContent?alt=sse`;
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': request.apiKey,
+      },
+      body: JSON.stringify({
+        ...(systemParts.length > 0
+          ? {
+              systemInstruction: {
+                parts: [{ text: systemParts.join('\n\n') }],
+              },
+            }
+          : {}),
+        contents,
+      }),
+      signal: abort.signal,
+    });
+
+    if (!response.ok) {
+      const bodyText = await response.text();
+      const failure = classifyProviderFailure(response.status, 'Gemini', bodyText);
+      return { ok: false, ...failure };
+    }
+
+    async function* stream(): AsyncGenerator<LlmGatewayStreamEvent> {
+      let finalMessage = '';
+      try {
+        for await (const { payload } of parseJsonSseStream(response)) {
+          const delta = normalizeGeminiResponseText(payload);
+          if (delta) {
+            finalMessage += delta;
+            yield { type: 'delta', delta };
+          }
+        }
+
+        const normalized = finalMessage.trim();
+        if (!normalized) {
+          yield {
+            type: 'error',
+            code: 'INVALID_RESPONSE',
+            message: 'Received invalid response from provider.',
+          };
+          return;
+        }
+
+        yield { type: 'done', message: normalized };
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    return { ok: true, stream: stream() };
+  } catch (error) {
+    clearTimeout(timer);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    if (error instanceof DOMException || errorMessage.toLowerCase().includes('abort')) {
+      return {
+        ok: false,
+        code: 'TIMEOUT',
+        message: 'Gemini request timed out.',
+        hint: 'Increase timeout, retry later, or enable provider fallback.',
+      };
+    }
+    return { ok: false, ...classifyTransportFailure('Gemini', errorMessage) };
+  }
+};
+
 export const runLlmGateway = async (request: LlmGatewayRequest): Promise<LlmGatewayResult> => {
   const timeoutMs = request.timeoutMs ?? 45000;
 
@@ -530,4 +1009,22 @@ export const runLlmGateway = async (request: LlmGatewayRequest): Promise<LlmGate
   } finally {
     clearTimeout(timer);
   }
+};
+
+export const runLlmGatewayStream = async (
+  request: LlmGatewayRequest
+): Promise<LlmGatewayStreamResult> => {
+  const timeoutMs = request.timeoutMs ?? 45000;
+
+  if (request.provider === 'openai') return runOpenAiStreamAdapter(request, timeoutMs);
+  if (request.provider === 'openrouter') return runOpenRouterStreamAdapter(request, timeoutMs);
+  if (request.provider === 'anthropic') return runAnthropicStreamAdapter(request, timeoutMs);
+  if (request.provider === 'gemini') return runGeminiStreamAdapter(request, timeoutMs);
+
+  return {
+    ok: false,
+    code: 'PROVIDER_ERROR',
+    message: `Streaming is not supported for ${request.provider} yet.`,
+    hint: 'Use a streaming-capable provider.',
+  };
 };

@@ -1,7 +1,7 @@
 import { chatSuccess } from '../utils/apiContracts';
 import type { ChatMessageInput, ChatRequestInput } from '../utils/requestSchemas';
 import { getServerEnv, isServerDev } from '../utils/serverEnv';
-import { runLlmGateway } from './llmGateway';
+import { runLlmGateway, runLlmGatewayStream, type LlmProvider } from './llmGateway';
 import { defaultModelForProvider } from './llmProviderDefaults';
 import {
   classifyKnowledgeQuery,
@@ -57,6 +57,27 @@ export type ChatServiceResult =
         fallbackAvailable: boolean;
       };
     };
+
+export type ChatStreamEvent =
+  | { type: 'status'; stage: string; message: string }
+  | { type: 'delta'; delta: string }
+  | { type: 'result'; payload: ReturnType<typeof chatSuccess> }
+  | {
+      type: 'error';
+      status: number;
+      code: ChatServiceErrorCode;
+      message: string;
+      meta?: {
+        provider: string;
+        hint?: string;
+        errorClass: ChatServiceErrorCode;
+        fallbackAvailable: boolean;
+      };
+    };
+
+export type ChatStreamResult =
+  | { ok: true; stream: AsyncGenerator<ChatStreamEvent> }
+  | ChatServiceResult;
 
 const latestUserQuery = (messages: readonly ChatMessageInput[]): string =>
   [...messages]
@@ -342,4 +363,198 @@ export const runChatService = async ({
         : 'An unexpected error occurred. Please try again later.',
     };
   }
+};
+
+const serverKeys = () =>
+  ({
+    openrouter: getServerEnv('OPENROUTER_API_KEY'),
+    openai: getServerEnv('OPENAI_API_KEY'),
+    anthropic: getServerEnv('ANTHROPIC_API_KEY'),
+    gemini: getServerEnv('GEMINI_API_KEY'),
+  }) as const;
+
+const providerOrder = ['openrouter', 'openai', 'anthropic', 'gemini'] as const;
+
+const errorResultFromGateway = (
+  provider: LlmProvider,
+  code: ChatServiceErrorCode,
+  message: string,
+  hint: string | undefined,
+  fallbackAvailable: boolean
+): Exclude<ChatServiceResult, { ok: true; status: number; payload: ChatServiceSuccess }> => {
+  const meta = {
+    provider,
+    hint,
+    errorClass: code,
+    fallbackAvailable,
+  } as const;
+
+  if (code === 'CONFIG_ERROR') {
+    console.error('[Chat API] Missing provider API key for', provider);
+    return {
+      ok: false,
+      status: 503,
+      code,
+      message: `Chat service is not configured for ${provider}.${fallbackAvailable ? '' : ' Fallback unavailable because no alternate provider key is configured.'}`,
+      meta,
+    };
+  }
+  if (code === 'INVALID_RESPONSE') {
+    console.error('[Chat API] Invalid response from provider', provider);
+    return {
+      ok: false,
+      status: 500,
+      code,
+      message: `Received invalid response from ${provider}.`,
+      meta,
+    };
+  }
+  if (code === 'INVALID_KEY') {
+    return { ok: false, status: 401, code, message, meta };
+  }
+  if (code === 'RATE_LIMITED') {
+    return { ok: false, status: 429, code, message, meta };
+  }
+  if (code === 'QUOTA_EXCEEDED') {
+    return { ok: false, status: 429, code, message, meta };
+  }
+  if (code === 'TIMEOUT') {
+    return { ok: false, status: 504, code, message, meta };
+  }
+  if (code === 'NETWORK_ERROR') {
+    return { ok: false, status: 502, code, message, meta };
+  }
+  return {
+    ok: false,
+    status: 502,
+    code: 'PROVIDER_ERROR',
+    message: isServerDev() ? message : `Provider ${provider} failed.`,
+    meta,
+  };
+};
+
+export const runChatStreamService = async ({
+  messages,
+  responseMode,
+  provider,
+  model,
+  byokApiKey,
+  providerFallbackAllowed,
+}: ChatRequestInput): Promise<ChatStreamResult> => {
+  if (responseMode === 'agent_json') {
+    return runChatService({
+      messages,
+      responseMode,
+      provider,
+      model,
+      byokApiKey,
+      providerFallbackAllowed,
+    });
+  }
+
+  const query = latestUserQuery(messages);
+  const localHits = query ? searchKnowledge(query, 6) : [];
+  const knowledgeGrounding = buildKnowledgeGrounding(query, localHits);
+  const requestMessages = knowledgeGrounding
+    ? [{ role: 'system' as const, content: knowledgeGrounding }, ...messages]
+    : messages;
+
+  const keys = serverKeys();
+  const primaryModel = model || defaultModelForProvider(provider);
+  const primaryApiKey = byokApiKey || keys[provider];
+
+  const candidates = [{ provider, apiKey: primaryApiKey, model: primaryModel }].concat(
+    providerFallbackAllowed
+      ? providerOrder
+          .filter((candidate) => candidate !== provider)
+          .map((candidate) => ({
+            provider: candidate,
+            apiKey: keys[candidate],
+            model: defaultModelForProvider(candidate),
+          }))
+          .filter((candidate) => Boolean(candidate.apiKey))
+      : []
+  );
+
+  const fallbackAvailable = candidates.length > 1;
+
+  for (let index = 0; index < candidates.length; index += 1) {
+    const candidate = candidates[index];
+    const startedAt = Date.now();
+    const streamResult = await runLlmGatewayStream({
+      provider: candidate.provider,
+      model: candidate.model,
+      messages: requestMessages,
+      apiKey: candidate.apiKey,
+    });
+
+    if (!streamResult.ok) {
+      if (index < candidates.length - 1) continue;
+      return errorResultFromGateway(
+        candidate.provider,
+        streamResult.code,
+        streamResult.message,
+        streamResult.hint,
+        fallbackAvailable
+      );
+    }
+
+    const gatewayStream = streamResult.stream;
+
+    async function* stream(): AsyncGenerator<ChatStreamEvent> {
+      yield { type: 'status', stage: 'provider', message: `Streaming from ${candidate.provider}.` };
+      let finalMessage = '';
+
+      for await (const event of gatewayStream) {
+        if (event.type === 'delta') {
+          finalMessage += event.delta;
+          yield { type: 'delta', delta: event.delta };
+          continue;
+        }
+
+        if (event.type === 'error') {
+          const failure = errorResultFromGateway(
+            candidate.provider,
+            event.code,
+            event.message,
+            event.hint,
+            fallbackAvailable
+          );
+          yield {
+            type: 'error',
+            status: failure.status,
+            code: failure.code,
+            message: failure.message,
+            meta: failure.meta,
+          };
+          return;
+        }
+
+        if (event.type === 'done') {
+          finalMessage = event.message || finalMessage;
+        }
+      }
+
+      yield {
+        type: 'result',
+        payload: chatSuccess(finalMessage, {
+          provider: candidate.provider,
+          model: candidate.model,
+          latencyMs: Date.now() - startedAt,
+          fallbackUsed: index > 0,
+          fallbackFrom: index > 0 ? provider : undefined,
+        }),
+      };
+    }
+
+    return { ok: true, stream: stream() };
+  }
+
+  return errorResultFromGateway(
+    provider,
+    'PROVIDER_ERROR',
+    'Streaming provider selection failed.',
+    'Try again later or switch provider.',
+    fallbackAvailable
+  );
 };

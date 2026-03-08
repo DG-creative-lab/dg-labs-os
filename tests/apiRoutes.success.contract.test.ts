@@ -72,6 +72,46 @@ describe('API route success contracts', () => {
     expect(body.message).toBe('Hello from model');
   });
 
+  it('chat stream emits status and result events', async () => {
+    mockGlobalFetch.mockResolvedValue(
+      new Response(
+        [
+          'event: message',
+          'data: {"choices":[{"delta":{"content":"Hello "}}]}',
+          '',
+          'event: message',
+          'data: {"choices":[{"delta":{"content":"from model"}}]}',
+          '',
+          'data: [DONE]',
+          '',
+        ].join('\n'),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'text/event-stream' },
+        }
+      )
+    );
+
+    const { POST } = await import('../src/pages/api/chat/stream');
+    const request = new Request('http://localhost/api/chat/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: 'hello' }],
+      }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(200);
+    expect(response.headers.get('content-type')).toContain('text/event-stream');
+    const body = await response.text();
+    expect(body).toContain('event: status');
+    expect(body).toContain('Starting request…');
+    expect(body).toContain('event: result');
+    expect(body).toContain('Hello from model');
+    expect(body).toContain('event: done');
+  });
+
   it('chat falls back to configured provider when enabled', async () => {
     mockOpenRouterSend.mockResolvedValue({
       choices: [{ message: { content: 'Fallback from OpenRouter' } }],

@@ -348,6 +348,11 @@ export type ChatErrorMeta = {
   fallbackAvailable?: boolean;
 };
 
+export type JsonSseEvent = {
+  event: string;
+  payload: unknown;
+};
+
 export const readChatErrorMeta = (data: unknown): ChatErrorMeta | null => {
   if (!data || typeof data !== 'object') return null;
   const record = data as Record<string, unknown>;
@@ -361,6 +366,69 @@ export const readChatErrorMeta = (data: unknown): ChatErrorMeta | null => {
     fallbackAvailable:
       typeof metaRecord.fallbackAvailable === 'boolean' ? metaRecord.fallbackAvailable : undefined,
   };
+};
+
+const parseSseBlock = (block: string): JsonSseEvent | null => {
+  const trimmed = block.trim();
+  if (!trimmed) return null;
+
+  let event = 'message';
+  const dataLines: string[] = [];
+
+  for (const rawLine of trimmed.split('\n')) {
+    const line = rawLine.trimEnd();
+    if (!line || line.startsWith(':')) continue;
+    if (line.startsWith('event:')) {
+      event = line.slice(6).trim() || 'message';
+      continue;
+    }
+    if (line.startsWith('data:')) {
+      dataLines.push(line.slice(5).trimStart());
+    }
+  }
+
+  if (dataLines.length === 0) return null;
+  const rawData = dataLines.join('\n');
+
+  try {
+    return { event, payload: JSON.parse(rawData) as unknown };
+  } catch {
+    return { event, payload: rawData };
+  }
+};
+
+export const consumeJsonSseStream = async (
+  response: Response,
+  onEvent: (event: JsonSseEvent) => void | Promise<void>
+) => {
+  const reader = response.body?.getReader();
+  if (!reader) return;
+
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { value, done } = await reader.read();
+    buffer += decoder.decode(value ?? new Uint8Array(), { stream: !done });
+
+    let boundaryIndex = buffer.indexOf('\n\n');
+    while (boundaryIndex !== -1) {
+      const block = buffer.slice(0, boundaryIndex);
+      buffer = buffer.slice(boundaryIndex + 2);
+      const parsed = parseSseBlock(block);
+      if (parsed) {
+        await onEvent(parsed);
+      }
+      boundaryIndex = buffer.indexOf('\n\n');
+    }
+
+    if (done) break;
+  }
+
+  const finalBlock = parseSseBlock(buffer);
+  if (finalBlock) {
+    await onEvent(finalBlock);
+  }
 };
 
 export const resolveAnswerConfidenceLabel = (

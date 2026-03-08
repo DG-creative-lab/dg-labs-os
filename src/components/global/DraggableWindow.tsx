@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useId } from 'react';
+import { useState, useRef, useEffect, useId, useLayoutEffect } from 'react';
 import { dispatchDesktopAppFocus } from '../../services/desktopEvents';
 
 // Global z-index counter
@@ -65,6 +65,8 @@ const getWindowBounds = (
   };
 };
 
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+
 interface DraggableWindowProps {
   title: string;
   onClose: () => void;
@@ -109,6 +111,16 @@ export default function DraggableWindow({
   const [isMobile, setIsMobile] = useState(false);
   const hasAppliedInitialCenterRef = useRef(false);
   const windowRef = useRef<HTMLDivElement>(null);
+
+  useIsomorphicLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!centerOnMount) return;
+    if (window.innerWidth < 768) return;
+    const bounds = getWindowBounds(initialPosition, initialSize, true);
+    setSize(bounds.size);
+    setPosition(bounds.position);
+    hasAppliedInitialCenterRef.current = true;
+  }, [centerOnMount, initialPosition, initialSize]);
 
   useEffect(() => {
     const checkMobile = () => {
