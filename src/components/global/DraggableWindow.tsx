@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useId } from 'react';
+import { useState, useRef, useEffect, useId, useLayoutEffect } from 'react';
 import { dispatchDesktopAppFocus } from '../../services/desktopEvents';
 
 // Global z-index counter
@@ -21,7 +21,7 @@ const getBottomInset = () => {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_BOTTOM_INSET;
 };
 
-const getWindowBounds = (
+export const getWindowBounds = (
   initialPosition: { x: number; y: number },
   initialSize: { width: number; height: number },
   centerOnMount: boolean
@@ -64,6 +64,8 @@ const getWindowBounds = (
     },
   };
 };
+
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 interface DraggableWindowProps {
   title: string;
@@ -109,6 +111,21 @@ export default function DraggableWindow({
   const [isMobile, setIsMobile] = useState(false);
   const hasAppliedInitialCenterRef = useRef(false);
   const windowRef = useRef<HTMLDivElement>(null);
+  const initialX = initialPosition.x;
+  const initialY = initialPosition.y;
+  const initialWidth = initialSize.width;
+  const initialHeight = initialSize.height;
+
+  useIsomorphicLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!centerOnMount) return;
+    if (hasAppliedInitialCenterRef.current) return;
+    if (window.innerWidth < 768) return;
+    const bounds = getWindowBounds(initialPosition, initialSize, true);
+    setSize(bounds.size);
+    setPosition(bounds.position);
+    hasAppliedInitialCenterRef.current = true;
+  }, [centerOnMount, initialHeight, initialWidth, initialX, initialY]);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -120,16 +137,6 @@ export default function DraggableWindow({
 
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
-  // Apply centered geometry once on desktop mount. Do not keep reapplying on
-  // every parent render or the window will snap back after manual resizing.
-  useEffect(() => {
-    if (isMobile || !centerOnMount || hasAppliedInitialCenterRef.current) return;
-    const bounds = getWindowBounds(initialPosition, initialSize, centerOnMount);
-    setSize(bounds.size);
-    setPosition(bounds.position);
-    hasAppliedInitialCenterRef.current = true;
-  }, [centerOnMount, initialPosition, initialSize, isMobile]);
 
   useEffect(() => {
     if (!isMobile) return;
@@ -289,10 +296,10 @@ export default function DraggableWindow({
       ref={windowRef}
       role="dialog"
       aria-modal="true"
-      aria-labelledby={titleId}
+      aria-label={title}
       data-desktop-surface="window"
       className={`${
-        isMobile ? 'fixed inset-0 m-4 rounded-xl' : 'absolute rounded-xl'
+        isMobile ? 'fixed inset-0 m-4 rounded-xl' : 'fixed rounded-xl'
       } overflow-hidden border p-0 ${
         isFocused
           ? 'border-white/12 bg-[#1d1d1f] shadow-[0_24px_60px_rgba(0,0,0,0.42)]'
