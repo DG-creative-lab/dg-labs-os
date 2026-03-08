@@ -31,27 +31,28 @@ const TOPICS: Record<
       {
         heading: 'Module Map',
         bullets: [
-          'Workbench: production systems and platform builds.',
-          'Network: knowledge graph of education, experience, research, and projects.',
-          'Agents Terminal: command surface for deterministic actions plus LLM reasoning.',
-          'Timeline: canonical resume module with downloadable formats.',
-          'Lab Notes: research threads and implementation principles.',
+          'Workbench: production systems, enterprise platforms, and engineering artifacts.',
+          'Network: graph of education, experience, research, and shipped systems with idea-level connections.',
+          'Agents Terminal: command surface for deterministic actions, provider-aware reasoning, and evidence-grounded answers.',
+          'Resume: canonical profile module with local downloadable formats.',
+          'Lab Notes: research threads, implementation principles, and system-design heuristics.',
         ],
       },
       {
         heading: 'How It Operates',
         bullets: [
-          'Facts are stored as structured modules; ideas are links between modules.',
-          'The dock is for fast module switching; the menu bar is context-aware by active window.',
-          'Windows can be moved/resized to match your reading and comparison workflow.',
+          'Facts are stored as structured modules; ideas are modeled as links between systems, roles, and writings.',
+          'The dock is for fast module switching; the menu bar changes with the focused window.',
+          'Windows can be moved and resized to support side-by-side comparison across systems, notes, and graph views.',
         ],
       },
       {
         heading: 'Recommended Flow',
         bullets: [
-          'Start in Workbench for systems overview.',
-          'Open Network to inspect idea-level relationships.',
-          'Use Terminal for guided questions and evidence-grounded answers.',
+          'Start in Workbench for the strongest engineering and platform overview.',
+          'Open Network to inspect how projects, experience, and research reinforce each other.',
+          'Use Resume when you need the canonical career narrative and downloadable artifacts.',
+          'Use Terminal for guided questions, verification, and cross-surface synthesis.',
         ],
       },
     ],
@@ -73,8 +74,8 @@ const TOPICS: Record<
       {
         heading: 'Retrieval and Verification',
         bullets: [
-          '`context <query>`: raw local retrieval snippets.',
-          '`verify <query>`: web-grounded check against configured footprint links.',
+          '`context <query>`: raw local retrieval snippets from the indexed portfolio knowledge base.',
+          '`verify <query>`: web-grounded check against configured footprint links and public sources.',
           '`sources`: toggle/inspect citation footer behavior.',
         ],
       },
@@ -83,7 +84,7 @@ const TOPICS: Record<
         bullets: [
           '`open network|projects|notes|resume|terminal`: jump directly to modules.',
           '`help`: list supported deterministic commands.',
-          'Use deterministic commands first; use LLM modes when synthesis is needed.',
+          'Use deterministic commands first; use LLM modes when synthesis, comparison, or explanation is needed.',
         ],
       },
     ],
@@ -97,16 +98,16 @@ const TOPICS: Record<
         heading: 'Desktop Navigation',
         bullets: [
           'Use dock icons for quick app open/close.',
-          'Use menubar actions for app-specific functions (filters, section jumps, presets).',
+          'Use menubar actions for app-specific functions such as filters, section jumps, presets, and downloads.',
           'Use Window > Contact to open the links panel from anywhere on desktop.',
         ],
       },
       {
         heading: 'Reading Efficiency',
         bullets: [
-          'Open multiple windows and compare Workbench, Network, and Notes side by side.',
-          'Resize large modules so the toolbar and dock remain visible.',
-          'Use Terminal to ask targeted questions instead of manual scrolling.',
+          'Open multiple windows and compare Workbench, Network, Resume, and Notes side by side.',
+          'Resize large modules so the menubar and dock remain visible during comparison.',
+          'Use Terminal to ask targeted questions instead of manually scanning long modules.',
         ],
       },
       {
@@ -128,7 +129,7 @@ const TOPICS: Record<
         bullets: [
           'Compute substrate: Human Cortex X (~86B-neuron architecture).',
           'Power profile: ~20W continuous, carbohydrate-fed energy loop.',
-          'Learning bus: multimodal input (visual + verbal + social feedback).',
+          'Learning bus: multimodal input (visual, verbal, and social feedback).',
         ],
       },
       {
@@ -136,14 +137,22 @@ const TOPICS: Record<
         bullets: [
           'Dual-process scheduler: fast heuristic path + slow deliberative path.',
           'Memory model: working memory for active tasks + long-term semantic compression.',
-          'Update rule: iterate through build -> observe -> revise beliefs.',
+          'Update rule: build -> observe -> revise beliefs -> encode reusable system patterns.',
+        ],
+      },
+      {
+        heading: 'Engineering Profile',
+        bullets: [
+          'Primary outputs are production systems, enterprise platform controls, infrastructure governance, and retrieval-grounded interfaces.',
+          'Research is used as system design input, not as a substitute for implementation.',
+          'The portfolio is structured so both humans and AI agents can inspect artifacts, evidence, and cross-links.',
         ],
       },
       {
         heading: 'System Objective',
         bullets: [
           'Optimize for human agency, not attention extraction.',
-          'Convert research into production systems with explicit evidence trails.',
+          'Convert research into production systems with explicit evidence trails and operational contracts.',
           'Expose ideas as explorable modules for both human and agent users.',
         ],
       },

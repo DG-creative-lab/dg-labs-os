@@ -25,14 +25,14 @@ export type TerminalSettings = {
 export const TERMINAL_SETTINGS_KEY = 'dg_labs_terminal_settings_v2';
 
 export const defaultTerminalSettings: TerminalSettings = {
-  brainMode: 'concise',
+  brainMode: 'explainer',
   responseMode: 'narrative',
   llmProvider: 'openrouter',
   llmModel: 'openai/gpt-oss-120b',
   llmFallbackForUnknown: true,
   providerFallbackAllowed: false,
-  routerDebug: true,
-  showLlmSources: true,
+  routerDebug: false,
+  showLlmSources: false,
   strictEvidenceMode: false,
   llmTimeoutMs: TERMINAL_LLM_TIMEOUT_MS,
   llmSessionCap: TERMINAL_LLM_MAX_SESSION_REQUESTS,

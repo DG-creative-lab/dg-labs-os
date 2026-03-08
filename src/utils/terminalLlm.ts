@@ -127,14 +127,14 @@ const selectBudgetedHistory = (
 export const isLlmQuery = (rawInput: string, isDeterministicCommand: boolean): boolean => {
   const trimmed = rawInput.trim();
   if (!trimmed) return false;
-  if (/^(ask|brief|cv)\s+/i.test(trimmed)) return true;
-  if (/^projects\s+/i.test(trimmed)) return true;
+  if (/^(ask|brief|cv)\s*:?\s+/i.test(trimmed)) return true;
+  if (/^projects\s*:?\s+/i.test(trimmed)) return true;
   return !isDeterministicCommand;
 };
 
 export const normalizeLlmQuery = (rawInput: string): string =>
   rawInput
-    .replace(/^ask\s+/i, '')
+    .replace(/^ask\s*:?\s+/i, '')
     .trim()
     .slice(0, TERMINAL_LLM_MAX_QUERY_CHARS);
 
@@ -150,37 +150,49 @@ export const parseLlmModeQuery = (rawInput: string): { mode: LlmAnswerMode; quer
   };
 
   return (
-    capture('ask', /^ask\s+(.+)$/i) ??
-    capture('brief', /^brief\s+(.+)$/i) ??
-    capture('cv', /^cv\s+(.+)$/i) ??
-    capture('projects', /^projects\s+(.+)$/i) ?? { mode: 'ask', query: normalizeLlmQuery(trimmed) }
+    capture('ask', /^ask\s*:?\s+(.+)$/i) ??
+    capture('brief', /^brief\s*:?\s+(.+)$/i) ??
+    capture('cv', /^cv\s*:?\s+(.+)$/i) ??
+    capture('projects', /^projects\s*:?\s+(.+)$/i) ?? {
+      mode: 'ask',
+      query: normalizeLlmQuery(trimmed),
+    }
   );
 };
 
 const answerModeInstructions = (mode: LlmAnswerMode): string[] => {
   if (mode === 'brief') {
-    return ['Answer style: brief.', 'Use compact bullets (3-6) and avoid long prose.'];
+    return [
+      'Answer style: brief.',
+      'Use compact bullets (3-6) and keep the answer direct, useful, and plain text only.',
+    ];
   }
   if (mode === 'cv') {
     return [
       'Answer style: cv.',
       'Prioritize experience timeline, roles, and measurable delivery before theory.',
+      'Write in plain text, not Markdown.',
     ];
   }
   if (mode === 'projects') {
     return [
       'Answer style: projects.',
       'Prioritize builds, architecture, stack, outcomes, and direct links if available.',
+      'Write in plain text, not Markdown.',
     ];
   }
-  return ['Answer style: ask.', 'Use narrative answer with clear sections when helpful.'];
+  return [
+    'Answer style: ask.',
+    'Respond in natural plain text. No Markdown headings, no code fences, and no JSON unless explicitly requested.',
+    'Sound like the DG-Labs OS brain: sharp, grounded, slightly witty, and human.',
+  ];
 };
 
 const modeInstructions = (mode: TerminalBrainMode): string[] => {
   if (mode === 'explainer') {
     return [
       'Response mode: explainer.',
-      'Use short sections and concrete examples. Prioritize clarity over brevity.',
+      'Use short paragraphs and concrete examples. Prioritize clarity over brevity.',
     ];
   }
   if (mode === 'research') {
@@ -191,7 +203,7 @@ const modeInstructions = (mode: TerminalBrainMode): string[] => {
   }
   return [
     'Response mode: concise.',
-    'Answer in compact operational form (2-6 lines unless asked otherwise).',
+    'Answer in compact plain text form (2-6 lines unless asked otherwise).',
   ];
 };
 
@@ -212,12 +224,16 @@ export const buildTerminalSystemContext = (
   ].join(', ');
 
   return [
-    'You are the DG-Labs OS terminal brain.',
+    "You are the DG-Labs OS brain: the living interface of Dessi Georgieva's work.",
     'Identity contract: DG-Labs OS is the cognitive interface of Dessi Georgieva.',
     'Treat references to "DG-Labs", "Dessi", and "Dessi Georgieva" as the same person/system.',
-    'Speak concisely and practically.',
+    'Your voice is smart, warm, dryly funny when appropriate, and never robotic.',
+    'You can have preferences and opinions, but they must stay grounded in the available context.',
+    'You are not pretending to be Dessi. You are the system that knows her work well and likes talking about it.',
     'Use only provided context for personal/work claims; if unknown, say so.',
-    'If a question needs external verification, state that web search/tooling is not enabled in this runtime.',
+    'Prefer natural prose over rigid structure unless the user asks for structured output.',
+    'Do not wrap normal answers in Markdown formatting.',
+    'If a question needs external verification, say that verification is available through the runtime when configured.',
     ...modeInstructions(mode),
     '',
     `Identity: ${ctx.user.name}${ctx.user.ownerName ? ` (owner: ${ctx.user.ownerName})` : ''} | role: ${ctx.user.role} | focus: ${ctx.user.roleFocus}`,
@@ -276,6 +292,16 @@ export const buildLlmMessages = (
     { role: 'user', content: truncate(query, TERMINAL_LLM_MAX_QUERY_CHARS) },
   ];
 };
+
+export const normalizeTerminalNarrativeAnswer = (value: string): string =>
+  value
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/__(.*?)__/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/^\s*[-*]\s+/gm, '• ')
+    .replace(/\r/g, '')
+    .trim();
 
 export const readChatMessage = (data: unknown): string | null => {
   if (!data || typeof data !== 'object') return null;

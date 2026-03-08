@@ -20,10 +20,10 @@ describe('terminal settings', () => {
         llmSessionCap: 12,
       })
     );
-    expect(parsed.routerDebug).toBe(true);
-    expect(parsed.showLlmSources).toBe(true);
+    expect(parsed.routerDebug).toBe(false);
+    expect(parsed.showLlmSources).toBe(false);
     expect(parsed.strictEvidenceMode).toBe(false);
-    expect(parsed.brainMode).toBe('concise');
+    expect(parsed.brainMode).toBe('explainer');
     expect(parsed.responseMode).toBe('narrative');
     expect(parsed.llmProvider).toBe('openrouter');
     expect(parsed.llmModel).toBe('openai/gpt-oss-120b');

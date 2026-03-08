@@ -24,7 +24,7 @@ export default function AboutDGWindow({ isOpen, onClose, onMoreInfo }: AboutDGWi
         </div>
         <div>
           <h2 className="text-4xl font-semibold">DG-Labs Pro</h2>
-          <p className="text-sm text-white/60">Human-grade workstation</p>
+          <p className="text-sm text-white/60">Human-grade systems workstation</p>
         </div>
         <div className="w-full space-y-2 text-left text-sm">
           <div className="flex justify-between gap-4">
@@ -43,14 +43,28 @@ export default function AboutDGWindow({ isOpen, onClose, onMoreInfo }: AboutDGWi
             <span className="text-white/60">DG-Labs</span>
             <span>1.0</span>
           </div>
+          <div className="flex justify-between gap-4">
+            <span className="text-white/60">Runtime</span>
+            <span>Research + engineering</span>
+          </div>
+          <div className="flex justify-between gap-4">
+            <span className="text-white/60">Primary output</span>
+            <span>Systems, platforms, writing</span>
+          </div>
         </div>
+        <p className="max-w-sm text-sm leading-6 text-white/70">
+          Converts ideas into production systems: agent runtimes, enterprise auth boundaries,
+          infrastructure control planes, and public research interfaces.
+        </p>
         <button
           onClick={onMoreInfo}
           className="mt-2 rounded-full bg-white/10 px-4 py-1.5 text-sm text-white shadow hover:bg-white/20 transition"
         >
           More Info...
         </button>
-        <p className="mt-4 text-xs text-white/40">DG-Labs OS prototype interface.</p>
+        <p className="mt-4 text-xs text-white/40">
+          DG-Labs OS prototype interface for systems thinking, research, and engineering.
+        </p>
       </div>
     </DraggableWindow>
   );

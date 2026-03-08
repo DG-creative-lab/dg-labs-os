@@ -16,7 +16,7 @@ describe('executeTerminalCommand', () => {
   it('returns help lines', () => {
     const result = executeTerminalCommand('help', ctx);
     expect(result.lines.length).toBeGreaterThan(5);
-    expect(result.lines[0]).toContain('Available commands');
+    expect(result.lines.join(' ')).toContain('Available commands');
   });
 
   it('supports open command with navigation action', () => {

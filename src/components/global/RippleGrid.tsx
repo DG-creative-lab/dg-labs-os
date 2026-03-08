@@ -50,16 +50,36 @@ const RippleGrid: React.FC<Props> = ({
         : [1, 1, 1];
     };
 
-    const renderer = new Renderer({
-      dpr: Math.min(window.devicePixelRatio, 2),
-      alpha: true,
-    });
-    const gl = renderer.gl;
+    let renderer: InstanceType<typeof Renderer> | null = null;
+    let gl: WebGLRenderingContext | null = null;
+
+    try {
+      renderer = new Renderer({
+        dpr: Math.min(window.devicePixelRatio, 2),
+        alpha: true,
+      });
+      gl = renderer.gl;
+    } catch (error) {
+      console.warn('RippleGrid disabled: unable to create webgl context', error);
+      return;
+    }
+
+    if (!gl) {
+      console.warn('RippleGrid disabled: webgl context unavailable');
+      return;
+    }
+
+    const canvas = gl.canvas instanceof HTMLCanvasElement ? gl.canvas : null;
+    if (!canvas) {
+      console.warn('RippleGrid disabled: html canvas unavailable');
+      return;
+    }
+
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gl.canvas.style.width = '100%';
-    gl.canvas.style.height = '100%';
-    containerRef.current.appendChild(gl.canvas);
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    containerRef.current.appendChild(canvas);
 
     const vert = `
 attribute vec2 position;
@@ -236,7 +256,7 @@ void main() {
 
       uniforms.mousePosition.value = [mousePositionRef.current.x, mousePositionRef.current.y];
 
-      renderer.render({ scene: mesh });
+      renderer?.render({ scene: mesh });
       raf = requestAnimationFrame(render);
     };
 
@@ -248,9 +268,9 @@ void main() {
         window.removeEventListener('mousemove', handleMouseMove);
       }
       cancelAnimationFrame(raf);
-      renderer.gl.getExtension('WEBGL_lose_context')?.loseContext();
-      if (containerRef.current?.contains(gl.canvas)) {
-        containerRef.current.removeChild(gl.canvas);
+      renderer?.gl.getExtension('WEBGL_lose_context')?.loseContext();
+      if (containerRef.current?.contains(canvas)) {
+        containerRef.current.removeChild(canvas);
       }
     };
   }, []);

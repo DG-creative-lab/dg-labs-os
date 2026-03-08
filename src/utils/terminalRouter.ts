@@ -5,7 +5,6 @@ export type RoutedTerminalCommand = {
 };
 
 const OPEN_TARGETS = ['projects', 'notes', 'resume', 'news', 'network', 'desktop', 'terminal'];
-const IDENTITY_ALIASES = ['dessi', 'dessi georgieva', 'dg-labs', 'dg labs'];
 
 const normalize = (value: string): string =>
   value
@@ -20,43 +19,15 @@ const includesAny = (text: string, patterns: readonly string[]): boolean =>
 const targetFromText = (text: string): string | null =>
   OPEN_TARGETS.find((target) => text.includes(target)) ?? null;
 
-const mentionsIdentity = (text: string): boolean =>
-  IDENTITY_ALIASES.some((alias) => text.includes(alias));
-
 export const routeNaturalLanguageCommand = (rawInput: string): RoutedTerminalCommand | null => {
   const input = normalize(rawInput);
   if (!input) return null;
-
-  if (mentionsIdentity(input)) {
-    if (
-      includesAny(input, [
-        'current projects',
-        'current project',
-        'projects',
-        'building',
-        'working on',
-      ])
-    ) {
-      return {
-        command: 'context dessi projects',
-        confidence: 0.93,
-        reason: 'identity project phrase',
-      };
-    }
-    if (includesAny(input, ['about', 'who is', 'profile', 'background'])) {
-      return {
-        command: 'context dessi profile',
-        confidence: 0.9,
-        reason: 'identity profile phrase',
-      };
-    }
-  }
 
   if (includesAny(input, ['help', 'commands', 'what can you do'])) {
     return { command: 'help', confidence: 0.98, reason: 'help intent phrase' };
   }
 
-  if (includesAny(input, ['who am i', 'who are you', 'profile', 'about dg'])) {
+  if (includesAny(input, ['who am i', 'who are you'])) {
     return { command: 'whoami', confidence: 0.94, reason: 'identity intent phrase' };
   }
 
@@ -82,7 +53,7 @@ export const routeNaturalLanguageCommand = (rawInput: string): RoutedTerminalCom
     return { command: 'network', confidence: 0.9, reason: 'network summary phrase' };
   }
 
-  if (includesAny(input, ['resume', 'cv'])) {
+  if (includesAny(input, ['resume', 'cv']) && includesAny(input, ['open', 'show', 'download'])) {
     if (includesAny(input, ['open', 'go to', 'show page', 'take me to'])) {
       return { command: 'open resume', confidence: 0.9, reason: 'resume navigation phrase' };
     }
@@ -116,12 +87,7 @@ export const routeNaturalLanguageCommand = (rawInput: string): RoutedTerminalCom
     }
   }
 
-  const contextPrefixes = [
-    'context ',
-    'context on ',
-    'what do we know about ',
-    'what do you know about ',
-  ];
+  const contextPrefixes = ['context ', 'context on '];
   for (const prefix of contextPrefixes) {
     if (input.startsWith(prefix)) {
       const query = input.slice(prefix.length).trim();

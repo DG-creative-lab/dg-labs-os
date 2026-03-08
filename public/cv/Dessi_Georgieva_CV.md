@@ -1,6 +1,6 @@
 # Dessi Georgieva
 
-**Research Engineer - AI Systems & Human Agency**
+**AI Systems Engineer / Research Engineer - Human Agency**
 
 London, UK · **Email:** [dessi.georgieva8@gmail.com](mailto:dessi.georgieva8@gmail.com) · [LinkedIn](https://www.linkedin.com/in/dessi-georgieva/) · [GitHub](https://github.com/DG-creative-lab) · [AI Knowledge Hub](https://github.com/ai-knowledge-hub) · [AI News Hub](https://ai-news-hub.performics-labs.com/)
 
@@ -8,7 +8,7 @@ London, UK · **Email:** [dessi.georgieva8@gmail.com](mailto:dessi.georgieva8@gm
 
 ## Summary
 
-Research Engineer building AI systems that empower human agency. I design multi-agent architectures, Bayesian learning systems, and marketing intelligence platforms grounded in a philosophical framework that treats intention as geometric structure and system design as an ethical practice. My work bridges production engineering, original research, and community building around empowerment-focused AI.
+AI systems engineer building multi-agent architectures, Bayesian learning systems, enterprise platform controls, and marketing intelligence products grounded in a human-agency thesis. My work combines production engineering, systems architecture, original research, and technical writing, with public artifacts that show both implementation depth and conceptual rigor.
 
 ---
 
@@ -36,6 +36,52 @@ Multi-tenant Bayesian learning system enabling marketing agents to learn from co
 - Designed multi-tenant isolation ensuring complete data and model separation across clients
 - Built closed feedback loops: agent actions → commerce outcomes → belief updates → improved decisions
 - **Stack**: Python, Bayesian inference, multi-tenant architecture, AWS, FastAPI
+
+### Gateplane Enterprise Auth Platform
+
+_Performics scope · Enterprise platform architecture_
+
+Multi-tenant authentication and authorization platform for AI applications requiring strict tenant isolation, hierarchical role governance, and capability-tier controls.
+
+- Designed layered RBAC and policy boundaries mapped to enterprise organizational structure
+- Integrated Microsoft Entra / OIDC identity surfaces into product access flows
+- Defined tenant-aware capability gating for differentiated enterprise product exposure
+- Structured auth and policy domains with clean architecture boundaries to support long-term maintainability
+- **Stack**: FastAPI, Next.js, Postgres, OIDC, Microsoft Entra, policy enforcement
+
+### OneSuite Labs Ephemeral Infrastructure
+
+_Performics scope · Infrastructure modernization_
+
+Infrastructure cleanup and modernization initiative replacing legacy untagged AWS resources with reproducible ephemeral stacks for safe experimentation and faster idea validation.
+
+- Defined decommissioning strategy for non-terraform legacy resources
+- Built contract-driven ephemeral environment workflows for controlled spin-up and teardown
+- Introduced drift-aware infrastructure checks and runtime contract gates
+- Enabled scratch environments mirroring production contracts for systems testing
+- **Stack**: Terraform, AWS, contract gates, drift detection, IaC workflows
+
+### Multi-Tenant Marketing Automation Platform
+
+_Performics / Publicis Media · Enterprise production platform_
+
+Enterprise orchestration platform serving global clients across multiple markets, combining multi-tenant data isolation, authentication hierarchy design, and AI-enabled campaign optimization.
+
+- Contributed to tenant-aware architecture, row-level security patterns, and organizational access boundaries
+- Built around AWS, Databricks, and Microsoft Entra / OIDC integration surfaces
+- Helped shape orchestration layers connecting campaign performance data to optimization workflows
+- **Stack**: AWS, Databricks, OIDC, Microsoft Entra, row-level security, ad platform integrations
+
+### Amazon Optimization Platform (Warehouse)
+
+_Production backend · Award-recognized ecommerce optimization_
+
+Backend services and AWS data-processing workflows for an ecommerce marketing optimization platform using microservice patterns.
+
+- Built backend services in FastAPI with production deployment on AWS
+- Implemented Glue jobs for processing, Lambda triggers for events, and Postgres RDS persistence
+- Worked within microservice boundaries for modular delivery and operational clarity
+- **Stack**: FastAPI, AWS Glue, Lambda, Postgres RDS, microservices
 
 ### AI Agent Skills Framework
 
@@ -72,31 +118,6 @@ Cognitive operating system presenting work, research, and ideas as explorable ap
 - Created Mac-style desktop and iPhone-inspired mobile shells
 - **Stack**: Astro, React, TypeScript, Sigma.js
 
-### Gateplane Enterprise Auth Platform
-
-_Performics scope · Enterprise architecture_
-
-Multi-tenant authentication and authorization architecture for AI applications requiring strict tenant boundaries, hierarchical role governance, and capability-tier controls.
-
-- Designed layered RBAC model mapped to enterprise organizational structure
-- Implemented tenant-aware auth boundaries and policy enforcement contracts
-- Integrated Microsoft Entra/OIDC identity surfaces into platform access flows
-- Defined agentification implementation path to add agent-native product capabilities and strengthen moat
-- Structured auth domain with clean architecture boundaries for maintainability
-- **Stack**: FastAPI, Next.js, OIDC, Microsoft Entra, Postgres, policy enforcement
-
-### OneSuite Labs Ephemeral Infrastructure
-
-_Performics scope · Infrastructure modernization_
-
-Infrastructure cleanup and modernization initiative replacing legacy untagged AWS resources with reproducible ephemeral stacks for safe experimentation and faster idea validation.
-
-- Defined decommissioning strategy for non-terraform legacy resources
-- Built contract-driven ephemeral environment workflows (`up/down/inventory`)
-- Introduced drift-aware infrastructure checks and runtime contract gates
-- Enabled scratch environments mirroring production contracts for testing
-- **Stack**: Terraform, AWS, IaC workflows, contract gates, drift detection
-
 ---
 
 ## Experience
@@ -105,19 +126,19 @@ Infrastructure cleanup and modernization initiative replacing legacy untagged AW
 
 **Performics Innovations Lab · Publicis Media** · London, UK · Nov 2023 - Present
 
-Designing and building AI systems from the ground up within a marketing intelligence context. Actual scope encompasses multi-agent architectures, Bayesian learning frameworks, behavioral modeling systems, and production deployment. Core systems built: Intent Recognition Agent, Agentic Commerce Learning Loop.
+Designing and building AI systems from the ground up within a marketing intelligence context. Actual scope spans multi-agent architectures, Bayesian learning frameworks, behavioral modeling systems, enterprise platform controls, and production deployment. Core systems built include Intent Recognition Agent, Agentic Commerce Learning Loop, Gateplane, and infrastructure modernization for Onesuite Labs.
 
 ### Senior Business Intelligence Analyst
 
 **Publicis Media** · London, UK · Mar 2023 - Nov 2023
 
-Bridged enterprise marketing analytics and production decision systems, shaping the transition from reporting pipelines to intelligence workflows.
+Bridged enterprise marketing analytics and production decision systems, shaping the transition from reporting pipelines to intelligence workflows and platformized decision support.
 
 ### Business Intelligence Manager
 
 **Jellyfish** · London, UK · Jan 2021 - Mar 2023
 
-Led production-grade analytics systems (Shiny apps, AWS ETL, data lake structures), strengthening the engineering foundation for later AI-native system design.
+Led production-grade analytics systems (Shiny apps, AWS ETL, data lake structures), strengthening the engineering foundation for later AI-native system design and infrastructure thinking.
 
 ### Data Consultant / SQL Developer / Data Analyst (Selected Contracts)
 
@@ -155,8 +176,8 @@ Specialisation in philosophy of science, epistemology, and the structure of scie
 
 **Deep Dive Analysis Series** (published on AI News Hub):
 
-- **The Geometry of Intention** - Argues that consumer intent has geometric structure that categorical taxonomies destroy. Proposes embedding-based models that let intent patterns emerge from behavioral data rather than predefined categories.
-- **The Phenomenology of Search** - Applies phenomenological methods to search behavior, examining what the experience of formulating a query reveals about human intention and the design obligations of search systems.
+- **The Geometry of Intention** - Argues that consumer intent has geometric structure that categorical taxonomies destroy, and proposes embedding-based systems that let intent patterns emerge from behavioral data rather than predefined categories.
+- **The Phenomenology of Search** - Applies phenomenological methods to search behavior, examining what query formation reveals about human intention and the design obligations of retrieval systems.
 - 50+ additional articles spanning AI news analysis, marketing intelligence, and human agency perspectives.
 
 ---
@@ -167,7 +188,7 @@ Specialisation in philosophy of science, epistemology, and the structure of scie
 **AI/ML**: Behavioral embeddings, clustering, Bayesian inference, LLM integration, multi-agent orchestration
 **Frameworks**: FastAPI, Next.js, React, Astro, Sigma.js
 **Infrastructure**: AWS (multi-tenant production), Vercel, Supabase, GitHub Actions
-**Practices**: AI-assisted frontend development, research-grade system architecture, open-source ecosystem design
+**Practices**: Multi-tenant system design, enterprise auth and policy modeling, AI-assisted frontend development, research-grade system architecture, open-source ecosystem design
 
 ---
 
