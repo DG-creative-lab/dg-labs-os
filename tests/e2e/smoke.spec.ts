@@ -1,5 +1,11 @@
 import { expect, test } from '@playwright/test';
 
+const waitForDesktopReady = async (page: import('@playwright/test').Page) => {
+  await page.waitForFunction(
+    () => document.documentElement.dataset.desktopReady === 'true'
+  );
+};
+
 test.describe('desktop smoke', () => {
   test.beforeEach(({ isMobile }) => {
     test.skip(isMobile, 'desktop smoke runs only on desktop project');
@@ -7,6 +13,7 @@ test.describe('desktop smoke', () => {
 
   test('desktop shell loads with menubar', async ({ page }) => {
     await page.goto('/desktop');
+    await waitForDesktopReady(page);
     await expect(page).toHaveURL(/\/desktop$/);
     await expect(page.getByRole('menubar', { name: 'Application menu bar' })).toBeVisible();
     await expect(page.getByText('DG-Labs', { exact: true })).toBeVisible();
@@ -14,13 +21,11 @@ test.describe('desktop smoke', () => {
 
   test('dock opens and closes Workbench window', async ({ page }) => {
     await page.goto('/desktop');
+    await waitForDesktopReady(page);
     const dockWorkbench = page.getByRole('button', { name: 'Workbench', exact: true });
     const workbenchAnchor = page.getByText('Intent Recognition Agent', { exact: true });
 
     await dockWorkbench.click();
-    if ((await workbenchAnchor.count()) === 0) {
-      await dockWorkbench.click();
-    }
     await expect(workbenchAnchor).toBeVisible();
 
     await dockWorkbench.click();
@@ -29,6 +34,7 @@ test.describe('desktop smoke', () => {
 
   test('dock opens Agents Terminal window', async ({ page }) => {
     await page.goto('/desktop');
+    await waitForDesktopReady(page);
     await page.getByRole('button', { name: 'Agents' }).click();
     await expect(page.getByRole('dialog', { name: 'Agents Terminal' })).toBeVisible();
     await expect(page.getByText('Agents Runtime', { exact: true })).toBeVisible();
@@ -36,6 +42,7 @@ test.describe('desktop smoke', () => {
 
   test('terminal tools panel runs list_projects quick action', async ({ page }) => {
     await page.goto('/desktop');
+    await waitForDesktopReady(page);
     const dockAgents = page.getByRole('button', { name: 'Agents', exact: true });
     await dockAgents.click();
     const terminalDialog = page.getByRole('dialog', { name: 'Agents Terminal' });
@@ -52,6 +59,7 @@ test.describe('desktop smoke', () => {
 
   test('menubar View opens Workbench and resets after close', async ({ page }) => {
     await page.goto('/desktop');
+    await waitForDesktopReady(page);
 
     const viewMenu = page.getByRole('menuitem', { name: 'View', exact: true });
     await viewMenu.click();
@@ -71,6 +79,7 @@ test.describe('desktop smoke', () => {
 
   test('menubar Window -> Contact opens Links panel', async ({ page }) => {
     await page.goto('/desktop');
+    await waitForDesktopReady(page);
 
     await page.getByRole('menuitem', { name: 'Window', exact: true }).click();
     await page.getByRole('menuitem', { name: 'Contact...' }).click();
@@ -81,6 +90,7 @@ test.describe('desktop smoke', () => {
 
   test('menubar Help -> DG-Labs User Guide opens and closes help window', async ({ page }) => {
     await page.goto('/desktop');
+    await waitForDesktopReady(page);
 
     await page.getByRole('menuitem', { name: 'Help', exact: true }).click();
     await page.getByRole('menuitem', { name: 'DG-Labs User Guide' }).click();
@@ -95,6 +105,7 @@ test.describe('desktop smoke', () => {
 
   test('network graph toggle switches navigation mode', async ({ page }) => {
     await page.goto('/desktop');
+    await waitForDesktopReady(page);
     const dockNetwork = page.getByRole('button', { name: 'Network', exact: true });
     await dockNetwork.click();
     const closeNetwork = page.getByRole('button', { name: 'Close Network', exact: true });
@@ -117,6 +128,7 @@ test.describe('desktop smoke', () => {
 
   test('window lifecycle survives rapid open/close and refocus', async ({ page }) => {
     await page.goto('/desktop');
+    await waitForDesktopReady(page);
 
     const dockWorkbench = page.getByRole('button', { name: 'Workbench', exact: true });
     const dockAgents = page.getByRole('button', { name: 'Agents', exact: true });

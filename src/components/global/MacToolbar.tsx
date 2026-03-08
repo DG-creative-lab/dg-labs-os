@@ -16,6 +16,7 @@ import {
   onDesktopAppFocus,
   onDesktopState,
 } from '../../services/desktopEvents';
+import { clearDesktopReady, markDesktopReady } from '../../services/desktopReady';
 import {
   openAppFromMenu,
   openContactFromMenu,
@@ -56,6 +57,11 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
     'home' | 'terminal' | 'network' | 'projects' | 'notes' | 'resume' | 'news' | null
   >(null);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    markDesktopReady(window, 'toolbar');
+    return () => clearDesktopReady(window, 'toolbar');
+  }, []);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -341,29 +347,29 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
     ...commonMenus,
     View: [
       {
-        label: 'Open Workbench',
+        label: 'Projects',
         icon: <IoCodeSlash size={16} />,
         action: () => openAppFromMenu('projects'),
       },
       {
-        label: 'Open Network',
+        label: 'Network',
         icon: <IoDocumentText size={16} />,
         action: () => openAppFromMenu('network'),
       },
       {
-        label: 'Open Lab Notes',
+        label: 'Notes',
         icon: <IoDocumentText size={16} />,
         action: () => openAppFromMenu('notes'),
       },
       {
-        label: 'Open Agents Runtime',
+        label: 'Terminal',
         icon: <IoHelpCircle size={16} />,
         action: () => openAppFromMenu('terminal'),
       },
     ],
     Window: [
       {
-        label: 'Open Links Panel',
+        label: 'Contact...',
         icon: <IoMail size={16} />,
         action: () => {
           openContactFromMenu({
@@ -633,7 +639,7 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
 
   const appMenuLabelMap: Record<ToolbarAppId, string> = {
     home: userConfig.name,
-    terminal: 'Agents Runtime',
+    terminal: 'Agents',
     network: 'Network',
     projects: 'Workbench',
     notes: 'Lab Notes',
@@ -676,7 +682,7 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
         action: () => emitTerminalMenuAction(window, 'clear_output'),
       },
       {
-        label: 'Close Agents Runtime',
+        label: 'Close Agents Terminal',
         icon: <FaWindowRestore size={16} />,
         action: () => closeApp('terminal'),
       },

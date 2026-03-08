@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useId } from 'react';
 import { dispatchDesktopAppFocus } from '../../services/desktopEvents';
 
 // Global z-index counter
@@ -92,6 +92,7 @@ export default function DraggableWindow({
   centerOnMount = false,
   isFocused = true,
 }: DraggableWindowProps) {
+  const titleId = useId();
   const [position, setPosition] = useState(
     () => getWindowBounds(initialPosition, initialSize, centerOnMount).position
   );
@@ -288,7 +289,7 @@ export default function DraggableWindow({
       ref={windowRef}
       role="dialog"
       aria-modal="true"
-      aria-labelledby="window-title"
+      aria-labelledby={titleId}
       data-desktop-surface="window"
       className={`${
         isMobile ? 'fixed inset-0 m-4 rounded-xl' : 'absolute rounded-xl'
@@ -328,7 +329,7 @@ export default function DraggableWindow({
           <div className="w-3 h-3 rounded-full bg-green-500"></div>
           {showTitle && (
             <span
-              id="window-title"
+              id={titleId}
               className={`text-sm flex-grow text-center font-semibold ${
                 isFocused ? 'text-gray-300' : 'text-gray-400'
               }`}

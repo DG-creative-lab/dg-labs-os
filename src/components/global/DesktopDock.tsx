@@ -6,6 +6,7 @@ import {
   onDockCloseLinks,
   onDockOpenLinks,
 } from '../../services/desktopEvents';
+import { clearDesktopReady, markDesktopReady } from '../../services/desktopReady';
 import DockGlyph from './DockGlyph';
 
 interface DesktopDockProps {
@@ -68,6 +69,11 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
     if (id === 'email' || id === 'call') return 'contact';
     return 'links';
   };
+
+  useEffect(() => {
+    markDesktopReady(window, 'dock');
+    return () => clearDesktopReady(window, 'dock');
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

@@ -10,6 +10,7 @@ import {
   onDesktopOpenWindow,
   onDesktopToggleWindow,
 } from '../../services/desktopEvents';
+import { clearDesktopReady, markDesktopReady } from '../../services/desktopReady';
 import {
   desktopShellReducer,
   INITIAL_DESKTOP_SHELL_STATE,
@@ -230,6 +231,11 @@ export default function DesktopWorkspace() {
   const closeWindow = (appId: DesktopAppId) => {
     dispatch({ type: 'CLOSE_WINDOW', appId });
   };
+
+  useEffect(() => {
+    markDesktopReady(window, 'workspace');
+    return () => clearDesktopReady(window, 'workspace');
+  }, []);
 
   useEffect(() => {
     dispatchDesktopState(window, state.open, state.focusedAppId);
