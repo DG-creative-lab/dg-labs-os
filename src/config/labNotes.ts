@@ -51,7 +51,7 @@ export const labNotes: readonly LabNote[] = [
     title: 'AI News Analysis Feed',
     subtitle: '40+ short analyses mapped to marketing infrastructure shifts',
     readingTime: 'Daily',
-    url: 'https://ai-news-hub.performics-labs.com/',
+    url: 'https://ai-news-hub.performics-labs.com/news',
     tags: ['news', 'adtech', 'signals'],
   },
 ] as const;

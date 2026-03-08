@@ -135,7 +135,7 @@ This means roadmap execution can be incremental without redesigning the whole in
 ### 4.3 System Gaps
 
 - No central planning document currently in repo (this file fixes that baseline).
-- No content schema validation that enforces required links/fields by module.
+- Content schema validation now covers the core portfolio modules (`workbench`, `network`, `labNotes`, `publicLinks`) in CI; next iteration can expand into richer semantic rules.
 - Need deeper E2E coverage beyond smoke (terminal tool interactions, graph interaction modes, window lifecycle edge cases).
 - Deployment is not yet fully hardened for Vercel production (secrets, provider routing, runtime checks, observability).
 
@@ -360,6 +360,7 @@ P0 (next):
 - Vercel deployment hardening:
   - deploy runbook + env matrix + health checks + rollback flow
 - Content schema validation for core configs (`workbench`, `network`, `notes`, `links`)
+  - status: completed (CI-enforced structural validation)
 - Resume app enrichment
 - About window behavior/design parity
 
