@@ -45,7 +45,7 @@ const {
 ---
 
 <Layout title={title} description={description} canonical={canonical} openGraph={openGraph}>
-  <div class="relative w-screen min-h-screen overflow-hidden bg-gray-900">
+  <div class="relative h-[100dvh] w-screen overflow-hidden bg-gray-900">
     <div class="absolute inset-0 opacity-70">
       <RippleGrid
         client:load
@@ -67,7 +67,7 @@ const {
     <div class="relative z-30">
       <MacToolbar client:load activeAppId={activeAppId} />
     </div>
-    <main class="relative z-10 min-h-screen pt-10 pb-24">
+    <main class="relative z-10 h-[calc(100dvh-1.5rem)] overflow-hidden pt-4">
       <slot />
     </main>
     <DesktopDock client:load activeApps={activeApps} />
