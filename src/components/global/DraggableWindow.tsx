@@ -111,16 +111,21 @@ export default function DraggableWindow({
   const [isMobile, setIsMobile] = useState(false);
   const hasAppliedInitialCenterRef = useRef(false);
   const windowRef = useRef<HTMLDivElement>(null);
+  const initialX = initialPosition.x;
+  const initialY = initialPosition.y;
+  const initialWidth = initialSize.width;
+  const initialHeight = initialSize.height;
 
   useIsomorphicLayoutEffect(() => {
     if (typeof window === 'undefined') return;
     if (!centerOnMount) return;
+    if (hasAppliedInitialCenterRef.current) return;
     if (window.innerWidth < 768) return;
     const bounds = getWindowBounds(initialPosition, initialSize, true);
     setSize(bounds.size);
     setPosition(bounds.position);
     hasAppliedInitialCenterRef.current = true;
-  }, [centerOnMount, initialPosition, initialSize]);
+  }, [centerOnMount, initialHeight, initialWidth, initialX, initialY]);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -132,16 +137,6 @@ export default function DraggableWindow({
 
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
-  // Apply centered geometry once on desktop mount. Do not keep reapplying on
-  // every parent render or the window will snap back after manual resizing.
-  useEffect(() => {
-    if (isMobile || !centerOnMount || hasAppliedInitialCenterRef.current) return;
-    const bounds = getWindowBounds(initialPosition, initialSize, centerOnMount);
-    setSize(bounds.size);
-    setPosition(bounds.position);
-    hasAppliedInitialCenterRef.current = true;
-  }, [centerOnMount, initialPosition, initialSize, isMobile]);
 
   useEffect(() => {
     if (!isMobile) return;

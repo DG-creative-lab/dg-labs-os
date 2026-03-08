@@ -129,7 +129,9 @@ test.describe('desktop smoke', () => {
     const closeGuide = page.getByRole('button', { name: 'Close Guide', exact: true });
 
     await expect(guideDialog).toBeVisible();
-    await expect(page.getByText('DG-Labs User Guide', { exact: true })).toBeVisible();
+    await expect(
+      guideDialog.getByRole('heading', { name: 'DG-Labs User Guide', exact: true })
+    ).toBeVisible();
     await closeGuide.click();
     await expect(guideDialog).toHaveCount(0);
   });
