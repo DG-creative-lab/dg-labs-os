@@ -301,10 +301,10 @@ export default function DraggableWindow({
       ref={windowRef}
       role="dialog"
       aria-modal="true"
-      aria-labelledby={titleId}
+      aria-label={title}
       data-desktop-surface="window"
       className={`${
-        isMobile ? 'fixed inset-0 m-4 rounded-xl' : 'absolute rounded-xl'
+        isMobile ? 'fixed inset-0 m-4 rounded-xl' : 'fixed rounded-xl'
       } overflow-hidden border p-0 ${
         isFocused
           ? 'border-white/12 bg-[#1d1d1f] shadow-[0_24px_60px_rgba(0,0,0,0.42)]'
