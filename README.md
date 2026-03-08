@@ -34,7 +34,7 @@ DG-Labs OS is a portfolio presented as a personal operating system - an interfac
 
 - Vercel deployment hardening and production runbook execution.
 - Agent Runtime v3 UX polish (provider diagnostics, citation compactness, fallback messaging).
-- Content schema validation and module cross-link integrity.
+- Module cross-link integrity and post-deploy content polish.
 
 ## Tech Stack
 

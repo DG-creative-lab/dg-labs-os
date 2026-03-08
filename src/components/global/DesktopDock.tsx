@@ -24,7 +24,8 @@ type DockItem = {
   onClick: () => void;
   glyph: React.ComponentProps<typeof DockGlyph>['name'];
   glyphClassName?: string;
-  color: string;
+  shellClassName: string;
+  accentClassName: string;
   active: boolean;
 };
 
@@ -210,7 +211,8 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
         window.location.href = '/apps/projects';
       },
       glyph: 'workbench',
-      color: 'from-slate-900 to-slate-700',
+      shellClassName: 'from-[#111722] via-[#182233] to-[#22314b]',
+      accentClassName: 'text-[#d7e6ff]',
       active: isDesktopShell
         ? desktopOpen.projects
         : activeApps.github || isPathActive('/apps/projects'),
@@ -226,7 +228,8 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
         window.location.href = '/apps/notes';
       },
       glyph: 'notes',
-      color: 'from-amber-500 to-yellow-300',
+      shellClassName: 'from-[#171514] via-[#221f1c] to-[#302821]',
+      accentClassName: 'text-[#efe5d5]',
       active: isDesktopShell ? desktopOpen.notes : activeApps.notes || isPathActive('/apps/notes'),
     },
     {
@@ -240,7 +243,8 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
         window.location.href = '/apps/resume';
       },
       glyph: 'timeline',
-      color: 'from-rose-600 to-rose-400',
+      shellClassName: 'from-[#1b1315] via-[#26191d] to-[#38242a]',
+      accentClassName: 'text-[#f1d5d7]',
       active: isDesktopShell
         ? desktopOpen.resume
         : activeApps.resume || isPathActive('/apps/resume'),
@@ -256,7 +260,8 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
         window.location.href = '/apps/news';
       },
       glyph: 'news',
-      color: 'from-sky-600 to-indigo-700',
+      shellClassName: 'from-[#0f171b] via-[#14232b] to-[#1a3441]',
+      accentClassName: 'text-[#d2eef6]',
       active: isDesktopShell ? desktopOpen.news : isPathActive('/apps/news'),
     },
     {
@@ -271,7 +276,8 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
           window.location.pathname === '/apps/network' ? '/desktop' : '/apps/network';
       },
       glyph: 'network',
-      color: 'from-indigo-600 to-fuchsia-700',
+      shellClassName: 'from-[#171420] via-[#211d31] to-[#302b49]',
+      accentClassName: 'text-[#e2ddff]',
       active: isDesktopShell ? desktopOpen.network : isPathActive('/apps/network'),
     },
     {
@@ -279,7 +285,8 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
       label: 'Links',
       onClick: handleLinksClick,
       glyph: 'links',
-      color: 'from-slate-800 to-slate-600',
+      shellClassName: 'from-[#17191d] via-[#20252b] to-[#303942]',
+      accentClassName: 'text-[#e6eef6]',
       active: showLinksPopup,
     },
     {
@@ -295,8 +302,9 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
         window.location.href = isTerminal ? '/desktop' : '/apps/terminal';
       },
       glyph: 'agents',
-      glyphClassName: 'text-emerald-300',
-      color: 'from-slate-950 to-slate-800',
+      glyphClassName: 'drop-shadow-[0_0_10px_rgba(128,255,221,0.08)]',
+      shellClassName: 'from-[#111816] via-[#172420] to-[#20312b]',
+      accentClassName: 'text-[#dcfff2]',
       active: isDesktopShell
         ? desktopOpen.terminal
         : activeApps.terminal || isPathActive('/apps/terminal'),
@@ -344,15 +352,23 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
                   }}
                 >
                   <div
-                    className={`relative w-12 h-12 rounded-[14px] bg-gradient-to-b ${item.color} flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.35)] overflow-hidden active:scale-95 ${item.active ? 'ring-2 ring-white/50' : ''}`}
+                    className={`relative w-12 h-12 rounded-[14px] bg-gradient-to-b ${item.shellClassName} flex items-center justify-center overflow-hidden border active:scale-95 ${
+                      item.active
+                        ? 'border-white/18 shadow-[0_10px_24px_rgba(0,0,0,0.36),inset_0_1px_0_rgba(255,255,255,0.08)] ring-1 ring-white/18'
+                        : 'border-white/8 shadow-[0_8px_20px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.04)]'
+                    }`}
                   >
                     <span
-                      className="absolute inset-x-1 top-1 h-4 rounded-full bg-white/25 blur-[1px]"
+                      className="absolute inset-x-1 top-1 h-2.5 rounded-full bg-white/8 blur-[1px]"
+                      aria-hidden="true"
+                    />
+                    <span
+                      className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,0.06),transparent_48%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_58%,rgba(0,0,0,0.16))]"
                       aria-hidden="true"
                     />
                     <DockGlyph
                       name={item.glyph}
-                      className={`h-8 w-8 drop-shadow-sm text-white ${item.glyphClassName ?? ''}`}
+                      className={`relative z-[1] h-8 w-8 drop-shadow-sm ${item.accentClassName} ${item.glyphClassName ?? ''}`}
                     />
                     {item.active && (
                       <span

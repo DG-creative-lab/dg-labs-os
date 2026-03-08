@@ -15,9 +15,10 @@ export default function DockGlyph({ name, className = '' }: Props) {
     case 'workbench':
       return (
         <svg {...common} className={className} aria-hidden="true">
-          <path d="M14 18h36v28H14z" stroke="currentColor" strokeWidth="4" opacity="0.9" />
+          <path d="M16 20h32v24H16z" stroke="currentColor" strokeWidth="4" opacity="0.92" rx="2" />
+          <path d="M24 20v24M16 28h32" stroke="currentColor" strokeWidth="3.5" opacity="0.65" />
           <path
-            d="M20 24h24M20 32h18M20 40h12"
+            d="M29 25h14M29 33h10M20 33h4M20 39h23"
             stroke="currentColor"
             strokeWidth="4"
             strokeLinecap="round"
@@ -27,9 +28,10 @@ export default function DockGlyph({ name, className = '' }: Props) {
     case 'notes':
       return (
         <svg {...common} className={className} aria-hidden="true">
-          <path d="M18 14h28v36H18z" stroke="currentColor" strokeWidth="4" />
+          <path d="M20 16h24v32H20z" stroke="currentColor" strokeWidth="4" />
+          <path d="M24 16v32" stroke="currentColor" strokeWidth="3.5" opacity="0.7" />
           <path
-            d="M24 24h16M24 32h16M24 40h12"
+            d="M29 24h10M29 32h10M29 40h7"
             stroke="currentColor"
             strokeWidth="4"
             strokeLinecap="round"
@@ -70,18 +72,12 @@ export default function DockGlyph({ name, className = '' }: Props) {
       return (
         <svg {...common} className={className} aria-hidden="true">
           <path d="M16 18h32v28H16z" stroke="currentColor" strokeWidth="4" />
+          <path d="M16 24h32" stroke="currentColor" strokeWidth="3.5" opacity="0.72" />
           <path
-            d="M22 26h10M22 34h20M22 42h16"
+            d="M21 30h9M21 38h14M34 30h8M34 38h8"
             stroke="currentColor"
             strokeWidth="4"
             strokeLinecap="round"
-          />
-          <path
-            d="M36 26h6"
-            stroke="currentColor"
-            strokeWidth="4"
-            strokeLinecap="round"
-            opacity="0.8"
           />
         </svg>
       );
