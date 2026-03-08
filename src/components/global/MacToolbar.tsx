@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { MdWifi } from 'react-icons/md';
-import { FaApple, FaGithub, FaLinkedin, FaEnvelope, FaWindowRestore } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaEnvelope, FaWindowRestore } from 'react-icons/fa';
 import {
   IoBatteryHalfOutline,
   IoCellular,
@@ -863,8 +863,14 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
               aria-expanded={activeMenu === 'Apple'}
               aria-controls="menu-Apple"
               role="menuitem"
+              aria-label="DG-Labs system menu"
             >
-              <FaApple size={16} />
+              <span
+                aria-hidden="true"
+                className="flex h-4 w-4 items-center justify-center rounded-[4px] border border-white/10 bg-white/5 text-[9px] font-semibold tracking-[-0.06em] text-white/95"
+              >
+                DG
+              </span>
             </button>
             {activeMenu === 'Apple' && <div id="menu-Apple">{renderMenu(menus.Apple)}</div>}
           </div>
