@@ -1,9 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 const waitForDesktopReady = async (page: import('@playwright/test').Page) => {
-  await page.waitForFunction(
-    () => document.documentElement.dataset.desktopReady === 'true'
-  );
+  await page.waitForFunction(() => document.documentElement.dataset.desktopReady === 'true');
 };
 
 test.describe('desktop smoke', () => {
