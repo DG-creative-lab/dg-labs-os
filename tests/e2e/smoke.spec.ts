@@ -52,8 +52,13 @@ test.describe('desktop smoke', () => {
   });
 
   test('terminal shows streaming status before final answer', async ({ page }) => {
+    let releaseResponse: (() => void) | null = null;
+    const responseGate = new Promise<void>((resolve) => {
+      releaseResponse = resolve;
+    });
+
     await page.route('**/api/chat/stream', async (route) => {
-      await new Promise((resolve) => setTimeout(resolve, 600));
+      await responseGate;
       await route.fulfill({
         status: 200,
         contentType: 'text/event-stream; charset=utf-8',
@@ -81,14 +86,10 @@ test.describe('desktop smoke', () => {
 
     const input = page.getByRole('textbox', { name: 'Terminal command input' });
     await input.fill('tell me about dessi');
-    await input.press('Enter');
+    await Promise.all([page.waitForRequest('**/api/chat/stream'), input.press('Enter')]);
 
-    const interimStatus = page
-      .getByText('Preparing answer…', { exact: true })
-      .or(page.getByText('Waiting for first tokens…', { exact: true }))
-      .or(page.getByText('Streaming response…', { exact: true }))
-      .first();
-    await expect(interimStatus).toBeVisible();
+    await expect(page.getByText('Preparing answer…', { exact: true })).toBeVisible();
+    releaseResponse?.();
     await expect(page.getByText('Dessi builds agentic systems.', { exact: true })).toBeVisible();
   });
 
