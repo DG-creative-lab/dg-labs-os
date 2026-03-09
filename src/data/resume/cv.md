@@ -10,12 +10,12 @@ London, UK · [dessi.georgieva8@gmail.com](mailto:dessi.georgieva8@gmail.com) ·
 
 I design and build AI systems end-to-end - multi-agent architectures, Bayesian learning loops, behavioral modeling pipelines, and the enterprise infrastructure underneath them. My research focus is how to model human intent as continuous structure rather than fixed categories. I publish original work on these ideas, maintain open-source agent tooling.
 
-
 ---
 
 ## Core Systems
 
 ### Intent Recognition Agent
+
 _Performics Innovations Lab (Publicis Media) · Production_
 
 Four-layer marketing intelligence system that models consumer intention through behavioral embeddings, clustering, and LLM-powered persona generation.
@@ -26,6 +26,7 @@ Four-layer marketing intelligence system that models consumer intention through 
 - Connected the intent layer to campaign targeting and audience strategy workflows
 
 ### Agentic Commerce Learning Loop
+
 _Performics Innovations Lab (Publicis Media) · Production_
 
 Multi-tenant Bayesian learning system where marketing agents learn from commerce outcomes through continuous belief updating.
@@ -35,6 +36,7 @@ Multi-tenant Bayesian learning system where marketing agents learn from commerce
 - Implemented closed feedback loops connecting agent behavior to measurable commerce results
 
 ### Gateplane - Multi-Tenant Auth & Access Platform
+
 _Originated at Performics · Being generalized to open source_
 
 Multi-tenant authentication and authorization platform for B2B applications. It includes multiple identity providers, tenant isolation, scoped and hierarchical roles, configurable capability packs and product tiers, adaptable scope taxonomies, and agent-friendly access control.
@@ -42,9 +44,10 @@ Multi-tenant authentication and authorization platform for B2B applications. It 
 - Built provider-driven authentication with adapter-based SSO integration
 - Designed tenant-aware role definitions, role packs, and configurable capability packs composed into product tiers
 - Implemented configurable scope taxonomy mapped onto the persistence model for flexible permission structures
-- Followed clean architecture boundaries 
+- Followed clean architecture boundaries
 
 ### OneSuite Labs Ephemeral Infrastructure
+
 _Performics scope · Infrastructure modernization_
 
 Replaced legacy untagged AWS resources with reproducible ephemeral stacks for safer experimentation and faster validation.
@@ -54,6 +57,7 @@ Replaced legacy untagged AWS resources with reproducible ephemeral stacks for sa
 - Enabled scratch environments mirroring production contracts for systems testing
 
 ### Amazon Marketing Optimization Platform
+
 _Production backend · Award-recognized ecommerce optimization_
 
 Backend services and data-processing workflows for an ecommerce marketing optimization platform.
@@ -63,6 +67,7 @@ Backend services and data-processing workflows for an ecommerce marketing optimi
 - Worked within microservice boundaries for modular delivery
 
 ### AI Agent Skills Framework
+
 _Open Source · [skills.ai-knowledge-hub.org](https://skills.ai-knowledge-hub.org/) · [GitHub](https://github.com/ai-knowledge-hub/all-hands)_
 
 Open-source ecosystem helping marketing teams adopt AI agents through structured, progressive learning.
@@ -72,6 +77,7 @@ Open-source ecosystem helping marketing teams adopt AI agents through structured
 - TypeScript, Next.js, Markdown
 
 ### AI News Hub
+
 _250+ organic followers · 50+ articles · Active_
 
 AI content platform publishing analysis and longer research pieces on AI's impact on marketing and human agency.
@@ -81,6 +87,7 @@ AI content platform publishing analysis and longer research pieces on AI's impac
 - Built an engaged practitioner community around these ideas
 
 ### DG-Labs OS - Portfolio as Operating System
+
 _Personal · Active_
 
 Portfolio site designed as an explorable operating system - apps, windows, workflows, and a retrieval-backed agent runtime.
@@ -95,26 +102,31 @@ Portfolio site designed as an explorable operating system - apps, windows, workf
 ## Experience
 
 ### Engineer (Research Engineer scope)
+
 **Performics Innovations Lab · Publicis Media** · London · Nov 2023 – Present
 
 Designing and building AI systems within a marketing intelligence context. Actual scope covers multi-agent architectures, Bayesian learning frameworks, behavioral modeling, enterprise platform controls, and production deployment.
 
 ### Senior Business Intelligence Analyst
+
 **Publicis Media** · London · Mar 2023 – Nov 2023
 
 Bridged marketing analytics and decision systems, helping shift the team from reporting pipelines toward intelligence workflows and platformized decision support.
 
 ### Business Intelligence Manager
+
 **Jellyfish** · London · Jan 2021 – Mar 2023
 
 Build enterprise analytics systems and applications (Shiny apps, AWS ETL, data lake design).
 
 ### Data Consultant / SQL Developer / Data Analyst (Selected Contracts)
+
 **Founders Forum, Toaster, Wunderman Thompson, BCW Global, Reed Business Information, Founders Factory, Grapeshot, The Drum** · London · 2017 – 2020
 
 End-to-end data systems across CRM, analytics, segmentation, automation, and experimentation.
 
 ### Policy, Nonprofit, and Data Foundations (Selected Roles)
+
 **RNIB, Richard House Children's Hospice, Peace Direct, Orangutan Protection Foundation, Link Ethiopia, Friends of the Earth, Centre for the Study of Democracy** · UK & Bulgaria · 2008 – 2017
 
 Where the concern for human agency started: impact work, policy reasoning, and mission-driven data practice across nonprofits and civil society organizations.
