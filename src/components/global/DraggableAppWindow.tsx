@@ -1,5 +1,5 @@
-import { useMemo, type ReactNode } from 'react';
-import DraggableWindow, { getWindowBounds } from './DraggableWindow';
+import { type ReactNode } from 'react';
+import DraggableWindow from './DraggableWindow';
 
 interface DraggableAppWindowProps {
   title: string;
@@ -26,11 +26,6 @@ export default function DraggableAppWindow({
   isFocused = true,
   children,
 }: DraggableAppWindowProps) {
-  const openingGeometry = useMemo(
-    () => getWindowBounds(initialPosition, initialSize, true),
-    [initialPosition, initialSize]
-  );
-
   return (
     <DraggableWindow
       title={title}
@@ -41,9 +36,9 @@ export default function DraggableAppWindow({
           window.location.href = closeHref;
         })
       }
-      initialSize={openingGeometry.size}
-      initialPosition={openingGeometry.position}
-      centerOnMount={false}
+      initialSize={initialSize}
+      initialPosition={initialPosition}
+      centerOnMount={true}
       isFocused={isFocused}
       className={className}
     >
