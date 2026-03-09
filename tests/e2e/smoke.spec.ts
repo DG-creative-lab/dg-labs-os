@@ -52,8 +52,18 @@ test.describe('desktop smoke', () => {
   });
 
   test('terminal shows streaming status before final answer', async ({ page }) => {
+    let releaseResponse!: () => void;
+    const responseGate = new Promise<void>((resolve: () => void) => {
+      releaseResponse = resolve;
+    });
+    let markRequestIntercepted!: () => void;
+    const requestIntercepted = new Promise<void>((resolve: () => void) => {
+      markRequestIntercepted = resolve;
+    });
+
     await page.route('**/api/chat/stream', async (route) => {
-      await new Promise((resolve) => setTimeout(resolve, 600));
+      markRequestIntercepted();
+      await responseGate;
       await route.fulfill({
         status: 200,
         contentType: 'text/event-stream; charset=utf-8',
@@ -82,8 +92,10 @@ test.describe('desktop smoke', () => {
     const input = page.getByRole('textbox', { name: 'Terminal command input' });
     await input.fill('tell me about dessi');
     await input.press('Enter');
+    await requestIntercepted;
 
     await expect(page.getByText('Preparing answer…', { exact: true })).toBeVisible();
+    releaseResponse();
     await expect(page.getByText('Dessi builds agentic systems.', { exact: true })).toBeVisible();
   });
 
@@ -214,5 +226,45 @@ test.describe('mobile smoke', () => {
     const homeHtml = await home.text();
     expect(homeHtml).toContain('Notes');
     expect(homeHtml).toContain('Projects');
+
+    const projects = await request.get('/mobile/apps/projects', {
+      headers: { 'user-agent': ua },
+    });
+    expect(projects.status()).toBe(200);
+    const projectsHtml = await projects.text();
+    expect(projectsHtml).toContain('Systems and writing built around human agency');
+    expect(projectsHtml).toContain('Research Systems');
+
+    const notes = await request.get('/mobile/apps/notes', {
+      headers: { 'user-agent': ua },
+    });
+    expect(notes.status()).toBe(200);
+    const notesHtml = await notes.text();
+    expect(notesHtml).toContain('Principles');
+    expect(notesHtml).toContain('Pinned Deep Dives');
+
+    const resume = await request.get('/mobile/apps/resume', {
+      headers: { 'user-agent': ua },
+    });
+    expect(resume.status()).toBe(200);
+    const resumeHtml = await resume.text();
+    expect(resumeHtml).toContain('Canonical resume module with local downloadable formats.');
+    expect(resumeHtml).toContain('Download PDF');
+
+    const terminal = await request.get('/mobile/apps/terminal', {
+      headers: { 'user-agent': ua },
+    });
+    expect(terminal.status()).toBe(200);
+    const terminalHtml = await terminal.text();
+    expect(terminalHtml).toContain('Ask targeted questions');
+    expect(terminalHtml).toContain('aria-label="Terminal command input"');
+
+    const network = await request.get('/mobile/apps/network', {
+      headers: { 'user-agent': ua },
+    });
+    expect(network.status()).toBe(200);
+    const networkHtml = await network.text();
+    expect(networkHtml).toContain('Interactive map of roles, systems, and ideas.');
+    expect(networkHtml).toContain('component-url="/src/components/network/NetworkApp.tsx"');
   });
 });

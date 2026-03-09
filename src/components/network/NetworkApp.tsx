@@ -13,6 +13,8 @@ type ViewMode = 'LIST' | 'GRAPH';
 type Props = {
   nodes: readonly NetworkNode[];
   ideas?: readonly NetworkIdeaEdge[];
+  initialView?: ViewMode;
+  compact?: boolean;
 };
 
 type CategoryFilter = 'ALL' | 'Education' | 'Research' | 'Projects' | 'Experience';
@@ -34,10 +36,15 @@ const matchesCategory = (node: NetworkNode, filter: CategoryFilter) => {
   return node.kind === filter;
 };
 
-export default function NetworkApp({ nodes, ideas = [] }: Props) {
+export default function NetworkApp({
+  nodes,
+  ideas = [],
+  initialView = 'GRAPH',
+  compact = false,
+}: Props) {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<CategoryFilter>('ALL');
-  const [view, setView] = useState<ViewMode>('GRAPH');
+  const [view, setView] = useState<ViewMode>(initialView);
   const graphSectionRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -73,13 +80,19 @@ export default function NetworkApp({ nodes, ideas = [] }: Props) {
   return (
     <div>
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <div className="flex items-center gap-2 rounded-full bg-black/30 border border-white/10 px-3 py-1.5">
+        <div
+          className={`flex items-center gap-2 border border-white/10 bg-black/30 px-3 py-1.5 ${
+            compact ? 'w-full rounded-2xl' : 'rounded-full'
+          }`}
+        >
           <span className="text-xs text-white/50">Search</span>
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Tags, roles, systems..."
-            className="bg-transparent text-sm text-white placeholder:text-white/30 outline-none w-[220px] max-w-[60vw]"
+            className={`min-w-0 flex-1 bg-transparent text-sm text-white placeholder:text-white/30 outline-none ${
+              compact ? '' : 'sm:w-[220px] sm:max-w-[60vw]'
+            }`}
             aria-label="Search network"
           />
         </div>
@@ -89,7 +102,7 @@ export default function NetworkApp({ nodes, ideas = [] }: Props) {
             <button
               key={k}
               onClick={() => setFilter(k)}
-              className={`text-sm rounded-full px-3 py-1.5 border transition ${
+              className={`rounded-full border px-3 py-1.5 text-xs sm:text-sm transition ${
                 filter === k
                   ? 'bg-white/15 border-white/25 text-white'
                   : 'bg-white/10 border-white/10 text-white/80 hover:bg-white/15'
@@ -100,7 +113,9 @@ export default function NetworkApp({ nodes, ideas = [] }: Props) {
           ))}
         </div>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div
+          className={`flex items-center gap-2 ${compact ? 'w-full justify-between' : 'ml-auto'}`}
+        >
           <span className="text-xs text-white/50">{filtered.length} nodes</span>
           <div className="flex rounded-full border border-white/10 bg-white/5 p-1">
             <button
@@ -124,7 +139,7 @@ export default function NetworkApp({ nodes, ideas = [] }: Props) {
       </div>
 
       {view === 'GRAPH' ? (
-        <Graph ref={graphSectionRef} nodes={filtered} ideas={ideas} />
+        <Graph ref={graphSectionRef} nodes={filtered} ideas={ideas} compact={compact} />
       ) : (
         <List nodes={filtered} />
       )}
@@ -232,8 +247,9 @@ const Graph = forwardRef<
   {
     nodes: readonly NetworkNode[];
     ideas: readonly NetworkIdeaEdge[];
+    compact?: boolean;
   }
->(function Graph({ nodes, ideas }, ref) {
+>(function Graph({ nodes, ideas, compact = false }, ref) {
   const { graphNodes, edges, lanes } = useMemo(() => buildGraph(nodes, ideas), [nodes, ideas]);
 
   const jumpTo = (id: string) => {
@@ -247,13 +263,23 @@ const Graph = forwardRef<
       ref={ref}
       className="mt-4 rounded-xl border border-white/10 bg-black/30 backdrop-blur-xl overflow-hidden"
     >
-      <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
+      <div
+        className={`border-b border-white/10 px-4 py-3 ${
+          compact ? 'flex flex-col gap-1' : 'flex items-center justify-between'
+        }`}
+      >
         <p className="text-sm font-semibold">Graph Mode</p>
         <p className="text-xs text-white/50">
           {graphNodes.length} nodes, {edges.length} edges
         </p>
       </div>
-      <SigmaGraph nodes={graphNodes} edges={edges} lanes={lanes} onNodeClick={(id) => jumpTo(id)} />
+      <SigmaGraph
+        nodes={graphNodes}
+        edges={edges}
+        lanes={lanes}
+        compact={compact}
+        onNodeClick={(id) => jumpTo(id)}
+      />
     </div>
   );
 });

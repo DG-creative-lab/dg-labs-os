@@ -1,13 +1,14 @@
 ---
 import IPhoneAppLayout from '../../../layouts/iPhoneAppLayout.astro';
 import { userConfig } from '../../../config/index';
-import { networkNodes, networkLinks } from '../../../config/network';
+import { networkIdeaEdges, networkLinks, networkNodes } from '../../../config/network';
+import NetworkApp from '../../../components/network/NetworkApp';
 ---
 
-<IPhoneAppLayout>
-  <main class="min-h-screen px-6 pt-16 text-white">
+<IPhoneAppLayout appLabel="Network">
+  <main class="min-h-screen px-4 pb-24 pt-24 text-white sm:px-6">
     <h1 class="text-2xl font-semibold">Network</h1>
-    <p class="mt-2 text-white/70">Roles, systems, and ideas.</p>
+    <p class="mt-2 text-white/70">Interactive map of roles, systems, and ideas.</p>
 
     <div class="mt-4 flex flex-wrap gap-2">
       <a
@@ -30,31 +31,14 @@ import { networkNodes, networkLinks } from '../../../config/network';
       >
     </div>
 
-    <div class="mt-5 space-y-3">
-      {
-        networkNodes.map((n) => (
-          <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-            <div class="flex items-start justify-between gap-4">
-              <div>
-                <h2 class="text-base font-semibold">{n.title}</h2>
-                <p class="text-xs text-white/60">{n.subtitle}</p>
-              </div>
-              <span class="text-[10px] uppercase tracking-[0.2em] text-white/40">{n.kind}</span>
-            </div>
-            <p class="mt-3 text-sm text-white/75">{n.bullets[0]}</p>
-            {n.links?.article && (
-              <a
-                class="mt-3 inline-flex text-sm rounded-full bg-white/10 px-3 py-1.5"
-                href={n.links.article}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Article
-              </a>
-            )}
-          </div>
-        ))
-      }
+    <div class="mt-5">
+      <NetworkApp
+        client:load
+        nodes={networkNodes}
+        ideas={networkIdeaEdges}
+        initialView="GRAPH"
+        compact={true}
+      />
     </div>
   </main>
 </IPhoneAppLayout>
