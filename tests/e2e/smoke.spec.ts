@@ -56,8 +56,13 @@ test.describe('desktop smoke', () => {
     const responseGate = new Promise<void>((resolve: () => void) => {
       releaseResponse = resolve;
     });
+    let markRequestIntercepted!: () => void;
+    const requestIntercepted = new Promise<void>((resolve: () => void) => {
+      markRequestIntercepted = resolve;
+    });
 
     await page.route('**/api/chat/stream', async (route) => {
+      markRequestIntercepted();
       await responseGate;
       await route.fulfill({
         status: 200,
@@ -86,7 +91,8 @@ test.describe('desktop smoke', () => {
 
     const input = page.getByRole('textbox', { name: 'Terminal command input' });
     await input.fill('tell me about dessi');
-    await Promise.all([page.waitForRequest('**/api/chat/stream'), input.press('Enter')]);
+    await input.press('Enter');
+    await requestIntercepted;
 
     await expect(page.getByText('Preparing answer…', { exact: true })).toBeVisible();
     releaseResponse();
