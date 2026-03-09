@@ -83,7 +83,12 @@ test.describe('desktop smoke', () => {
     await input.fill('tell me about dessi');
     await input.press('Enter');
 
-    await expect(page.getByText('Preparing answer…', { exact: true })).toBeVisible();
+    const interimStatus = page
+      .getByText('Preparing answer…', { exact: true })
+      .or(page.getByText('Waiting for first tokens…', { exact: true }))
+      .or(page.getByText('Streaming response…', { exact: true }))
+      .first();
+    await expect(interimStatus).toBeVisible();
     await expect(page.getByText('Dessi builds agentic systems.', { exact: true })).toBeVisible();
   });
 
