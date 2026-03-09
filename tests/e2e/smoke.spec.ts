@@ -52,8 +52,8 @@ test.describe('desktop smoke', () => {
   });
 
   test('terminal shows streaming status before final answer', async ({ page }) => {
-    let releaseResponse: (() => void) | null = null;
-    const responseGate = new Promise<void>((resolve) => {
+    let releaseResponse!: () => void;
+    const responseGate = new Promise<void>((resolve: () => void) => {
       releaseResponse = resolve;
     });
 
@@ -89,7 +89,7 @@ test.describe('desktop smoke', () => {
     await Promise.all([page.waitForRequest('**/api/chat/stream'), input.press('Enter')]);
 
     await expect(page.getByText('Preparing answer…', { exact: true })).toBeVisible();
-    releaseResponse?.();
+    releaseResponse();
     await expect(page.getByText('Dessi builds agentic systems.', { exact: true })).toBeVisible();
   });
 
