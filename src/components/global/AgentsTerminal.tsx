@@ -1253,18 +1253,18 @@ export default function AgentsTerminal() {
     }`;
   return (
     <div className="h-full min-h-0 rounded-xl border border-emerald-300/20 bg-black/60 shadow-[0_14px_60px_rgba(0,0,0,0.45)] overflow-hidden flex flex-col">
-      <div className="flex items-center justify-between border-b border-emerald-400/20 px-4 py-2 text-[11px] text-emerald-300/75">
-        <span>
+      <div className="flex flex-col gap-2 border-b border-emerald-400/20 px-3 py-2 text-[11px] text-emerald-300/75 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+        <span className="min-w-0 break-words">
           Runtime: natural language first + commands on demand | {terminalSettingsSummary(settings)}
         </span>
         {isLlmBusy ? (
-          <span className="inline-flex items-center gap-2 text-emerald-200/90">
+          <span className="inline-flex items-center gap-2 text-emerald-200/90 sm:self-auto">
             <span className="inline-block h-3 w-3 animate-spin rounded-full border border-emerald-300/40 border-t-emerald-200" />
             thinking{'.'.repeat(Math.max(1, thinkingFrame))}
           </span>
         ) : null}
       </div>
-      <div className="border-b border-emerald-400/20 px-4 py-2 text-[11px] text-white/70">
+      <div className="border-b border-emerald-400/20 px-3 py-2 text-[11px] text-white/70 sm:px-4">
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
@@ -1294,7 +1294,7 @@ export default function AgentsTerminal() {
         {activePanelTab === 'session' ? (
           <div className="mt-3 space-y-3 rounded border border-white/10 bg-white/5 p-3">
             <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
-              <label className="flex items-center gap-2">
+              <label className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
                 <input
                   type="checkbox"
                   checked={settings.llmFallbackForUnknown}
@@ -1307,7 +1307,7 @@ export default function AgentsTerminal() {
                 />
                 <span>Use the LLM for natural input by default</span>
               </label>
-              <label className="flex items-center gap-2">
+              <label className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
                 <input
                   type="checkbox"
                   checked={settings.providerFallbackAllowed}
@@ -1320,7 +1320,7 @@ export default function AgentsTerminal() {
                 />
                 <span>Allow provider fallback when selected provider fails</span>
               </label>
-              <label className="flex items-center gap-2">
+              <label className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
                 <span>Brain mode</span>
                 <select
                   value={settings.brainMode}
@@ -1337,7 +1337,7 @@ export default function AgentsTerminal() {
                   <option value="research">research</option>
                 </select>
               </label>
-              <label className="flex items-center gap-2">
+              <label className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
                 <span>LLM response</span>
                 <select
                   value={settings.responseMode}
@@ -1353,7 +1353,7 @@ export default function AgentsTerminal() {
                   <option value="agent_json">agent_json</option>
                 </select>
               </label>
-              <label className="flex items-center gap-2">
+              <label className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
                 <span>Provider</span>
                 <select
                   value={settings.llmProvider}
@@ -1377,7 +1377,7 @@ export default function AgentsTerminal() {
                     : ''}
                 </span>
               </label>
-              <label className="flex items-center gap-2 md:col-span-2">
+              <label className="flex flex-col items-start gap-2 md:col-span-2 sm:flex-row sm:items-center">
                 <span>Model</span>
                 <input
                   type="text"
@@ -1392,7 +1392,7 @@ export default function AgentsTerminal() {
                   placeholder="openai/gpt-oss-120b"
                 />
               </label>
-              <label className="flex items-center gap-2 md:col-span-2">
+              <label className="flex flex-col items-start gap-2 md:col-span-2 sm:flex-row sm:items-center">
                 <span>BYOK key</span>
                 <input
                   type="password"
@@ -1402,7 +1402,7 @@ export default function AgentsTerminal() {
                   placeholder="Bring your own key"
                 />
               </label>
-              <label className="flex items-center gap-2 md:col-span-3">
+              <label className="flex items-start gap-2 md:col-span-3">
                 <input
                   type="checkbox"
                   checked={rememberByok}
@@ -1417,7 +1417,7 @@ export default function AgentsTerminal() {
               <p className="md:col-span-3 text-[10px] text-white/70">
                 Provider status: {providerHealth.message}
               </p>
-              <label className="flex items-center gap-2">
+              <label className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
                 <input
                   type="checkbox"
                   checked={settings.routerDebug}
@@ -1430,7 +1430,7 @@ export default function AgentsTerminal() {
                 />
                 <span>Show router debug traces</span>
               </label>
-              <label className="flex items-center gap-2">
+              <label className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
                 <input
                   type="checkbox"
                   checked={settings.showLlmSources}
@@ -1443,7 +1443,7 @@ export default function AgentsTerminal() {
                 />
                 <span>Show LLM source footer</span>
               </label>
-              <label className="flex items-center gap-2">
+              <label className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
                 <input
                   type="checkbox"
                   checked={settings.strictEvidenceMode}
@@ -1456,7 +1456,7 @@ export default function AgentsTerminal() {
                 />
                 <span>Strict evidence mode</span>
               </label>
-              <label className="flex items-center gap-2">
+              <label className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
                 <span>Timeout (seconds)</span>
                 <input
                   type="number"
@@ -1471,7 +1471,7 @@ export default function AgentsTerminal() {
                   className="w-16 rounded border border-white/20 bg-black/40 px-2 py-1 text-white"
                 />
               </label>
-              <label className="flex items-center gap-2">
+              <label className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
                 <span>Session cap</span>
                 <input
                   type="number"
@@ -1727,7 +1727,7 @@ export default function AgentsTerminal() {
 
       <div
         ref={outputRef}
-        className="min-h-0 flex-1 overflow-y-auto px-4 py-3 font-mono text-[12px] leading-6 text-emerald-200 [&::-webkit-scrollbar]:hidden"
+        className="min-h-0 flex-1 overflow-y-auto px-3 py-3 font-mono text-[11px] leading-5 text-emerald-200 sm:px-4 sm:text-[12px] sm:leading-6 [&::-webkit-scrollbar]:hidden"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         aria-live="polite"
       >
@@ -1780,7 +1780,7 @@ export default function AgentsTerminal() {
         ) : null}
       </div>
 
-      <form onSubmit={handleSubmit} className="border-t border-emerald-400/20 px-4 py-3">
+      <form onSubmit={handleSubmit} className="border-t border-emerald-400/20 px-3 py-3 sm:px-4">
         {lastAnswerMeta ? (
           <div className="mb-2 space-y-2 text-xs">
             <div className="flex flex-wrap items-center gap-2">
@@ -1837,7 +1837,7 @@ export default function AgentsTerminal() {
             ) : null}
           </div>
         ) : null}
-        <label className="flex items-center gap-2 font-mono text-sm">
+        <label className="flex flex-col items-start gap-2 font-mono text-sm sm:flex-row sm:items-center">
           <span className="text-emerald-300">{prompt}</span>
           <input
             ref={inputRef}

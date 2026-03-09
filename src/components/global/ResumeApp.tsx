@@ -72,7 +72,7 @@ export default function ResumeApp({ resume }: ResumeAppProps) {
 
   return (
     <section id="resume-summary">
-      <div className="flex items-start justify-between gap-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
         <div>
           <h1 className="text-2xl font-semibold">Resume</h1>
           <p className="mt-2 text-white/70">
@@ -85,10 +85,10 @@ export default function ResumeApp({ resume }: ResumeAppProps) {
         </div>
       </div>
 
-      <div id="resume-downloads" className="mt-4 flex flex-wrap gap-2">
+      <div id="resume-downloads" className="mt-4 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
         <a
           id="resume-download-pdf"
-          className="rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-1.5 text-sm text-sky-100 transition hover:bg-sky-400/20"
+          className="rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-2 text-center text-sm text-sky-100 transition hover:bg-sky-400/20"
           href={resume.pdf}
           target="_blank"
           rel="noopener noreferrer"
@@ -97,7 +97,7 @@ export default function ResumeApp({ resume }: ResumeAppProps) {
         </a>
         <a
           id="resume-download-docx"
-          className="rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-1.5 text-sm text-sky-100 transition hover:bg-sky-400/20"
+          className="rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-2 text-center text-sm text-sky-100 transition hover:bg-sky-400/20"
           href={resume.docx}
           target="_blank"
           rel="noopener noreferrer"
@@ -106,7 +106,7 @@ export default function ResumeApp({ resume }: ResumeAppProps) {
         </a>
         <a
           id="resume-download-markdown"
-          className="rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-1.5 text-sm text-sky-100 transition hover:bg-sky-400/20"
+          className="rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-2 text-center text-sm text-sky-100 transition hover:bg-sky-400/20"
           href={resume.markdown}
           target="_blank"
           rel="noopener noreferrer"
@@ -115,11 +115,14 @@ export default function ResumeApp({ resume }: ResumeAppProps) {
         </a>
       </div>
 
-      <div id="resume-body" className="mt-5 rounded-xl border border-white/10 bg-white/5 p-5">
+      <div
+        id="resume-body"
+        className="mt-5 rounded-xl border border-white/10 bg-white/5 p-4 sm:p-5"
+      >
         {loading ? <p className="text-white/60">Loading resume...</p> : null}
         {!loading && error ? <p className="text-red-300/90">{error}</p> : null}
         {!loading && !error ? (
-          <article className="prose prose-invert max-w-none prose-headings:mb-2 prose-headings:mt-5 prose-p:my-2 prose-li:my-1">
+          <article className="prose prose-invert prose-sm sm:prose-base max-w-none prose-headings:mb-2 prose-headings:mt-5 prose-p:my-2 prose-li:my-1 break-words">
             <ReactMarkdown>{content}</ReactMarkdown>
           </article>
         ) : null}

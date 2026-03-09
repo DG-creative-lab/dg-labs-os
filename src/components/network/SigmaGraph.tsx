@@ -13,6 +13,7 @@ type Props = {
   nodes: readonly GraphNode[];
   edges: readonly GraphEdge[];
   lanes: readonly Lane[];
+  compact?: boolean;
   onNodeClick?: (id: string) => void;
 };
 
@@ -72,7 +73,7 @@ function shortestPathToCore(
   return [];
 }
 
-export default function SigmaGraph({ nodes, edges, lanes, onNodeClick }: Props) {
+export default function SigmaGraph({ nodes, edges, lanes, compact = false, onNodeClick }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const hoveredRef = useRef<string | null>(null);
   const selectedRef = useRef<string | null>(null);
@@ -511,6 +512,11 @@ export default function SigmaGraph({ nodes, edges, lanes, onNodeClick }: Props) 
     () => pathToCore.map((id) => nodeById.get(id)?.title ?? id),
     [nodeById, pathToCore]
   );
+  const idleInspectorHint = compact ? 'Tap a node for details.' : 'Hover a node for details.';
+  const idleFocusHint = compact
+    ? 'Tap to lock focus and show edge labels.'
+    : 'Click to lock focus and show edge labels.';
+  const idleResetHint = compact ? 'Tap empty space to reset.' : 'Click empty space to reset.';
 
   return (
     <div className="relative">
@@ -546,12 +552,12 @@ export default function SigmaGraph({ nodes, edges, lanes, onNodeClick }: Props) 
       >
         <div
           ref={containerRef}
-          style={{ height: 'clamp(360px, 56vh, 620px)' }}
+          style={{ height: compact ? 'clamp(320px, 50vh, 480px)' : 'clamp(360px, 56vh, 620px)' }}
           className="w-full bg-[radial-gradient(circle_at_40%_0%,rgba(148,163,184,0.06),rgba(2,6,23,0.2)_45%,rgba(2,6,23,0.28)_100%)]"
         />
       </div>
 
-      <aside className="mx-4 mt-3 rounded-xl border border-white/10 bg-slate-950/85 backdrop-blur-md p-3 text-xs text-slate-200 shadow-2xl">
+      <aside className="mx-4 mt-3 rounded-xl border border-white/10 bg-slate-950/85 p-3 text-xs text-slate-200 shadow-2xl backdrop-blur-md">
         {inspectedNode ? (
           <div className="space-y-2">
             <div>
@@ -655,9 +661,9 @@ export default function SigmaGraph({ nodes, edges, lanes, onNodeClick }: Props) 
             <p className="text-[10px] uppercase tracking-[0.16em] text-slate-400">
               Graph Inspector
             </p>
-            <p>Hover a node for details.</p>
-            <p>Click to lock focus and show edge labels.</p>
-            <p>Click empty space to reset.</p>
+            <p>{idleInspectorHint}</p>
+            <p>{idleFocusHint}</p>
+            <p>{idleResetHint}</p>
           </div>
         )}
       </aside>
@@ -679,8 +685,9 @@ export default function SigmaGraph({ nodes, edges, lanes, onNodeClick }: Props) 
           </div>
         ) : (
           <p>
-            Hover a node to highlight its neighborhood. Click to lock focus. Click empty space to
-            reset.
+            {compact
+              ? 'Tap a node to inspect its neighborhood.'
+              : 'Hover a node to highlight its neighborhood. Click to lock focus. Click empty space to reset.'}
           </p>
         )}
       </div>

@@ -214,5 +214,45 @@ test.describe('mobile smoke', () => {
     const homeHtml = await home.text();
     expect(homeHtml).toContain('Notes');
     expect(homeHtml).toContain('Projects');
+
+    const projects = await request.get('/mobile/apps/projects', {
+      headers: { 'user-agent': ua },
+    });
+    expect(projects.status()).toBe(200);
+    const projectsHtml = await projects.text();
+    expect(projectsHtml).toContain('Systems and writing built around human agency');
+    expect(projectsHtml).toContain('Research Systems');
+
+    const notes = await request.get('/mobile/apps/notes', {
+      headers: { 'user-agent': ua },
+    });
+    expect(notes.status()).toBe(200);
+    const notesHtml = await notes.text();
+    expect(notesHtml).toContain('Principles');
+    expect(notesHtml).toContain('Pinned Deep Dives');
+
+    const resume = await request.get('/mobile/apps/resume', {
+      headers: { 'user-agent': ua },
+    });
+    expect(resume.status()).toBe(200);
+    const resumeHtml = await resume.text();
+    expect(resumeHtml).toContain('Canonical resume module with local downloadable formats.');
+    expect(resumeHtml).toContain('Download PDF');
+
+    const terminal = await request.get('/mobile/apps/terminal', {
+      headers: { 'user-agent': ua },
+    });
+    expect(terminal.status()).toBe(200);
+    const terminalHtml = await terminal.text();
+    expect(terminalHtml).toContain('Ask targeted questions');
+    expect(terminalHtml).toContain('aria-label="Terminal command input"');
+
+    const network = await request.get('/mobile/apps/network', {
+      headers: { 'user-agent': ua },
+    });
+    expect(network.status()).toBe(200);
+    const networkHtml = await network.text();
+    expect(networkHtml).toContain('Interactive map of roles, systems, and ideas.');
+    expect(networkHtml).toContain('component-url="/src/components/network/NetworkApp.tsx"');
   });
 });

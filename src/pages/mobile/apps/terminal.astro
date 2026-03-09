@@ -1,10 +1,22 @@
 ---
 import IPhoneAppLayout from '../../../layouts/iPhoneAppLayout.astro';
+import AgentsTerminal from '../../../components/global/AgentsTerminal';
 ---
 
-<IPhoneAppLayout>
-  <main class="min-h-screen px-6 pt-16 text-emerald-200 font-mono">
-    <p>DG-Labs:~$</p>
-    <p class="text-white/70">Mobile terminal coming soon.</p>
+<IPhoneAppLayout appLabel="Terminal">
+  <main class="min-h-screen px-4 pb-24 pt-24 text-white sm:px-6">
+    <div class="mx-auto max-w-3xl">
+      <header>
+        <h1 class="text-2xl font-semibold text-white">Terminal</h1>
+        <p class="mt-2 text-sm text-white/70">
+          Ask targeted questions, inspect deterministic commands, and verify profile details from
+          mobile.
+        </p>
+      </header>
+
+      <div class="mt-4 h-[calc(100dvh-12.5rem)] min-h-[28rem]">
+        <AgentsTerminal client:load />
+      </div>
+    </div>
   </main>
 </IPhoneAppLayout>
