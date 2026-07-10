@@ -28,16 +28,40 @@ import {
   readAgentJsonPayload,
   readChatMessage,
   resolveAnswerConfidenceLabel,
-  type CitationChip,
   type LlmConfidenceLabel,
 } from '../../utils/terminalLlm';
 import { buildVerifyEnvelopeLines } from '../../utils/terminalEnvelope';
 import { retrieveKnowledge } from '../../utils/terminalKnowledge';
-import type { VerifySource } from '../../utils/apiContracts';
 import {
   handleTerminalMenuAction,
   type TerminalMenuEventDetail,
 } from '../../services/menuActionHandlers';
+import {
+  BYOK_STORAGE_KEY,
+  INITIAL_TOOL_USAGE,
+  LLM_COUNT_KEY,
+  ROUTER_CONFIDENCE_THRESHOLD,
+  VERIFY_COUNT_KEY,
+  VERIFY_SESSION_CAP,
+  type CiteResult,
+  type EvidenceState,
+  type LastAnswerMeta,
+  type LastWebVerifyContext,
+  type LlmHistoryMessage,
+  type RetrieveResult,
+  type TerminalEntry,
+  type TerminalPanelTab,
+  type ToolName,
+  type ToolUsage,
+} from '../../services/terminalTypes';
+import { useTerminalProviderHealth } from '../../services/useTerminalProviderHealth';
+import {
+  fetchCiteTool,
+  fetchRetrieveTool,
+  fetchTerminalTool,
+  normalizeTerminalCacheKey,
+  trimTerminalCache,
+} from '../../services/terminalToolClient';
 import {
   defaultTerminalSettings,
   parseTerminalSettings,
@@ -49,102 +73,6 @@ import {
   type TerminalResponseMode,
   type TerminalSettings,
 } from '../../utils/terminalSettings';
-
-type TerminalEntry = {
-  id: number;
-  kind: 'command' | 'output' | 'system';
-  text: string;
-};
-
-type LlmHistoryMessage = {
-  role: 'user' | 'assistant';
-  content: string;
-};
-
-type ToolName = 'local_context' | 'web_verify' | 'open_app' | 'list_projects' | 'retrieve' | 'cite';
-
-type ToolUsage = Record<ToolName, number>;
-
-type LastWebVerifyContext = {
-  query: string;
-  summary: string;
-  sources: VerifySource[];
-};
-
-type RetrievedHit = {
-  id: string;
-  source: string;
-  title: string;
-  snippet: string;
-  url?: string;
-  score: number;
-};
-
-type RetrieveResult = {
-  query: string;
-  classification: string;
-  hits: RetrievedHit[];
-  fromCache: boolean;
-};
-
-type CiteResult = {
-  claim: string;
-  verdict: string;
-  evidence: RetrievedHit[];
-  fromCache: boolean;
-};
-
-type EvidenceState = {
-  query: string;
-  classification: string;
-  verdict: string;
-  hits: RetrievedHit[];
-  fromCache: boolean;
-};
-
-type LastAnswerMeta = {
-  confidence: LlmConfidenceLabel;
-  chips: CitationChip[];
-  unverifiedCount?: number;
-};
-
-type ProviderHealthStatus = 'checking' | 'healthy' | 'missing_key' | 'timeout' | 'error';
-
-type ProviderHealth = {
-  provider: TerminalLlmProvider;
-  status: ProviderHealthStatus;
-  message: string;
-  configured: boolean;
-  latencyMs?: number;
-};
-
-type TerminalPanelTab = 'session' | 'tools' | 'evidence' | null;
-
-const INITIAL_TOOL_USAGE: ToolUsage = {
-  local_context: 0,
-  web_verify: 0,
-  open_app: 0,
-  list_projects: 0,
-  retrieve: 0,
-  cite: 0,
-};
-
-const LLM_COUNT_KEY = 'dg_labs_terminal_llm_count';
-const VERIFY_COUNT_KEY = 'dg_labs_terminal_verify_count';
-const BYOK_STORAGE_KEY = 'dg_labs_terminal_byok_v1';
-const ROUTER_CONFIDENCE_THRESHOLD = 0.8;
-const VERIFY_SESSION_CAP = 12;
-
-const isRetrievedHit = (value: unknown): value is RetrievedHit =>
-  !!value &&
-  typeof value === 'object' &&
-  typeof (value as { id?: unknown }).id === 'string' &&
-  typeof (value as { source?: unknown }).source === 'string' &&
-  typeof (value as { title?: unknown }).title === 'string' &&
-  typeof (value as { snippet?: unknown }).snippet === 'string' &&
-  typeof (value as { score?: unknown }).score === 'number' &&
-  (typeof (value as { url?: unknown }).url === 'string' ||
-    typeof (value as { url?: unknown }).url === 'undefined');
 
 const runAction = (action: TerminalAction) => {
   if (typeof window === 'undefined') return;
@@ -178,12 +106,6 @@ export default function AgentsTerminal() {
   const [thinkingFrame, setThinkingFrame] = useState(0);
   const [byokApiKey, setByokApiKey] = useState('');
   const [rememberByok, setRememberByok] = useState(false);
-  const [providerHealth, setProviderHealth] = useState<ProviderHealth>({
-    provider: 'openrouter',
-    status: 'checking',
-    message: 'Checking provider health…',
-    configured: false,
-  });
   const [settings, setSettings] = useState<TerminalSettings>(defaultTerminalSettings);
   const [toolUsage, setToolUsage] = useState<ToolUsage>(INITIAL_TOOL_USAGE);
   const [activeQuickAction, setActiveQuickAction] = useState<string | null>(null);
@@ -214,6 +136,7 @@ export default function AgentsTerminal() {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const prompt = useMemo(() => `${userConfig.name}:~$`, []);
+  const providerHealth = useTerminalProviderHealth(settings, byokApiKey);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -299,74 +222,6 @@ export default function AgentsTerminal() {
   }, []);
 
   useEffect(() => {
-    let isActive = true;
-    const timer = window.setTimeout(async () => {
-      setProviderHealth((prev) => ({
-        ...prev,
-        provider: settings.llmProvider,
-        status: 'checking',
-        message: 'Checking provider health…',
-      }));
-
-      try {
-        const response = await fetch('/api/llm/health', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            provider: settings.llmProvider,
-            model: settings.llmModel,
-            byokApiKey: byokApiKey.trim().length > 0 ? byokApiKey.trim() : undefined,
-            probe: true,
-          }),
-        });
-        const payload = (await response.json().catch(() => null)) as {
-          ok?: boolean;
-          providers?: Array<{
-            provider?: unknown;
-            configured?: unknown;
-            status?: unknown;
-            message?: unknown;
-            latencyMs?: unknown;
-          }>;
-        } | null;
-
-        const provider = payload?.providers?.[0];
-        if (!isActive || !provider) return;
-        const status =
-          provider.status === 'healthy' ||
-          provider.status === 'missing_key' ||
-          provider.status === 'timeout' ||
-          provider.status === 'error'
-            ? provider.status
-            : 'error';
-        setProviderHealth({
-          provider: settings.llmProvider,
-          status,
-          configured: typeof provider.configured === 'boolean' ? provider.configured : false,
-          message:
-            typeof provider.message === 'string' && provider.message.trim().length > 0
-              ? provider.message
-              : 'Provider health check failed.',
-          latencyMs: typeof provider.latencyMs === 'number' ? provider.latencyMs : undefined,
-        });
-      } catch {
-        if (!isActive) return;
-        setProviderHealth({
-          provider: settings.llmProvider,
-          status: 'error',
-          configured: false,
-          message: 'Health check failed. Check network or API key.',
-        });
-      }
-    }, 250);
-
-    return () => {
-      isActive = false;
-      window.clearTimeout(timer);
-    };
-  }, [settings.llmProvider, settings.llmModel, byokApiKey]);
-
-  useEffect(() => {
     if (!isLlmBusy) {
       setThinkingFrame(0);
       return;
@@ -409,90 +264,37 @@ export default function AgentsTerminal() {
     setToolUsage((prev) => ({ ...prev, [tool]: prev[tool] + 1 }));
   };
 
-  const normalizeCacheKey = (value: string) => value.trim().toLowerCase();
-
-  const trimCache = (cache: Map<string, unknown>, max = 40) => {
-    while (cache.size > max) {
-      const oldestKey = cache.keys().next().value as string | undefined;
-      if (!oldestKey) break;
-      cache.delete(oldestKey);
-    }
-  };
-
   const runRetrieveTool = async (
     query: string,
     signal?: AbortSignal,
     limit = 6
   ): Promise<RetrieveResult | null> => {
-    const key = normalizeCacheKey(query);
+    const key = normalizeTerminalCacheKey(query);
     incrementToolUsage('retrieve');
     const cached = retrieveCacheRef.current.get(key);
     if (cached) {
       return { ...cached, fromCache: true };
     }
 
-    const response = await fetch('/api/tools', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tool: 'retrieve', input: { query, limit } }),
-      signal,
-    });
-    const payload = (await response.json().catch(() => ({}))) as
-      | {
-          ok?: boolean;
-          tool?: string;
-          result?: { query?: unknown; classification?: unknown; hits?: unknown };
-        }
-      | undefined;
-
-    if (!response.ok || !payload?.ok || payload.tool !== 'retrieve' || !payload.result) {
-      return null;
-    }
-
-    const result = payload.result;
-    const resolvedQuery = typeof result.query === 'string' ? result.query : query;
-    const classification =
-      typeof result.classification === 'string' ? result.classification : 'general';
-    const hits = Array.isArray(result.hits) ? result.hits.filter(isRetrievedHit) : [];
-    const materialized = { query: resolvedQuery, classification, hits };
+    const materialized = await fetchRetrieveTool(query, signal, limit);
+    if (!materialized) return null;
     retrieveCacheRef.current.set(key, materialized);
-    trimCache(retrieveCacheRef.current);
+    trimTerminalCache(retrieveCacheRef.current);
     return { ...materialized, fromCache: false };
   };
 
   const runCiteTool = async (claim: string, signal?: AbortSignal): Promise<CiteResult | null> => {
-    const key = normalizeCacheKey(claim);
+    const key = normalizeTerminalCacheKey(claim);
     incrementToolUsage('cite');
     const cached = citeCacheRef.current.get(key);
     if (cached) {
       return { ...cached, fromCache: true };
     }
 
-    const response = await fetch('/api/tools', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tool: 'cite', input: { claim } }),
-      signal,
-    });
-    const payload = (await response.json().catch(() => ({}))) as
-      | {
-          ok?: boolean;
-          tool?: string;
-          result?: { claim?: unknown; verdict?: unknown; evidence?: unknown };
-        }
-      | undefined;
-
-    if (!response.ok || !payload?.ok || payload.tool !== 'cite' || !payload.result) {
-      return null;
-    }
-
-    const result = payload.result;
-    const resolvedClaim = typeof result.claim === 'string' ? result.claim : claim;
-    const verdict = typeof result.verdict === 'string' ? result.verdict : 'unknown';
-    const evidence = Array.isArray(result.evidence) ? result.evidence.filter(isRetrievedHit) : [];
-    const materialized = { claim: resolvedClaim, verdict, evidence };
+    const materialized = await fetchCiteTool(claim, signal);
+    if (!materialized) return null;
     citeCacheRef.current.set(key, materialized);
-    trimCache(citeCacheRef.current);
+    trimTerminalCache(citeCacheRef.current);
     return { ...materialized, fromCache: false };
   };
 
@@ -907,21 +709,7 @@ export default function AgentsTerminal() {
         return;
       }
 
-      const response = await fetch('/api/tools', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tool, input }),
-        signal: controller.signal,
-      });
-
-      const payload = (await response.json().catch(() => ({}))) as
-        | {
-            ok?: boolean;
-            tool?: string;
-            result?: Record<string, unknown>;
-            message?: string;
-          }
-        | undefined;
+      const { response, payload } = await fetchTerminalTool(tool, input, controller.signal);
 
       if (!response.ok || !payload?.ok || payload.tool !== tool || !payload.result) {
         const message =

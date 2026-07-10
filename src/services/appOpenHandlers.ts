@@ -7,15 +7,9 @@ import {
 } from './navigationService';
 import { emitWorkbenchMenuAction } from './menubarActions';
 import type { DesktopAppId } from './desktopWindowService';
+import { DESKTOP_APP_ROUTES } from './desktopAppRegistry';
 
-export const APP_ROUTE_MAP: Record<DesktopAppId, string> = {
-  terminal: '/apps/terminal',
-  network: '/apps/network',
-  projects: '/apps/projects',
-  notes: '/apps/notes',
-  resume: '/apps/resume',
-  news: '/apps/news',
-};
+export const APP_ROUTE_MAP: Record<DesktopAppId, string> = DESKTOP_APP_ROUTES;
 
 export type AppOpenAdapter = {
   location: { pathname: string; href: string };

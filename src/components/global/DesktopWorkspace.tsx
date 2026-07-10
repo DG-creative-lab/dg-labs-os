@@ -21,6 +21,7 @@ import {
   type NotesMenuEventDetail,
   type WorkbenchMenuEventDetail,
 } from '../../services/menuActionHandlers';
+import { DESKTOP_APPS } from '../../services/desktopAppRegistry';
 import { type DesktopAppId } from '../../services/desktopWindowService';
 import NetworkApp from '../network/NetworkApp';
 import AgentsTerminal from './AgentsTerminal';
@@ -281,15 +282,22 @@ export default function DesktopWorkspace() {
     };
   }, []);
 
+  const projectsWindow = DESKTOP_APPS.projects.window;
+  const notesWindow = DESKTOP_APPS.notes.window;
+  const resumeWindow = DESKTOP_APPS.resume.window;
+  const newsWindow = DESKTOP_APPS.news.window;
+  const networkWindow = DESKTOP_APPS.network.window;
+  const terminalWindow = DESKTOP_APPS.terminal.window;
+
   return (
     <>
       {open.projects ? (
         <DraggableAppWindow
           appId="projects"
-          title="Workbench"
+          title={projectsWindow.title}
           onClose={() => closeWindow('projects')}
-          initialSize={{ width: 980, height: 680 }}
-          initialPosition={{ x: 80, y: 80 }}
+          initialSize={{ width: projectsWindow.width, height: projectsWindow.height }}
+          initialPosition={{ x: projectsWindow.x, y: projectsWindow.y }}
           isFocused={focusedAppId === 'projects'}
         >
           <ProjectsPanel />
@@ -299,10 +307,10 @@ export default function DesktopWorkspace() {
       {open.notes ? (
         <DraggableAppWindow
           appId="notes"
-          title="Lab Notes"
+          title={notesWindow.title}
           onClose={() => closeWindow('notes')}
-          initialSize={{ width: 920, height: 640 }}
-          initialPosition={{ x: 110, y: 95 }}
+          initialSize={{ width: notesWindow.width, height: notesWindow.height }}
+          initialPosition={{ x: notesWindow.x, y: notesWindow.y }}
           isFocused={focusedAppId === 'notes'}
         >
           <NotesPanel />
@@ -312,10 +320,10 @@ export default function DesktopWorkspace() {
       {open.resume ? (
         <DraggableAppWindow
           appId="resume"
-          title="Resume"
+          title={resumeWindow.title}
           onClose={() => closeWindow('resume')}
-          initialSize={{ width: 920, height: 660 }}
-          initialPosition={{ x: 130, y: 110 }}
+          initialSize={{ width: resumeWindow.width, height: resumeWindow.height }}
+          initialPosition={{ x: resumeWindow.x, y: resumeWindow.y }}
           isFocused={focusedAppId === 'resume'}
         >
           <ResumeApp resume={userConfig.resume} />
@@ -325,10 +333,10 @@ export default function DesktopWorkspace() {
       {open.news ? (
         <DraggableAppWindow
           appId="news"
-          title="AI News Hub"
+          title={newsWindow.title}
           onClose={() => closeWindow('news')}
-          initialSize={{ width: 780, height: 500 }}
-          initialPosition={{ x: 150, y: 120 }}
+          initialSize={{ width: newsWindow.width, height: newsWindow.height }}
+          initialPosition={{ x: newsWindow.x, y: newsWindow.y }}
           isFocused={focusedAppId === 'news'}
         >
           <NewsPanel />
@@ -338,10 +346,10 @@ export default function DesktopWorkspace() {
       {open.network ? (
         <DraggableAppWindow
           appId="network"
-          title="Network"
+          title={networkWindow.title}
           onClose={() => closeWindow('network')}
-          initialSize={{ width: 1080, height: 700 }}
-          initialPosition={{ x: 70, y: 70 }}
+          initialSize={{ width: networkWindow.width, height: networkWindow.height }}
+          initialPosition={{ x: networkWindow.x, y: networkWindow.y }}
           isFocused={focusedAppId === 'network'}
           contentClassName="h-full overflow-auto no-scrollbar p-4 text-white"
         >
@@ -364,10 +372,10 @@ export default function DesktopWorkspace() {
       {open.terminal ? (
         <DraggableAppWindow
           appId="terminal"
-          title="Agents Terminal"
+          title={terminalWindow.title}
           onClose={() => closeWindow('terminal')}
-          initialSize={{ width: 920, height: 600 }}
-          initialPosition={{ x: 80, y: 80 }}
+          initialSize={{ width: terminalWindow.width, height: terminalWindow.height }}
+          initialPosition={{ x: terminalWindow.x, y: terminalWindow.y }}
           isFocused={focusedAppId === 'terminal'}
           contentClassName="h-full min-h-0 flex flex-col overflow-auto no-scrollbar overscroll-contain p-4 text-white"
         >
