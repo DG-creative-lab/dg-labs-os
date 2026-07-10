@@ -8,6 +8,7 @@ import { errorResponse, jsonResponse } from '../../utils/apiResponse';
 import { parseToolCallInput } from '../../utils/requestSchemas';
 import { retrieveKnowledge } from '../../utils/terminalKnowledge';
 import { performWebVerify } from '../../utils/webVerify';
+import { DESKTOP_APP_TARGETS } from '../../services/desktopAppRegistry';
 
 type ErrorCode =
   | 'INVALID_JSON'
@@ -19,17 +20,6 @@ type ErrorCode =
 
 const err = (code: ErrorCode, message: string, status: number) =>
   errorResponse(code, message, status);
-
-const APP_TARGETS: Record<string, string> = {
-  projects: '/apps/projects',
-  workbench: '/apps/projects',
-  notes: '/apps/notes',
-  resume: '/apps/resume',
-  news: '/apps/news',
-  network: '/apps/network',
-  terminal: '/apps/terminal',
-  desktop: '/desktop',
-};
 
 const asString = (value: unknown): string | null =>
   typeof value === 'string' ? value.trim() : null;
@@ -102,7 +92,7 @@ export const POST: APIRoute = async ({ request }) => {
       if (!target) {
         return err('INVALID_INPUT', 'open_app requires input.target', 400);
       }
-      const href = APP_TARGETS[target];
+      const href = DESKTOP_APP_TARGETS[target];
       if (!href) {
         return err('INVALID_INPUT', `Unknown app target "${target}"`, 400);
       }

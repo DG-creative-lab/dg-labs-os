@@ -1,17 +1,12 @@
-export type DesktopAppId = 'terminal' | 'network' | 'projects' | 'notes' | 'resume' | 'news';
+import { DESKTOP_APP_IDS, type DesktopAppId, type DesktopFocusedAppId } from './desktopAppRegistry';
 
-export type DesktopFocusedAppId = DesktopAppId | 'home';
+export type { DesktopAppId, DesktopFocusedAppId } from './desktopAppRegistry';
 
 export type DesktopOpenState = Record<DesktopAppId, boolean>;
 
-export const INITIAL_DESKTOP_OPEN_STATE: DesktopOpenState = {
-  terminal: false,
-  network: false,
-  projects: false,
-  notes: false,
-  resume: false,
-  news: false,
-};
+export const INITIAL_DESKTOP_OPEN_STATE: DesktopOpenState = Object.fromEntries(
+  DESKTOP_APP_IDS.map((id) => [id, false])
+) as DesktopOpenState;
 
 export const toggleDesktopWindow = (
   open: DesktopOpenState,

@@ -162,6 +162,74 @@ const buildAgentJsonResponse = (
   };
 };
 
+type ProviderCandidate = {
+  provider: LlmProvider;
+  apiKey: string | undefined;
+  model: string;
+};
+
+const serverKeys = () =>
+  ({
+    openrouter: getServerEnv('OPENROUTER_API_KEY'),
+    openai: getServerEnv('OPENAI_API_KEY'),
+    anthropic: getServerEnv('ANTHROPIC_API_KEY'),
+    gemini: getServerEnv('GEMINI_API_KEY'),
+  }) as const;
+
+const providerOrder = ['openrouter', 'openai', 'anthropic', 'gemini'] as const;
+
+const buildGroundedMessages = (
+  query: string,
+  hits: readonly KnowledgeHit[],
+  messages: readonly ChatMessageInput[]
+) => {
+  const knowledgeGrounding = buildKnowledgeGrounding(query, hits);
+  return knowledgeGrounding
+    ? [{ role: 'system' as const, content: knowledgeGrounding }, ...messages]
+    : messages;
+};
+
+const buildProviderCandidates = ({
+  provider,
+  model,
+  byokApiKey,
+  providerFallbackAllowed,
+}: Pick<
+  ChatRequestInput,
+  'provider' | 'model' | 'byokApiKey' | 'providerFallbackAllowed'
+>): ProviderCandidate[] => {
+  const keys = serverKeys();
+  const primaryModel = model || defaultModelForProvider(provider);
+  const primaryApiKey = byokApiKey || keys[provider];
+
+  return [{ provider, apiKey: primaryApiKey, model: primaryModel }].concat(
+    providerFallbackAllowed
+      ? providerOrder
+          .filter((candidate) => candidate !== provider)
+          .map((candidate) => ({
+            provider: candidate,
+            apiKey: keys[candidate],
+            model: defaultModelForProvider(candidate),
+          }))
+          .filter((candidate) => Boolean(candidate.apiKey))
+      : []
+  );
+};
+
+const runProviderCandidate = async (
+  candidate: ProviderCandidate,
+  messages: readonly ChatMessageInput[]
+) => {
+  const startedAt = Date.now();
+  const result = await runLlmGateway({
+    provider: candidate.provider,
+    model: candidate.model,
+    messages,
+    apiKey: candidate.apiKey,
+  });
+  return { result, latencyMs: Date.now() - startedAt };
+};
+
 export const runChatService = async ({
   messages,
   responseMode,
@@ -181,55 +249,22 @@ export const runChatService = async ({
     };
   }
 
-  const serverKeys = {
-    openrouter: getServerEnv('OPENROUTER_API_KEY'),
-    openai: getServerEnv('OPENAI_API_KEY'),
-    anthropic: getServerEnv('ANTHROPIC_API_KEY'),
-    gemini: getServerEnv('GEMINI_API_KEY'),
-  } as const;
-  const providerOrder = ['openrouter', 'openai', 'anthropic', 'gemini'] as const;
-
   try {
-    const knowledgeGrounding = buildKnowledgeGrounding(query, localHits);
-    const requestMessages = knowledgeGrounding
-      ? [{ role: 'system' as const, content: knowledgeGrounding }, ...messages]
-      : messages;
-
-    const runProvider = async (
-      selectedProvider: typeof provider,
-      apiKey: string | undefined,
-      selectedModel: string
-    ) => {
-      const startedAt = Date.now();
-      const result = await runLlmGateway({
-        provider: selectedProvider,
-        model: selectedModel || defaultModelForProvider(selectedProvider),
-        messages: requestMessages,
-        apiKey,
-      });
-      const latencyMs = Date.now() - startedAt;
-      return { result, latencyMs };
-    };
-
-    const primaryModel = model || defaultModelForProvider(provider);
-    const primaryApiKey = byokApiKey || serverKeys[provider];
-    const primary = await runProvider(provider, primaryApiKey, primaryModel);
+    const requestMessages = buildGroundedMessages(query, localHits, messages);
+    const candidates = buildProviderCandidates({
+      provider,
+      model,
+      byokApiKey,
+      providerFallbackAllowed,
+    });
+    const [primaryCandidate, ...fallbackCandidates] = candidates;
+    const primary = await runProviderCandidate(primaryCandidate, requestMessages);
 
     if (!primary.result.ok) {
       const code = primary.result.code;
-      const fallbackCandidates = providerFallbackAllowed
-        ? providerOrder
-            .filter((candidate) => candidate !== provider)
-            .map((candidate) => ({
-              provider: candidate,
-              apiKey: serverKeys[candidate],
-              model: defaultModelForProvider(candidate),
-            }))
-            .filter((candidate) => Boolean(candidate.apiKey))
-        : [];
 
       for (const candidate of fallbackCandidates) {
-        const fallback = await runProvider(candidate.provider, candidate.apiKey, candidate.model);
+        const fallback = await runProviderCandidate(candidate, requestMessages);
         if (fallback.result.ok) {
           return {
             ok: true,
@@ -246,89 +281,13 @@ export const runChatService = async ({
       }
 
       const fallbackAvailable = fallbackCandidates.length > 0;
-      const meta = {
+      return errorResultFromGateway(
         provider,
-        hint: primary.result.hint,
-        errorClass: code,
-        fallbackAvailable,
-      } as const;
-
-      if (code === 'CONFIG_ERROR') {
-        console.error('[Chat API] Missing provider API key for', provider);
-        const fallbackHint =
-          providerFallbackAllowed && !fallbackAvailable
-            ? ' Fallback unavailable because no alternate provider key is configured.'
-            : '';
-        return {
-          ok: false,
-          status: 503,
-          code: 'CONFIG_ERROR',
-          message: `Chat service is not configured for ${provider}.${fallbackHint}`,
-          meta,
-        };
-      }
-      if (code === 'INVALID_RESPONSE') {
-        console.error('[Chat API] Invalid response from provider', provider);
-        return {
-          ok: false,
-          status: 500,
-          code: 'INVALID_RESPONSE',
-          message: `Received invalid response from ${provider}.`,
-          meta,
-        };
-      }
-      if (code === 'INVALID_KEY') {
-        return {
-          ok: false,
-          status: 401,
-          code: 'INVALID_KEY',
-          message: primary.result.message,
-          meta,
-        };
-      }
-      if (code === 'RATE_LIMITED') {
-        return {
-          ok: false,
-          status: 429,
-          code: 'RATE_LIMITED',
-          message: primary.result.message,
-          meta,
-        };
-      }
-      if (code === 'QUOTA_EXCEEDED') {
-        return {
-          ok: false,
-          status: 429,
-          code: 'QUOTA_EXCEEDED',
-          message: primary.result.message,
-          meta,
-        };
-      }
-      if (code === 'TIMEOUT') {
-        return {
-          ok: false,
-          status: 504,
-          code: 'TIMEOUT',
-          message: primary.result.message,
-          meta,
-        };
-      }
-      if (code === 'NETWORK_ERROR') {
-        return {
-          ok: false,
-          status: 502,
-          code: 'NETWORK_ERROR',
-          message: primary.result.message,
-          meta,
-        };
-      }
-      return {
-        ok: false,
-        status: 502,
-        code: 'PROVIDER_ERROR',
-        message: isServerDev() ? primary.result.message : `Provider ${provider} failed.`,
-        meta,
-      };
+        code,
+        primary.result.message,
+        primary.result.hint,
+        fallbackAvailable
+      );
     }
 
     return {
@@ -336,7 +295,7 @@ export const runChatService = async ({
       status: 200,
       payload: chatSuccess(primary.result.message, {
         provider,
-        model: primaryModel,
+        model: primaryCandidate.model,
         latencyMs: primary.latencyMs,
         fallbackUsed: false,
       }),
@@ -364,16 +323,6 @@ export const runChatService = async ({
     };
   }
 };
-
-const serverKeys = () =>
-  ({
-    openrouter: getServerEnv('OPENROUTER_API_KEY'),
-    openai: getServerEnv('OPENAI_API_KEY'),
-    anthropic: getServerEnv('ANTHROPIC_API_KEY'),
-    gemini: getServerEnv('GEMINI_API_KEY'),
-  }) as const;
-
-const providerOrder = ['openrouter', 'openai', 'anthropic', 'gemini'] as const;
 
 const errorResultFromGateway = (
   provider: LlmProvider,
@@ -454,27 +403,13 @@ export const runChatStreamService = async ({
 
   const query = latestUserQuery(messages);
   const localHits = query ? searchKnowledge(query, 6) : [];
-  const knowledgeGrounding = buildKnowledgeGrounding(query, localHits);
-  const requestMessages = knowledgeGrounding
-    ? [{ role: 'system' as const, content: knowledgeGrounding }, ...messages]
-    : messages;
-
-  const keys = serverKeys();
-  const primaryModel = model || defaultModelForProvider(provider);
-  const primaryApiKey = byokApiKey || keys[provider];
-
-  const candidates = [{ provider, apiKey: primaryApiKey, model: primaryModel }].concat(
-    providerFallbackAllowed
-      ? providerOrder
-          .filter((candidate) => candidate !== provider)
-          .map((candidate) => ({
-            provider: candidate,
-            apiKey: keys[candidate],
-            model: defaultModelForProvider(candidate),
-          }))
-          .filter((candidate) => Boolean(candidate.apiKey))
-      : []
-  );
+  const requestMessages = buildGroundedMessages(query, localHits, messages);
+  const candidates = buildProviderCandidates({
+    provider,
+    model,
+    byokApiKey,
+    providerFallbackAllowed,
+  });
 
   const fallbackAvailable = candidates.length > 1;
 
