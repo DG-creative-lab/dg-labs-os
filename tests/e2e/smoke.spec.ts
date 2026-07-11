@@ -61,6 +61,25 @@ test.describe('desktop smoke', () => {
       markRequestIntercepted = resolve;
     });
 
+    await page.route('**/api/llm/health', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          ok: true,
+          providers: [
+            {
+              provider: 'openrouter',
+              configured: true,
+              status: 'healthy',
+              message: 'Ready',
+              latencyMs: 1,
+            },
+          ],
+        }),
+      });
+    });
+
     await page.route('**/api/chat/stream', async (route) => {
       markRequestIntercepted();
       await responseGate;
