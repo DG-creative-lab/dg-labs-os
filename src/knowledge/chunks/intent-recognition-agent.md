@@ -14,8 +14,12 @@ tags:
     'marketing-intelligence',
   ]
 confidence: 'verified'
-sources: ['https://github.com/DG-creative-lab']
-last_verified: '2025-06-01'
+sources:
+  [
+    'https://github.com/ai-knowledge-hub/deep-dive-analysis-intent-recognition-agent',
+    'https://ai-news-hub.performics-labs.com/analysis/geometry-of-intention-llms-human-goals-marketing',
+  ]
+last_verified: '2026-07-26'
 related:
   [
     'experience-performics',
@@ -27,9 +31,8 @@ related:
 
 # Intent Recognition Agent
 
-**Classification**: Flagship system — long-term research and delivery project
-**Status**: Production / active development
-**Built at**: Performics Innovations Lab (Publicis Media)
+**Classification**: Collaborative public research and engineering project
+**Status**: Public prototype / active development
 
 ## What It Is
 
@@ -59,7 +62,7 @@ Most marketing intelligence systems treat intent as a classification problem: ma
 
 ## Technical Stack
 
-Python, behavioral embeddings, clustering algorithms, LLM integration (persona generation), production deployment
+Python, behavioral embeddings, clustering algorithms, LLM integration, Gradio
 
 ## Connection to Research
 

@@ -16,7 +16,7 @@ import {
 describe('menu action integration (intent -> reaction)', () => {
   it('updates network filter through emitted event + listener', () => {
     const target = new EventTarget();
-    let filter: 'ALL' | 'Education' | 'Research' | 'Projects' | 'Experience' = 'ALL';
+    let filter: 'ALL' | 'Foundation' | 'Career' | 'Practice' | 'System' | 'Evidence' = 'ALL';
 
     const listener: EventListener = (event) => {
       const customEvent = event as CustomEvent<NetworkMenuEventDetail>;
@@ -30,10 +30,10 @@ describe('menu action integration (intent -> reaction)', () => {
     };
 
     target.addEventListener('dg-network-menu-action', listener);
-    emitNetworkMenuAction(target as unknown as Window, 'set_filter', { filter: 'Projects' });
+    emitNetworkMenuAction(target as unknown as Window, 'set_filter', { filter: 'System' });
     target.removeEventListener('dg-network-menu-action', listener);
 
-    expect(filter).toBe('Projects');
+    expect(filter).toBe('System');
   });
 
   it('routes resume download intent through emitted event + listener', () => {

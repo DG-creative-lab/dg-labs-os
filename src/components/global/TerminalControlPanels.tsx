@@ -399,11 +399,11 @@ export function TerminalControlPanels({
                 className={getQuickButtonClass('open-projects')}
               />
               <QuickAction
-                label="Notes"
-                actionKey="open-notes"
+                label="Writing"
+                actionKey="open-writing"
                 onRun={onRunQuickAction}
-                action={() => onRunToolCall('open_app', { target: 'notes' })}
-                className={getQuickButtonClass('open-notes')}
+                action={() => onRunToolCall('open_app', { target: 'writing' })}
+                className={getQuickButtonClass('open-writing')}
               />
               <QuickAction
                 label="Terminal"

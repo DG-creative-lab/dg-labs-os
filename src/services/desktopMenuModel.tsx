@@ -22,6 +22,7 @@ export type ToolbarAppId =
   | 'network'
   | 'projects'
   | 'notes'
+  | 'evolution'
   | 'resume'
   | 'news';
 
@@ -75,7 +76,7 @@ export const buildDesktopMenuModel = ({
         action: onOpenAbout,
       },
       {
-        label: 'System Settings...',
+        label: 'Technical Writing...',
         icon: <IoDocumentText size={16} />,
         action: () => openAppFromMenu('notes'),
       },
@@ -98,7 +99,7 @@ export const buildDesktopMenuModel = ({
         icon: <IoDocumentText size={16} />,
         action: () =>
           onCopyText(
-            `${userConfig.ownerName} builds AI systems and research interfaces focused on human agency. DG-Labs OS presents this work as a cognitive operating system across projects, networked ideas, and an agent runtime.`,
+            `${userConfig.ownerName} builds AI systems, agent infrastructure, and product interfaces that make complex automation inspectable and useful. DG-Labs OS connects the systems, professional writing, and evidence behind that work.`,
             'Quick intro'
           ),
       },
@@ -130,12 +131,7 @@ export const buildDesktopMenuModel = ({
         action: () => openAppFromMenu('projects'),
       },
       {
-        label: 'AI News Hub',
-        icon: <IoDocumentText size={16} />,
-        action: () => openAppFromMenu('news'),
-      },
-      {
-        label: 'Notes',
+        label: 'Technical Writing',
         icon: <IoDocumentText size={16} />,
         action: () => openAppFromMenu('notes'),
       },
@@ -157,9 +153,9 @@ export const buildDesktopMenuModel = ({
         action: () => window.open(userConfig.social.linkedin, '_blank'),
       },
       {
-        label: 'AI News Hub',
+        label: 'Performics Labs Archive',
         icon: <IoDocumentText size={16} />,
-        action: () => window.open('https://ai-news-hub.performics-labs.com/', '_blank'),
+        action: () => window.open('https://ai-news-hub.performics-labs.com/analysis', '_blank'),
       },
       {
         label: 'Email',
@@ -214,12 +210,12 @@ export const buildDesktopMenuModel = ({
         action: () => openAppFromMenu('projects'),
       },
       {
-        label: 'Network',
+        label: 'System Map',
         icon: <IoDocumentText size={16} />,
         action: () => openAppFromMenu('network'),
       },
       {
-        label: 'Notes',
+        label: 'Technical Writing',
         icon: <IoDocumentText size={16} />,
         action: () => openAppFromMenu('notes'),
       },
@@ -316,14 +312,14 @@ export const buildDesktopMenuModel = ({
     ...commonMenus,
     View: [
       {
-        label: 'List Mode',
+        label: 'Index Mode',
         icon: <IoDocumentText size={16} />,
-        action: () => emitNetworkMenuAction(window, 'set_view', { view: 'LIST' }),
+        action: () => emitNetworkMenuAction(window, 'set_view', { view: 'INDEX' }),
       },
       {
-        label: 'Graph Mode',
+        label: 'Map Mode',
         icon: <IoCodeSlash size={16} />,
-        action: () => emitNetworkMenuAction(window, 'set_view', { view: 'GRAPH' }),
+        action: () => emitNetworkMenuAction(window, 'set_view', { view: 'MAP' }),
       },
       {
         label: 'Clear Search',
@@ -338,33 +334,38 @@ export const buildDesktopMenuModel = ({
         action: () => emitNetworkMenuAction(window, 'set_filter', { filter: 'ALL' }),
       },
       {
-        label: 'Filter: Education',
+        label: 'Filter: Foundations',
         icon: <IoDocumentText size={16} />,
-        action: () => emitNetworkMenuAction(window, 'set_filter', { filter: 'Education' }),
+        action: () => emitNetworkMenuAction(window, 'set_filter', { filter: 'Foundation' }),
       },
       {
-        label: 'Filter: Research',
+        label: 'Filter: Career',
         icon: <IoDocumentText size={16} />,
-        action: () => emitNetworkMenuAction(window, 'set_filter', { filter: 'Research' }),
+        action: () => emitNetworkMenuAction(window, 'set_filter', { filter: 'Career' }),
       },
       {
-        label: 'Filter: Projects',
+        label: 'Filter: Practices',
         icon: <IoDocumentText size={16} />,
-        action: () => emitNetworkMenuAction(window, 'set_filter', { filter: 'Projects' }),
+        action: () => emitNetworkMenuAction(window, 'set_filter', { filter: 'Practice' }),
       },
       {
-        label: 'Filter: Experience',
+        label: 'Filter: Systems',
         icon: <IoDocumentText size={16} />,
-        action: () => emitNetworkMenuAction(window, 'set_filter', { filter: 'Experience' }),
+        action: () => emitNetworkMenuAction(window, 'set_filter', { filter: 'System' }),
+      },
+      {
+        label: 'Filter: Evidence',
+        icon: <IoDocumentText size={16} />,
+        action: () => emitNetworkMenuAction(window, 'set_filter', { filter: 'Evidence' }),
       },
     ],
     Help: [
       ...commonMenus.Help,
       {
-        label: 'Find: Human Agency',
+        label: 'Find: Evaluation & Evidence',
         icon: <IoHelpCircle size={16} />,
         action: () =>
-          emitNetworkMenuAction(window, 'apply_query', { query: 'human agency empowerment' }),
+          emitNetworkMenuAction(window, 'apply_query', { query: 'evaluation evidence' }),
       },
     ],
   };
@@ -406,28 +407,16 @@ export const buildDesktopMenuModel = ({
     ...commonMenus,
     View: [
       {
-        label: 'Principles',
+        label: 'Selected Writing',
         icon: <IoDocumentText size={16} />,
         action: () =>
-          emitNotesMenuAction(window, 'jump_section', { sectionId: 'notes-principles' }),
+          emitNotesMenuAction(window, 'jump_section', { sectionId: 'writing-selected' }),
       },
       {
-        label: 'Quick Actions',
+        label: 'Provenance',
         icon: <IoHelpCircle size={16} />,
         action: () =>
-          emitNotesMenuAction(window, 'jump_section', { sectionId: 'notes-quick-actions' }),
-      },
-      {
-        label: 'Pinned Deep Dives',
-        icon: <IoCodeSlash size={16} />,
-        action: () =>
-          emitNotesMenuAction(window, 'jump_section', { sectionId: 'notes-deep-dives' }),
-      },
-      {
-        label: 'News Analysis',
-        icon: <IoDocumentText size={16} />,
-        action: () =>
-          emitNotesMenuAction(window, 'jump_section', { sectionId: 'notes-news-analysis' }),
+          emitNotesMenuAction(window, 'jump_section', { sectionId: 'writing-provenance' }),
       },
     ],
     Window: [
@@ -437,7 +426,7 @@ export const buildDesktopMenuModel = ({
         action: () => emitNotesMenuAction(window, 'scroll_top'),
       },
       {
-        label: 'Open AI News Hub',
+        label: 'Open Full Archive',
         icon: <IoDocumentText size={16} />,
         action: () => emitNotesMenuAction(window, 'open_news_hub'),
       },
@@ -491,11 +480,12 @@ export const buildDesktopMenuModel = ({
   const appMenuLabelMap: Record<ToolbarAppId, string> = {
     home: userConfig.name,
     terminal: 'Agents',
-    network: 'Network',
+    network: 'System Map',
     projects: 'Workbench',
-    notes: 'Lab Notes',
+    notes: 'Technical Writing',
+    evolution: 'Evidence & Evolution',
     resume: 'Resume',
-    news: 'AI News Hub',
+    news: 'Technical Writing',
   };
 
   const appMenuItemsMap: Record<ToolbarAppId, MenuItem[]> = {
@@ -507,7 +497,7 @@ export const buildDesktopMenuModel = ({
         action: () => openAppFromMenu('projects'),
       },
       {
-        label: 'Open Network',
+        label: 'Open System Map',
         icon: <IoDocumentText size={16} />,
         action: () => openAppFromMenu('network'),
       },
@@ -536,17 +526,17 @@ export const buildDesktopMenuModel = ({
     ],
     network: [
       {
-        label: 'Reset Network Search',
+        label: 'Reset Map Search',
         icon: <IoDocumentText size={16} />,
         action: () => emitNetworkMenuAction(window, 'clear_search'),
       },
       {
-        label: 'Switch to Graph Mode',
+        label: 'Switch to Map Mode',
         icon: <IoCodeSlash size={16} />,
-        action: () => emitNetworkMenuAction(window, 'set_view', { view: 'GRAPH' }),
+        action: () => emitNetworkMenuAction(window, 'set_view', { view: 'MAP' }),
       },
       {
-        label: 'Close Network',
+        label: 'Close System Map',
         icon: <FaWindowRestore size={16} />,
         action: () => onCloseApp('network'),
       },
@@ -570,20 +560,39 @@ export const buildDesktopMenuModel = ({
     ],
     notes: [
       {
-        label: 'Open Principles',
+        label: 'Open Selected Writing',
         icon: <IoDocumentText size={16} />,
         action: () =>
-          emitNotesMenuAction(window, 'jump_section', { sectionId: 'notes-principles' }),
+          emitNotesMenuAction(window, 'jump_section', { sectionId: 'writing-selected' }),
       },
       {
-        label: 'Open AI News Hub',
+        label: 'Open Full Archive',
         icon: <IoCodeSlash size={16} />,
         action: () => emitNotesMenuAction(window, 'open_news_hub'),
       },
       {
-        label: 'Close Lab Notes',
+        label: 'Close Technical Writing',
         icon: <FaWindowRestore size={16} />,
         action: () => onCloseApp('notes'),
+      },
+    ],
+    evolution: [
+      {
+        label: 'Open Application Evidence',
+        icon: <IoDocumentText size={16} />,
+        action: () => {
+          window.location.href = '/apply/openai-codex';
+        },
+      },
+      {
+        label: 'Open Resume',
+        icon: <IoCodeSlash size={16} />,
+        action: () => openAppFromMenu('resume'),
+      },
+      {
+        label: 'Close Evidence & Evolution',
+        icon: <FaWindowRestore size={16} />,
+        action: () => onCloseApp('evolution'),
       },
     ],
     resume: [
@@ -605,17 +614,17 @@ export const buildDesktopMenuModel = ({
     ],
     news: [
       {
-        label: 'Open AI News Hub Site',
+        label: 'Open Technical Writing',
         icon: <IoDocumentText size={16} />,
-        action: () => openAppFromMenu('news'),
-      },
-      {
-        label: 'Open Lab Notes',
-        icon: <IoCodeSlash size={16} />,
         action: () => openAppFromMenu('notes'),
       },
       {
-        label: 'Close AI News Hub',
+        label: 'Open Full Archive',
+        icon: <IoCodeSlash size={16} />,
+        action: () => window.open('https://ai-news-hub.performics-labs.com/analysis', '_blank'),
+      },
+      {
+        label: 'Close Technical Writing',
         icon: <FaWindowRestore size={16} />,
         action: () => onCloseApp('news'),
       },

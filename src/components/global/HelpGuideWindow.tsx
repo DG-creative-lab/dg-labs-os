@@ -32,10 +32,10 @@ const TOPICS: Record<
         heading: 'Module Map',
         bullets: [
           'Workbench: production systems, enterprise platforms, and engineering artifacts.',
-          'Network: graph of education, experience, research, and shipped systems with idea-level connections.',
+          'System Map: curated relationships between career experience, engineering practices, systems, and public evidence.',
           'Agents Terminal: command surface for deterministic actions, provider-aware reasoning, and evidence-grounded answers.',
           'Resume: canonical profile module with local downloadable formats.',
-          'Lab Notes: research threads, implementation principles, and system-design heuristics.',
+          'Technical Writing: a selected set of Performics Labs analysis connected to systems Dessi has built or investigated.',
         ],
       },
       {
@@ -43,14 +43,14 @@ const TOPICS: Record<
         bullets: [
           'Facts are stored as structured modules; ideas are modeled as links between systems, roles, and writings.',
           'The dock is for fast module switching; the menu bar changes with the focused window.',
-          'Windows can be moved and resized to support side-by-side comparison across systems, notes, and graph views.',
+          'Windows can be moved and resized to support side-by-side comparison across systems, writing, and map views.',
         ],
       },
       {
         heading: 'Recommended Flow',
         bullets: [
           'Start in Workbench for the strongest engineering and platform overview.',
-          'Open Network to inspect how projects, experience, and research reinforce each other.',
+          'Open System Map and choose a guided question to inspect how experience, systems, and evidence connect.',
           'Use Resume when you need the canonical career narrative and downloadable artifacts.',
           'Use Terminal for guided questions, verification, and cross-surface synthesis.',
         ],
@@ -82,7 +82,7 @@ const TOPICS: Record<
       {
         heading: 'Navigation Commands',
         bullets: [
-          '`open network|projects|notes|resume|terminal`: jump directly to modules.',
+          '`open network|projects|writing|resume|terminal`: jump directly to modules.',
           '`help`: list supported deterministic commands.',
           'Use deterministic commands first; use LLM modes when synthesis, comparison, or explanation is needed.',
         ],
@@ -97,15 +97,15 @@ const TOPICS: Record<
       {
         heading: 'Desktop Navigation',
         bullets: [
-          'Use dock icons for quick app open/close.',
+          'Use the labelled dock modules for quick app open/close.',
           'Use menubar actions for app-specific functions such as filters, section jumps, presets, and downloads.',
-          'Use Window > Contact to open the links panel from anywhere on desktop.',
+          'Use Window > Contact to open the Connect menu from anywhere on desktop.',
         ],
       },
       {
         heading: 'Reading Efficiency',
         bullets: [
-          'Open multiple windows and compare Workbench, Network, Resume, and Notes side by side.',
+          'Open multiple windows and compare Workbench, System Map, Resume, and Technical Writing side by side.',
           'Resize large modules so the menubar and dock remain visible during comparison.',
           'Use Terminal to ask targeted questions instead of manually scanning long modules.',
         ],
@@ -152,7 +152,7 @@ const TOPICS: Record<
         heading: 'System Objective',
         bullets: [
           'Optimize for human agency, not attention extraction.',
-          'Convert research into production systems with explicit evidence trails and operational contracts.',
+          'Convert investigation and learning into systems with explicit evidence trails and operational contracts.',
           'Expose ideas as explorable modules for both human and agent users.',
         ],
       },

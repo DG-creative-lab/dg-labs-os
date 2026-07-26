@@ -1,7 +1,6 @@
 ---
 import DesktopLayout from '../../layouts/DesktopLayout.astro';
-import { userConfig } from '../../config/index';
-import { networkIdeaEdges, networkLinks, networkNodes } from '../../config/network';
+import { networkIdeaEdges, networkNodes, networkPaths } from '../../config/network';
 import NetworkApp from '../../components/network/NetworkApp';
 import DraggableAppWindow from '../../components/global/DraggableAppWindow';
 ---
@@ -10,7 +9,7 @@ import DraggableAppWindow from '../../components/global/DraggableAppWindow';
   <main class="relative min-h-[calc(100vh-4rem)] px-6 pt-12 text-white">
     <DraggableAppWindow
       client:load
-      title="Network"
+      title="System Map"
       appId="network"
       closeHref="/desktop"
       initialSize={{ width: 1080, height: 700 }}
@@ -18,69 +17,21 @@ import DraggableAppWindow from '../../components/global/DraggableAppWindow';
     >
       <div class="flex items-start justify-between gap-6">
         <div>
-          <h1 class="text-2xl font-semibold">Network</h1>
+          <p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-200">
+            Connections / Curated projection
+          </p>
+          <h1 class="mt-2 text-2xl font-semibold">System Map</h1>
           <p class="mt-2 text-white/70">
-            Work graph across research, projects, experience, and education.
+            How career experience, engineering practices, systems, and public evidence connect.
           </p>
         </div>
         <div class="hidden md:block text-right text-xs text-white/50">
           <p>DG-Labs OS</p>
-          <p>Module: Network</p>
+          <p>Module: Connections</p>
         </div>
       </div>
 
-      <div class="mt-4 flex flex-wrap gap-2">
-        <a
-          class="text-sm rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-1.5 text-sky-100 hover:bg-sky-400/20 transition"
-          href={userConfig.social.linkedin}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          LinkedIn
-        </a>
-        <a
-          class="text-sm rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-1.5 text-sky-100 hover:bg-sky-400/20 transition"
-          href={userConfig.social.github}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          GitHub
-        </a>
-        <a
-          class="text-sm rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-1.5 text-sky-100 hover:bg-sky-400/20 transition"
-          href={networkLinks.githubOrg}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          ai-knowledge-hub (org)
-        </a>
-        <a
-          class="text-sm rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-1.5 text-sky-100 hover:bg-sky-400/20 transition"
-          href={networkLinks.githubPersonal}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          DG-creative-lab
-        </a>
-        <a
-          class="text-sm rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-1.5 text-sky-100 hover:bg-sky-400/20 transition"
-          href={networkLinks.newsHub}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          AI News Hub
-        </a>
-        <a
-          class="text-sm rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-1.5 text-sky-100 hover:bg-sky-400/20 transition"
-          href={networkLinks.skillsHub}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          AI Skills Platform
-        </a>
-      </div>
-
-      <NetworkApp client:load nodes={networkNodes} ideas={networkIdeaEdges} />
+      <NetworkApp client:load nodes={networkNodes} ideas={networkIdeaEdges} paths={networkPaths} />
     </DraggableAppWindow>
   </main>
 </DesktopLayout>

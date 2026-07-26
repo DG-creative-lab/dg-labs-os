@@ -54,7 +54,7 @@ export default function AboutDGWindow({ isOpen, onClose, onMoreInfo }: AboutDGWi
         </div>
         <p className="max-w-sm text-sm leading-6 text-white/70">
           Converts ideas into production systems: agent runtimes, enterprise auth boundaries,
-          infrastructure control planes, and public research interfaces.
+          infrastructure control planes, and public technical interfaces.
         </p>
         <button
           onClick={onMoreInfo}

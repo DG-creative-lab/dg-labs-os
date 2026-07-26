@@ -5,7 +5,7 @@ title: 'Public Profile & Project Links'
 tags: ['links', 'verification', 'profiles', 'github', 'publications']
 confidence: 'verified'
 sources: []
-last_verified: '2025-06-01'
+last_verified: '2026-07-26'
 related: ['identity-profile', 'meta-verification', 'meta-provenance']
 ---
 
@@ -16,7 +16,7 @@ This is the canonical registry of all verified public URLs associated with Dessi
 ## Professional Profiles
 
 - **LinkedIn**: https://www.linkedin.com/in/dessi-georgieva/
-  - Role: Data Engineer, Performics Innovations Lab (Publicis Media)
+  - Role: Engineer, Performics Innovations Lab (Publicis Media)
   - Location: London, UK
 
 ## GitHub Presence
@@ -29,12 +29,12 @@ This is the canonical registry of all verified public URLs associated with Dessi
 ## Deployed Projects
 
 - **AI News Hub**: https://ai-news-hub.performics-labs.com/
-  - AI content platform with 200+ organic followers
-  - 50+ published articles including research-grade deep dives
+  - Performics Labs technical writing and industry-analysis archive
+  - Published analysis and research-grade deep dives
   - Built with Astro
 - **AI Skills Platform**: (deployed, URL to be confirmed)
   - Next.js catalog website for the AI Agent Skills Framework
-  - 18 production skills documented
+  - Reusable agent skills and structured learning material
 
 ## Key Repositories
 

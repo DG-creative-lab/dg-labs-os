@@ -1,56 +1,51 @@
 ---
 id: 'project-ai-news-hub'
 type: 'project'
-title: 'AI News Hub — Content Platform'
-tags: ['project', 'writing', 'research', 'content-platform', 'community', 'astro', 'publications']
+title: 'Technical Writing — Performics Labs'
+tags: ['project', 'writing', 'technical-analysis', 'content-platform', 'astro', 'publications']
 confidence: 'verified'
-sources: ['https://ai-news-hub.performics-labs.com/']
-last_verified: '2025-06-01'
+sources: ['https://ai-news-hub.performics-labs.com/analysis']
+last_verified: '2026-07-26'
 related:
-  [
-    'identity-philosophy',
-    'research-geometry-of-intention',
-    'research-phenomenology-of-search',
-    'research-themes',
-  ]
+  ['research-geometry-of-intention', 'research-phenomenology-of-search', 'project-agentic-commerce']
 ---
 
-# AI News Hub — Content Platform
+# Technical Writing — Performics Labs
 
-**Classification**: Research writing and community building
-**Status**: Active, growing
-**URL**: https://ai-news-hub.performics-labs.com/
+**Classification**: Professional technical writing and content-platform work
+
+**Status**: Active
+
+**URL**: https://ai-news-hub.performics-labs.com/analysis
+
+**Published byline**: Performics Labs
+
 **Built with**: Astro
 
 ## What It Is
 
-An AI content platform that publishes both news analysis and deep research pieces exploring AI's impact on marketing, human agency, and intelligent system design. Grown to 200+ organic followers in six months, with 50+ published articles.
+A maintained publishing surface for applied AI analysis, architecture guides, prototype retrospectives, and timely industry coverage. The portfolio presents a small selection of pieces that connect directly to systems Dessi has built or investigated.
 
-## Content Architecture
+The writing demonstrates technical synthesis, design judgement, and the ability to explain difficult systems to practitioners. It should not be described as independent academic research or as sole-authored work when the public byline is Performics Labs.
 
-The platform publishes two types of content:
+## Portfolio Selection
 
-### News Analysis
+The selected surface prioritises writing with clear engineering relevance:
 
-Timely coverage of AI developments relevant to marketing and advertising. These pieces contextualise industry news through the lens of human agency and empowerment, offering practitioners a critical perspective that most trade publications don't provide.
+- agentic-commerce discoverability and control planes
+- identity, policy, approval, and audit boundaries for marketing agents
+- deterministic algorithms and data structures inside agent tools
+- maintenance and security skills for coding agents
+- lessons from building an agentic marketing optimisation prototype
 
-### Deep Research Dives (Deep Dive Analysis Series)
+Each selected piece states the related system and a limitation. The broader archive remains available, but timely coverage and earlier conceptual essays are not automatically treated as evidence for Dessi's engineering claims.
 
-Long-form research pieces that apply philosophical and technical rigour to questions about AI systems. These are the intellectual signature pieces, including:
+## What It Supports
 
-- **"The Geometry of Intention"** — exploring how consumer intent can be modeled as geometric structure rather than taxonomic classification
-- **"The Phenomenology of Search"** — examining search behavior through phenomenological methods, asking what the experience of searching reveals about human intention
+The platform provides evidence of:
 
-## Why This Matters
+1. sustained technical communication
+2. connecting public ideas to implementation questions
+3. maintaining a content-focused Astro site and editorial system
 
-Building a content platform to 200+ followers in six months while working full-time as an engineer is a concrete signal of three things:
-
-1. **Research capability**: the deep dives are genuine research, not blog posts with a fancy title
-2. **Communication skill**: translating complex technical and philosophical ideas for practitioners
-3. **Community building**: growing an audience organically around ideas, not engagement hacks
-
-The platform is itself an instance of the empowerment thesis — it exists to help practitioners _think better_ about AI, not to generate clicks.
-
-## Technical Implementation
-
-Built with Astro, a modern static site generator. The choice of Astro over a heavier framework reflects pragmatic engineering judgment — content-focused sites don't need client-side JavaScript frameworks.
+Audience size, independent research novelty, and commercial impact are not claimed without separate evidence.

@@ -91,6 +91,15 @@ const validateLabNotes = (notes: readonly LabNote[]): ValidationIssue[] => {
     if (!note.readingTime.trim()) {
       issues.push({ scope: 'labNotes', id: note.id, message: 'Missing reading time.' });
     }
+    if (!note.published.trim()) {
+      issues.push({ scope: 'labNotes', id: note.id, message: 'Missing publication date.' });
+    }
+    if (!note.relatedSystem.trim()) {
+      issues.push({ scope: 'labNotes', id: note.id, message: 'Missing related system.' });
+    }
+    if (!note.boundary.trim()) {
+      issues.push({ scope: 'labNotes', id: note.id, message: 'Missing scope boundary.' });
+    }
     if (!isHttpUrl(note.url)) {
       issues.push({
         scope: 'labNotes',
@@ -174,6 +183,7 @@ const validateNetwork = (
 ): ValidationIssue[] => {
   const issues: ValidationIssue[] = [];
   const ids = new Set<string>();
+  const edgeIds = new Set<string>();
 
   for (const node of nodes) {
     if (!node.id.trim()) {
@@ -205,6 +215,15 @@ const validateNetwork = (
         message: 'Node bullets must contain non-empty entries.',
       });
     }
+    if (!node.provenance.trim()) {
+      issues.push({ scope: 'network', id: node.id, message: 'Missing node provenance.' });
+    }
+    if (!node.boundary.trim()) {
+      issues.push({ scope: 'network', id: node.id, message: 'Missing node boundary.' });
+    }
+    if (node.map.column < 0 || node.map.column > 3 || node.map.row < 0) {
+      issues.push({ scope: 'network', id: node.id, message: 'Invalid map position.' });
+    }
 
     for (const [key, value] of Object.entries(node.links ?? {})) {
       if (!value) continue;
@@ -219,7 +238,13 @@ const validateNetwork = (
   }
 
   for (const edge of edges) {
-    const edgeId = `${edge.from}->${edge.to}`;
+    const edgeId = edge.id || `${edge.from}->${edge.to}`;
+    if (!edge.id.trim()) {
+      issues.push({ scope: 'network', id: edgeId, message: 'Missing edge id.' });
+    } else if (edgeIds.has(edge.id)) {
+      issues.push({ scope: 'network', id: edge.id, message: 'Duplicate edge id.' });
+    }
+    edgeIds.add(edge.id);
     if (!ids.has(edge.from)) {
       issues.push({
         scope: 'network',
@@ -234,8 +259,11 @@ const validateNetwork = (
         message: `Edge target "${edge.to}" does not exist.`,
       });
     }
-    if (!edge.idea.trim()) {
-      issues.push({ scope: 'network', id: edgeId, message: 'Edge idea must be non-empty.' });
+    if (!edge.relation.trim()) {
+      issues.push({ scope: 'network', id: edgeId, message: 'Edge relation must be non-empty.' });
+    }
+    if (!edge.evidence.trim()) {
+      issues.push({ scope: 'network', id: edgeId, message: 'Edge evidence must be non-empty.' });
     }
   }
 

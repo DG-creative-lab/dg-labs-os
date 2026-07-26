@@ -1,65 +1,91 @@
 export type LabNote = {
   id: string;
-  kind: 'Deep Dive' | 'News' | 'Essay';
+  kind: 'Build note' | 'Implementation guide' | 'Reference architecture' | 'Technical analysis';
   title: string;
   subtitle: string;
   readingTime: string;
+  published: string;
   url: string;
   tags: readonly string[];
+  relatedSystem: string;
+  boundary: string;
 };
 
+/**
+ * Selected professional writing published under the Performics Labs byline.
+ *
+ * The internal `labNotes` name is retained for terminal and API compatibility.
+ * Public interfaces present this material as Technical Writing.
+ */
 export const labNotes: readonly LabNote[] = [
   {
-    id: 'empowerment-imperative',
-    kind: 'Deep Dive',
-    title: 'The Empowerment Imperative',
-    subtitle: 'Rewriting agentic marketing from extraction to human flourishing',
-    readingTime: '18 min',
-    url: 'https://ai-news-hub.performics-labs.com/analysis/empowerment-imperative-agentic-marketing-human-flourishing',
-    tags: ['agency', 'ethics', 'systems', 'architecture'],
+    id: 'agentic-commerce-readiness',
+    kind: 'Technical analysis',
+    title: 'The Agentic Commerce Readiness Stack',
+    subtitle:
+      'How should brands become discoverable to shopping agents while controlling what those agents may do?',
+    readingTime: '24 min',
+    published: '2026-06-01',
+    url: 'https://ai-news-hub.performics-labs.com/analysis/agentic-commerce-readiness-stack-discoverability-control-plane',
+    tags: ['agentic commerce', 'control planes', 'protocols', 'validation'],
+    relatedSystem: 'Agentic Commerce Control Plane',
+    boundary:
+      'Architecture synthesis linked to an active prototype; it does not establish production-scale performance.',
   },
   {
-    id: 'geometry-of-intention',
-    kind: 'Deep Dive',
-    title: 'The Geometry of Intention',
-    subtitle: 'How LLMs predict human goals in marketing contexts',
-    readingTime: '25 min',
-    url: 'https://ai-news-hub.performics-labs.com/analysis/geometry-of-intention-llms-human-goals-marketing',
-    tags: ['intent', 'representation', 'evaluation', 'embeddings'],
+    id: 'secure-marketing-agents',
+    kind: 'Reference architecture',
+    title: 'Secure Marketing Agents',
+    subtitle:
+      'What identity, policy, approval, and audit boundaries are required before an agent may change an ad platform?',
+    readingTime: '24 min',
+    published: '2026-05-04',
+    url: 'https://ai-news-hub.performics-labs.com/analysis/building-secure-marketing-agents-ad-platform-authentication-architecture',
+    tags: ['agent identity', 'policy', 'approval gates', 'audit'],
+    relatedSystem: 'Programmatic automation and agent-policy work',
+    boundary:
+      'A reference architecture informed by professional practice; employer implementation details remain private.',
   },
   {
-    id: 'memory-and-agency',
-    kind: 'Deep Dive',
-    title: 'Memory and Agency',
-    subtitle: 'How to build an LLM agent that remembers',
-    readingTime: '25 min',
-    url: 'https://ai-news-hub.performics-labs.com/analysis/memory-agency-llm-seo-agent-learns-over-time',
-    tags: ['memory', 'agents', 'learning', 'runtime design'],
+    id: 'deterministic-core',
+    kind: 'Implementation guide',
+    title: 'The Deterministic Core',
+    subtitle:
+      'Which classical algorithms keep agent tools predictable when model behaviour is probabilistic?',
+    readingTime: '26 min',
+    published: '2026-04-06',
+    url: 'https://ai-news-hub.performics-labs.com/analysis/deterministic-core-algorithms-data-structures-marketing-agents',
+    tags: ['algorithms', 'tool routing', 'state', 'reliability'],
+    relatedSystem: 'AI Harness Lab and agent runtime design',
+    boundary:
+      'A practitioner guide with worked patterns; examples are explanatory rather than performance benchmarks.',
   },
   {
-    id: 'phenomenology-of-search',
-    kind: 'Deep Dive',
-    title: 'The Phenomenology of Search',
-    subtitle: 'How LLMs navigate second-order representations',
-    readingTime: '18 min',
-    url: 'https://ai-news-hub.performics-labs.com/analysis/phenomenology-search-llm-second-order-representations',
-    tags: ['search', 'authority', 'meaning'],
+    id: 'agent-maintenance-harness',
+    kind: 'Implementation guide',
+    title: "The Code Agent's Playbook",
+    subtitle:
+      'What repository, maintenance, and security skills does a coding agent need before it can work responsibly?',
+    readingTime: '29 min',
+    published: '2026-03-21',
+    url: 'https://ai-news-hub.performics-labs.com/analysis/agent-maintenance-security-harness',
+    tags: ['coding agents', 'skills', 'security', 'maintenance'],
+    relatedSystem: 'Codex capability and AI Skills work',
+    boundary:
+      'A synthesis of public agent patterns and operational practice; it is not a coding-agent benchmark.',
   },
   {
-    id: 'news-feed',
-    kind: 'News',
-    title: 'AI News Analysis Feed',
-    subtitle: '40+ short analyses mapped to marketing infrastructure shifts',
-    readingTime: 'Daily',
-    url: 'https://ai-news-hub.performics-labs.com/news',
-    tags: ['news', 'adtech', 'signals'],
+    id: 'building-to-learn',
+    kind: 'Build note',
+    title: 'Building to Learn',
+    subtitle:
+      'What changed after three weeks of prototyping an agentic marketing optimisation lab?',
+    readingTime: '30 min',
+    published: '2026-02-08',
+    url: 'https://ai-news-hub.performics-labs.com/analysis/building-to-learn-agentic-marketing-optimization',
+    tags: ['experiments', 'agentic marketing', 'validation', 'learning loops'],
+    relatedSystem: 'Agentic Commerce learning loop',
+    boundary:
+      'A prototype retrospective that separates simulated validation from observed commercial outcomes.',
   },
-] as const;
-
-export const labPrinciples: readonly { label: string; value: string }[] = [
-  { label: 'Metric', value: 'Human agency over conversion' },
-  { label: 'Method', value: 'Build to learn, then distill' },
-  { label: 'Architecture', value: 'Clear boundaries, observable flows, reusable contracts' },
-  { label: 'Interface', value: 'Tools that clarify intent and reduce operational ambiguity' },
-  { label: 'Constraint', value: 'Confidence gating, provenance, and policy-aware controls' },
 ] as const;

@@ -1,44 +1,26 @@
 ---
 import IPhoneAppLayout from '../../../layouts/iPhoneAppLayout.astro';
-import { userConfig } from '../../../config/index';
-import { networkIdeaEdges, networkLinks, networkNodes } from '../../../config/network';
+import { networkIdeaEdges, networkNodes, networkPaths } from '../../../config/network';
 import NetworkApp from '../../../components/network/NetworkApp';
 ---
 
-<IPhoneAppLayout appLabel="Network">
+<IPhoneAppLayout appLabel="System Map">
   <main class="min-h-screen px-4 pb-24 pt-24 text-white sm:px-6">
-    <h1 class="text-2xl font-semibold">Network</h1>
-    <p class="mt-2 text-white/70">Interactive map of roles, systems, and ideas.</p>
+    <p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-200">
+      Connections / Curated projection
+    </p>
+    <h1 class="mt-2 text-2xl font-semibold">System Map</h1>
+    <p class="mt-2 text-sm leading-6 text-white/65">
+      Follow the relationships between experience, engineering practices, systems, and evidence.
+    </p>
 
-    <div class="mt-4 flex flex-wrap gap-2">
-      <a
-        class="text-sm rounded-full bg-white/10 px-3 py-1.5"
-        href={userConfig.social.linkedin}
-        target="_blank"
-        rel="noopener noreferrer">LinkedIn</a
-      >
-      <a
-        class="text-sm rounded-full bg-white/10 px-3 py-1.5"
-        href={networkLinks.githubOrg}
-        target="_blank"
-        rel="noopener noreferrer">Org</a
-      >
-      <a
-        class="text-sm rounded-full bg-white/10 px-3 py-1.5"
-        href={networkLinks.newsHub}
-        target="_blank"
-        rel="noopener noreferrer">Hub</a
-      >
-    </div>
-
-    <div class="mt-5">
-      <NetworkApp
-        client:load
-        nodes={networkNodes}
-        ideas={networkIdeaEdges}
-        initialView="GRAPH"
-        compact={true}
-      />
-    </div>
+    <NetworkApp
+      client:load
+      nodes={networkNodes}
+      ideas={networkIdeaEdges}
+      paths={networkPaths}
+      initialView="INDEX"
+      compact={true}
+    />
   </main>
 </IPhoneAppLayout>

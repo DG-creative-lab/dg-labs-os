@@ -5,8 +5,8 @@ export type TerminalMenuEventDetail = {
 
 export type NetworkMenuEventDetail = {
   action: 'set_filter' | 'set_view' | 'clear_search' | 'apply_query';
-  filter?: 'ALL' | 'Education' | 'Research' | 'Projects' | 'Experience';
-  view?: 'LIST' | 'GRAPH';
+  filter?: 'ALL' | 'Foundation' | 'Career' | 'Practice' | 'System' | 'Evidence';
+  view?: 'MAP' | 'INDEX';
   query?: string;
 };
 
@@ -29,8 +29,10 @@ export type ResumeMenuEventDetail = {
 export const handleNetworkMenuAction = (
   detail: NetworkMenuEventDetail,
   actions: {
-    setFilter: (filter: 'ALL' | 'Education' | 'Research' | 'Projects' | 'Experience') => void;
-    setView: (view: 'LIST' | 'GRAPH') => void;
+    setFilter: (
+      filter: 'ALL' | 'Foundation' | 'Career' | 'Practice' | 'System' | 'Evidence'
+    ) => void;
+    setView: (view: 'MAP' | 'INDEX') => void;
     setQuery: (query: string) => void;
   }
 ) => {

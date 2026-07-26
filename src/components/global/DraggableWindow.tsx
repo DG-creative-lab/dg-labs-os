@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useId, useLayoutEffect } from 'react';
+import type { DesktopFocusedAppId } from '../../services/desktopAppRegistry';
 import { dispatchDesktopAppFocus } from '../../services/desktopEvents';
 
 // Global z-index counter
@@ -71,7 +72,7 @@ interface DraggableWindowProps {
   title: string;
   onClose: () => void;
   children: React.ReactNode;
-  appId?: 'home' | 'terminal' | 'network' | 'projects' | 'notes' | 'resume' | 'news';
+  appId?: DesktopFocusedAppId;
   initialPosition?: { x: number; y: number };
   initialSize?: { width: number; height: number };
   className?: string;
@@ -95,12 +96,11 @@ export default function DraggableWindow({
   isFocused = true,
 }: DraggableWindowProps) {
   const titleId = useId();
-  const [position, setPosition] = useState(
-    () => getWindowBounds(initialPosition, initialSize, centerOnMount).position
-  );
-  const [size, setSize] = useState(
-    () => getWindowBounds(initialPosition, initialSize, centerOnMount).size
-  );
+  // Keep the server and first client render identical. Viewport-aware centring is
+  // applied in the layout effect below, before the browser paints.
+  const [position, setPosition] = useState(initialPosition);
+  const [size, setSize] = useState(initialSize);
+  const [hasResolvedInitialBounds, setHasResolvedInitialBounds] = useState(!centerOnMount);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [resizeDirection, setResizeDirection] = useState<
@@ -118,13 +118,20 @@ export default function DraggableWindow({
 
   useIsomorphicLayoutEffect(() => {
     if (typeof window === 'undefined') return;
-    if (!centerOnMount) return;
-    if (hasAppliedInitialCenterRef.current) return;
-    if (window.innerWidth < 768) return;
+    if (!centerOnMount || hasAppliedInitialCenterRef.current) {
+      setHasResolvedInitialBounds(true);
+      return;
+    }
+    if (window.innerWidth < 768) {
+      setIsMobile(true);
+      setHasResolvedInitialBounds(true);
+      return;
+    }
     const bounds = getWindowBounds(initialPosition, initialSize, true);
     setSize(bounds.size);
     setPosition(bounds.position);
     hasAppliedInitialCenterRef.current = true;
+    setHasResolvedInitialBounds(true);
   }, [centerOnMount, initialHeight, initialWidth, initialX, initialY]);
 
   useEffect(() => {
@@ -316,6 +323,9 @@ export default function DraggableWindow({
               width: size.width,
               height: size.height,
             }),
+        // Astro renders these islands on the server before React can read the
+        // viewport. Do not expose the fallback coordinates during hydration.
+        visibility: hasResolvedInitialBounds ? 'visible' : 'hidden',
         zIndex,
       }}
       onMouseDown={handleMouseDown}

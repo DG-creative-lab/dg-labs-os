@@ -9,13 +9,13 @@ describe('filterNetworkNodes', () => {
   });
 
   it('filters by kind', () => {
-    const res = filterNetworkNodes(networkNodes, 'Project', '');
-    expect(res.every((n) => n.kind === 'Project')).toBe(true);
+    const res = filterNetworkNodes(networkNodes, 'System', '');
+    expect(res.every((n) => n.kind === 'System')).toBe(true);
   });
 
   it('filters by query across tags/title/subtitle/bullets', () => {
-    const res = filterNetworkNodes(networkNodes, 'ALL', 'empowerment');
+    const res = filterNetworkNodes(networkNodes, 'ALL', 'evaluation');
     expect(res.length).toBeGreaterThan(0);
-    expect(res.some((n) => n.id === 'research-empowering-agents')).toBe(true);
+    expect(res.some((n) => n.id === 'practice-evaluation-evidence')).toBe(true);
   });
 });

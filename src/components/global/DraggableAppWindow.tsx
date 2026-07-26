@@ -1,9 +1,10 @@
 import { type ReactNode } from 'react';
+import type { DesktopFocusedAppId } from '../../services/desktopAppRegistry';
 import DraggableWindow from './DraggableWindow';
 
 interface DraggableAppWindowProps {
   title: string;
-  appId?: 'home' | 'terminal' | 'network' | 'projects' | 'notes' | 'resume' | 'news';
+  appId?: DesktopFocusedAppId;
   onClose?: () => void;
   closeHref?: string;
   initialSize?: { width: number; height: number };

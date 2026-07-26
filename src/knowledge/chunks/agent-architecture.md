@@ -5,7 +5,7 @@ title: 'Agent Architecture & Multi-Agent Systems'
 tags: ['capability', 'agents', 'orchestration', 'bayesian', 'multi-agent', 'architecture']
 confidence: 'verified'
 sources: ['https://github.com/DG-creative-lab', 'https://github.com/ai-knowledge-hub']
-last_verified: '2025-06-01'
+last_verified: '2026-07-26'
 related:
   [
     'project-intent-recognition',
@@ -27,7 +27,7 @@ Designing multi-agent systems with proper coordination, isolation, and learning 
 
 ### Skill & Capability Design
 
-The AI Agent Skills Framework demonstrates understanding of how to decompose agent capabilities into modular, composable skills. 18 production skills with consistent interfaces, progressive complexity, and cross-runtime compatibility.
+The AI Agent Skills Framework demonstrates how to decompose agent capabilities into modular, composable skills with consistent interfaces, progressive complexity, and cross-runtime compatibility.
 
 ### Orchestration Patterns
 
@@ -42,8 +42,8 @@ Specific signals:
 - Multi-tenant architecture with proper isolation (not just API wrappers)
 - Bayesian learning mechanisms (not just prompt engineering)
 - Skill modularity and ecosystem design (not just individual tools)
-- 124+ commits on a single learning system (not prototypes)
+- 280+ Python tests across execution policy, replay, recovery, validation, and evidence receipts
 
 ## Relevance to Current AI Landscape
 
-As LLM-powered agents become central to software architecture, the ability to design robust, production-grade agent systems — not just demonstrations — is becoming a critical engineering skill. Dessi has been doing this work before "agentic AI" became a buzzword.
+As LLM-powered agents become central to software architecture, the ability to design robust, inspectable agent systems is becoming a critical engineering skill. Dessi's public work shows that focus through tests, explicit state transitions, provenance, and human-control boundaries.

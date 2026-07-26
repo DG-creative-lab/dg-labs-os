@@ -1,24 +1,29 @@
 import { describe, expect, it } from 'vitest';
-import { buildGraph } from '../src/utils/networkGraph';
 import { networkIdeaEdges, networkNodes } from '../src/config/network';
+import { buildNetworkModel, getNodeRelationships, getRelatedNode } from '../src/utils/networkGraph';
 
-describe('buildGraph', () => {
-  it('places core kinds into graph lanes', () => {
-    const { graphNodes } = buildGraph(networkNodes, networkIdeaEdges);
-    const kinds = new Set(graphNodes.map((n) => n.kind));
-    expect(kinds.has('Education')).toBe(true);
-    expect(kinds.has('Research')).toBe(true);
-    expect(kinds.has('Project')).toBe(true);
-    expect(kinds.has('Experience')).toBe(true);
+describe('system map model', () => {
+  it('builds the curated nodes and typed relationships in Graphology', () => {
+    const model = buildNetworkModel(networkNodes, networkIdeaEdges);
+
+    expect(model.graph.order).toBe(networkNodes.length);
+    expect(model.graph.size).toBe(networkIdeaEdges.length);
+    expect(model.graph.type).toBe('directed');
   });
 
-  it('creates only valid edges between existing nodes', () => {
-    const { graphNodes, edges } = buildGraph(networkNodes, networkIdeaEdges);
-    const ids = new Set(graphNodes.map((n) => n.id));
-    expect(edges.length).toBeGreaterThan(0);
-    for (const edge of edges) {
-      expect(ids.has(edge.from.id)).toBe(true);
-      expect(ids.has(edge.to.id)).toBe(true);
-    }
+  it('resolves relationships and their neighboring nodes', () => {
+    const model = buildNetworkModel(networkNodes, networkIdeaEdges);
+    const relationships = getNodeRelationships(model, 'system-agentic-commerce');
+
+    expect(relationships.length).toBeGreaterThan(0);
+    expect(relationships.some((edge) => edge.relation === 'documented by')).toBe(true);
+
+    const writingRelationship = relationships.find((edge) => edge.id === 'commerce-to-writing');
+    expect(writingRelationship).toBeDefined();
+    expect(
+      writingRelationship
+        ? getRelatedNode(model, writingRelationship, 'system-agentic-commerce')?.id
+        : null
+    ).toBe('evidence-technical-writing');
   });
 });

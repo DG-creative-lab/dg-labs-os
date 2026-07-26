@@ -1,24 +1,22 @@
-/**
- * Skills configuration
- * List all your technical skills here
- */
-
 export const skills: readonly string[] = [
-  'C#',
-  'ASP.NET Core',
-  'Entity Framework',
-  'SQL Server',
-  'C++',
   'Python',
-  'Java',
-  'Spring Boot',
-  'Hibernate',
-  'JavaScript',
+  'FastAPI',
+  'Pytest',
+  'Pydantic',
+  'SQL',
+  'PostgreSQL',
   'TypeScript',
   'React',
+  'Next.js',
+  'Astro',
   'Node.js',
-  'MongoDB',
-  'MySQL',
-  'PostgreSQL',
+  'LLM evaluation',
+  'Tool-using agents',
+  'Prompt and context design',
+  'Embeddings',
+  'Clustering',
+  'AWS',
+  'Terraform',
   'Docker',
+  'CI/CD',
 ] as const;

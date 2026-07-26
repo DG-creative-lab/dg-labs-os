@@ -14,7 +14,8 @@ test.describe('desktop smoke', () => {
     await waitForDesktopReady(page);
     await expect(page).toHaveURL(/\/desktop$/);
     await expect(page.getByRole('menubar', { name: 'Application menu bar' })).toBeVisible();
-    await expect(page.getByText('DG-Labs', { exact: true })).toBeVisible();
+    await expect(page.getByText('Dessi Georgieva', { exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Connect', exact: true })).toBeVisible();
   });
 
   test('dock opens and closes Workbench window', async ({ page }) => {
@@ -138,13 +139,17 @@ test.describe('desktop smoke', () => {
     );
   });
 
-  test('menubar Window -> Contact opens Links panel', async ({ page }) => {
+  test('menubar Window -> Contact opens Connect menu', async ({ page }) => {
     await page.goto('/desktop');
     await waitForDesktopReady(page);
 
     await page.getByRole('menuitem', { name: 'Window', exact: true }).click();
     await page.getByRole('menuitem', { name: 'Contact...' }).click();
 
+    await expect(page.getByRole('button', { name: 'Connect', exact: true })).toHaveAttribute(
+      'aria-expanded',
+      'true'
+    );
     await expect(page.getByRole('link', { name: 'LinkedIn', exact: true })).toBeVisible();
     await expect(page.getByRole('link', { name: 'GitHub', exact: true })).toBeVisible();
   });
@@ -167,27 +172,30 @@ test.describe('desktop smoke', () => {
     await expect(guideDialog).toHaveCount(0);
   });
 
-  test('network graph toggle switches navigation mode', async ({ page }) => {
+  test('system map reveals a guided path and switches to the index', async ({ page }) => {
     await page.goto('/desktop');
     await waitForDesktopReady(page);
-    const dockNetwork = page.getByRole('button', { name: 'Network', exact: true });
-    await dockNetwork.click();
-    const closeNetwork = page.getByRole('button', { name: 'Close Network', exact: true });
-    if ((await closeNetwork.count()) === 0) {
-      await dockNetwork.click();
+    const dockMap = page.getByRole('button', { name: 'System Map', exact: true });
+    await dockMap.click();
+    const closeMap = page.getByRole('button', { name: 'Close System Map', exact: true });
+    if ((await closeMap.count()) === 0) {
+      await dockMap.click();
     }
-    await expect(closeNetwork).toBeVisible();
+    await expect(closeMap).toBeVisible();
 
-    const toggle = page.getByRole('button', { name: 'Navigate graph: Off', exact: true });
-    await expect(toggle).toBeVisible();
-    await toggle.click();
+    const evolutionPath = page.getByText('How did Dessi move from data work to agent systems?', {
+      exact: true,
+    });
+    await evolutionPath.click();
     await expect(
-      page.getByRole('button', { name: 'Navigate graph: On', exact: true })
+      page.getByText(
+        'Operational data work became analytics platforms, then multi-tenant AI systems where evaluation and policy are first-class concerns.',
+        { exact: true }
+      )
     ).toBeVisible();
-    await page.getByRole('button', { name: 'Navigate graph: On', exact: true }).click();
-    await expect(
-      page.getByRole('button', { name: 'Navigate graph: Off', exact: true })
-    ).toBeVisible();
+
+    await page.getByRole('button', { name: 'Index', exact: true }).click();
+    await expect(page.getByRole('button', { name: /Data Operations/ })).toBeVisible();
   });
 
   test('window lifecycle survives rapid open/close and refocus', async ({ page }) => {
@@ -243,7 +251,7 @@ test.describe('mobile smoke', () => {
     });
     expect(home.status()).toBe(200);
     const homeHtml = await home.text();
-    expect(homeHtml).toContain('Notes');
+    expect(homeHtml).toContain('Writing');
     expect(homeHtml).toContain('Projects');
 
     const projects = await request.get('/mobile/apps/projects', {
@@ -259,8 +267,8 @@ test.describe('mobile smoke', () => {
     });
     expect(notes.status()).toBe(200);
     const notesHtml = await notes.text();
-    expect(notesHtml).toContain('Principles');
-    expect(notesHtml).toContain('Pinned Deep Dives');
+    expect(notesHtml).toContain('Technical Writing');
+    expect(notesHtml).toContain('Selected analysis');
 
     const resume = await request.get('/mobile/apps/resume', {
       headers: { 'user-agent': ua },
@@ -283,7 +291,8 @@ test.describe('mobile smoke', () => {
     });
     expect(network.status()).toBe(200);
     const networkHtml = await network.text();
-    expect(networkHtml).toContain('Interactive map of roles, systems, and ideas.');
+    expect(networkHtml).toContain('System Map');
+    expect(networkHtml).toContain('The mobile index keeps every relationship readable.');
     expect(networkHtml).toContain('component-url="/src/components/network/NetworkApp.tsx"');
   });
 });
