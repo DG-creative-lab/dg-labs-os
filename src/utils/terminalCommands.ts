@@ -37,10 +37,14 @@ export type TerminalContext = {
 const APP_TARGETS: Record<string, string> = {
   projects: '/apps/projects',
   workbench: '/apps/projects',
+  writing: '/apps/notes',
+  analysis: '/apps/notes',
   notes: '/apps/notes',
   resume: '/apps/resume',
-  news: '/apps/news',
+  news: '/apps/notes',
   network: '/apps/network',
+  map: '/apps/network',
+  connections: '/apps/network',
   terminal: '/apps/terminal',
   desktop: '/desktop',
 };
@@ -77,14 +81,14 @@ const HELP_TEXT = [
   'Available commands:',
   '  help                         Show this list',
   '  whoami                       DG-Labs summary',
-  '  open <app>                   Open app: projects|notes|resume|news|network|desktop',
+  '  open <app>                   Open app: projects|writing|resume|network|desktop',
   '  projects                     List workbench projects',
   '  project <id>                 Show one project details',
   '  resume                       Show resume and open target',
   '  links                        Show key links',
   '  now                          Current focus',
-  '  network                      Network graph summary',
-  '  search <query>               Search projects, notes, and network',
+  '  network                      System Map summary',
+  '  search <query>               Search projects, writing, and the System Map',
   '  sources                      Show indexed context sources',
   '  context <query>              Retrieve top local context snippets',
   '  mode <concise|explainer|research>  Set LLM answer style',
@@ -147,7 +151,7 @@ export const executeTerminalCommand = (
     const href = APP_TARGETS[target];
     if (!href) {
       return {
-        lines: [`Unknown target "${args}". Try: projects, notes, resume, news, network, desktop.`],
+        lines: [`Unknown target "${args}". Try: projects, writing, resume, network, desktop.`],
         action: { type: 'none' },
       };
     }
@@ -215,8 +219,8 @@ export const executeTerminalCommand = (
       lines: [
         'Active focus:',
         '- Agentic commerce learning loops',
-        '- Intent recognition and empowerment-first systems',
-        '- Shipping DG-Labs OS as cognitive interface',
+        '- Agent infrastructure with inspectable boundaries and evidence',
+        '- Evolving DG-Labs OS from portfolio into a working knowledge interface',
       ],
       action: { type: 'none' },
     };
@@ -224,17 +228,19 @@ export const executeTerminalCommand = (
 
   if (command === 'network') {
     const total = ctx.network.length;
-    const projectCount = ctx.network.filter((n) => n.kind === 'Project').length;
-    const researchCount = ctx.network.filter((n) => n.kind === 'Research').length;
-    const expCount = ctx.network.filter((n) => n.kind === 'Experience').length;
+    const systems = ctx.network.filter((n) => n.kind === 'System').length;
+    const practices = ctx.network.filter((n) => n.kind === 'Practice').length;
+    const career = ctx.network.filter((n) => n.kind === 'Career').length;
+    const evidence = ctx.network.filter((n) => n.kind === 'Evidence').length;
 
     return {
       lines: [
-        `Network nodes: ${total}`,
-        `Projects: ${projectCount}`,
-        `Research: ${researchCount}`,
-        `Experience: ${expCount}`,
-        'Use "open network" to explore the graph.',
+        `System Map nodes: ${total}`,
+        `Systems: ${systems}`,
+        `Practices: ${practices}`,
+        `Career eras: ${career}`,
+        `Evidence surfaces: ${evidence}`,
+        'Use "open map" to explore the guided relationships.',
       ],
       action: { type: 'none' },
     };

@@ -3,6 +3,7 @@ export const DESKTOP_APP_IDS = [
   'network',
   'projects',
   'notes',
+  'evolution',
   'resume',
   'news',
 ] as const;
@@ -36,10 +37,10 @@ export const DESKTOP_APPS: Record<DesktopAppId, DesktopAppDefinition> = {
   },
   network: {
     id: 'network',
-    label: 'Network',
+    label: 'System Map',
     route: '/apps/network',
-    aliases: [],
-    window: { title: 'Network', width: 1080, height: 700, x: 70, y: 70 },
+    aliases: ['map', 'connections'],
+    window: { title: 'System Map', width: 1080, height: 700, x: 70, y: 70 },
   },
   projects: {
     id: 'projects',
@@ -50,10 +51,17 @@ export const DESKTOP_APPS: Record<DesktopAppId, DesktopAppDefinition> = {
   },
   notes: {
     id: 'notes',
-    label: 'Lab Notes',
+    label: 'Technical Writing',
     route: '/apps/notes',
-    aliases: [],
-    window: { title: 'Lab Notes', width: 920, height: 640, x: 110, y: 95 },
+    aliases: ['writing', 'analysis'],
+    window: { title: 'Technical Writing', width: 920, height: 680, x: 110, y: 80 },
+  },
+  evolution: {
+    id: 'evolution',
+    label: 'Evidence & Evolution',
+    route: '/apps/evolution',
+    aliases: ['evidence'],
+    window: { title: 'Evidence & Evolution', width: 980, height: 700, x: 105, y: 90 },
   },
   resume: {
     id: 'resume',
@@ -64,10 +72,10 @@ export const DESKTOP_APPS: Record<DesktopAppId, DesktopAppDefinition> = {
   },
   news: {
     id: 'news',
-    label: 'AI News Hub',
+    label: 'Technical Writing',
     route: '/apps/news',
     aliases: [],
-    window: { title: 'AI News Hub', width: 780, height: 500, x: 150, y: 120 },
+    window: { title: 'Technical Writing', width: 920, height: 680, x: 110, y: 80 },
   },
 };
 

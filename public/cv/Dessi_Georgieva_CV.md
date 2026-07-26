@@ -2,131 +2,78 @@
 
 **AI Systems Engineer**
 
-London, UK · [dessi.georgieva8@gmail.com](mailto:dessi.georgieva8@gmail.com) · [LinkedIn](https://www.linkedin.com/in/dessi-georgieva/) · [GitHub](https://github.com/DG-creative-lab) · [Portforlio](https://dg-os.com/) · [AI Knowledge Hub](https://github.com/ai-knowledge-hub) · [AI News Hub](https://ai-news-hub.performics-labs.com/)
+London, UK · [dessi.georgieva8@gmail.com](mailto:dessi.georgieva8@gmail.com) · [LinkedIn](https://www.linkedin.com/in/dessi-georgieva/) · [GitHub](https://github.com/DG-creative-lab) · [Portfolio](https://dg-os.com/) · [AI Knowledge Hub](https://github.com/ai-knowledge-hub)
 
 ---
 
 ## Summary
 
-I design and build AI systems end-to-end - multi-agent architectures, Bayesian learning loops, behavioral modeling pipelines, and the enterprise infrastructure underneath them. My research focus is how to model human intent as continuous structure rather than fixed categories. I publish original work on these ideas, maintain open-source agent tooling.
+AI systems engineer building the layer between models and dependable products: tool execution, context construction, evaluation, evidence, failure recovery, and human control. I work primarily in Python, FastAPI, TypeScript, React, and AWS. My public projects explore how agent systems can learn while keeping decisions and provenance inspectable; my employer work includes backend services, data workflows, and multi-tenant platform infrastructure.
 
----
+## Technical Focus
 
-## Core Systems
+- **Agent systems:** tool-use policy, execution state, approvals, idempotency, recovery, provider adapters, retrieval, streaming
+- **Evaluation and learning:** regression suites, deterministic replay, synthetic and observed validation, evidence ledgers, belief revision
+- **Backend and data:** Python, FastAPI, Pydantic, pytest, SQL, PostgreSQL, embeddings, clustering
+- **Product and infrastructure:** TypeScript, React, Next.js, Astro, Node.js, AWS, Terraform, Docker, CI/CD
 
-### Intent Recognition Agent
+## Selected Systems
 
-_Performics Innovations Lab (Publicis Media) · Production_
+### Agentic Commerce Control Plane
 
-Four-layer marketing intelligence system that models consumer intention through behavioral embeddings, clustering, and LLM-powered persona generation.
+_Collaborative public engineering project · Active development · [Repository](https://github.com/ai-knowledge-hub/deep-dive-analysis-agentic-commerce-augmentation)_
 
-- Built an embedding architecture that treats intent as continuous signal rather than fixed categories - letting patterns emerge from behavioral data instead of being imposed upfront
-- Developed unsupervised clustering pipeline that discovers intent groupings without predefined taxonomies
-- Added LLM persona generation grounded in actual cluster characteristics rather than demographic proxies
-- Connected the intent layer to campaign targeting and audience strategy workflows
+- Designed supervised agent execution with registry-pinned tools, principal-aware policy checks, immutable receipts, and explicit approve, pause, retry, and recovery transitions.
+- Built a governed feedback loop with more than 280 Python test functions across policy, replay, recovery, validation, and receipt integrity.
 
-### Agentic Commerce Learning Loop
+### Learning Foundry
 
-_Performics Innovations Lab (Publicis Media) · Production_
+_OpenAI Build Week submission · Submitted state frozen during judging · [Repository at submitted commit](https://github.com/DG-creative-lab/codex-hack-learning-foundry/tree/0547da02518f432fdd85e79d317e1fedaa51c4c1)_
 
-Multi-tenant Bayesian learning system where marketing agents learn from commerce outcomes through continuous belief updating.
+- Built an append-only evidence ledger and deterministic projections that separate sources, human understanding, shared theory, agent memory, and capability state.
+- Implemented and evaluated a consent-gated Codex capability with reviewable activation, provenance, IPC, accessibility, and fallback tests.
 
-- Built progressive Bayesian updating: agent actions produce commerce outcomes, outcomes update beliefs, beliefs improve the next round of decisions
-- Designed multi-tenant isolation so each client's data and models stay fully separated
-- Implemented closed feedback loops connecting agent behavior to measurable commerce results
+### DG-OS Agent Runtime
 
-### Gateplane - Multi-Tenant Auth & Access Platform
+_Personal public system · Active · [Portfolio](https://dg-os.com/) · [Repository](https://github.com/DG-creative-lab/dg-labs-os)_
 
-_Originated at Performics · Being generalized to open source_
-
-Multi-tenant authentication and authorization platform for B2B applications. It includes multiple identity providers, tenant isolation, scoped and hierarchical roles, configurable capability packs and product tiers, adaptable scope taxonomies, and agent-friendly access control.
-
-- Built provider-driven authentication with adapter-based SSO integration
-- Designed tenant-aware role definitions, role packs, and configurable capability packs composed into product tiers
-- Implemented configurable scope taxonomy mapped onto the persistence model for flexible permission structures
-- Followed clean architecture boundaries
-
-### OneSuite Labs Ephemeral Infrastructure
-
-_Performics scope · Infrastructure modernization_
-
-Replaced legacy untagged AWS resources with reproducible ephemeral stacks for safer experimentation and faster validation.
-
-- Defined decommissioning strategy for non-Terraform legacy resources
-- Built contract-driven ephemeral environment workflows - controlled spin-up, teardown, and drift detection
-- Enabled scratch environments mirroring production contracts for systems testing
-
-### Amazon Marketing Optimization Platform
-
-_Production backend · Award-recognized ecommerce optimization_
-
-Backend services and data-processing workflows for an ecommerce marketing optimization platform.
-
-- Built FastAPI backend services with production deployment on AWS
-- Implemented Glue jobs for processing, Lambda triggers for events, and Postgres RDS for persistence
-- Worked within microservice boundaries for modular delivery
-
-### AI Agent Skills Framework
-
-_Open Source · [skills.ai-knowledge-hub.org](https://skills.ai-knowledge-hub.org/) · [GitHub](https://github.com/ai-knowledge-hub/all-hands)_
-
-Open-source ecosystem helping marketing teams adopt AI agents through structured, progressive learning.
-
-- Designed reusable, runtime-agnostic skills architecture for agent workflows
-- Built a public skills catalog with implementation patterns, guardrails, and composable tool-use behavior
-- TypeScript, Next.js, Markdown
-
-### AI News Hub
-
-_250+ organic followers · 50+ articles · Active_
-
-AI content platform publishing analysis and longer research pieces on AI's impact on marketing and human agency.
-
-- Grew to 250+ organic followers in six months alongside full-time engineering work
-- Published pieces including "The Geometry of Intention" and "The Phenomenology of Search"
-- Built an engaged practitioner community around these ideas
-
-### DG-Labs OS - Portfolio as Operating System
-
-_Personal · Active_
-
-Portfolio site designed as an explorable operating system - apps, windows, workflows, and a retrieval-backed agent runtime.
-
-- Knowledge graph (Sigma.js) with weighted nodes representing ideas and their connections
-- Terminal agent backed by a structured knowledge base with provenance tracking
-- Dual-audience system: serves both human visitors and LLM agents querying the site
-- Mac-style desktop shell on web, iPhone-inspired shell on mobile
-
----
+- Built a retrieval-backed agent interface with deterministic commands, provider adapters, streaming contracts, health checks, and explicit fallbacks.
+- Added source-aware diagnostics and more than 180 TypeScript test declarations covering routing, context, streaming, provider health, and desktop state.
 
 ## Experience
 
-### Engineer (Research Engineer scope)
+### Engineer
 
 **Performics Innovations Lab · Publicis Media** · London · Nov 2023 – Present
 
-Designing and building AI systems within a marketing intelligence context. Actual scope covers multi-agent architectures, Bayesian learning frameworks, behavioral modeling, enterprise platform controls, and production deployment.
+- Design and build AI and data systems spanning FastAPI services, AWS workflows, multi-tenant platform controls, behavioural modelling, and marketing-intelligence interfaces.
+- Delivered backend services and data workflows for an award-recognised ecommerce optimisation platform using FastAPI, AWS Glue, Lambda, and PostgreSQL.
+- Employer code, client information, operational measurements, and infrastructure remain confidential; public descriptions are intentionally limited to responsibilities and outcomes.
 
 ### Senior Business Intelligence Analyst
 
 **Publicis Media** · London · Mar 2023 – Nov 2023
 
-Bridged marketing analytics and decision systems, helping shift the team from reporting pipelines toward intelligence workflows and platformized decision support.
+- Bridged marketing analytics and decision systems, moving reporting workflows toward reusable intelligence services and platformised decision support.
 
 ### Business Intelligence Manager
 
 **Jellyfish** · London · Jan 2021 – Mar 2023
 
-Build enterprise analytics systems and applications (Shiny apps, AWS ETL, data lake design).
+- Built enterprise analytics applications and data workflows, including Shiny applications, AWS ETL, and data-lake patterns.
 
-### Data Consultant / SQL Developer / Data Analyst (Selected Contracts)
+### Data Consultant / SQL Developer / Data Analyst
 
-**Founders Forum, Toaster, Wunderman Thompson, BCW Global, Reed Business Information, Founders Factory, Grapeshot, The Drum** · London · 2017 – 2020
+**Selected contracts** · London · 2017 – 2020
 
-End-to-end data systems across CRM, analytics, segmentation, automation, and experimentation.
+- Delivered CRM, analytics, segmentation, automation, and experimentation systems for agencies, startups, and media organisations.
 
-### Policy, Nonprofit, and Data Foundations (Selected Roles)
+## Education
 
-**RNIB, Richard House Children's Hospice, Peace Direct, Orangutan Protection Foundation, Link Ethiopia, Friends of the Earth, Centre for the Study of Democracy** · UK & Bulgaria · 2008 – 2017
+### MA Applied Human Rights
 
-Where the concern for human agency started: impact work, policy reasoning, and mission-driven data practice across nonprofits and civil society organizations.
+**University of York** · 2009 – 2011
+
+### BA Philosophy, specialising in Philosophy of Science
+
+**Sofia University** · 2003 – 2007

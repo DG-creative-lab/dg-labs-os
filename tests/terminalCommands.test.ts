@@ -34,7 +34,7 @@ describe('executeTerminalCommand', () => {
   });
 
   it('searches across app content', () => {
-    const result = executeTerminalCommand('search empowerment', ctx);
+    const result = executeTerminalCommand('search evaluation', ctx);
     expect(result.action.type).toBe('none');
     expect(result.lines[0]).toContain('Results for');
   });

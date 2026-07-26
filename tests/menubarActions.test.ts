@@ -31,10 +31,10 @@ describe('menubarActions', () => {
 
   it('emits network menu action', () => {
     const { target, events } = eventRecorder();
-    emitNetworkMenuAction(target, 'set_filter', { filter: 'Projects' });
+    emitNetworkMenuAction(target, 'set_filter', { filter: 'System' });
     expect(events).toHaveLength(1);
     expect(events[0].type).toBe('dg-network-menu-action');
-    expect(events[0].detail).toMatchObject({ action: 'set_filter', filter: 'Projects' });
+    expect(events[0].detail).toMatchObject({ action: 'set_filter', filter: 'System' });
   });
 
   it('emits workbench menu action', () => {

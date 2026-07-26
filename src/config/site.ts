@@ -5,9 +5,10 @@
 import type { SEOConfig, ThemeConfig } from '../types';
 
 export const seo: SEOConfig = {
-  title: 'DG-Labs - Cognitive OS Portfolio',
-  description: 'An experimental portfolio as a personal operating system for DG-Labs.',
-  keywords: ['Portfolio', 'Interface Design', 'Creative Technology', 'DG-Labs'],
+  title: 'DG-OS - Dessi Georgieva',
+  description:
+    'Dessi Georgieva builds agent systems, evaluation loops, and human-controlled AI infrastructure.',
+  keywords: ['Dessi Georgieva', 'Applied AI Engineer', 'Agent Systems', 'LLM Evaluation', 'DG-OS'],
 };
 
 export const theme: ThemeConfig = {

@@ -18,7 +18,6 @@ import {
   explainConfidenceLabel,
   explainVerificationGap,
   formatAnswerWithCitations,
-  groupCitationChips,
   isLlmQuery,
   normalizeLlmQuery,
   normalizeTerminalNarrativeAnswer,
@@ -28,7 +27,6 @@ import {
   readAgentJsonPayload,
   readChatMessage,
   resolveAnswerConfidenceLabel,
-  type LlmConfidenceLabel,
 } from '../../utils/terminalLlm';
 import { buildVerifyEnvelopeLines } from '../../utils/terminalEnvelope';
 import { retrieveKnowledge } from '../../utils/terminalKnowledge';
@@ -37,7 +35,6 @@ import {
   type TerminalMenuEventDetail,
 } from '../../services/menuActionHandlers';
 import {
-  BYOK_STORAGE_KEY,
   INITIAL_TOOL_USAGE,
   LLM_COUNT_KEY,
   ROUTER_CONFIDENCE_THRESHOLD,
@@ -54,7 +51,9 @@ import {
   type ToolName,
   type ToolUsage,
 } from '../../services/terminalTypes';
-import { useTerminalProviderHealth } from '../../services/useTerminalProviderHealth';
+import { useTerminalSessionSettings } from '../../services/useTerminalSessionSettings';
+import { TerminalControlPanels } from './TerminalControlPanels';
+import { TerminalTranscript } from './TerminalTranscript';
 import {
   fetchCiteTool,
   fetchRetrieveTool,
@@ -62,17 +61,7 @@ import {
   normalizeTerminalCacheKey,
   trimTerminalCache,
 } from '../../services/terminalToolClient';
-import {
-  defaultTerminalSettings,
-  parseTerminalSettings,
-  serializeTerminalSettings,
-  terminalSettingsSummary,
-  TERMINAL_SETTINGS_KEY,
-  type TerminalBrainMode,
-  type TerminalLlmProvider,
-  type TerminalResponseMode,
-  type TerminalSettings,
-} from '../../utils/terminalSettings';
+import { terminalSettingsSummary, type TerminalBrainMode } from '../../utils/terminalSettings';
 
 const runAction = (action: TerminalAction) => {
   if (typeof window === 'undefined') return;
@@ -104,9 +93,15 @@ export default function AgentsTerminal() {
   const [input, setInput] = useState('');
   const [isLlmBusy, setIsLlmBusy] = useState(false);
   const [thinkingFrame, setThinkingFrame] = useState(0);
-  const [byokApiKey, setByokApiKey] = useState('');
-  const [rememberByok, setRememberByok] = useState(false);
-  const [settings, setSettings] = useState<TerminalSettings>(defaultTerminalSettings);
+  const {
+    byokApiKey,
+    setByokApiKey,
+    rememberByok,
+    setRememberByok,
+    settings,
+    setSettings,
+    providerHealth,
+  } = useTerminalSessionSettings();
   const [toolUsage, setToolUsage] = useState<ToolUsage>(INITIAL_TOOL_USAGE);
   const [activeQuickAction, setActiveQuickAction] = useState<string | null>(null);
   const [lastWebVerifyContext, setLastWebVerifyContext] = useState<LastWebVerifyContext | null>(
@@ -136,77 +131,6 @@ export default function AgentsTerminal() {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const prompt = useMemo(() => `${userConfig.name}:~$`, []);
-  const providerHealth = useTerminalProviderHealth(settings, byokApiKey);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const raw = localStorage.getItem(TERMINAL_SETTINGS_KEY);
-    setSettings(parseTerminalSettings(raw));
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const raw = localStorage.getItem(BYOK_STORAGE_KEY);
-    if (!raw) return;
-    try {
-      const parsed = JSON.parse(raw) as Partial<Record<TerminalLlmProvider, string>>;
-      const existing =
-        (typeof parsed.openrouter === 'string' && parsed.openrouter.trim()) ||
-        (typeof parsed.openai === 'string' && parsed.openai.trim()) ||
-        (typeof parsed.anthropic === 'string' && parsed.anthropic.trim()) ||
-        (typeof parsed.gemini === 'string' && parsed.gemini.trim()) ||
-        '';
-      if (existing) {
-        setRememberByok(true);
-      }
-    } catch {
-      localStorage.removeItem(BYOK_STORAGE_KEY);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(TERMINAL_SETTINGS_KEY, serializeTerminalSettings(settings));
-  }, [settings]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!rememberByok) return;
-    try {
-      const raw = localStorage.getItem(BYOK_STORAGE_KEY);
-      const parsed = raw
-        ? (JSON.parse(raw) as Partial<Record<TerminalLlmProvider, string>>)
-        : ({} as Partial<Record<TerminalLlmProvider, string>>);
-      const providerKey = parsed[settings.llmProvider];
-      if (typeof providerKey === 'string' && providerKey.trim().length > 0) {
-        setByokApiKey(providerKey);
-      } else {
-        setByokApiKey('');
-      }
-    } catch {
-      localStorage.removeItem(BYOK_STORAGE_KEY);
-      setByokApiKey('');
-    }
-  }, [rememberByok, settings.llmProvider]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!rememberByok) {
-      localStorage.removeItem(BYOK_STORAGE_KEY);
-      return;
-    }
-    try {
-      const raw = localStorage.getItem(BYOK_STORAGE_KEY);
-      const parsed = raw
-        ? (JSON.parse(raw) as Partial<Record<TerminalLlmProvider, string>>)
-        : ({} as Partial<Record<TerminalLlmProvider, string>>);
-      parsed[settings.llmProvider] = byokApiKey.trim();
-      localStorage.setItem(BYOK_STORAGE_KEY, JSON.stringify(parsed));
-    } catch {
-      localStorage.removeItem(BYOK_STORAGE_KEY);
-    }
-  }, [rememberByok, settings.llmProvider, byokApiKey]);
-
   useEffect(() => {
     if (!outputRef.current) return;
     outputRef.current.scrollTo({
@@ -1002,43 +926,6 @@ export default function AgentsTerminal() {
     runAction(response.action);
   };
 
-  const quickButtonClass =
-    'rounded border border-white/20 bg-white/10 px-2 py-1 text-xs text-white/90 hover:bg-white/20';
-  const getQuickButtonClass = (key: string) =>
-    activeQuickAction === key
-      ? 'rounded border border-emerald-300/70 bg-emerald-400/20 px-2 py-1 text-xs text-emerald-100 shadow-[0_0_0_1px_rgba(52,211,153,0.25)]'
-      : quickButtonClass;
-
-  const confidenceBadgeClass = (confidence: LlmConfidenceLabel) => {
-    if (confidence === 'local+verified') {
-      return 'border-emerald-300/50 bg-emerald-400/10 text-emerald-200';
-    }
-    if (confidence === 'local-only') {
-      return 'border-cyan-300/50 bg-cyan-400/10 text-cyan-200';
-    }
-    if (confidence === 'verified-only') {
-      return 'border-indigo-300/50 bg-indigo-400/10 text-indigo-200';
-    }
-    return 'border-amber-300/50 bg-amber-400/10 text-amber-200';
-  };
-  const groupedCitations = groupCitationChips(lastAnswerMeta?.chips ?? []);
-  const totalCitationCount = lastAnswerMeta?.chips.length ?? 0;
-  const healthBadgeClass =
-    providerHealth.status === 'healthy'
-      ? 'text-emerald-200 bg-emerald-400/15 border-emerald-300/40'
-      : providerHealth.status === 'missing_key'
-        ? 'text-amber-200 bg-amber-400/15 border-amber-300/40'
-        : providerHealth.status === 'timeout'
-          ? 'text-orange-200 bg-orange-400/15 border-orange-300/40'
-          : providerHealth.status === 'checking'
-            ? 'text-cyan-200 bg-cyan-400/15 border-cyan-300/40'
-            : 'text-rose-200 bg-rose-400/15 border-rose-300/40';
-  const panelTabClass = (tab: Exclude<TerminalPanelTab, null>) =>
-    `rounded-full border px-2.5 py-1 text-[11px] transition ${
-      activePanelTab === tab
-        ? 'border-emerald-300/40 bg-emerald-400/15 text-emerald-100'
-        : 'border-white/15 bg-white/5 text-white/65 hover:bg-white/10 hover:text-white/85'
-    }`;
   return (
     <div className="h-full min-h-0 rounded-xl border border-emerald-300/20 bg-black/60 shadow-[0_14px_60px_rgba(0,0,0,0.45)] overflow-hidden flex flex-col">
       <div className="flex flex-col gap-2 border-b border-emerald-400/20 px-3 py-2 text-[11px] text-emerald-300/75 sm:flex-row sm:items-center sm:justify-between sm:px-4">
@@ -1052,594 +939,39 @@ export default function AgentsTerminal() {
           </span>
         ) : null}
       </div>
-      <div className="border-b border-emerald-400/20 px-3 py-2 text-[11px] text-white/70 sm:px-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setActivePanelTab((prev) => (prev === 'session' ? null : 'session'))}
-            className={panelTabClass('session')}
-            aria-pressed={activePanelTab === 'session'}
-          >
-            Session
-          </button>
-          <button
-            type="button"
-            onClick={() => setActivePanelTab((prev) => (prev === 'tools' ? null : 'tools'))}
-            className={panelTabClass('tools')}
-            aria-pressed={activePanelTab === 'tools'}
-          >
-            Tools
-          </button>
-          <button
-            type="button"
-            onClick={() => setActivePanelTab((prev) => (prev === 'evidence' ? null : 'evidence'))}
-            className={panelTabClass('evidence')}
-            aria-pressed={activePanelTab === 'evidence'}
-          >
-            Evidence{lastEvidence ? '' : ' (empty)'}
-          </button>
-        </div>
-        {activePanelTab === 'session' ? (
-          <div className="mt-3 space-y-3 rounded border border-white/10 bg-white/5 p-3">
-            <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
-              <label className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-                <input
-                  type="checkbox"
-                  checked={settings.llmFallbackForUnknown}
-                  onChange={(event) =>
-                    setSettings((prev) => ({
-                      ...prev,
-                      llmFallbackForUnknown: event.target.checked,
-                    }))
-                  }
-                />
-                <span>Use the LLM for natural input by default</span>
-              </label>
-              <label className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-                <input
-                  type="checkbox"
-                  checked={settings.providerFallbackAllowed}
-                  onChange={(event) =>
-                    setSettings((prev) => ({
-                      ...prev,
-                      providerFallbackAllowed: event.target.checked,
-                    }))
-                  }
-                />
-                <span>Allow provider fallback when selected provider fails</span>
-              </label>
-              <label className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-                <span>Brain mode</span>
-                <select
-                  value={settings.brainMode}
-                  onChange={(event) =>
-                    setSettings((prev) => ({
-                      ...prev,
-                      brainMode: event.target.value as TerminalBrainMode,
-                    }))
-                  }
-                  className="rounded border border-white/20 bg-black/40 px-2 py-1 text-white"
-                >
-                  <option value="concise">concise</option>
-                  <option value="explainer">explainer</option>
-                  <option value="research">research</option>
-                </select>
-              </label>
-              <label className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-                <span>LLM response</span>
-                <select
-                  value={settings.responseMode}
-                  onChange={(event) =>
-                    setSettings((prev) => ({
-                      ...prev,
-                      responseMode: event.target.value as TerminalResponseMode,
-                    }))
-                  }
-                  className="rounded border border-white/20 bg-black/40 px-2 py-1 text-white"
-                >
-                  <option value="narrative">narrative</option>
-                  <option value="agent_json">agent_json</option>
-                </select>
-              </label>
-              <label className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-                <span>Provider</span>
-                <select
-                  value={settings.llmProvider}
-                  onChange={(event) =>
-                    setSettings((prev) => ({
-                      ...prev,
-                      llmProvider: event.target.value as TerminalLlmProvider,
-                    }))
-                  }
-                  className="rounded border border-white/20 bg-black/40 px-2 py-1 text-white"
-                >
-                  <option value="openrouter">openrouter</option>
-                  <option value="openai">openai</option>
-                  <option value="anthropic">anthropic</option>
-                  <option value="gemini">gemini</option>
-                </select>
-                <span className={`rounded border px-2 py-0.5 text-[10px] ${healthBadgeClass}`}>
-                  {providerHealth.status}
-                  {typeof providerHealth.latencyMs === 'number'
-                    ? ` · ${providerHealth.latencyMs}ms`
-                    : ''}
-                </span>
-              </label>
-              <label className="flex flex-col items-start gap-2 md:col-span-2 sm:flex-row sm:items-center">
-                <span>Model</span>
-                <input
-                  type="text"
-                  value={settings.llmModel}
-                  onChange={(event) =>
-                    setSettings((prev) => ({
-                      ...prev,
-                      llmModel: event.target.value,
-                    }))
-                  }
-                  className="w-full rounded border border-white/20 bg-black/40 px-2 py-1 text-white"
-                  placeholder="openai/gpt-oss-120b"
-                />
-              </label>
-              <label className="flex flex-col items-start gap-2 md:col-span-2 sm:flex-row sm:items-center">
-                <span>BYOK key</span>
-                <input
-                  type="password"
-                  value={byokApiKey}
-                  onChange={(event) => setByokApiKey(event.target.value)}
-                  className="w-full rounded border border-white/20 bg-black/40 px-2 py-1 text-white"
-                  placeholder="Bring your own key"
-                />
-              </label>
-              <label className="flex items-start gap-2 md:col-span-3">
-                <input
-                  type="checkbox"
-                  checked={rememberByok}
-                  onChange={(event) => setRememberByok(event.target.checked)}
-                />
-                <span>Remember BYOK key in this browser (localStorage)</span>
-              </label>
-              <p className="md:col-span-3 text-[10px] text-amber-200/90">
-                Security note: persisted BYOK keys are stored in browser localStorage and are
-                readable by scripts on this origin. Keep this off on shared devices.
-              </p>
-              <p className="md:col-span-3 text-[10px] text-white/70">
-                Provider status: {providerHealth.message}
-              </p>
-              <label className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-                <input
-                  type="checkbox"
-                  checked={settings.routerDebug}
-                  onChange={(event) =>
-                    setSettings((prev) => ({
-                      ...prev,
-                      routerDebug: event.target.checked,
-                    }))
-                  }
-                />
-                <span>Show router debug traces</span>
-              </label>
-              <label className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-                <input
-                  type="checkbox"
-                  checked={settings.showLlmSources}
-                  onChange={(event) =>
-                    setSettings((prev) => ({
-                      ...prev,
-                      showLlmSources: event.target.checked,
-                    }))
-                  }
-                />
-                <span>Show LLM source footer</span>
-              </label>
-              <label className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-                <input
-                  type="checkbox"
-                  checked={settings.strictEvidenceMode}
-                  onChange={(event) =>
-                    setSettings((prev) => ({
-                      ...prev,
-                      strictEvidenceMode: event.target.checked,
-                    }))
-                  }
-                />
-                <span>Strict evidence mode</span>
-              </label>
-              <label className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-                <span>Timeout (seconds)</span>
-                <input
-                  type="number"
-                  min={3}
-                  max={120}
-                  value={Math.round(settings.llmTimeoutMs / 1000)}
-                  onChange={(event) => {
-                    const seconds = parseInt(event.target.value || '15', 10);
-                    const next = Number.isNaN(seconds) ? 45 : Math.min(120, Math.max(3, seconds));
-                    setSettings((prev) => ({ ...prev, llmTimeoutMs: next * 1000 }));
-                  }}
-                  className="w-16 rounded border border-white/20 bg-black/40 px-2 py-1 text-white"
-                />
-              </label>
-              <label className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-                <span>Session cap</span>
-                <input
-                  type="number"
-                  min={1}
-                  max={100}
-                  value={settings.llmSessionCap}
-                  onChange={(event) => {
-                    const next = parseInt(event.target.value || '24', 10);
-                    setSettings((prev) => ({
-                      ...prev,
-                      llmSessionCap: Number.isNaN(next) ? 24 : Math.min(100, Math.max(1, next)),
-                    }));
-                  }}
-                  className="w-16 rounded border border-white/20 bg-black/40 px-2 py-1 text-white"
-                />
-              </label>
-            </div>
-            <div className="mt-2 flex gap-2">
-              <button
-                type="button"
-                onClick={() => setSettings(defaultTerminalSettings)}
-                className="rounded border border-white/20 bg-white/10 px-2 py-1 text-xs text-white/90 hover:bg-white/20"
-              >
-                Reset defaults
-              </button>
-              <button
-                type="button"
-                onClick={resetLlmCounter}
-                className="rounded border border-white/20 bg-white/10 px-2 py-1 text-xs text-white/90 hover:bg-white/20"
-              >
-                Reset session counter
-              </button>
-            </div>
-            <div className="rounded border border-white/10 bg-black/20 p-2 text-[11px] text-white/65">
-              <p className="text-emerald-300/90">Guide</p>
-              <p className="mt-1">
-                Talk naturally for LLM mode. Use direct commands when you want deterministic
-                control:
-                <code> help</code>, <code>open network</code>, <code>search intent</code>,{' '}
-                <code>verify LinkedIn profile</code>, <code>brief top 3 projects</code>,{' '}
-                <code>cv current role</code>.
-              </p>
-            </div>
-          </div>
-        ) : null}
-        {activePanelTab === 'tools' ? (
-          <div className="mt-3 space-y-3 rounded border border-white/10 bg-white/5 p-3">
-            <div className="grid grid-cols-1 gap-1 md:grid-cols-2">
-              <p>
-                <span className="text-emerald-300">local_context</span>: retrieve local
-                profile/project context ({toolUsage.local_context})
-              </p>
-              <p>
-                <span className="text-emerald-300">web_verify</span>: web citations with source list
-                ({toolUsage.web_verify}/{VERIFY_SESSION_CAP})
-              </p>
-              <p>
-                <span className="text-emerald-300">open_app</span>: resolve app target to route (
-                {toolUsage.open_app})
-              </p>
-              <p>
-                <span className="text-emerald-300">list_projects</span>: enumerate workbench
-                projects ({toolUsage.list_projects})
-              </p>
-              <p>
-                <span className="text-emerald-300">retrieve</span>: ranked local evidence retrieval
-                ({toolUsage.retrieve})
-              </p>
-              <p>
-                <span className="text-emerald-300">cite</span>: claim {'->'} evidence verdict (
-                {toolUsage.cite})
-              </p>
-            </div>
-            <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
-              <div className="rounded border border-white/10 bg-white/5 p-2">
-                <p className="mb-2 text-[11px] uppercase tracking-wide text-emerald-300/90">
-                  Context
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      void runQuickAction('ctx-projects', () =>
-                        runToolCall('local_context', { query: 'dessi current projects' })
-                      )
-                    }
-                    className={getQuickButtonClass('ctx-projects')}
-                  >
-                    Current projects
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      void runQuickAction('ctx-profile', () =>
-                        runToolCall('local_context', { query: 'dessi profile summary' })
-                      )
-                    }
-                    className={getQuickButtonClass('ctx-profile')}
-                  >
-                    Profile summary
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      void runQuickAction('ctx-list-projects', () => runToolCall('list_projects'))
-                    }
-                    className={getQuickButtonClass('ctx-list-projects')}
-                  >
-                    List projects
-                  </button>
-                </div>
-              </div>
-              <div className="rounded border border-white/10 bg-white/5 p-2">
-                <p className="mb-2 text-[11px] uppercase tracking-wide text-emerald-300/90">
-                  Web Verify ({Math.max(0, VERIFY_SESSION_CAP - toolUsage.web_verify)} left)
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      void runQuickAction('verify-mcp', () =>
-                        runVerify('Dessi Georgieva LinkedIn profile work experience education')
-                      )
-                    }
-                    className={getQuickButtonClass('verify-mcp')}
-                  >
-                    Verify LinkedIn profile
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      void runQuickAction('verify-openrouter', () =>
-                        runVerify(
-                          'Dessi Georgieva projects DG-creative-lab ai-knowledge-hub AI News Hub skills ai-knowledge-hub'
-                        )
-                      )
-                    }
-                    className={getQuickButtonClass('verify-openrouter')}
-                  >
-                    Verify project footprint
-                  </button>
-                </div>
-              </div>
-              <div className="rounded border border-white/10 bg-white/5 p-2 md:col-span-2">
-                <p className="mb-2 text-[11px] uppercase tracking-wide text-emerald-300/90">
-                  Open App
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      void runQuickAction('open-network', () =>
-                        runToolCall('open_app', { target: 'network' })
-                      )
-                    }
-                    className={getQuickButtonClass('open-network')}
-                  >
-                    Network
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      void runQuickAction('open-projects', () =>
-                        runToolCall('open_app', { target: 'projects' })
-                      )
-                    }
-                    className={getQuickButtonClass('open-projects')}
-                  >
-                    Projects
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      void runQuickAction('open-notes', () =>
-                        runToolCall('open_app', { target: 'notes' })
-                      )
-                    }
-                    className={getQuickButtonClass('open-notes')}
-                  >
-                    Notes
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      void runQuickAction('open-terminal', () =>
-                        runToolCall('open_app', { target: 'terminal' })
-                      )
-                    }
-                    className={getQuickButtonClass('open-terminal')}
-                  >
-                    Terminal
-                  </button>
-                </div>
-              </div>
-            </div>
-            {activeQuickAction ? (
-              <p className="mt-2 text-[11px] text-emerald-300/80">
-                Running action: <span className="font-mono">{activeQuickAction}</span> (click
-                another button to switch)
-              </p>
-            ) : null}
-            <p className="mt-2 text-white/50">
-              Commands: <code>tools</code> | <code>brief top 3 projects</code> |{' '}
-              <code>cv latest role</code> | <code>projects intent systems</code> |{' '}
-              <code>tool local_context intent modeling</code> |{' '}
-              <code>tool web_verify Dessi Georgieva LinkedIn projects</code> |{' '}
-              <code>tool list_projects</code> |{' '}
-              <code>tool retrieve intent recognition projects</code> |{' '}
-              <code>tool cite Dessi built intent recognition systems</code>
-            </p>
-          </div>
-        ) : null}
-        {activePanelTab === 'evidence' ? (
-          <div className="mt-3 rounded border border-white/10 bg-white/5 p-3">
-            {lastEvidence ? (
-              <>
-                <p className="text-emerald-300/90">
-                  Evidence: {lastEvidence.query} | class={lastEvidence.classification} | verdict=
-                  {lastEvidence.verdict} | cache={lastEvidence.fromCache ? 'hit' : 'miss'}
-                </p>
-                <ul className="mt-1 space-y-1 text-white/80">
-                  {lastEvidence.hits.slice(0, 6).map((hit) => (
-                    <li key={hit.id} className="leading-5">
-                      <span className="text-emerald-200">
-                        [{hit.source}] {hit.title}
-                      </span>{' '}
-                      <span className="text-white/50">(score={hit.score})</span>
-                      {hit.url ? (
-                        <>
-                          {' '}
-                          <a
-                            href={hit.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-cyan-300 hover:text-cyan-200 underline"
-                          >
-                            source
-                          </a>
-                        </>
-                      ) : null}
-                    </li>
-                  ))}
-                </ul>
-              </>
-            ) : (
-              <p className="text-white/50">
-                No evidence snapshot yet. Run a verify, retrieve, cite, or LLM request first.
-              </p>
-            )}
-          </div>
-        ) : null}
-      </div>
-
-      <div
-        ref={outputRef}
-        className="min-h-0 flex-1 overflow-y-auto px-3 py-3 font-mono text-[11px] leading-5 text-emerald-200 sm:px-4 sm:text-[12px] sm:leading-6 [&::-webkit-scrollbar]:hidden"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        aria-live="polite"
-      >
-        {history.map((entry) => (
-          <p
-            key={entry.id}
-            className={
-              /^\[(local_context|web_context|citations|confidence|evidence|verification_gap)\]/.test(
-                entry.text
-              )
-                ? 'mt-1 text-[11px] uppercase tracking-[0.12em] text-cyan-300/85 border-b border-cyan-300/20'
-                : entry.kind === 'command'
-                  ? 'text-emerald-300'
-                  : entry.kind === 'system'
-                    ? 'text-white/50'
-                    : 'text-white/80'
-            }
-          >
-            {entry.text}
-          </p>
-        ))}
-        {isLlmBusy && (streamingStatus || streamingAnswer) ? (
-          <div
-            className={`mt-3 rounded border px-3 py-2 ${
-              streamingAnswer
-                ? 'border-emerald-400/25 bg-emerald-400/[0.06]'
-                : 'border-cyan-400/20 bg-cyan-400/[0.05]'
-            }`}
-          >
-            <div
-              className={`mb-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.12em] ${
-                streamingAnswer ? 'text-emerald-300/80' : 'text-cyan-300/80'
-              }`}
-            >
-              <span
-                className={`inline-block h-2 w-2 rounded-full ${
-                  streamingAnswer ? 'bg-emerald-300/80' : 'bg-cyan-300/80'
-                }`}
-              />
-              <span>{streamingStatus || 'Streaming response…'}</span>
-            </div>
-            {streamingAnswer ? (
-              <p className="whitespace-pre-wrap text-white/85">
-                {normalizeTerminalNarrativeAnswer(streamingAnswer)}
-              </p>
-            ) : (
-              <p className="text-white/45">Waiting for first tokens…</p>
-            )}
-          </div>
-        ) : null}
-      </div>
-
-      <form onSubmit={handleSubmit} className="border-t border-emerald-400/20 px-3 py-3 sm:px-4">
-        {lastAnswerMeta ? (
-          <div className="mb-2 space-y-2 text-xs">
-            <div className="flex flex-wrap items-center gap-2">
-              <span
-                className={`inline-flex rounded-full border px-2 py-0.5 ${confidenceBadgeClass(lastAnswerMeta.confidence)}`}
-                title={explainConfidenceLabel(lastAnswerMeta.confidence)}
-              >
-                {confidenceBadgeText(lastAnswerMeta.confidence)}
-              </span>
-              <span className="text-white/55">
-                {totalCitationCount} citation{totalCitationCount === 1 ? '' : 's'}
-              </span>
-              {typeof lastAnswerMeta.unverifiedCount === 'number' &&
-              lastAnswerMeta.unverifiedCount > 0 ? (
-                <span className="text-amber-200/90">
-                  {lastAnswerMeta.unverifiedCount} unverified
-                </span>
-              ) : null}
-              {totalCitationCount > 0 ? (
-                <button
-                  type="button"
-                  onClick={() => setShowCitationDetails((prev) => !prev)}
-                  className="rounded border border-white/20 bg-white/10 px-2 py-0.5 text-white/90 hover:bg-white/20"
-                >
-                  {showCitationDetails ? 'Hide sources' : 'Show sources'}
-                </button>
-              ) : null}
-            </div>
-            {showCitationDetails && totalCitationCount > 0 ? (
-              <div className="space-y-1">
-                {groupedCitations.map((bucket) => (
-                  <div key={bucket.group} className="flex flex-wrap items-center gap-1.5">
-                    <span className="text-[10px] uppercase tracking-[0.08em] text-white/45">
-                      {bucket.group}
-                    </span>
-                    {bucket.chips.slice(0, 3).map((chip) => (
-                      <a
-                        key={`${bucket.group}-${chip.url}`}
-                        href={chip.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="rounded-full border border-white/20 bg-white/5 px-2 py-0.5 text-white/80 hover:bg-white/10"
-                        title={`${bucket.group}: ${chip.label}`}
-                      >
-                        {chip.label}
-                      </a>
-                    ))}
-                    {bucket.chips.length > 3 ? (
-                      <span className="text-white/45">+{bucket.chips.length - 3}</span>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-            ) : null}
-          </div>
-        ) : null}
-        <label className="flex flex-col items-start gap-2 font-mono text-sm sm:flex-row sm:items-center">
-          <span className="text-emerald-300">{prompt}</span>
-          <input
-            ref={inputRef}
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            className="w-full bg-transparent text-emerald-100 outline-none placeholder:text-emerald-200/30 caret-emerald-200"
-            placeholder="Try: tell me about DG-Labs OS, brief top 3 projects, cv current role"
-            autoComplete="off"
-            autoCapitalize="off"
-            spellCheck={false}
-            aria-label="Terminal command input"
-          />
-        </label>
-      </form>
+      <TerminalControlPanels
+        activePanelTab={activePanelTab}
+        setActivePanelTab={setActivePanelTab}
+        settings={settings}
+        setSettings={setSettings}
+        byokApiKey={byokApiKey}
+        setByokApiKey={setByokApiKey}
+        rememberByok={rememberByok}
+        setRememberByok={setRememberByok}
+        providerHealth={providerHealth}
+        toolUsage={toolUsage}
+        lastEvidence={lastEvidence}
+        activeQuickAction={activeQuickAction}
+        onResetLlmCounter={resetLlmCounter}
+        onRunQuickAction={runQuickAction}
+        onRunToolCall={runToolCall}
+        onRunVerify={runVerify}
+      />
+      <TerminalTranscript
+        outputRef={outputRef}
+        inputRef={inputRef}
+        history={history}
+        isLlmBusy={isLlmBusy}
+        streamingAnswer={streamingAnswer}
+        streamingStatus={streamingStatus}
+        lastAnswerMeta={lastAnswerMeta}
+        showCitationDetails={showCitationDetails}
+        setShowCitationDetails={setShowCitationDetails}
+        prompt={prompt}
+        input={input}
+        setInput={setInput}
+        onSubmit={handleSubmit}
+      />
     </div>
   );
 }

@@ -212,15 +212,13 @@ export const buildTerminalSystemContext = (
   mode: TerminalBrainMode = 'concise'
 ): string => {
   const topProjects = ctx.workbench.slice(0, 4).map((p) => `- ${p.title}: ${p.summary}`);
-  const topNotes = ctx.notes
-    .filter((n) => n.kind === 'Deep Dive')
-    .slice(0, 4)
-    .map((n) => `- ${n.title}: ${n.subtitle}`);
+  const topWriting = ctx.notes.slice(0, 4).map((n) => `- ${n.title}: ${n.subtitle}`);
   const networkStats = [
     `nodes=${ctx.network.length}`,
-    `projects=${ctx.network.filter((n) => n.kind === 'Project').length}`,
-    `research=${ctx.network.filter((n) => n.kind === 'Research').length}`,
-    `experience=${ctx.network.filter((n) => n.kind === 'Experience').length}`,
+    `systems=${ctx.network.filter((n) => n.kind === 'System').length}`,
+    `practices=${ctx.network.filter((n) => n.kind === 'Practice').length}`,
+    `career=${ctx.network.filter((n) => n.kind === 'Career').length}`,
+    `evidence=${ctx.network.filter((n) => n.kind === 'Evidence').length}`,
   ].join(', ');
 
   return [
@@ -243,10 +241,10 @@ export const buildTerminalSystemContext = (
     'Top workbench systems:',
     ...topProjects,
     '',
-    'Top deep dives:',
-    ...topNotes,
+    'Selected technical writing:',
+    ...topWriting,
     '',
-    `Network stats: ${networkStats}`,
+    `System Map stats: ${networkStats}`,
   ].join('\n');
 };
 

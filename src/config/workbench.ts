@@ -19,9 +19,9 @@ export const workbench: readonly WorkbenchItem[] = [
     id: 'intent-geometry-agent',
     category: 'Research Systems',
     title: 'Intent Recognition Agent',
-    subtitle: 'Geometry of Intention -> production marketing intelligence',
+    subtitle: 'Geometry of Intention → inspectable marketing-intelligence prototype',
     summary:
-      'Four-layer production system for intent recognition, pattern discovery, and activation. Built to turn a research thesis into deployable marketing intelligence architecture.',
+      'Four-layer public system for intent recognition, pattern discovery, and activation. It turns a research thesis into an inspectable engineering prototype.',
     stack: [
       'Python',
       'Gradio',
@@ -73,23 +73,24 @@ export const workbench: readonly WorkbenchItem[] = [
       'Confidence-gated memory reuse + provenance tracking.',
       'Architecture boundary enforcement (domain/application/infrastructure).',
       'Protocol transparency APIs + scheduled loop maintenance.',
+      '280+ Python tests cover policy, replay, recovery, validation, and receipt integrity.',
     ],
   },
   {
     id: 'ai-news-hub',
     category: 'Writing',
-    title: 'AI Knowledge Hub (Performics Labs)',
-    subtitle: 'Technical writing as infrastructure',
+    title: 'Technical Writing (Performics Labs)',
+    subtitle: 'Selected analysis backed by a maintained publishing system',
     summary:
-      'Technical publishing system: daily news analysis, deep research pieces, and community All Hands for practitioners building AI-enabled infrastructure.',
+      'Professional technical writing on agent architecture, commerce, system reliability, and applied AI, published alongside a broader industry-analysis archive.',
     stack: ['Astro', 'Content ops'],
     links: {
       site: 'https://ai-news-hub.performics-labs.com/',
     },
     highlights: [
-      'Deep dives: Geometry of Intention, Memory & Agency, Phenomenology of Search, Empowerment Imperative.',
-      'Bridges philosophy + systems engineering for real builders.',
-      'Grew to 250+ organic followers in 6 months via consistent depth.',
+      'Connects architecture questions to systems Dessi has built or investigated.',
+      'Shows sustained technical synthesis and communication for practitioners.',
+      'Presented as professional analysis rather than independent academic research.',
     ],
   },
   {
@@ -182,18 +183,21 @@ export const workbench: readonly WorkbenchItem[] = [
     ],
   },
   {
-    id: 'hackathons',
+    id: 'learning-foundry',
     category: 'Hackathons',
-    title: 'Hackathon Prototypes',
-    subtitle: 'Community-first building',
+    title: 'Learning Foundry',
+    subtitle: 'OpenAI Build Week submission · frozen during judging',
     summary:
-      'Rapid prototypes exploring multi-agent orchestration, planning frameworks, and tool reliability. Built to inspire builders, not optimize for judges.',
-    stack: ['Agents', 'Tooling', 'Prototyping'],
-    links: {},
+      'A constructive learning environment where evidence, human understanding, shared theory, agent memory, and activated capabilities remain distinct and reviewable.',
+    stack: ['TypeScript', 'React', 'Codex', 'Evidence ledger', 'Deterministic projections'],
+    links: {
+      repo: 'https://github.com/DG-creative-lab/codex-hack-learning-foundry/tree/0547da02518f432fdd85e79d317e1fedaa51c4c1',
+    },
     highlights: [
-      'ARIA Space Rider Mission Control: multi-agent mission management.',
-      'Routine + Mastra: structured plans and parameter passing patterns.',
-      'Agent reliability: reducing tool-use errors via explicit workflows.',
+      'Append-only evidence and deterministic projections preserve provenance.',
+      'A consent-gated Codex adapter separates preparation from activation.',
+      'Regression tests cover state transitions, IPC boundaries, accessibility, and fallbacks.',
+      'The linked commit is the submitted state; no judging-period changes are made.',
     ],
   },
 ] as const;

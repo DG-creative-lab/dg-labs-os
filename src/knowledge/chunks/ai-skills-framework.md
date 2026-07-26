@@ -5,7 +5,7 @@ title: 'AI Agent Skills Framework'
 tags: ['project', 'open-source', 'skills', 'agents', 'go', 'nextjs', 'education', 'ecosystem']
 confidence: 'verified'
 sources: ['https://github.com/ai-knowledge-hub']
-last_verified: '2025-06-01'
+last_verified: '2026-07-26'
 related:
   ['identity-philosophy', 'capability-technical-stack', 'project-ai-news-hub', 'research-themes']
 ---
@@ -18,13 +18,13 @@ related:
 
 ## What It Is
 
-An open-source ecosystem designed to help marketing teams adopt AI agents through structured, progressive learning. It includes 18 production-ready skills, a Go CLI tool for skill management, a Next.js catalog website, and educational guides that build understanding from fundamentals to advanced orchestration.
+An open-source ecosystem designed to help marketing teams adopt AI agents through structured, progressive learning. It includes reusable skills, a Go CLI tool for skill management, a Next.js catalog website, and educational guides that build understanding from fundamentals to advanced orchestration.
 
 ## Architecture
 
 ### Skill Catalog
 
-18 production skills documented with consistent structure: what the skill does, when to use it, inputs/outputs, implementation guidance, and difficulty rating. Skills are organised by domain and complexity level.
+Reusable skills documented with a consistent structure: what the skill does, when to use it, inputs/outputs, implementation guidance, and difficulty rating. Skills are organised by domain and complexity level.
 
 ### Go CLI Tool
 
@@ -40,7 +40,7 @@ Progressive guides that build from "what is an AI agent" to "how to orchestrate 
 
 ## Why This Matters
 
-This project demonstrates ecosystem-level thinking. It's not a single tool or library — it's a complete adoption system (CLI + catalog + guides + skills) designed to help teams move from "we should use AI agents" to actually running them in production. The educational architecture specifically reflects the empowerment thesis: give people understanding, not just tools.
+This project demonstrates ecosystem-level thinking. It combines a CLI, catalog, guides, and skills to help teams move from curiosity to deliberate experimentation. The educational architecture specifically reflects the empowerment thesis: give people understanding, not just tools.
 
 ## Cross-Runtime Compatibility
 

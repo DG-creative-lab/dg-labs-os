@@ -123,8 +123,8 @@ export interface SocialLinks {
 
 export interface ContactInfo {
   email: string;
-  phone: string;
-  calendly: string;
+  phone?: string;
+  calendly?: string;
 }
 
 // ============================================
@@ -140,7 +140,6 @@ export interface PersonalInfo {
   email: string;
   website: string;
   roleFocus: string;
-  yearOfBirth: number;
 }
 
 export interface ResumeConfig {
@@ -148,6 +147,12 @@ export interface ResumeConfig {
   docx: string;
   markdown: string;
   sourcePath: string;
+  targeted?: {
+    label: string;
+    pdf: string;
+    docx: string;
+    markdown: string;
+  };
 }
 
 export interface SEOConfig {
@@ -176,7 +181,6 @@ export interface UserConfig {
   email: string;
   website: string;
   roleFocus: string;
-  yearOfBirth: number;
 
   // Social & Contact
   social: SocialLinks;

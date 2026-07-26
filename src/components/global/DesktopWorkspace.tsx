@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useReducer } from 'react';
-import { labNotes, labPrinciples } from '../../config/labNotes';
-import { networkIdeaEdges, networkNodes } from '../../config/network';
+import { useEffect, useReducer } from 'react';
+import { networkIdeaEdges, networkNodes, networkPaths } from '../../config/network';
 import { userConfig } from '../../config';
 import { workbench } from '../../config/workbench';
 import {
@@ -16,9 +15,7 @@ import {
   INITIAL_DESKTOP_SHELL_STATE,
 } from '../../services/desktopShellReducer';
 import {
-  handleNotesMenuAction,
   handleWorkbenchMenuAction,
-  type NotesMenuEventDetail,
   type WorkbenchMenuEventDetail,
 } from '../../services/menuActionHandlers';
 import { DESKTOP_APPS } from '../../services/desktopAppRegistry';
@@ -26,7 +23,9 @@ import { type DesktopAppId } from '../../services/desktopWindowService';
 import NetworkApp from '../network/NetworkApp';
 import AgentsTerminal from './AgentsTerminal';
 import DraggableAppWindow from './DraggableAppWindow';
+import EvolutionApp from './EvolutionApp';
 import ResumeApp from './ResumeApp';
+import TechnicalWritingApp from './TechnicalWritingApp';
 
 const toWorkbenchSectionId = (category: string) =>
   `workbench-${category.toLowerCase().replace(/\s+/g, '-')}`;
@@ -104,127 +103,6 @@ function ProjectsPanel() {
   );
 }
 
-function NotesPanel() {
-  useEffect(() => {
-    const onNotesMenuAction = (event: Event) => {
-      const customEvent = event as CustomEvent<NotesMenuEventDetail>;
-      handleNotesMenuAction(customEvent.detail, {
-        jumpToSection: jumpTo,
-        openNewsHub: () => {
-          window.open('https://ai-news-hub.performics-labs.com/', '_blank', 'noopener,noreferrer');
-        },
-        scrollTop: () => {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        },
-      });
-    };
-    window.addEventListener('dg-notes-menu-action', onNotesMenuAction as EventListener);
-    return () => {
-      window.removeEventListener('dg-notes-menu-action', onNotesMenuAction as EventListener);
-    };
-  }, []);
-
-  const deepDives = useMemo(() => labNotes.filter((n) => n.kind === 'Deep Dive').slice(0, 4), []);
-  const newsItems = useMemo(() => labNotes.filter((n) => n.kind === 'News').slice(0, 4), []);
-
-  return (
-    <div>
-      <h1 className="text-2xl font-semibold">Lab Notes</h1>
-      <p className="mt-2 text-white/70">
-        Research writing and engineering notes focused on intent, memory, and empowerment-first
-        systems.
-      </p>
-
-      <section
-        id="notes-principles"
-        className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4"
-      >
-        <h2 className="text-sm font-semibold tracking-wide text-white/80">Principles</h2>
-        <div className="mt-3 grid grid-cols-1 gap-2 text-sm">
-          {labPrinciples.map((p) => (
-            <div key={p.label} className="flex items-start justify-between gap-4">
-              <span className="text-white/50">{p.label}</span>
-              <span className="text-right text-white/80">{p.value}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section id="notes-deep-dives" className="mt-4">
-        <h2 className="text-sm font-semibold tracking-wide text-white/80">Pinned Deep Dives</h2>
-        <div className="mt-2 space-y-2">
-          {deepDives.map((note) => (
-            <a
-              key={note.id}
-              href={note.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block rounded-lg border border-white/10 bg-white/5 p-3 text-white/85 transition hover:bg-white/10"
-            >
-              {note.title}
-            </a>
-          ))}
-        </div>
-      </section>
-
-      <section id="notes-news-analysis" className="mt-4">
-        <h2 className="text-sm font-semibold tracking-wide text-white/80">News Analysis</h2>
-        <div className="mt-2 space-y-2">
-          {newsItems.map((note) => (
-            <a
-              key={note.id}
-              href={note.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block rounded-lg border border-white/10 bg-white/5 p-3 text-white/85 transition hover:bg-white/10"
-            >
-              {note.title}
-            </a>
-          ))}
-        </div>
-      </section>
-
-      <section
-        id="notes-quick-actions"
-        className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4"
-      >
-        <h2 className="text-sm font-semibold tracking-wide text-white/80">Quick Actions</h2>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <a
-            href="/apps/projects"
-            className="rounded-md bg-white/10 px-3 py-1.5 text-sm hover:bg-white/20"
-          >
-            Open Workbench Page
-          </a>
-          <a
-            href="/apps/network"
-            className="rounded-md bg-white/10 px-3 py-1.5 text-sm hover:bg-white/20"
-          >
-            Open Network Page
-          </a>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function NewsPanel() {
-  return (
-    <div>
-      <h1 className="text-2xl font-semibold">AI News Hub</h1>
-      <p className="mt-2 text-white/70">Research writing and analysis lives here.</p>
-      <a
-        className="mt-4 inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-sm text-white transition hover:bg-white/20"
-        href="https://ai-news-hub.performics-labs.com/"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Open Site
-      </a>
-    </div>
-  );
-}
-
 export default function DesktopWorkspace() {
   const [state, dispatch] = useReducer(desktopShellReducer, INITIAL_DESKTOP_SHELL_STATE);
   const { open, focusedAppId } = state;
@@ -284,8 +162,8 @@ export default function DesktopWorkspace() {
 
   const projectsWindow = DESKTOP_APPS.projects.window;
   const notesWindow = DESKTOP_APPS.notes.window;
+  const evolutionWindow = DESKTOP_APPS.evolution.window;
   const resumeWindow = DESKTOP_APPS.resume.window;
-  const newsWindow = DESKTOP_APPS.news.window;
   const networkWindow = DESKTOP_APPS.network.window;
   const terminalWindow = DESKTOP_APPS.terminal.window;
 
@@ -313,7 +191,20 @@ export default function DesktopWorkspace() {
           initialPosition={{ x: notesWindow.x, y: notesWindow.y }}
           isFocused={focusedAppId === 'notes'}
         >
-          <NotesPanel />
+          <TechnicalWritingApp />
+        </DraggableAppWindow>
+      ) : null}
+
+      {open.evolution ? (
+        <DraggableAppWindow
+          appId="evolution"
+          title={evolutionWindow.title}
+          onClose={() => closeWindow('evolution')}
+          initialSize={{ width: evolutionWindow.width, height: evolutionWindow.height }}
+          initialPosition={{ x: evolutionWindow.x, y: evolutionWindow.y }}
+          isFocused={focusedAppId === 'evolution'}
+        >
+          <EvolutionApp />
         </DraggableAppWindow>
       ) : null}
 
@@ -330,19 +221,6 @@ export default function DesktopWorkspace() {
         </DraggableAppWindow>
       ) : null}
 
-      {open.news ? (
-        <DraggableAppWindow
-          appId="news"
-          title={newsWindow.title}
-          onClose={() => closeWindow('news')}
-          initialSize={{ width: newsWindow.width, height: newsWindow.height }}
-          initialPosition={{ x: newsWindow.x, y: newsWindow.y }}
-          isFocused={focusedAppId === 'news'}
-        >
-          <NewsPanel />
-        </DraggableAppWindow>
-      ) : null}
-
       {open.network ? (
         <DraggableAppWindow
           appId="network"
@@ -355,17 +233,20 @@ export default function DesktopWorkspace() {
         >
           <div className="flex items-start justify-between gap-6">
             <div>
-              <h1 className="text-2xl font-semibold">Network</h1>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-200">
+                Connections / Curated projection
+              </p>
+              <h1 className="mt-2 text-2xl font-semibold">System Map</h1>
               <p className="mt-2 text-white/70">
-                Work graph across research, projects, experience, and education.
+                How career experience, engineering practices, systems, and public evidence connect.
               </p>
             </div>
             <div className="hidden text-right text-xs text-white/50 md:block">
               <p>DG-Labs OS</p>
-              <p>Module: Network</p>
+              <p>Module: Connections</p>
             </div>
           </div>
-          <NetworkApp nodes={networkNodes} ideas={networkIdeaEdges} />
+          <NetworkApp nodes={networkNodes} ideas={networkIdeaEdges} paths={networkPaths} />
         </DraggableAppWindow>
       ) : null}
 

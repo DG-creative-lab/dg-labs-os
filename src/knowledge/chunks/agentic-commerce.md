@@ -5,7 +5,7 @@ title: 'Agentic Commerce Learning Loop'
 tags: ['project', 'flagship', 'bayesian', 'learning-systems', 'multi-tenant', 'commerce', 'agents']
 confidence: 'verified'
 sources: ['https://github.com/DG-creative-lab']
-last_verified: '2025-06-01'
+last_verified: '2026-07-26'
 related:
   [
     'experience-performics',
@@ -18,8 +18,7 @@ related:
 # Agentic Commerce Learning Loop
 
 **Classification**: Flagship system — long-term research and delivery project
-**Status**: Production / active development (124+ commits)
-**Built at**: Performics Innovations Lab (Publicis Media)
+**Status**: Collaborative public engineering project / active development
 
 ## What It Is
 
@@ -41,11 +40,11 @@ The critical architectural decision is closing the loop: agent actions produce c
 
 ## Development History
 
-124+ commits reflect an extensive development trajectory — this is not a prototype or proof-of-concept. The commit history shows iterative refinement of the learning architecture, multi-tenant patterns, and production hardening.
+More than 280 Python test functions cover execution policy, API contracts, replay, validation, recovery, credentials, and receipt integrity. This is evidence of regression discipline; it is not a claim of production-scale traffic.
 
 ## Why This Matters
 
-Most marketing automation systems are stateless: they apply rules or models to current data without genuine learning over time. This system demonstrates that Bayesian learning loops can be productionised at enterprise scale with proper multi-tenant architecture. The "agentic" framing is precise — these are agents with beliefs that update, not pipelines that process.
+Most marketing automation systems are stateless: they apply rules or models to current data without genuine learning over time. This system explores how governed belief updates, tenant isolation, provenance, and operator controls can make a learning loop inspectable.
 
 ## Technical Stack
 

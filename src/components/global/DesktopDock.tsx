@@ -21,36 +21,32 @@ interface DesktopDockProps {
 type DockItem = {
   id: string;
   label: string;
+  shortLabel: string;
   onClick: () => void;
   glyph: React.ComponentProps<typeof DockGlyph>['name'];
-  glyphClassName?: string;
-  shellClassName: string;
-  accentClassName: string;
   active: boolean;
+  utility?: boolean;
 };
 
 const DesktopDock = ({ activeApps }: DesktopDockProps) => {
-  const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
-  const [showLinksPopup, setShowLinksPopup] = useState(false);
-  const [mouseX, setMouseX] = useState<number | null>(null);
+  const [showConnectMenu, setShowConnectMenu] = useState(false);
+  const [normalizedPath, setNormalizedPath] = useState('');
   const [desktopOpen, setDesktopOpen] = useState({
     terminal: false,
     notes: false,
     projects: false,
+    evolution: false,
     resume: false,
     news: false,
     network: false,
   });
-  const dockRef = useRef<HTMLDivElement>(null);
   const dockNavRef = useRef<HTMLElement>(null);
-  const linksPopupRef = useRef<HTMLDivElement>(null);
+  const connectMenuRef = useRef<HTMLDivElement>(null);
 
-  const handleLinksClick = () => {
-    setShowLinksPopup(!showLinksPopup);
+  const handleConnectClick = () => {
+    setShowConnectMenu(!showConnectMenu);
   };
 
-  const normalizedPath =
-    typeof window !== 'undefined' ? window.location.pathname.replace(/\/+$/, '') || '/' : '/';
   const isDesktopShell = normalizedPath === '/desktop';
   const isPathActive = (...paths: string[]) =>
     paths.some((path) => {
@@ -59,52 +55,40 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
     });
 
   const toggleDesktopWindow = (
-    appId: 'terminal' | 'notes' | 'projects' | 'resume' | 'news' | 'network'
+    appId: 'terminal' | 'notes' | 'projects' | 'evolution' | 'resume' | 'news' | 'network'
   ) => {
     dispatchDesktopToggleWindow(window, appId);
   };
 
   const getLinkGlyph = (id: string): React.ComponentProps<typeof DockGlyph>['name'] => {
-    if (id.includes('linkedin')) return 'network';
-    if (id.includes('github')) return 'workbench';
-    if (id === 'email' || id === 'call') return 'contact';
+    if (id.includes('linkedin')) return 'linkedin';
+    if (id.includes('github')) return 'github';
+    if (id === 'email' || id === 'call') return 'mail';
     return 'links';
   };
 
   useEffect(() => {
     markDesktopReady(window, 'dock');
+    setNormalizedPath(window.location.pathname.replace(/\/+$/, '') || '/');
     return () => clearDesktopReady(window, 'dock');
   }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (linksPopupRef.current && !linksPopupRef.current.contains(event.target as Node)) {
-        setShowLinksPopup(false);
+      if (connectMenuRef.current && !connectMenuRef.current.contains(event.target as Node)) {
+        setShowConnectMenu(false);
       }
     }
 
-    const handleMouseMove = (e: MouseEvent) => {
-      if (dockRef.current) {
-        const rect = dockRef.current.getBoundingClientRect();
-        if (e.clientY >= rect.top - 50 && e.clientY <= rect.bottom + 50) {
-          setMouseX(e.clientX);
-        } else {
-          setMouseX(null);
-        }
-      }
-    };
-
-    const handleMouseLeave = () => {
-      setMouseX(null);
-    };
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') setShowConnectMenu(false);
+    }
 
     document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseleave', handleMouseLeave);
+    document.addEventListener('keydown', handleEscape);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseleave', handleMouseLeave);
+      document.removeEventListener('keydown', handleEscape);
     };
   }, []);
 
@@ -115,6 +99,7 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
         terminal: open.terminal ?? prev.terminal,
         notes: open.notes ?? prev.notes,
         projects: open.projects ?? prev.projects,
+        evolution: open.evolution ?? prev.evolution,
         resume: open.resume ?? prev.resume,
         news: open.news ?? prev.news,
         network: open.network ?? prev.network,
@@ -126,8 +111,8 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
   }, []);
 
   useEffect(() => {
-    const onOpenLinks = () => setShowLinksPopup(true);
-    const onCloseLinks = () => setShowLinksPopup(false);
+    const onOpenLinks = () => setShowConnectMenu(true);
+    const onCloseLinks = () => setShowConnectMenu(false);
     const unsubscribeOpen = onDockOpenLinks(window, onOpenLinks);
     const unsubscribeClose = onDockCloseLinks(window, onCloseLinks);
     return () => {
@@ -157,42 +142,36 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
     };
   }, []);
 
-  const calculateScale = (iconIndex: number, totalIcons: number) => {
-    if (mouseX === null || !dockRef.current) return 1;
-    const rect = dockRef.current.getBoundingClientRect();
-    const iconWidth = rect.width / totalIcons;
-    const iconCenter = rect.left + iconIndex * iconWidth + iconWidth / 2;
-    const distance = Math.abs(mouseX - iconCenter);
-    const maxDistance = iconWidth * 2;
-    if (distance > maxDistance) return 1;
-    const proximity = 1 - distance / maxDistance;
-    return 1 + proximity * 0.4; // Scale up to 1.4x
-  };
-
-  const Tooltip = ({ text }: { text: string }) => (
-    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black/80 text-white px-2 py-1 rounded text-sm whitespace-nowrap">
-      {text}
-    </div>
-  );
-
-  const LinksPopup = () => (
+  const ConnectMenu = () => (
     <div
-      ref={linksPopupRef}
-      className="absolute bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-800/90 w-30 backdrop-blur-sm rounded-lg p-4 shadow-xl"
+      id="dock-connect-menu"
+      role="dialog"
+      aria-label="Connect"
+      className="absolute right-0 bottom-[calc(100%+12px)] w-56 overflow-hidden rounded-xl border border-white/15 bg-[#111113] text-left"
     >
-      <div className="grid grid-cols-1 gap-y-2">
+      <div className="px-3 py-2.5">
+        <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.12em] text-sky-200">
+          Connect
+        </p>
+        <p className="mt-1 text-[11px] text-white/46">Public profiles and direct contact.</p>
+      </div>
+      <div className="border-t border-white/12">
         {dockLinks.map((item) => (
           <a
             key={item.id}
             href={item.url}
             target={item.url.startsWith('http') ? '_blank' : undefined}
             rel={item.url.startsWith('http') ? 'noopener noreferrer' : undefined}
-            className="flex items-center gap-2 text-gray-300 hover:text-white"
+            onClick={() => setShowConnectMenu(false)}
+            className="flex items-center gap-3 border-b border-white/8 px-3 py-2.5 text-white/66 transition-colors last:border-b-0 hover:bg-white/[0.04] hover:text-white focus-visible:bg-white/[0.04] focus-visible:text-sky-100 focus-visible:outline-none"
           >
-            <span className="h-5 w-5 text-gray-300">
-              <DockGlyph name={getLinkGlyph(item.id)} className="h-5 w-5" />
+            <span className="flex h-6 w-6 items-center justify-center rounded-md border border-white/12 text-white/54">
+              <DockGlyph name={getLinkGlyph(item.id)} className="h-3.5 w-3.5" />
             </span>
-            <span>{item.label}</span>
+            <span className="text-xs font-medium">{item.label}</span>
+            <span className="ml-auto font-mono text-[9px] text-white/28" aria-hidden="true">
+              ↗
+            </span>
           </a>
         ))}
       </div>
@@ -203,6 +182,7 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
     {
       id: 'workbench',
       label: 'Workbench',
+      shortLabel: 'Workbench',
       onClick: () => {
         if (isDesktopShell) {
           toggleDesktopWindow('projects');
@@ -211,15 +191,14 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
         window.location.href = '/apps/projects';
       },
       glyph: 'workbench',
-      shellClassName: 'from-[#111722] via-[#182233] to-[#22314b]',
-      accentClassName: 'text-[#d7e6ff]',
       active: isDesktopShell
         ? desktopOpen.projects
         : activeApps.github || isPathActive('/apps/projects'),
     },
     {
-      id: 'notes',
-      label: 'Lab Notes',
+      id: 'writing',
+      label: 'Technical Writing',
+      shortLabel: 'Writing',
       onClick: () => {
         if (isDesktopShell) {
           toggleDesktopWindow('notes');
@@ -228,13 +207,28 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
         window.location.href = '/apps/notes';
       },
       glyph: 'notes',
-      shellClassName: 'from-[#171514] via-[#221f1c] to-[#302821]',
-      accentClassName: 'text-[#efe5d5]',
       active: isDesktopShell ? desktopOpen.notes : activeApps.notes || isPathActive('/apps/notes'),
+    },
+    {
+      id: 'evolution',
+      label: 'Evidence & Evolution',
+      shortLabel: 'Evolution',
+      onClick: () => {
+        if (isDesktopShell) {
+          toggleDesktopWindow('evolution');
+          return;
+        }
+        window.location.href = '/apps/evolution';
+      },
+      glyph: 'evolution',
+      active: isDesktopShell
+        ? desktopOpen.evolution
+        : isPathActive('/apps/evolution', '/apply/openai-codex'),
     },
     {
       id: 'timeline',
       label: 'Timeline',
+      shortLabel: 'Timeline',
       onClick: () => {
         if (isDesktopShell) {
           toggleDesktopWindow('resume');
@@ -243,30 +237,14 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
         window.location.href = '/apps/resume';
       },
       glyph: 'timeline',
-      shellClassName: 'from-[#1b1315] via-[#26191d] to-[#38242a]',
-      accentClassName: 'text-[#f1d5d7]',
       active: isDesktopShell
         ? desktopOpen.resume
         : activeApps.resume || isPathActive('/apps/resume'),
     },
     {
-      id: 'news',
-      label: 'News Hub',
-      onClick: () => {
-        if (isDesktopShell) {
-          toggleDesktopWindow('news');
-          return;
-        }
-        window.location.href = '/apps/news';
-      },
-      glyph: 'news',
-      shellClassName: 'from-[#0f171b] via-[#14232b] to-[#1a3441]',
-      accentClassName: 'text-[#d2eef6]',
-      active: isDesktopShell ? desktopOpen.news : isPathActive('/apps/news'),
-    },
-    {
       id: 'network',
-      label: 'Network',
+      label: 'System Map',
+      shortLabel: 'Map',
       onClick: () => {
         if (isDesktopShell) {
           toggleDesktopWindow('network');
@@ -276,22 +254,21 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
           window.location.pathname === '/apps/network' ? '/desktop' : '/apps/network';
       },
       glyph: 'network',
-      shellClassName: 'from-[#171420] via-[#211d31] to-[#302b49]',
-      accentClassName: 'text-[#e2ddff]',
       active: isDesktopShell ? desktopOpen.network : isPathActive('/apps/network'),
     },
     {
       id: 'links',
-      label: 'Links',
-      onClick: handleLinksClick,
-      glyph: 'links',
-      shellClassName: 'from-[#17191d] via-[#20252b] to-[#303942]',
-      accentClassName: 'text-[#e6eef6]',
-      active: showLinksPopup,
+      label: 'Connect',
+      shortLabel: 'Connect',
+      onClick: handleConnectClick,
+      glyph: 'contact',
+      active: showConnectMenu,
+      utility: true,
     },
     {
       id: 'terminal',
       label: 'Agents',
+      shortLabel: 'Agents',
       onClick: () => {
         if (isDesktopShell) {
           toggleDesktopWindow('terminal');
@@ -302,9 +279,6 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
         window.location.href = isTerminal ? '/desktop' : '/apps/terminal';
       },
       glyph: 'agents',
-      glyphClassName: 'drop-shadow-[0_0_10px_rgba(128,255,221,0.08)]',
-      shellClassName: 'from-[#111816] via-[#172420] to-[#20312b]',
-      accentClassName: 'text-[#dcfff2]',
       active: isDesktopShell
         ? desktopOpen.terminal
         : activeApps.terminal || isPathActive('/apps/terminal'),
@@ -320,68 +294,48 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
         className="fixed bottom-0 left-0 right-0 flex justify-center pb-4 z-50"
       >
         <div
-          ref={dockRef}
           data-desktop-surface="dock"
-          className="bg-white/10 backdrop-blur-md rounded-2xl px-3 py-2 shadow-[0_18px_60px_rgba(0,0,0,0.45)] border border-white/10"
+          className="rounded-xl border border-white/15 bg-[#111113] p-1"
         >
-          <div className="flex space-x-2" role="menubar">
-            {icons.map((item, index) => {
-              const scale = calculateScale(index, icons.length);
-              return (
+          <div className="flex items-stretch">
+            {icons.map((item) => (
+              <div
+                key={item.id}
+                ref={item.id === 'links' ? connectMenuRef : undefined}
+                className={`relative ${item.utility ? 'ml-1 border-l border-white/14 pl-1' : ''}`}
+              >
                 <button
-                  key={item.id}
                   onClick={() => {
-                    setHoveredIcon(null);
                     item.onClick();
                   }}
                   aria-label={item.label}
-                  aria-haspopup={item.id === 'links' ? 'menu' : undefined}
-                  aria-expanded={item.id === 'links' ? showLinksPopup : undefined}
+                  aria-haspopup={item.id === 'links' ? 'dialog' : undefined}
+                  aria-expanded={item.id === 'links' ? showConnectMenu : undefined}
+                  aria-controls={item.id === 'links' ? 'dock-connect-menu' : undefined}
+                  aria-pressed={item.active}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
                       item.onClick();
                     }
                   }}
-                  onMouseEnter={() => setHoveredIcon(item.id)}
-                  onMouseLeave={() => setHoveredIcon(null)}
-                  className="relative group outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0"
-                  style={{
-                    transform: `scale(${scale})`,
-                    transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                  }}
+                  className={`group relative flex h-14 min-w-[66px] flex-col items-center justify-center gap-1 rounded-lg px-2 transition duration-150 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-sky-300 ${
+                    item.active
+                      ? 'bg-white/[0.06] text-sky-200 after:absolute after:inset-x-2 after:bottom-0 after:h-px after:bg-sky-300'
+                      : 'text-white/64 hover:bg-white/[0.035] hover:text-white'
+                  }`}
                 >
-                  <div
-                    className={`relative w-12 h-12 rounded-[14px] bg-gradient-to-b ${item.shellClassName} flex items-center justify-center overflow-hidden border active:scale-95 ${
-                      item.active
-                        ? 'border-white/18 shadow-[0_10px_24px_rgba(0,0,0,0.36),inset_0_1px_0_rgba(255,255,255,0.08)] ring-1 ring-white/18'
-                        : 'border-white/8 shadow-[0_8px_20px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.04)]'
-                    }`}
-                  >
-                    <span
-                      className="absolute inset-x-1 top-1 h-2.5 rounded-full bg-white/8 blur-[1px]"
-                      aria-hidden="true"
-                    />
-                    <span
-                      className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,0.06),transparent_48%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_58%,rgba(0,0,0,0.16))]"
-                      aria-hidden="true"
-                    />
-                    <DockGlyph
-                      name={item.glyph}
-                      className={`relative z-[1] h-8 w-8 drop-shadow-sm ${item.accentClassName} ${item.glyphClassName ?? ''}`}
-                    />
-                    {item.active && (
-                      <span
-                        className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rounded-full"
-                        aria-hidden="true"
-                      />
-                    )}
-                  </div>
-                  {hoveredIcon === item.id && !showLinksPopup && <Tooltip text={item.label} />}
-                  {item.id === 'links' && showLinksPopup && <LinksPopup />}
+                  <DockGlyph
+                    name={item.glyph}
+                    className="h-[22px] w-[22px] transition-transform duration-150 group-active:scale-95"
+                  />
+                  <span className="font-mono text-[10px] font-medium uppercase leading-none tracking-[0.06em]">
+                    {item.shortLabel}
+                  </span>
                 </button>
-              );
-            })}
+                {item.id === 'links' && showConnectMenu && <ConnectMenu />}
+              </div>
+            ))}
           </div>
         </div>
       </nav>

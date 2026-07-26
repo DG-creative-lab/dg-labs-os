@@ -14,21 +14,18 @@ describe('menuActionHandlers', () => {
     const setQuery = vi.fn();
 
     handleNetworkMenuAction(
-      { action: 'set_filter', filter: 'Projects' },
+      { action: 'set_filter', filter: 'System' },
       { setFilter, setView, setQuery }
     );
-    handleNetworkMenuAction(
-      { action: 'set_view', view: 'GRAPH' },
-      { setFilter, setView, setQuery }
-    );
+    handleNetworkMenuAction({ action: 'set_view', view: 'MAP' }, { setFilter, setView, setQuery });
     handleNetworkMenuAction(
       { action: 'apply_query', query: 'intent' },
       { setFilter, setView, setQuery }
     );
     handleNetworkMenuAction({ action: 'clear_search' }, { setFilter, setView, setQuery });
 
-    expect(setFilter).toHaveBeenCalledWith('Projects');
-    expect(setView).toHaveBeenCalledWith('GRAPH');
+    expect(setFilter).toHaveBeenCalledWith('System');
+    expect(setView).toHaveBeenCalledWith('MAP');
     expect(setQuery).toHaveBeenNthCalledWith(1, 'intent');
     expect(setQuery).toHaveBeenNthCalledWith(2, '');
   });
@@ -39,13 +36,13 @@ describe('menuActionHandlers', () => {
     const scrollTop = vi.fn();
 
     handleNotesMenuAction(
-      { action: 'jump_section', sectionId: 'notes-principles' },
+      { action: 'jump_section', sectionId: 'writing-selected' },
       { jumpToSection, openNewsHub, scrollTop }
     );
     handleNotesMenuAction({ action: 'open_news_hub' }, { jumpToSection, openNewsHub, scrollTop });
     handleNotesMenuAction({ action: 'scroll_top' }, { jumpToSection, openNewsHub, scrollTop });
 
-    expect(jumpToSection).toHaveBeenCalledWith('notes-principles');
+    expect(jumpToSection).toHaveBeenCalledWith('writing-selected');
     expect(openNewsHub).toHaveBeenCalledTimes(1);
     expect(scrollTop).toHaveBeenCalledTimes(1);
 

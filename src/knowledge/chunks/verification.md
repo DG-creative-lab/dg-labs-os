@@ -5,7 +5,7 @@ title: 'Verification Guide'
 tags: ['meta', 'verification', 'evidence', 'provenance']
 confidence: 'verified'
 sources: []
-last_verified: '2025-06-01'
+last_verified: '2026-07-26'
 related: ['identity-links', 'meta-how-to-query', 'meta-provenance']
 ---
 
@@ -17,15 +17,14 @@ What can be independently verified about Dessi Georgieva's work, and how.
 
 These claims can be confirmed by visiting public URLs:
 
-| Claim                                     | Verification Method                                                              |
-| ----------------------------------------- | -------------------------------------------------------------------------------- |
-| GitHub activity and repositories          | Visit https://github.com/DG-creative-lab and https://github.com/ai-knowledge-hub |
-| Published articles (50+)                  | Visit https://ai-news-hub.performics-labs.com/                                   |
-| AI Skills Platform deployment             | Visit deployed URL (ai-knowledge-hub repos)                                      |
-| LinkedIn professional history             | Visit https://www.linkedin.com/in/dessi-georgieva/                               |
-| 200+ followers on AI content platform     | Check follower metrics on platform                                               |
-| Commit history (124+ on Agentic Commerce) | GitHub commit log                                                                |
-| Go CLI for Skills Framework               | ai-knowledge-hub org repos                                                       |
+| Claim                                   | Verification Method                                                              |
+| --------------------------------------- | -------------------------------------------------------------------------------- |
+| GitHub activity and repositories        | Visit https://github.com/DG-creative-lab and https://github.com/ai-knowledge-hub |
+| Published articles                      | Visit https://ai-news-hub.performics-labs.com/                                   |
+| AI Skills Platform deployment           | Visit deployed URL (ai-knowledge-hub repos)                                      |
+| LinkedIn professional history           | Visit https://www.linkedin.com/in/dessi-georgieva/                               |
+| Agentic Commerce architecture and tests | Inspect the public repository and test suite                                     |
+| Go CLI for Skills Framework             | ai-knowledge-hub org repos                                                       |
 
 ## Tier 2: Verifiable with Context (Requires Interpretation)
 
@@ -41,7 +40,7 @@ These claims can be confirmed by visiting public URLs:
 | Claim                                               | Notes                                            |
 | --------------------------------------------------- | ------------------------------------------------ |
 | Specific architecture details of Performics systems | Built within enterprise context; internal code   |
-| Multi-tenant production deployment details          | Enterprise infrastructure, not public            |
+| Multi-tenant employer deployment details            | Enterprise infrastructure, not public            |
 | BA Philosophy / MA Human Rights specifics           | Standard academic credentials; LinkedIn confirms |
 | Day-to-day role scope vs title                      | LinkedIn shows title; scope is self-reported     |
 

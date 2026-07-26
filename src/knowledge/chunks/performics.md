@@ -3,21 +3,25 @@ id: 'experience-performics'
 type: 'experience'
 title: 'Performics Innovations Lab — Publicis Media'
 tags: ['experience', 'current-role', 'marketing-intelligence', 'publicis', 'performics']
-confidence: 'verified'
-sources: ['https://www.linkedin.com/in/dessi-georgieva/', 'https://github.com/DG-creative-lab']
-last_verified: '2025-06-01'
+confidence: 'self-reported'
+sources:
+  [
+    'https://www.linkedin.com/in/dessi-georgieva/',
+    'https://www.performancemarketingworldawards.com/finalists/unifying-retail-data-with-publicis-warehouse-7y3bxeifqg035ne',
+  ]
+last_verified: '2026-07-26'
 related: ['project-intent-recognition', 'project-agentic-commerce', 'identity-profile']
 ---
 
 # Performics Innovations Lab — Publicis Media
 
-**Title**: Data Engineer (actual scope: Research Engineer)
+**Title**: Engineer
 **Location**: London, UK
 **Organisation**: Performics Innovations Lab, part of Publicis Media
 
 ## Role Context
 
-The official title is Data Engineer, but the actual work involves designing and building AI systems from the ground up — multi-agent architectures, Bayesian learning frameworks, behavioral modeling systems, and marketing intelligence platforms. This gap between title and scope is one reason Dessi is seeking roles that match the research-grade nature of her contributions.
+The role involves designing and building AI and data systems: FastAPI services, AWS workflows, multi-tenant platform boundaries, behavioural modelling, and marketing-intelligence interfaces. Detailed code, logs, infrastructure, and client information remain employer-confidential.
 
 ## Core Systems Built
 
@@ -27,11 +31,11 @@ A four-layer marketing intelligence system that models consumer intention throug
 
 ### Agentic Commerce Learning Loop
 
-A multi-tenant Bayesian learning system with 124+ commits that enables marketing agents to learn from commerce signals. Architecture includes progressive Bayesian updating, multi-tenant isolation, and feedback loops. See: `project-agentic-commerce` for full details.
+A governed learning-loop architecture that separates simulation, observed outcomes, belief revision, and human approval. The public collaborative project is documented separately under `project-agentic-commerce`.
 
 ## What This Experience Demonstrates
 
-- Ability to design and build production AI systems end-to-end
+- Ability to design and build AI services and supporting infrastructure end-to-end
 - Enterprise architecture skills (multi-tenant, AWS deployment)
 - Research-grade thinking applied to commercial problems
 - Working within the attention economy while designing for empowerment

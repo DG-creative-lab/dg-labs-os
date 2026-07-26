@@ -4,6 +4,7 @@ import MacToolbar from '../components/global/MacToolbar';
 import DesktopDock from '../components/global/DesktopDock';
 import RippleGrid from '../components/global/RippleGrid';
 import { userConfig } from '../config/index';
+import type { ToolbarAppId } from '../services/desktopMenuModel';
 
 interface Props {
   title?: string;
@@ -21,7 +22,7 @@ interface Props {
     github: boolean;
     resume: boolean;
   };
-  activeAppId?: 'home' | 'terminal' | 'network' | 'projects' | 'notes' | 'resume' | 'news';
+  activeAppId?: ToolbarAppId;
 }
 
 const {

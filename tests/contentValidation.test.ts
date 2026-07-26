@@ -54,9 +54,12 @@ describe('content validation', () => {
       networkIdeaEdges: [
         ...networkIdeaEdges,
         {
+          id: 'missing-edge',
           from: 'missing-node',
           to: networkNodes[0].id,
-          idea: '',
+          relation: 'informed',
+          evidence: '',
+          confidence: 'interpretive',
         },
       ],
       networkLinks: {
@@ -102,7 +105,7 @@ describe('content validation', () => {
     ).toBe(true);
     expect(
       issues.some(
-        (issue) => issue.scope === 'network' && issue.message === 'Edge idea must be non-empty.'
+        (issue) => issue.scope === 'network' && issue.message === 'Edge evidence must be non-empty.'
       )
     ).toBe(true);
     expect(

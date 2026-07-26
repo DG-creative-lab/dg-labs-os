@@ -1,99 +1,49 @@
-/**
- * Professional experience configuration
- * Add your work experience here
- */
-
 import type { Experience } from '../types';
 
 export const experience: readonly Experience[] = [
   {
-    title: 'Software Engineer',
-    company: 'Proteinea',
-    location: 'Cairo, Egypt',
-    period: 'August 2025 - Present',
+    title: 'Engineer',
+    company: 'Performics Innovations Lab, Publicis Media',
+    location: 'London, UK',
+    period: 'November 2023 - Present',
     description:
-      'Working on a full stack web application for a client using Angular, React, .NET, Entity Framework, SQL Server, Bootstrap, and jQuery.',
+      'Builds AI and data systems across agent workflows, behavioural modelling, platform controls, and production services.',
     technologies: [
-      'Django',
-      'Flask',
+      'Python',
       'FastAPI',
       'PostgreSQL',
-      'React',
-      'Docker',
       'AWS',
-      'Cloud Computing',
-    ],
-    images: [
-      {
-        url: 'https://indiebio.co/wp-content/uploads/2025/04/proteinea-logo.png',
-        alt: 'Proteinea',
-      },
-    ],
-  },
-  {
-    title: 'Academy Full Stack Developer',
-    company: 'Luftborn',
-    location: 'Cairo, Egypt',
-    period: 'July 2024 - October 2024',
-    description:
-      'Working on a full stack web application for a client using Angular, React, .NET, Entity Framework, SQL Server, Bootstrap, and jQuery.',
-    technologies: [
-      '.NET',
-      'Entity Framework',
-      'SQL Server',
-      'Angular',
+      'TypeScript',
       'React',
-      'Bootstrap',
-      'jQuery',
-    ],
-    images: [
-      {
-        url: 'https://www.luftborn.com/_nuxt/NavLogo.DsLRihGN.svg',
-        alt: 'Luftborn',
-      },
+      'LLM systems',
+      'Agent runtimes',
     ],
   },
   {
-    title: 'Junior Research Assistant',
-    company: 'Nile University',
-    location: 'Cairo, Egypt',
-    period: 'Summer 2023',
+    title: 'Senior Business Intelligence Analyst',
+    company: 'Publicis Media',
+    location: 'London, UK',
+    period: 'March 2023 - November 2023',
     description:
-      'Assisted in the development of internal software tools using ASP.NET Core. Implemented new features and fixed bugs in existing applications.',
-    technologies: ['C#', 'ASP.NET Core', 'Entity Framework', 'SQL Server', 'Bootstrap'],
-    images: [
-      {
-        url: 'https://top50women.com/wp-content/uploads/2023/08/Nile-university-1.jpg',
-        alt: 'NU Research',
-      },
-    ],
+      'Connected marketing analytics, decision systems, and platformised intelligence workflows.',
+    technologies: ['Python', 'SQL', 'Analytics engineering', 'Data products'],
   },
   {
-    title: 'Junior Teaching Assistant',
-    company: 'Nile University',
-    location: 'Cairo, Egypt',
-    period: 'Spring 2022, Fall 2022, Spring 2023, Fall 2023, Spring 2024',
+    title: 'Business Intelligence Manager',
+    company: 'Jellyfish',
+    location: 'London, UK',
+    period: 'January 2021 - March 2023',
     description:
-      'Assisted in teaching courses to students, helped them with their assignments and projects, and graded their exams and assignments.',
-    technologies: [
-      'C++',
-      'C#',
-      'Java',
-      'Python',
-      'SQL',
-      'HTML',
-      'CSS',
-      'JavaScript',
-      'React',
-      'MongoDB',
-      'MySQL',
-      'Docker',
-    ],
-    images: [
-      {
-        url: 'https://top50women.com/wp-content/uploads/2023/08/Nile-university-1.jpg',
-        alt: 'Nile University',
-      },
-    ],
+      'Built enterprise analytics applications, AWS data pipelines, and decision-support systems.',
+    technologies: ['Python', 'R', 'SQL', 'AWS', 'Shiny'],
+  },
+  {
+    title: 'Data Consultant, SQL Developer, and Data Analyst',
+    company: 'Selected consulting and contract roles',
+    location: 'London, UK',
+    period: '2017 - 2020',
+    description:
+      'Delivered CRM, segmentation, automation, experimentation, and analytics systems across agencies, startups, and media organisations.',
+    technologies: ['SQL', 'Python', 'R', 'CRM', 'Data engineering'],
   },
 ] as const;

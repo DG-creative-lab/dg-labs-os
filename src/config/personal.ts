@@ -6,14 +6,13 @@
 import type { PersonalInfo } from '../types';
 
 export const personal: PersonalInfo = {
-  name: 'DG-Labs',
+  name: 'Dessi Georgieva',
   ownerName: 'Dessi Georgieva',
-  aliases: ['DG-Labs', 'Dessi', 'Dessi Georgieva'],
-  role: 'Creative Technologist',
-  location: 'Remote',
-  email: 'hello@dg-labs.com',
-  website: 'dg-labs',
+  aliases: ['Dessi', 'Dessi Georgieva', 'DG-OS', 'DG-Labs'],
+  role: 'AI Systems Engineer',
+  location: 'London, UK',
+  email: 'dessi.georgieva8@gmail.com',
+  website: 'https://dg-os.com/',
   roleFocus:
-    'Exploring human-computer metaphors, experimental interfaces, and tools that feel alive.',
-  yearOfBirth: 1998,
+    'Building inspectable agent systems, evaluation loops, and human-controlled AI infrastructure.',
 };
