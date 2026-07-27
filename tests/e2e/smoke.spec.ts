@@ -134,7 +134,7 @@ test.describe('desktop smoke', () => {
 
     await viewMenu.click();
     await expect(page.getByRole('menuitem', { name: 'Projects', exact: true })).toBeVisible();
-    await expect(page.getByRole('menuitem', { name: 'Research Systems', exact: true })).toHaveCount(
+    await expect(page.getByRole('menuitem', { name: 'Selected Systems', exact: true })).toHaveCount(
       0
     );
   });
@@ -259,8 +259,8 @@ test.describe('mobile smoke', () => {
     });
     expect(projects.status()).toBe(200);
     const projectsHtml = await projects.text();
-    expect(projectsHtml).toContain('Systems and writing built around human agency');
-    expect(projectsHtml).toContain('Research Systems');
+    expect(projectsHtml).toContain('Selected systems Dessi can show');
+    expect(projectsHtml).toContain('Selected Systems');
 
     const notes = await request.get('/mobile/apps/notes', {
       headers: { 'user-agent': ua },

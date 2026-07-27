@@ -17,6 +17,9 @@ export default defineConfig({
 
   // URL configuration
   trailingSlash: 'never', // Removes trailing slashes from URLs
+  redirects: {
+    '/apps': '/apps/projects',
+  },
 
   // Vite configuration
   vite: {

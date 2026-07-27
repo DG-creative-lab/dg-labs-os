@@ -1,7 +1,7 @@
 import { useEffect, useReducer } from 'react';
 import { networkIdeaEdges, networkNodes, networkPaths } from '../../config/network';
 import { userConfig } from '../../config';
-import { workbench } from '../../config/workbench';
+import { workbench, workbenchCategories } from '../../config/workbench';
 import {
   dispatchDesktopAppFocus,
   dispatchDesktopState,
@@ -66,32 +66,53 @@ function ProjectsPanel() {
     <div>
       <h1 className="text-2xl font-semibold">Workbench</h1>
       <p className="mt-2 text-white/70">
-        Systems and writing built around human agency: intent recognition, learning loops, and
-        practical infrastructure.
+        Selected systems Dessi can show, explain, and bound with evidence.
       </p>
-      <div className="mt-6 grid grid-cols-1 gap-4">
-        {['Research Systems', 'Platforms', 'Writing', 'Hackathons'].map((cat) => {
+      <div className="mt-8 space-y-10">
+        {workbenchCategories.map((cat) => {
           const items = workbench.filter((x) => x.category === cat);
           if (items.length === 0) return null;
           return (
             <section key={cat} id={toWorkbenchSectionId(cat)}>
-              <h2 className="text-sm font-semibold tracking-wide text-white/80">{cat}</h2>
-              <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="flex items-end justify-between gap-6 border-b border-white/15 pb-3">
+                <div>
+                  <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-white/85">
+                    {cat}
+                  </h2>
+                  <p className="mt-1 text-xs leading-relaxed text-white/50">
+                    {cat === 'Selected Systems'
+                      ? 'Public code and live systems that can be inspected directly.'
+                      : 'Production experience described within employer and client boundaries.'}
+                  </p>
+                </div>
+                <span className="text-[10px] uppercase tracking-[0.18em] text-white/35">
+                  {String(items.length).padStart(2, '0')}
+                </span>
+              </div>
+              <div className="divide-y divide-white/10">
                 {items.map((item) => (
                   <article
                     key={item.id}
-                    className="rounded-xl border border-white/10 bg-white/5 p-4 transition hover:bg-white/7"
+                    className="grid gap-5 py-6 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h3 className="text-lg font-semibold">{item.title}</h3>
-                        <p className="text-sm text-white/60">{item.subtitle}</p>
-                      </div>
-                      <span className="text-[10px] uppercase tracking-[0.2em] text-white/40">
-                        {item.id}
-                      </span>
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.16em] text-white/45">
+                        {item.classification}
+                      </p>
+                      <h3 className="mt-2 text-lg font-semibold">{item.title}</h3>
+                      <p className="mt-1 text-sm leading-relaxed text-white/60">{item.subtitle}</p>
+                      <p className="mt-4 text-sm leading-relaxed text-white/75">{item.summary}</p>
                     </div>
-                    <p className="mt-3 text-sm text-white/75">{item.summary}</p>
+                    <div className="md:border-l md:border-white/10 md:pl-6">
+                      <ul className="space-y-2 text-sm leading-relaxed text-white/70">
+                        {item.highlights.slice(0, 3).map((highlight) => (
+                          <li className="grid grid-cols-[0.75rem_1fr] gap-2" key={highlight}>
+                            <span className="text-white/30">—</span>
+                            <span>{highlight}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </article>
                 ))}
               </div>

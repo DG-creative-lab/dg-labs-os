@@ -49,7 +49,7 @@ describe('menuActionHandlers', () => {
     const wbJump = vi.fn();
     const wbScroll = vi.fn();
     handleWorkbenchMenuAction(
-      { action: 'jump_section', sectionId: 'workbench-writing' },
+      { action: 'jump_section', sectionId: 'workbench-selected-systems' },
       {
         jumpToSection: wbJump,
         scrollTop: wbScroll,
@@ -59,7 +59,7 @@ describe('menuActionHandlers', () => {
       { action: 'scroll_top' },
       { jumpToSection: wbJump, scrollTop: wbScroll }
     );
-    expect(wbJump).toHaveBeenCalledWith('workbench-writing');
+    expect(wbJump).toHaveBeenCalledWith('workbench-selected-systems');
     expect(wbScroll).toHaveBeenCalledTimes(1);
   });
 
