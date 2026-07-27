@@ -1,21 +1,18 @@
 ---
 import IPhoneAppLayout from '../../../layouts/iPhoneAppLayout.astro';
-import { workbench } from '../../../config/workbench';
-
-const categories = ['Research Systems', 'Platforms', 'Writing', 'Hackathons'] as const;
+import { workbench, workbenchCategories } from '../../../config/workbench';
 ---
 
 <IPhoneAppLayout appLabel="Workbench">
   <main class="min-h-screen px-4 pb-24 pt-24 text-white sm:px-6">
     <h1 class="text-2xl font-semibold">Workbench</h1>
     <p class="mt-2 text-white/70">
-      Systems and writing built around human agency: intent recognition, learning loops, and
-      practical infrastructure.
+      Selected systems Dessi can show, explain, and bound with evidence.
     </p>
 
     <div class="mt-4 flex flex-wrap gap-2">
       {
-        categories.map((category) => (
+        workbenchCategories.map((category) => (
           <a
             href={`#${category.toLowerCase().replace(/\s+/g, '-')}`}
             class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/75"
@@ -28,7 +25,7 @@ const categories = ['Research Systems', 'Platforms', 'Writing', 'Hackathons'] as
 
     <div class="mt-6 space-y-6">
       {
-        categories.map((category) => {
+        workbenchCategories.map((category) => {
           const items = workbench.filter((item) => item.category === category);
           if (items.length === 0) return null;
 
@@ -41,81 +38,77 @@ const categories = ['Research Systems', 'Platforms', 'Writing', 'Hackathons'] as
                 <span class="text-[10px] text-white/35">{items.length} items</span>
               </div>
 
-              {items.map((item) => (
-                <article class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <div class="flex items-start justify-between gap-4">
-                    <div>
-                      <h3 class="text-base font-semibold">{item.title}</h3>
-                      <p class="text-xs text-white/60">{item.subtitle}</p>
+              <div class="divide-y divide-white/10 border-y border-white/10">
+                {items.map((item) => (
+                  <article class="py-5">
+                    <p class="text-[10px] uppercase tracking-[0.16em] text-white/45">
+                      {item.classification}
+                    </p>
+                    <h3 class="mt-2 text-base font-semibold">{item.title}</h3>
+                    <p class="mt-1 text-xs leading-relaxed text-white/60">{item.subtitle}</p>
+
+                    <p class="mt-3 text-sm leading-relaxed text-white/75">{item.summary}</p>
+
+                    <div class="mt-3 flex flex-wrap gap-x-3 gap-y-1">
+                      {item.stack.slice(0, 5).map((tech) => (
+                        <span class="text-[10px] text-white/50">{tech}</span>
+                      ))}
                     </div>
-                    <span class="text-[10px] uppercase tracking-[0.2em] text-white/40">
-                      {item.id}
-                    </span>
-                  </div>
 
-                  <p class="mt-3 text-sm text-white/75">{item.summary}</p>
+                    <ul class="mt-4 space-y-2 text-sm leading-relaxed text-white/70">
+                      {item.highlights.slice(0, 3).map((highlight) => (
+                        <li class="grid grid-cols-[0.75rem_1fr] gap-2">
+                          <span class="text-white/35">—</span>
+                          <span>{highlight}</span>
+                        </li>
+                      ))}
+                    </ul>
 
-                  <div class="mt-3 flex flex-wrap gap-2">
-                    {item.stack.slice(0, 5).map((tech) => (
-                      <span class="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-[10px] text-white/65">
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-
-                  <ul class="mt-4 space-y-1.5 text-sm text-white/70">
-                    {item.highlights.slice(0, 3).map((highlight) => (
-                      <li class="flex gap-2">
-                        <span class="text-white/35">-</span>
-                        <span>{highlight}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div class="mt-4 flex flex-wrap gap-2">
-                    {item.links.repo && (
-                      <a
-                        class="rounded-full bg-white/10 px-3 py-1.5 text-sm transition active:bg-white/20"
-                        href={item.links.repo}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Repo
-                      </a>
-                    )}
-                    {item.links.article && (
-                      <a
-                        class="rounded-full bg-white/10 px-3 py-1.5 text-sm transition active:bg-white/20"
-                        href={item.links.article}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Article
-                      </a>
-                    )}
-                    {item.links.demo && (
-                      <a
-                        class="rounded-full bg-white/10 px-3 py-1.5 text-sm transition active:bg-white/20"
-                        href={item.links.demo}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Demo
-                      </a>
-                    )}
-                    {item.links.site && (
-                      <a
-                        class="rounded-full bg-white/10 px-3 py-1.5 text-sm transition active:bg-white/20"
-                        href={item.links.site}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Site
-                      </a>
-                    )}
-                  </div>
-                </article>
-              ))}
+                    <div class="mt-4 flex flex-wrap gap-4">
+                      {item.links.repo && (
+                        <a
+                          class="text-xs text-white/75 underline decoration-white/25 underline-offset-4"
+                          href={item.links.repo}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Repository ↗
+                        </a>
+                      )}
+                      {item.links.article && (
+                        <a
+                          class="text-xs text-white/75 underline decoration-white/25 underline-offset-4"
+                          href={item.links.article}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Related writing ↗
+                        </a>
+                      )}
+                      {item.links.demo && (
+                        <a
+                          class="text-xs text-white/75 underline decoration-white/25 underline-offset-4"
+                          href={item.links.demo}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Demo ↗
+                        </a>
+                      )}
+                      {item.links.site && (
+                        <a
+                          class="text-xs text-white/75 underline decoration-white/25 underline-offset-4"
+                          href={item.links.site}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Live system ↗
+                        </a>
+                      )}
+                    </div>
+                  </article>
+                ))}
+              </div>
             </section>
           );
         })

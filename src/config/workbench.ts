@@ -1,6 +1,11 @@
+export const workbenchCategories = ['Selected Systems', 'Professional Context'] as const;
+
+export type WorkbenchCategory = (typeof workbenchCategories)[number];
+
 export type WorkbenchItem = {
   id: string;
-  category: 'Research Systems' | 'Platforms' | 'Writing' | 'Hackathons';
+  category: WorkbenchCategory;
+  classification: string;
   title: string;
   subtitle: string;
   summary: string;
@@ -16,42 +21,13 @@ export type WorkbenchItem = {
 
 export const workbench: readonly WorkbenchItem[] = [
   {
-    id: 'intent-geometry-agent',
-    category: 'Research Systems',
-    title: 'Intent Recognition Agent',
-    subtitle: 'Geometry of Intention → inspectable marketing-intelligence prototype',
-    summary:
-      'Four-layer public system for intent recognition, pattern discovery, and activation. It turns a research thesis into an inspectable engineering prototype.',
-    stack: [
-      'Python',
-      'Gradio',
-      'SQLite',
-      'sentence-transformers',
-      'HDBSCAN',
-      'OpenRouter',
-      'Claude/GPT APIs',
-    ],
-    links: {
-      repo: 'https://github.com/ai-knowledge-hub/deep-dive-analysis-intent-recognition-agent',
-      demo: 'https://huggingface.co/spaces/Dessi/gradio-mcp-hack',
-      article:
-        'https://ai-news-hub.performics-labs.com/analysis/geometry-of-intention-llms-human-goals-marketing',
-    },
-    highlights: [
-      'Context capture: identity/history/situation/behavior/time/constraints.',
-      'Intent taxonomy + confidence calibration (signal strength modifiers).',
-      'Behavioral embeddings + HDBSCAN clustering + persona stability checks.',
-      'Activation: personalization, bid optimization, audience export (SHA-256 hashing).',
-      'MCP server integration for ChatGPT / Claude Desktop / Cursor.',
-    ],
-  },
-  {
     id: 'agentic-commerce-loop',
-    category: 'Research Systems',
+    category: 'Selected Systems',
+    classification: 'Collaborative public system · Active',
     title: 'Agentic Commerce Learning Loop',
-    subtitle: 'Bayesian-style closed loop: simulate -> validate -> update beliefs',
+    subtitle: 'A governed loop for testing, learning, and revising product intelligence',
     summary:
-      'Multi-tenant product intelligence platform that iteratively improves discoverability with synthetic + observed validation, memory distillation, and confidence gating.',
+      'A multi-tenant agent system that separates simulation, observed validation, belief revision, memory, and human approval.',
     stack: [
       'Next.js',
       'TypeScript',
@@ -68,127 +44,20 @@ export const workbench: readonly WorkbenchItem[] = [
         'https://ai-news-hub.performics-labs.com/analysis/building-to-learn-agentic-marketing-optimization',
     },
     highlights: [
-      'Multi-tenant hierarchy: Client -> Brand -> Product with scoped beliefs.',
-      'Dual validation: LLM judges (BYOK) + observed reality capture.',
-      'Confidence-gated memory reuse + provenance tracking.',
-      'Architecture boundary enforcement (domain/application/infrastructure).',
-      'Protocol transparency APIs + scheduled loop maintenance.',
-      '280+ Python tests cover policy, replay, recovery, validation, and receipt integrity.',
-    ],
-  },
-  {
-    id: 'ai-news-hub',
-    category: 'Writing',
-    title: 'Technical Writing (Performics Labs)',
-    subtitle: 'Selected analysis backed by a maintained publishing system',
-    summary:
-      'Professional technical writing on agent architecture, commerce, system reliability, and applied AI, published alongside a broader industry-analysis archive.',
-    stack: ['Astro', 'Content ops'],
-    links: {
-      site: 'https://ai-news-hub.performics-labs.com/',
-    },
-    highlights: [
-      'Connects architecture questions to systems Dessi has built or investigated.',
-      'Shows sustained technical synthesis and communication for practitioners.',
-      'Presented as professional analysis rather than independent academic research.',
-    ],
-  },
-  {
-    id: 'enterprise-multi-tenant-platform',
-    category: 'Platforms',
-    title: 'Multi-Tenant Marketing Automation (Performics)',
-    subtitle: 'Enterprise orchestration across global clients',
-    summary:
-      'Enterprise production platform spanning multi-tenant architecture, row-level security, authentication hierarchy design, and AI orchestration for campaign optimization.',
-    stack: [
-      'AWS',
-      'OIDC (Microsoft Entra)',
-      'Databricks',
-      'Bedrock',
-      'RLS',
-      'Ad platform integrations',
-    ],
-    links: {},
-    highlights: [
-      'Multi-tenant system for enterprise clients across markets.',
-      'OIDC auth + complex organizational hierarchies.',
-      'Lakehouse patterns + performance data pipelines.',
-      'Campaign optimization orchestration layers.',
-    ],
-  },
-  {
-    id: 'warehouse-award-platform',
-    category: 'Platforms',
-    title: 'Amazon Optimization Platform (Warehouse)',
-    subtitle: 'Award-winning ecommerce marketing optimization',
-    summary:
-      'Built backend services and AWS data workflows for an ecommerce optimization platform using production microservice patterns.',
-    stack: ['FastAPI', 'AWS Glue', 'Lambda', 'Postgres (RDS)', 'Microservices'],
-    links: {
-      article:
-        'https://www.performancemarketingworldawards.com/finalists/unifying-retail-data-with-publicis-warehouse-7y3bxeifqg035ne',
-    },
-    highlights: [
-      'Backend services in FastAPI with production deployment on AWS.',
-      'Glue jobs for data processing, Lambda triggers for events.',
-      'Postgres RDS persistence and microservice boundaries.',
-    ],
-  },
-  {
-    id: 'gateplane-enterprise-auth',
-    category: 'Platforms',
-    title: 'Gateplane Enterprise Auth Platform',
-    subtitle: 'Multi-tenant authentication and authorization architecture',
-    summary:
-      'Enterprise auth platform with tenant isolation, hierarchical role boundaries, and capability-tier controls for multi-tenant AI applications, now evolving toward agent-native workflows.',
-    stack: [
-      'Next.js',
-      'FastAPI',
-      'Microsoft Entra SSO',
-      'OIDC',
-      'Postgres',
-      'RBAC',
-      'Policy enforcement',
-    ],
-    links: {},
-    highlights: [
-      'Multi-tenant auth boundaries with strict tenant and organization scoping.',
-      'Layered role model aligned to client, brand, and workspace contexts.',
-      'Product-tier capability gating for enterprise feature control.',
-      'Agentification implementation path adds agent-native workflows and defensive differentiation.',
-      'Clean architecture patterns for auth and policy domain separation.',
-    ],
-  },
-  {
-    id: 'onesuite-labs-infra',
-    category: 'Platforms',
-    title: 'OneSuite Labs Ephemeral Infrastructure',
-    subtitle: 'Decommissioning and scratch-environment control plane',
-    summary:
-      'AWS decommissioning and replacement strategy for legacy untagged infrastructure, rebuilt as reproducible ephemeral stacks for safe experimentation and systems validation.',
-    stack: [
-      'Terraform',
-      'AWS',
-      'Infrastructure as code',
-      'Drift checks',
-      'Runtime contracts',
-      'Ephemeral environments',
-    ],
-    links: {},
-    highlights: [
-      'Infra cleanup for non-terraform and untagged legacy surfaces.',
-      'Ephemeral up/down stacks mirroring app contracts for idea testing.',
-      'Contract gates and drift detection in deployment workflows.',
-      'Systematic infra governance for safer platform iteration.',
+      'Scopes beliefs and evidence across client, brand, and product boundaries.',
+      'Keeps synthetic judgements distinct from observed outcomes.',
+      'Uses confidence-gated memory with provenance and explicit revision paths.',
+      'Tests policy, replay, recovery, validation, and receipt integrity.',
     ],
   },
   {
     id: 'learning-foundry',
-    category: 'Hackathons',
+    category: 'Selected Systems',
+    classification: 'Submitted public system · Judging state preserved',
     title: 'Learning Foundry',
-    subtitle: 'OpenAI Build Week submission · frozen during judging',
+    subtitle: 'Constructive learning with evidence, interpretation, and agency kept distinct',
     summary:
-      'A constructive learning environment where evidence, human understanding, shared theory, agent memory, and activated capabilities remain distinct and reviewable.',
+      'A learning environment where evidence, human understanding, shared theory, agent memory, and activated capabilities remain reviewable.',
     stack: ['TypeScript', 'React', 'Codex', 'Evidence ledger', 'Deterministic projections'],
     links: {
       repo: 'https://github.com/DG-creative-lab/codex-hack-learning-foundry/tree/0547da02518f432fdd85e79d317e1fedaa51c4c1',
@@ -196,8 +65,93 @@ export const workbench: readonly WorkbenchItem[] = [
     highlights: [
       'Append-only evidence and deterministic projections preserve provenance.',
       'A consent-gated Codex adapter separates preparation from activation.',
-      'Regression tests cover state transitions, IPC boundaries, accessibility, and fallbacks.',
-      'The linked commit is the submitted state; no judging-period changes are made.',
+      'Corrections can revise interpretation without rewriting original evidence.',
+      'The linked commit preserves the submitted OpenAI Build Week state.',
+    ],
+  },
+  {
+    id: 'dg-os',
+    category: 'Selected Systems',
+    classification: 'Personal public system · Active',
+    title: 'DG-OS',
+    subtitle: 'A portfolio evolving into an inspectable knowledge and agent interface',
+    summary:
+      'The system visitors are using now: an OS-shaped interface connecting projects, professional context, writing, evidence, and grounded agent interactions.',
+    stack: ['Astro', 'React', 'TypeScript', 'Retrieval', 'Provider gateway', 'Streaming'],
+    links: {
+      repo: 'https://github.com/DG-creative-lab/dg-labs-os',
+      site: 'https://dg-os.com/',
+    },
+    highlights: [
+      'Combines deterministic navigation with retrieval-grounded agent responses.',
+      'Exposes source, provider health, fallback, and recovery behaviour.',
+      'Represents claims with provenance, confidence, visibility, and boundaries.',
+      'Uses the portfolio itself as an evolving systems-design experiment.',
+    ],
+  },
+  {
+    id: 'intent-geometry-agent',
+    category: 'Selected Systems',
+    classification: 'Collaborative public experiment',
+    title: 'Intent Recognition Agent',
+    subtitle: 'An applied-AI experiment for interpreting intent beyond keyword matching',
+    summary:
+      'An inspectable prototype combining contextual signals, intent classification, behavioural embeddings, clustering, and activation.',
+    stack: ['Python', 'Gradio', 'SQLite', 'sentence-transformers', 'HDBSCAN', 'OpenRouter'],
+    links: {
+      repo: 'https://github.com/ai-knowledge-hub/deep-dive-analysis-intent-recognition-agent',
+      demo: 'https://huggingface.co/spaces/Dessi/gradio-mcp-hack',
+      article:
+        'https://ai-news-hub.performics-labs.com/analysis/geometry-of-intention-llms-human-goals-marketing',
+    },
+    highlights: [
+      'Captures contextual signals across identity, history, situation, and constraints.',
+      'Calibrates intent classifications with explicit signal-strength modifiers.',
+      'Uses embeddings and HDBSCAN to discover and inspect behavioural patterns.',
+      'Connects analysis to bounded activation and privacy-aware audience export.',
+    ],
+  },
+  {
+    id: 'gateplane-enterprise-auth',
+    category: 'Selected Systems',
+    classification: 'Personal deployed system · Private source',
+    title: 'Gateplane Enterprise Auth Platform',
+    subtitle: 'Identity, tenant isolation, and policy boundaries for enterprise AI systems',
+    summary:
+      'A provider-independent control plane for hosted SSO, governed configuration, delegated agent authority, scoped workspace data, and sandbox-ready execution.',
+    stack: ['Next.js', 'FastAPI', 'Microsoft Entra SSO', 'OIDC', 'Postgres', 'RBAC'],
+    links: {
+      site: 'https://gateplane-beta.vercel.app/overview',
+    },
+    highlights: [
+      'Separates tenant, organisation, workspace, and capability boundaries.',
+      'Binds delegated agent grants and approvals to explicit authority.',
+      'Scopes workspace materialisation to deterministic agent-run namespaces.',
+      'The product overview is public; source code and provisioned access remain private.',
+    ],
+  },
+  {
+    id: 'enterprise-multi-tenant-platform',
+    category: 'Professional Context',
+    classification: 'Employer system · Outcome-level description',
+    title: 'Multi-Tenant Marketing Automation',
+    subtitle: 'Enterprise orchestration across clients, markets, data, and activation',
+    summary:
+      'Professional production experience connecting tenant-aware data, authentication, AI orchestration, and campaign optimisation workflows.',
+    stack: [
+      'AWS',
+      'Microsoft Entra',
+      'Databricks',
+      'Bedrock',
+      'Row-level security',
+      'Ad platforms',
+    ],
+    links: {},
+    highlights: [
+      'Supports enterprise hierarchies across clients, brands, and markets.',
+      'Connects authenticated workflows to lakehouse and performance data.',
+      'Coordinates optimisation and activation across external platforms.',
+      'Only architectural scope is described; employer code and operational details remain private.',
     ],
   },
 ] as const;

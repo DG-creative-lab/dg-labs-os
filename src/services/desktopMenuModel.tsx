@@ -374,24 +374,14 @@ export const buildDesktopMenuModel = ({
     ...commonMenus,
     View: [
       {
-        label: 'Research Systems',
+        label: 'Selected Systems',
         icon: <IoCodeSlash size={16} />,
-        action: () => openWorkbenchSectionFromMenu('workbench-research-systems'),
+        action: () => openWorkbenchSectionFromMenu('workbench-selected-systems'),
       },
       {
-        label: 'Platforms',
+        label: 'Professional Context',
         icon: <IoCodeSlash size={16} />,
-        action: () => openWorkbenchSectionFromMenu('workbench-platforms'),
-      },
-      {
-        label: 'Writing',
-        icon: <IoDocumentText size={16} />,
-        action: () => openWorkbenchSectionFromMenu('workbench-writing'),
-      },
-      {
-        label: 'Hackathons',
-        icon: <IoHelpCircle size={16} />,
-        action: () => openWorkbenchSectionFromMenu('workbench-hackathons'),
+        action: () => openWorkbenchSectionFromMenu('workbench-professional-context'),
       },
     ],
     Window: [
@@ -543,14 +533,14 @@ export const buildDesktopMenuModel = ({
     ],
     projects: [
       {
-        label: 'Jump to Research Systems',
+        label: 'Jump to Selected Systems',
         icon: <IoCodeSlash size={16} />,
-        action: () => openWorkbenchSectionFromMenu('workbench-research-systems'),
+        action: () => openWorkbenchSectionFromMenu('workbench-selected-systems'),
       },
       {
-        label: 'Jump to Platforms',
+        label: 'Jump to Professional Context',
         icon: <IoDocumentText size={16} />,
-        action: () => openWorkbenchSectionFromMenu('workbench-platforms'),
+        action: () => openWorkbenchSectionFromMenu('workbench-professional-context'),
       },
       {
         label: 'Close Workbench',

@@ -1,7 +1,7 @@
 ---
 import DesktopLayout from '../../layouts/DesktopLayout.astro';
 import DraggableAppWindow from '../../components/global/DraggableAppWindow';
-import { workbench } from '../../config/workbench';
+import { workbench, workbenchCategories } from '../../config/workbench';
 
 const toSectionId = (category: string) =>
   `workbench-${category.toLowerCase().replace(/\s+/g, '-')}`;
@@ -21,8 +21,7 @@ const toSectionId = (category: string) =>
         <div>
           <h1 class="text-2xl font-semibold">Workbench</h1>
           <p class="mt-2 text-white/70">
-            Systems and writing built around human agency: intent recognition, learning loops, and
-            practical infrastructure.
+            Selected systems Dessi can show, explain, and bound with evidence.
           </p>
         </div>
         <div class="hidden md:block text-right text-xs text-white/50">
@@ -31,85 +30,99 @@ const toSectionId = (category: string) =>
         </div>
       </div>
 
-      <div class="mt-6 grid grid-cols-1 gap-4">
+      <div class="mt-8 space-y-10">
         {
-          ['Research Systems', 'Platforms', 'Writing', 'Hackathons'].map((cat) => {
+          workbenchCategories.map((cat) => {
             const items = workbench.filter((x) => x.category === cat);
             if (items.length === 0) return null;
             return (
               <section id={toSectionId(cat)}>
-                <h2 class="text-sm font-semibold tracking-wide text-white/80">{cat}</h2>
-                <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex items-end justify-between gap-6 border-b border-white/15 pb-3">
+                  <div>
+                    <h2 class="text-sm font-semibold uppercase tracking-[0.16em] text-white/85">
+                      {cat}
+                    </h2>
+                    <p class="mt-1 max-w-2xl text-xs leading-relaxed text-white/50">
+                      {cat === 'Selected Systems'
+                        ? 'Public code and live systems that can be inspected directly.'
+                        : 'Production experience described within employer and client boundaries.'}
+                    </p>
+                  </div>
+                  <span class="text-[10px] uppercase tracking-[0.18em] text-white/35">
+                    {String(items.length).padStart(2, '0')}
+                  </span>
+                </div>
+                <div class="divide-y divide-white/10">
                   {items.map((item) => (
-                    <article class="rounded-xl border border-white/10 bg-white/5 p-4 hover:bg-white/7 transition">
-                      <div class="flex items-start justify-between gap-4">
-                        <div>
-                          <h3 class="text-lg font-semibold">{item.title}</h3>
-                          <p class="text-sm text-white/60">{item.subtitle}</p>
+                    <article class="grid gap-5 py-6 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+                      <div>
+                        <p class="text-[10px] uppercase tracking-[0.16em] text-white/45">
+                          {item.classification}
+                        </p>
+                        <h3 class="mt-2 text-lg font-semibold">{item.title}</h3>
+                        <p class="mt-1 text-sm leading-relaxed text-white/60">{item.subtitle}</p>
+                        <p class="mt-4 text-sm leading-relaxed text-white/75">{item.summary}</p>
+
+                        <div class="mt-4 flex flex-wrap gap-x-3 gap-y-1">
+                          {item.stack.slice(0, 6).map((tech) => (
+                            <span class="text-[11px] text-white/50">{tech}</span>
+                          ))}
                         </div>
-                        <span class="text-[10px] uppercase tracking-[0.2em] text-white/40">
-                          {item.id}
-                        </span>
-                      </div>
-                      <p class="mt-3 text-sm text-white/75">{item.summary}</p>
-
-                      <div class="mt-3 flex flex-wrap gap-2">
-                        {item.stack.slice(0, 6).map((t) => (
-                          <span class="text-[11px] rounded-full bg-black/30 border border-white/10 px-2 py-1 text-white/70">
-                            {t}
-                          </span>
-                        ))}
                       </div>
 
-                      <ul class="mt-4 space-y-1 text-sm text-white/70">
-                        {item.highlights.slice(0, 4).map((h) => (
-                          <li class="flex gap-2">
-                            <span class="text-white/40">-</span>
-                            <span>{h}</span>
-                          </li>
-                        ))}
-                      </ul>
+                      <div class="md:border-l md:border-white/10 md:pl-6">
+                        <ul class="space-y-2 text-sm leading-relaxed text-white/70">
+                          {item.highlights.slice(0, 4).map((highlight) => (
+                            <li class="grid grid-cols-[0.75rem_1fr] gap-2">
+                              <span class="text-white/30">—</span>
+                              <span>{highlight}</span>
+                            </li>
+                          ))}
+                        </ul>
 
-                      <div class="mt-4 flex flex-wrap gap-2">
-                        {item.links.repo && (
-                          <a
-                            class="text-sm rounded-full bg-white/10 px-3 py-1.5 hover:bg-white/20 transition"
-                            href={item.links.repo}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            Repo
-                          </a>
-                        )}
-                        {item.links.article && (
-                          <a
-                            class="text-sm rounded-full bg-white/10 px-3 py-1.5 hover:bg-white/20 transition"
-                            href={item.links.article}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            Article
-                          </a>
-                        )}
-                        {item.links.demo && (
-                          <a
-                            class="text-sm rounded-full bg-white/10 px-3 py-1.5 hover:bg-white/20 transition"
-                            href={item.links.demo}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            Demo
-                          </a>
-                        )}
-                        {item.links.site && (
-                          <a
-                            class="text-sm rounded-full bg-white/10 px-3 py-1.5 hover:bg-white/20 transition"
-                            href={item.links.site}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            Site
-                          </a>
+                        {Object.keys(item.links).length > 0 && (
+                          <div class="mt-5 flex flex-wrap gap-4 border-t border-white/10 pt-4">
+                            {item.links.repo && (
+                              <a
+                                class="text-xs font-medium text-white/75 underline decoration-white/25 underline-offset-4 transition hover:text-white hover:decoration-white/70"
+                                href={item.links.repo}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                Repository ↗
+                              </a>
+                            )}
+                            {item.links.article && (
+                              <a
+                                class="text-xs font-medium text-white/75 underline decoration-white/25 underline-offset-4 transition hover:text-white hover:decoration-white/70"
+                                href={item.links.article}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                Related writing ↗
+                              </a>
+                            )}
+                            {item.links.demo && (
+                              <a
+                                class="text-xs font-medium text-white/75 underline decoration-white/25 underline-offset-4 transition hover:text-white hover:decoration-white/70"
+                                href={item.links.demo}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                Demo ↗
+                              </a>
+                            )}
+                            {item.links.site && (
+                              <a
+                                class="text-xs font-medium text-white/75 underline decoration-white/25 underline-offset-4 transition hover:text-white hover:decoration-white/70"
+                                href={item.links.site}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                Live system ↗
+                              </a>
+                            )}
+                          </div>
                         )}
                       </div>
                     </article>

@@ -85,7 +85,7 @@ describe('appOpenHandlers', () => {
 
   it('opens workbench and jumps to section on desktop', () => {
     const { adapter, events, timers } = createAdapter('/desktop');
-    openWorkbenchSectionFromMenu('workbench-platforms', adapter, 120);
+    openWorkbenchSectionFromMenu('workbench-professional-context', adapter, 120);
 
     expect(events).toHaveLength(2);
     expect(events[0].type).toBe('dg-desktop-open-window');
@@ -101,7 +101,7 @@ describe('appOpenHandlers', () => {
 
   it('jumps directly to workbench section on /apps/projects', () => {
     const { adapter, events, timers } = createAdapter('/apps/projects');
-    openWorkbenchSectionFromMenu('workbench-writing', adapter);
+    openWorkbenchSectionFromMenu('workbench-selected-systems', adapter);
     expect(events).toHaveLength(1);
     expect(events[0].type).toBe('dg-workbench-menu-action');
     expect(timers).toHaveLength(0);
@@ -109,9 +109,9 @@ describe('appOpenHandlers', () => {
 
   it('navigates to section anchor when outside desktop and workbench route', () => {
     const { adapter, events, timers } = createAdapter('/apps/network');
-    openWorkbenchSectionFromMenu('workbench-hackathons', adapter);
+    openWorkbenchSectionFromMenu('workbench-professional-context', adapter);
     expect(events).toHaveLength(0);
     expect(timers).toHaveLength(0);
-    expect(adapter.location.href).toBe('/apps/projects#workbench-hackathons');
+    expect(adapter.location.href).toBe('/apps/projects#workbench-professional-context');
   });
 });

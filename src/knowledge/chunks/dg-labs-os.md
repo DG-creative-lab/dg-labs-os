@@ -39,7 +39,7 @@ iPhone-inspired lock/home UX for mobile visitors. Tap-to-unlock gesture, app gri
 
 ### Content Modules
 
-- **Workbench** (`/apps/projects`): flagship systems, platforms, writing, hackathons
+- **Workbench** (`/apps/projects`): selected public-code and deployed personal systems plus bounded professional platform context
 - **Technical Writing** (`/apps/notes`): selected Performics Labs analysis with explicit provenance, related systems, and limitations
 - **System Map** (`/apps/network`): React Flow projection of a curated Graphology model with typed, evidence-bearing relationships and guided paths
 - **Terminal** (`/apps/terminal`): hybrid runtime — deterministic CLI + LLM-grounded responses

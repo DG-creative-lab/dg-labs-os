@@ -39,11 +39,13 @@ describe('menubarActions', () => {
 
   it('emits workbench menu action', () => {
     const { target, events } = eventRecorder();
-    emitWorkbenchMenuAction(target, 'jump_section', { sectionId: 'workbench-writing' });
+    emitWorkbenchMenuAction(target, 'jump_section', {
+      sectionId: 'workbench-selected-systems',
+    });
     expect(events[0].type).toBe('dg-workbench-menu-action');
     expect(events[0].detail).toMatchObject({
       action: 'jump_section',
-      sectionId: 'workbench-writing',
+      sectionId: 'workbench-selected-systems',
     });
   });
 
