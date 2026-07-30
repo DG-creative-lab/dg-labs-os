@@ -270,6 +270,15 @@ test.describe('mobile smoke', () => {
     expect(notesHtml).toContain('Technical Writing');
     expect(notesHtml).toContain('Selected analysis');
 
+    const evolution = await request.get('/mobile/apps/evolution', {
+      headers: { 'user-agent': ua },
+    });
+    expect(evolution.status()).toBe(200);
+    const evolutionHtml = await evolution.text();
+    expect(evolutionHtml).toContain('DG-OS is a record of work in motion');
+    expect(evolutionHtml).toContain('How the loop works');
+    expect(evolutionHtml).toContain('Ideas in motion');
+
     const resume = await request.get('/mobile/apps/resume', {
       headers: { 'user-agent': ua },
     });
