@@ -186,10 +186,10 @@ export default function EvolutionApp() {
             ))}
           </ol>
           <a
-            href="/apply/openai-codex"
+            href="/systems"
             className="mt-6 inline-flex rounded-sm border border-sky-300/35 bg-sky-400/10 px-3 py-2 text-xs font-semibold text-sky-100 transition hover:bg-sky-400/20"
           >
-            Open application evidence →
+            Open Systems &amp; Evidence →
           </a>
         </aside>
       </div>

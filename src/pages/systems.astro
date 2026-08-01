@@ -1,0 +1,13 @@
+---
+import SystemsEvidencePage from '../components/evidence/SystemsEvidencePage.astro';
+import Layout from '../layouts/Layout.astro';
+import { userConfig } from '../config';
+---
+
+<Layout
+  title="Systems & Evidence — Dessi Georgieva"
+  description="An evidence-led account of Dessi Georgieva's AI systems work: contributions, evaluations, results, limitations, and current questions."
+  canonical={`${userConfig.website}systems`}
+>
+  <SystemsEvidencePage />
+</Layout>

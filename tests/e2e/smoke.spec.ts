@@ -18,6 +18,93 @@ test.describe('desktop smoke', () => {
     await expect(page.getByRole('button', { name: 'Connect', exact: true })).toBeVisible();
   });
 
+  test('creative machine monitor explains and changes its working mode', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('dialog', { name: 'DG-OS Browser' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'A human becoming a machine that can imagine.' })
+    ).toBeVisible();
+    await expect(
+      page.getByText(
+        'Projects, readings, questions, decisions, and failures become traceable patterns',
+        { exact: false }
+      )
+    ).toBeVisible();
+    await expect(page.getByText('One pattern substrate', { exact: false })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Greg Egan’s Permutation City' })).toHaveAttribute(
+      'href',
+      'https://www.gregegan.net/PERMUTATION/Permutation.html'
+    );
+    await expect(page.getByText('trace --sources --uncertainty')).toBeVisible();
+
+    await page.getByRole('button', { name: '02 Imagine' }).click();
+    await expect(page.getByText('associate --across-domains')).toBeVisible();
+    await expect(page.getByText('possible worlds')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Enter workspace' })).toHaveAttribute(
+      'href',
+      '/desktop'
+    );
+
+    await page.getByRole('button', { name: 'Close browser' }).click();
+    await expect(page.getByRole('dialog', { name: 'DG-OS Browser' })).toHaveCount(0);
+    await expect(
+      page.getByRole('heading', { name: 'A human becoming a machine that can imagine.' })
+    ).toHaveCount(0);
+
+    await page.getByRole('button', { name: 'Browser', exact: true }).click();
+    await expect(page.getByRole('dialog', { name: 'DG-OS Browser' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'A human becoming a machine that can imagine.' })
+    ).toBeVisible();
+  });
+
+  test('home browser refits when the desktop viewport moves between displays', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto('/');
+    const browserWindow = page.getByRole('dialog', { name: 'DG-OS Browser' });
+    const compactBounds = await browserWindow.boundingBox();
+    expect(compactBounds).not.toBeNull();
+
+    await page.setViewportSize({ width: 2048, height: 1150 });
+    await expect
+      .poll(async () => (await browserWindow.boundingBox())?.width ?? 0)
+      .toBeGreaterThan((compactBounds?.width ?? 0) * 1.45);
+    const expandedBounds = await browserWindow.boundingBox();
+    expect(expandedBounds).not.toBeNull();
+    expect(
+      Math.abs((expandedBounds?.x ?? 0) - (2048 - (expandedBounds?.width ?? 0)) / 2)
+    ).toBeLessThan(3);
+
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.setViewportSize({ width: 2048, height: 1150 });
+    await expect
+      .poll(async () => (await browserWindow.boundingBox())?.width ?? 0)
+      .toBeGreaterThan((compactBounds?.width ?? 0) * 1.45);
+  });
+
+  test('public systems dossier is employer-neutral', async ({ page }) => {
+    await page.goto('/systems');
+    await expect(
+      page.getByRole('heading', {
+        name: 'I build the layer where agent capability becomes accountable behaviour.',
+      })
+    ).toBeVisible();
+    await expect(page.getByText('AI Systems Engineer · London, UK')).toBeVisible();
+    await expect(page.getByText('Target role')).toHaveCount(0);
+    await expect(
+      page.getByRole('heading', { name: 'What the evidence does not establish.' })
+    ).toBeVisible();
+  });
+
+  test('targeted application remains unindexed', async ({ page }) => {
+    await page.goto('/apply/openai-codex');
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+      'content',
+      'noindex, nofollow'
+    );
+    await expect(page.getByText('Target role')).toBeVisible();
+  });
+
   test('dock opens and closes Workbench window', async ({ page }) => {
     await page.goto('/desktop');
     await waitForDesktopReady(page);
@@ -284,8 +371,16 @@ test.describe('mobile smoke', () => {
     });
     expect(resume.status()).toBe(200);
     const resumeHtml = await resume.text();
-    expect(resumeHtml).toContain('Canonical resume module with local downloadable formats.');
+    expect(resumeHtml).toContain('experience, technical focus, and selected systems.');
     expect(resumeHtml).toContain('Download PDF');
+
+    const systems = await request.get('/systems', {
+      headers: { 'user-agent': ua },
+    });
+    expect(systems.status()).toBe(200);
+    const systemsHtml = await systems.text();
+    expect(systemsHtml).toContain('AI Systems Engineer');
+    expect(systemsHtml).toContain('What the evidence does not establish.');
 
     const terminal = await request.get('/mobile/apps/terminal', {
       headers: { 'user-agent': ua },

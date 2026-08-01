@@ -62,9 +62,29 @@ export default function AboutDGWindow({ isOpen, onClose, onMoreInfo }: AboutDGWi
         >
           More Info...
         </button>
-        <p className="mt-4 text-xs text-white/40">
-          DG-Labs OS prototype interface for systems thinking, research, and engineering.
-        </p>
+        <div className="mt-4 space-y-1 text-xs text-white/40">
+          <p>DG-Labs OS prototype interface for systems thinking, research, and engineering.</p>
+          <p>
+            Software licensed under{' '}
+            <a
+              className="text-sky-300/80 underline decoration-sky-300/30 underline-offset-2 hover:text-sky-200"
+              href="https://github.com/DG-creative-lab/dg-labs-os/blob/main/LICENSE"
+              target="_blank"
+              rel="noreferrer"
+            >
+              AGPL-3.0
+            </a>{' '}
+            ·{' '}
+            <a
+              className="text-sky-300/80 underline decoration-sky-300/30 underline-offset-2 hover:text-sky-200"
+              href="https://github.com/DG-creative-lab/dg-labs-os"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Source
+            </a>
+          </p>
+        </div>
       </div>
     </DraggableWindow>
   );

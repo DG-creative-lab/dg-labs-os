@@ -4,7 +4,10 @@ DG-Labs OS is a portfolio presented as a personal operating system - an interfac
 
 ## Documentation
 
-- Product and implementation roadmap: `docs/APP_ROADMAP.md`
+- Product direction, architecture, and decision record: `docs/DG_OS_PRODUCT_ROADMAP.md`
+- Gateplane/Aion authentication and workspace reuse decision: `docs/AION_REUSE_ASSESSMENT.md`
+- Dessi-to-profile migration inventory: `docs/DESSI_PROFILE_DEPENDENCY_INVENTORY.md`
+- Detailed application implementation backlog: `docs/APP_ROADMAP.md`
 - React + TypeScript event/state guide: `docs/REACT_TYPESCRIPT_EVENT_STATE_GUIDE.md`
 - Archived stabilization completion log: `docs/archive/CODEBASE_STABILIZATION_PLAN.md`
 
@@ -151,7 +154,11 @@ git rm --cached .env.local .env.production .env
 
 ## Configuration
 
-Edit the config files in `src/config/`:
+Public profile identity, links, CV references, SEO, and publication approval now enter through the
+versioned contract in `src/profiles/`. Legacy files in `src/config/` are compatibility adapters while
+the remaining single-profile surfaces are migrated incrementally.
+
+Edit the remaining content config files in `src/config/`:
 
 - `personal.ts` - name, role, focus
 - `social.ts` - GitHub, LinkedIn
@@ -237,4 +244,8 @@ Expected: only `.env.example`.
 
 ## License
 
-MIT
+Copyright (C) 2026 Dessi Georgieva.
+
+DG-OS software is licensed under the [GNU Affero General Public License version 3 only](./LICENSE) (`AGPL-3.0-only`). Modified versions offered over a network must provide their corresponding source to their users under the same licence.
+
+The DG-OS name, visual identity, personal profile content, CV content, original writing, and personal media are excluded from the software licence unless explicitly stated otherwise. See [`NOTICE`](./NOTICE).

@@ -1,5 +1,7 @@
 # DG-Labs OS App Roadmap
 
+> Scope: detailed implementation history and backlog for the existing application. The current product direction, two-project architecture, privacy boundary, and delivery sequence live in [`DG_OS_PRODUCT_ROADMAP.md`](./DG_OS_PRODUCT_ROADMAP.md).
+
 ## 1. Product Intent (Consolidated)
 
 DG-Labs OS is a portfolio presented as a cognitive operating system:

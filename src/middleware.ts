@@ -8,6 +8,7 @@ export const onRequest = defineMiddleware((context, next) => {
   const isMobile = isMobileUserAgent(userAgent);
   const isMobilePath = pathname.startsWith('/mobile');
   const isDesktopPath = pathname.startsWith('/desktop');
+  const isStandaloneResponsivePath = pathname === '/systems' || pathname.startsWith('/apply/');
   const isAsset =
     pathname.startsWith('/_astro') ||
     pathname.startsWith('/favicon') ||
@@ -15,7 +16,7 @@ export const onRequest = defineMiddleware((context, next) => {
     pathname.startsWith('/assets') ||
     pathname.startsWith('/api');
 
-  if (!isAsset && isMobile && !isMobilePath) {
+  if (!isAsset && isMobile && !isMobilePath && !isStandaloneResponsivePath) {
     return context.redirect('/mobile/lock');
   }
 

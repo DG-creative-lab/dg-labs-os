@@ -3,13 +3,9 @@
  */
 
 import type { SEOConfig, ThemeConfig } from '../types';
+import { dessiProfileProjection } from '../profiles';
 
-export const seo: SEOConfig = {
-  title: 'DG-OS - Dessi Georgieva',
-  description:
-    'Dessi Georgieva builds agent systems, evaluation loops, and human-controlled AI infrastructure.',
-  keywords: ['Dessi Georgieva', 'Applied AI Engineer', 'Agent Systems', 'LLM Evaluation', 'DG-OS'],
-};
+export const seo: SEOConfig = dessiProfileProjection.seo;
 
 export const theme: ThemeConfig = {
   primaryColor: '#38BDF8',

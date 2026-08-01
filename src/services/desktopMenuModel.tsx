@@ -568,10 +568,10 @@ export const buildDesktopMenuModel = ({
     ],
     evolution: [
       {
-        label: 'Open Application Evidence',
+        label: 'Open Systems & Evidence',
         icon: <IoDocumentText size={16} />,
         action: () => {
-          window.location.href = '/apply/openai-codex';
+          window.location.href = '/systems';
         },
       },
       {

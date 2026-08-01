@@ -7,6 +7,7 @@ import {
   onDockOpenLinks,
 } from '../../services/desktopEvents';
 import { clearDesktopReady, markDesktopReady } from '../../services/desktopReady';
+import { dispatchHomeBrowserToggle, onHomeBrowserState } from '../../services/homeBrowserEvents';
 import DockGlyph from './DockGlyph';
 
 interface DesktopDockProps {
@@ -30,6 +31,7 @@ type DockItem = {
 
 const DesktopDock = ({ activeApps }: DesktopDockProps) => {
   const [showConnectMenu, setShowConnectMenu] = useState(false);
+  const [homeBrowserOpen, setHomeBrowserOpen] = useState(true);
   const [normalizedPath, setNormalizedPath] = useState('');
   const [desktopOpen, setDesktopOpen] = useState({
     terminal: false,
@@ -71,6 +73,12 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
     markDesktopReady(window, 'dock');
     setNormalizedPath(window.location.pathname.replace(/\/+$/, '') || '/');
     return () => clearDesktopReady(window, 'dock');
+  }, []);
+
+  useEffect(() => {
+    return onHomeBrowserState(window, ({ open }) => {
+      setHomeBrowserOpen(open);
+    });
   }, []);
 
   useEffect(() => {
@@ -180,6 +188,20 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
 
   const icons: DockItem[] = [
     {
+      id: 'browser',
+      label: 'Browser',
+      shortLabel: 'Browser',
+      onClick: () => {
+        if (normalizedPath === '/') {
+          dispatchHomeBrowserToggle(window);
+          return;
+        }
+        window.location.href = '/';
+      },
+      glyph: 'browser',
+      active: isPathActive('/') && homeBrowserOpen,
+    },
+    {
       id: 'workbench',
       label: 'Workbench',
       shortLabel: 'Workbench',
@@ -223,7 +245,7 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
       glyph: 'evolution',
       active: isDesktopShell
         ? desktopOpen.evolution
-        : isPathActive('/apps/evolution', '/apply/openai-codex'),
+        : isPathActive('/apps/evolution', '/systems', '/apply/openai-codex'),
     },
     {
       id: 'timeline',

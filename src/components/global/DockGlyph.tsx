@@ -5,6 +5,7 @@ import {
   LuChartSpline,
   LuContactRound,
   LuFileText,
+  LuGlobe,
   LuHistory,
   LuLink2,
   LuMail,
@@ -15,6 +16,7 @@ import {
 } from 'react-icons/lu';
 
 type GlyphName =
+  | 'browser'
   | 'workbench'
   | 'notes'
   | 'evolution'
@@ -34,6 +36,7 @@ type Props = {
 };
 
 const glyphs: Record<GlyphName, IconType> = {
+  browser: LuGlobe,
   workbench: LuBlocks,
   notes: LuNotebookPen,
   evolution: LuChartSpline,

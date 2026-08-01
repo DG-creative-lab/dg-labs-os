@@ -31,6 +31,7 @@ export default defineConfig({
     react(), // Enables React components
     sitemap({
       // Generates sitemap
+      filter: (page) => !page.endsWith('/apply/openai-codex'),
       serialize: (item) => {
         const url = item.url.endsWith('/') ? item.url.slice(0, -1) : item.url;
         return { ...item, url };
