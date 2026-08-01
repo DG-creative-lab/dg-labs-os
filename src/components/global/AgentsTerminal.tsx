@@ -3,6 +3,7 @@ import { userConfig } from '../../config';
 import { labNotes } from '../../config/labNotes';
 import { networkNodes } from '../../config/network';
 import { workbench } from '../../config/workbench';
+import type { ActiveProfileRuntime } from '../../profiles';
 import {
   executeTerminalCommand,
   isDeterministicTerminalCommand,
@@ -13,8 +14,6 @@ import {
   buildCitationChips,
   consumeJsonSseStream,
   confidenceBadgeText,
-  buildAgentJsonLines,
-  buildLlmMessages,
   explainConfidenceLabel,
   explainVerificationGap,
   formatAnswerWithCitations,
@@ -24,12 +23,10 @@ import {
   parseLlmModeQuery,
   readChatErrorMeta,
   readChatMeta,
-  readAgentJsonPayload,
   readChatMessage,
   resolveAnswerConfidenceLabel,
 } from '../../utils/terminalLlm';
 import { buildVerifyEnvelopeLines } from '../../utils/terminalEnvelope';
-import { retrieveKnowledge } from '../../utils/terminalKnowledge';
 import {
   handleTerminalMenuAction,
   type TerminalMenuEventDetail,
@@ -61,7 +58,7 @@ import {
   normalizeTerminalCacheKey,
   trimTerminalCache,
 } from '../../services/terminalToolClient';
-import { terminalSettingsSummary, type TerminalBrainMode } from '../../utils/terminalSettings';
+import type { TerminalBrainMode } from '../../utils/terminalSettings';
 
 const runAction = (action: TerminalAction) => {
   if (typeof window === 'undefined') return;
@@ -89,21 +86,12 @@ const runAction = (action: TerminalAction) => {
   }
 };
 
-export default function AgentsTerminal() {
+export default function AgentsTerminal({ profile }: { profile: ActiveProfileRuntime }) {
   const [input, setInput] = useState('');
   const [isLlmBusy, setIsLlmBusy] = useState(false);
-  const [thinkingFrame, setThinkingFrame] = useState(0);
-  const {
-    byokApiKey,
-    setByokApiKey,
-    rememberByok,
-    setRememberByok,
-    settings,
-    setSettings,
-    providerHealth,
-  } = useTerminalSessionSettings();
+  const { byokApiKey, setByokApiKey, settings, setSettings, providerHealth } =
+    useTerminalSessionSettings();
   const [toolUsage, setToolUsage] = useState<ToolUsage>(INITIAL_TOOL_USAGE);
-  const [activeQuickAction, setActiveQuickAction] = useState<string | null>(null);
   const [lastWebVerifyContext, setLastWebVerifyContext] = useState<LastWebVerifyContext | null>(
     null
   );
@@ -111,28 +99,21 @@ export default function AgentsTerminal() {
   const [lastEvidence, setLastEvidence] = useState<EvidenceState | null>(null);
   const [activePanelTab, setActivePanelTab] = useState<TerminalPanelTab>(null);
   const [lastAnswerMeta, setLastAnswerMeta] = useState<LastAnswerMeta | null>(null);
-  const [showCitationDetails, setShowCitationDetails] = useState(false);
   const [streamingAnswer, setStreamingAnswer] = useState('');
   const [streamingStatus, setStreamingStatus] = useState('');
-  const [history, setHistory] = useState<TerminalEntry[]>([
-    { id: 1, kind: 'system', text: 'DG-Labs Agents Runtime v2' },
-    {
-      id: 2,
-      kind: 'system',
-      text: 'Talk naturally. Commands still work: help, open <app>, search <query>, verify <query>.',
-    },
-  ]);
-  const nextIdRef = useRef(3);
+  const [history, setHistory] = useState<TerminalEntry[]>([]);
+  const nextIdRef = useRef(1);
   const toolAbortRef = useRef<AbortController | null>(null);
   const llmAbortRef = useRef<AbortController | null>(null);
   const retrieveCacheRef = useRef<Map<string, Omit<RetrieveResult, 'fromCache'>>>(new Map());
   const citeCacheRef = useRef<Map<string, Omit<CiteResult, 'fromCache'>>>(new Map());
   const outputRef = useRef<HTMLDivElement | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const prompt = useMemo(() => `${userConfig.name}:~$`, []);
+  const prompt = useMemo(() => `${profile.identity.preferredName}:~$`, [profile]);
   useEffect(() => {
     if (!outputRef.current) return;
+    if (history.length === 0 && !streamingAnswer && !streamingStatus) return;
     outputRef.current.scrollTo({
       top: outputRef.current.scrollHeight,
       behavior: 'smooth',
@@ -144,17 +125,6 @@ export default function AgentsTerminal() {
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
-
-  useEffect(() => {
-    if (!isLlmBusy) {
-      setThinkingFrame(0);
-      return;
-    }
-    const timer = window.setInterval(() => {
-      setThinkingFrame((prev) => (prev + 1) % 4);
-    }, 320);
-    return () => window.clearInterval(timer);
-  }, [isLlmBusy]);
 
   const pushLine = (kind: TerminalEntry['kind'], text: string): TerminalEntry => ({
     id: nextIdRef.current++,
@@ -193,14 +163,14 @@ export default function AgentsTerminal() {
     signal?: AbortSignal,
     limit = 6
   ): Promise<RetrieveResult | null> => {
-    const key = normalizeTerminalCacheKey(query);
+    const key = `${profile.handle}:${normalizeTerminalCacheKey(query)}`;
     incrementToolUsage('retrieve');
     const cached = retrieveCacheRef.current.get(key);
     if (cached) {
       return { ...cached, fromCache: true };
     }
 
-    const materialized = await fetchRetrieveTool(query, signal, limit);
+    const materialized = await fetchRetrieveTool(query, signal, limit, profile.handle);
     if (!materialized) return null;
     retrieveCacheRef.current.set(key, materialized);
     trimTerminalCache(retrieveCacheRef.current);
@@ -208,14 +178,14 @@ export default function AgentsTerminal() {
   };
 
   const runCiteTool = async (claim: string, signal?: AbortSignal): Promise<CiteResult | null> => {
-    const key = normalizeTerminalCacheKey(claim);
+    const key = `${profile.handle}:${normalizeTerminalCacheKey(claim)}`;
     incrementToolUsage('cite');
     const cached = citeCacheRef.current.get(key);
     if (cached) {
       return { ...cached, fromCache: true };
     }
 
-    const materialized = await fetchCiteTool(claim, signal);
+    const materialized = await fetchCiteTool(claim, signal, profile.handle);
     if (!materialized) return null;
     citeCacheRef.current.set(key, materialized);
     trimTerminalCache(citeCacheRef.current);
@@ -231,6 +201,42 @@ export default function AgentsTerminal() {
     `- retrieve: used ${toolUsage.retrieve} time(s)`,
     `- cite: used ${toolUsage.cite} time(s)`,
   ];
+
+  const answerFromProfileIndex = async (query: string) => {
+    const result = await runRetrieveTool(query, undefined, 5);
+    if (!result || result.hits.length === 0) {
+      setHistory((previous) => [
+        ...previous,
+        pushLine(
+          'output',
+          'The reviewed profile index does not contain enough material to answer that question yet.'
+        ),
+      ]);
+      return;
+    }
+
+    setLastEvidence({
+      query: result.query,
+      classification: result.classification,
+      verdict: 'profile-match',
+      hits: result.hits,
+      fromCache: result.fromCache,
+    });
+    const chips = buildCitationChips(result.hits, []);
+    setLastAnswerMeta({
+      confidence: 'local-only',
+      chips,
+    });
+    setHistory((previous) => [
+      ...previous,
+      pushLine(
+        'output',
+        'Generative synthesis is not connected, so I found the closest reviewed profile records instead.'
+      ),
+      ...result.hits.slice(0, 3).map((hit) => pushLine('output', `${hit.title}: ${hit.snippet}`)),
+      pushLine('system', 'Connect an AI provider if you want these records synthesized.'),
+    ]);
+  };
 
   const askLlm = async (rawQuery: string) => {
     const parsed = parseLlmModeQuery(rawQuery);
@@ -256,17 +262,7 @@ export default function AgentsTerminal() {
     }
 
     if (!byokApiKey.trim() && providerHealth.status === 'missing_key') {
-      setHistory((prev) => [
-        ...prev,
-        pushLine(
-          'system',
-          `LLM is not configured for ${settings.llmProvider}. Add a BYOK key in Terminal Settings or switch provider.`
-        ),
-        pushLine(
-          'output',
-          'Fallback options: help, search <query>, context <query>, projects, open <app>, or verify <query>.'
-        ),
-      ]);
+      await answerFromProfileIndex(query);
       return;
     }
 
@@ -278,33 +274,11 @@ export default function AgentsTerminal() {
     setStreamingAnswer('');
     setStreamingStatus('Preparing answer…');
     try {
-      const fallbackGrounding = retrieveKnowledge(
-        query,
-        {
-          user: userConfig,
-          workbench,
-          notes: labNotes,
-          network: networkNodes,
-        },
-        4
-      );
-      let grounding = fallbackGrounding;
       let retrievalLines: string[] = [];
 
       const retrieveResult = await runRetrieveTool(query, controller.signal, 6);
       if (retrieveResult) {
         const hits = retrieveResult.hits;
-        if (hits.length > 0) {
-          grounding = hits.map((hit) => ({
-            id: hit.id,
-            source: hit.source as 'personal' | 'workbench' | 'notes' | 'network' | 'brain',
-            title: hit.title,
-            snippet: hit.snippet,
-            url: hit.url,
-            score: hit.score,
-            tags: [],
-          }));
-        }
         const classification = retrieveResult.classification;
         retrievalLines = [
           '[evidence]',
@@ -343,20 +317,15 @@ export default function AgentsTerminal() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: buildLlmMessages(
-            query,
-            { user: userConfig, workbench, notes: labNotes, network: networkNodes },
-            llmHistory,
-            grounding,
-            lastWebVerifyContext,
-            settings.brainMode,
-            parsed.mode
-          ),
-          responseMode: settings.responseMode,
+          messages: [...llmHistory.slice(-12), { role: 'user', content: query }],
+          responseMode: 'narrative',
           provider: settings.llmProvider,
           model: settings.llmModel,
           byokApiKey: byokApiKey.trim().length > 0 ? byokApiKey.trim() : undefined,
           providerFallbackAllowed: settings.providerFallbackAllowed,
+          profileHandle: profile.handle,
+          answerMode: parsed.mode,
+          brainMode: settings.brainMode,
         }),
         signal: controller.signal,
       });
@@ -410,8 +379,6 @@ export default function AgentsTerminal() {
       const message = readChatMessage(resolvedPayload);
       const chatMeta = readChatMeta(resolvedPayload);
       const chatErrorMeta = readChatErrorMeta(resolvedPayload);
-      const agentPayload =
-        settings.responseMode === 'agent_json' ? readAgentJsonPayload(resolvedPayload) : null;
 
       if (!response.ok || streamErrorPayload || !message) {
         setStreamingAnswer('');
@@ -459,10 +426,9 @@ export default function AgentsTerminal() {
         score: hit.score,
       }));
       const cited = formatAnswerWithCitations(message, evidenceRefs, settings.strictEvidenceMode);
-      const answerText =
-        settings.responseMode === 'narrative'
-          ? normalizeTerminalNarrativeAnswer(message)
-          : normalizeTerminalNarrativeAnswer(cited.answer);
+      const answerText = normalizeTerminalNarrativeAnswer(
+        settings.strictEvidenceMode ? cited.answer : message
+      );
       setStreamingAnswer('');
       setStreamingStatus('');
       const confidence = resolveAnswerConfidenceLabel(
@@ -475,9 +441,7 @@ export default function AgentsTerminal() {
         chips,
         unverifiedCount: cited.unverifiedCount,
       });
-      setShowCitationDetails(false);
       const confidenceGuidance = explainConfidenceLabel(confidence);
-      const agentLines = agentPayload ? buildAgentJsonLines(agentPayload) : [];
       setHistory((prev) => [
         ...prev,
         ...retrievalLines.map((line) => pushLine('system', line)),
@@ -506,12 +470,11 @@ export default function AgentsTerminal() {
               ),
             ]
           : []),
-        ...agentLines.map((line) => pushLine('output', line)),
         ...(settings.showLlmSources
           ? [
               pushLine(
                 'system',
-                `Grounded in ${grounding.length} local source(s)${
+                `Grounded in ${evidenceRefs.length} local source(s)${
                   lastWebVerifyContext?.sources.length
                     ? ` and ${lastWebVerifyContext.sources.length} verified web source(s)`
                     : ''
@@ -633,7 +596,12 @@ export default function AgentsTerminal() {
         return;
       }
 
-      const { response, payload } = await fetchTerminalTool(tool, input, controller.signal);
+      const { response, payload } = await fetchTerminalTool(
+        tool,
+        input,
+        controller.signal,
+        profile.handle
+      );
 
       if (!response.ok || !payload?.ok || payload.tool !== tool || !payload.result) {
         const message =
@@ -674,7 +642,6 @@ export default function AgentsTerminal() {
           sources,
         });
         setLastAnswerMeta({ confidence, chips });
-        setShowCitationDetails(false);
         setHistory((prev) => [
           ...prev,
           ...lines.map((line) => pushLine('output', line)),
@@ -755,7 +722,6 @@ export default function AgentsTerminal() {
     } finally {
       if (toolAbortRef.current === controller) {
         toolAbortRef.current = null;
-        setActiveQuickAction(null);
       }
     }
   };
@@ -766,7 +732,7 @@ export default function AgentsTerminal() {
   };
 
   const runQuickAction = async (key: string, action: () => Promise<void>) => {
-    setActiveQuickAction(key);
+    void key;
     await action();
   };
 
@@ -775,13 +741,7 @@ export default function AgentsTerminal() {
       const customEvent = event as CustomEvent<TerminalMenuEventDetail>;
       handleTerminalMenuAction(customEvent.detail, {
         clearOutput: () => {
-          setHistory([
-            pushLine('system', 'DG-Labs Agents Runtime v2'),
-            pushLine(
-              'system',
-              'Talk naturally. Commands still work: help, open <app>, search <query>, verify <query>.'
-            ),
-          ]);
+          setHistory([]);
         },
         setMode: (mode) => {
           setSettings((prev) => ({ ...prev, brainMode: mode }));
@@ -818,9 +778,8 @@ export default function AgentsTerminal() {
     };
   }, []);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const command = input.trim();
+  const submitCommand = async (rawCommand: string) => {
+    const command = rawCommand.trim();
     if (!command) return;
 
     if (isLlmBusy && /^cancel$/i.test(command)) {
@@ -886,13 +845,7 @@ export default function AgentsTerminal() {
     });
 
     if (response.action.type === 'clear') {
-      setHistory([
-        pushLine('system', 'DG-Labs Agents Runtime v2'),
-        pushLine(
-          'system',
-          'Talk naturally. Commands still work: help, open <app>, search <query>, verify <query>.'
-        ),
-      ]);
+      setHistory([]);
       return;
     }
 
@@ -926,52 +879,149 @@ export default function AgentsTerminal() {
     runAction(response.action);
   };
 
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await submitCommand(input);
+  };
+
+  const cancelResponse = () => {
+    if (!isLlmBusy) return;
+    llmAbortRef.current?.abort();
+    llmAbortRef.current = null;
+    setIsLlmBusy(false);
+    setStreamingAnswer('');
+    setStreamingStatus('');
+    setHistory((previous) => [...previous, pushLine('system', 'Response stopped.')]);
+  };
+
+  const startOver = () => {
+    llmAbortRef.current?.abort();
+    toolAbortRef.current?.abort();
+    llmAbortRef.current = null;
+    toolAbortRef.current = null;
+    setIsLlmBusy(false);
+    setStreamingAnswer('');
+    setStreamingStatus('');
+    setInput('');
+    setHistory([]);
+    setLlmHistory([]);
+    setLastEvidence(null);
+    setLastAnswerMeta(null);
+    setLastWebVerifyContext(null);
+    setActivePanelTab(null);
+    window.requestAnimationFrame(() => inputRef.current?.focus());
+  };
+
+  const openPanel = (panel: Exclude<TerminalPanelTab, null>) => {
+    setActivePanelTab((previous) => (previous === panel ? null : panel));
+  };
+
+  const aiAvailable = providerHealth.configured && providerHealth.status === 'healthy';
+  const statusLabel =
+    providerHealth.status === 'checking'
+      ? 'Checking AI availability'
+      : aiAvailable
+        ? 'AI answers available'
+        : 'Profile search available';
+
   return (
-    <div className="h-full min-h-0 rounded-xl border border-emerald-300/20 bg-black/60 shadow-[0_14px_60px_rgba(0,0,0,0.45)] overflow-hidden flex flex-col">
-      <div className="flex flex-col gap-2 border-b border-emerald-400/20 px-3 py-2 text-[11px] text-emerald-300/75 sm:flex-row sm:items-center sm:justify-between sm:px-4">
-        <span className="min-w-0 break-words">
-          Runtime: natural language first + commands on demand | {terminalSettingsSummary(settings)}
-        </span>
-        {isLlmBusy ? (
-          <span className="inline-flex items-center gap-2 text-emerald-200/90 sm:self-auto">
-            <span className="inline-block h-3 w-3 animate-spin rounded-full border border-emerald-300/40 border-t-emerald-200" />
-            thinking{'.'.repeat(Math.max(1, thinkingFrame))}
-          </span>
-        ) : null}
+    <section className="flex h-full min-h-0 flex-col overflow-hidden border border-white/10 bg-[#080c12] text-white shadow-[0_18px_55px_rgba(0,0,0,0.34)]">
+      <header className="flex flex-col gap-3 border-b border-white/10 bg-[#0b0f15] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <h1 className="text-sm font-semibold tracking-[-0.01em] text-white">Profile Agent</h1>
+            <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-white/28">
+              @{profile.handle}
+            </span>
+          </div>
+          <div className="mt-1.5 flex items-center gap-2 text-[11px] text-white/42">
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
+                providerHealth.status === 'checking'
+                  ? 'animate-pulse bg-sky-300'
+                  : aiAvailable
+                    ? 'bg-emerald-300'
+                    : 'bg-amber-300'
+              }`}
+            />
+            <span>{statusLabel}</span>
+            <span className="text-white/18">·</span>
+            <span>Reviewed public evidence only</span>
+          </div>
+        </div>
+
+        <nav aria-label="Profile Agent controls" className="flex items-center gap-4 text-[11px]">
+          <button
+            type="button"
+            onClick={() => openPanel('evidence')}
+            className={`transition ${
+              activePanelTab === 'evidence' ? 'text-sky-300' : 'text-white/45 hover:text-white/75'
+            }`}
+          >
+            Evidence{lastEvidence ? ` ${lastEvidence.hits.length}` : ''}
+          </button>
+          <button
+            type="button"
+            onClick={() => openPanel('connection')}
+            className={`transition ${
+              activePanelTab === 'connection' ? 'text-sky-300' : 'text-white/45 hover:text-white/75'
+            }`}
+          >
+            AI connection
+          </button>
+          <button
+            type="button"
+            onClick={() => openPanel('advanced')}
+            className={`transition ${
+              activePanelTab === 'advanced' ? 'text-sky-300' : 'text-white/45 hover:text-white/75'
+            }`}
+          >
+            Advanced
+          </button>
+        </nav>
+      </header>
+
+      <div
+        className={`grid min-h-0 flex-1 ${
+          activePanelTab ? 'md:grid-cols-[minmax(0,1fr)_20rem]' : 'grid-cols-1'
+        }`}
+      >
+        <TerminalTranscript
+          outputRef={outputRef}
+          inputRef={inputRef}
+          history={history}
+          isLlmBusy={isLlmBusy}
+          streamingAnswer={streamingAnswer}
+          streamingStatus={streamingStatus}
+          lastAnswerMeta={lastAnswerMeta}
+          evidenceCount={lastEvidence?.hits.length ?? 0}
+          profileName={profile.identity.preferredName}
+          input={input}
+          setInput={setInput}
+          advancedMode={activePanelTab === 'advanced'}
+          onSubmit={handleSubmit}
+          onStarterQuestion={submitCommand}
+          onOpenEvidence={() => openPanel('evidence')}
+          onOpenConnection={() => openPanel('connection')}
+          onStartOver={startOver}
+          onCancel={cancelResponse}
+        />
+        <TerminalControlPanels
+          activePanelTab={activePanelTab}
+          setActivePanelTab={setActivePanelTab}
+          settings={settings}
+          setSettings={setSettings}
+          byokApiKey={byokApiKey}
+          setByokApiKey={setByokApiKey}
+          providerHealth={providerHealth}
+          toolUsage={toolUsage}
+          lastEvidence={lastEvidence}
+          profileName={profile.identity.preferredName}
+          reviewedAt={profile.publication.reviewedAt}
+          onResetLlmCounter={resetLlmCounter}
+          onRunToolCall={runToolCall}
+        />
       </div>
-      <TerminalControlPanels
-        activePanelTab={activePanelTab}
-        setActivePanelTab={setActivePanelTab}
-        settings={settings}
-        setSettings={setSettings}
-        byokApiKey={byokApiKey}
-        setByokApiKey={setByokApiKey}
-        rememberByok={rememberByok}
-        setRememberByok={setRememberByok}
-        providerHealth={providerHealth}
-        toolUsage={toolUsage}
-        lastEvidence={lastEvidence}
-        activeQuickAction={activeQuickAction}
-        onResetLlmCounter={resetLlmCounter}
-        onRunQuickAction={runQuickAction}
-        onRunToolCall={runToolCall}
-        onRunVerify={runVerify}
-      />
-      <TerminalTranscript
-        outputRef={outputRef}
-        inputRef={inputRef}
-        history={history}
-        isLlmBusy={isLlmBusy}
-        streamingAnswer={streamingAnswer}
-        streamingStatus={streamingStatus}
-        lastAnswerMeta={lastAnswerMeta}
-        showCitationDetails={showCitationDetails}
-        setShowCitationDetails={setShowCitationDetails}
-        prompt={prompt}
-        input={input}
-        setInput={setInput}
-        onSubmit={handleSubmit}
-      />
-    </div>
+    </section>
   );
 }

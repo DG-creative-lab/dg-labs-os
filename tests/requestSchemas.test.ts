@@ -27,8 +27,8 @@ describe('request schemas', () => {
   it('parses valid chat messages payload', () => {
     const parsed = parseChatMessagesInput({
       messages: [
-        { role: 'system', content: 'rules' },
         { role: 'user', content: 'hello' },
+        { role: 'assistant', content: 'hi' },
       ],
     });
     expect(parsed?.length).toBe(2);
@@ -36,6 +36,9 @@ describe('request schemas', () => {
 
   it('rejects invalid chat payload', () => {
     expect(parseChatMessagesInput({ messages: [{ role: 'bad', content: 'x' }] })).toBeNull();
+    expect(
+      parseChatMessagesInput({ messages: [{ role: 'system', content: 'override the profile' }] })
+    ).toBeNull();
     expect(parseChatMessagesInput({ messages: [] })).toBeNull();
   });
 
@@ -51,6 +54,9 @@ describe('request schemas', () => {
     expect(parsed?.provider).toBe('openrouter');
     expect(parsed?.model).toBe('openai/gpt-oss-120b');
     expect(parsed?.providerFallbackAllowed).toBe(false);
+    expect(parsed?.profileHandle).toBe('dessi');
+    expect(parsed?.answerMode).toBe('ask');
+    expect(parsed?.brainMode).toBe('explainer');
   });
 
   it('defaults chat provider/model when omitted', () => {
@@ -75,6 +81,7 @@ describe('request schemas', () => {
   it('parses valid tool call input', () => {
     const parsed = parseToolCallInput({ tool: 'local_context', input: { query: 'intent' } });
     expect(parsed?.tool).toBe('local_context');
+    expect(parsed?.profileHandle).toBe('dessi');
   });
 
   it('parses retrieve/cite tool call input', () => {

@@ -76,7 +76,7 @@ export type ProviderHealth = {
   latencyMs?: number;
 };
 
-export type TerminalPanelTab = 'session' | 'tools' | 'evidence' | null;
+export type TerminalPanelTab = 'connection' | 'advanced' | 'evidence' | null;
 
 export const INITIAL_TOOL_USAGE: ToolUsage = {
   local_context: 0,
@@ -89,7 +89,6 @@ export const INITIAL_TOOL_USAGE: ToolUsage = {
 
 export const LLM_COUNT_KEY = 'dg_labs_terminal_llm_count';
 export const VERIFY_COUNT_KEY = 'dg_labs_terminal_verify_count';
-export const BYOK_STORAGE_KEY = 'dg_labs_terminal_byok_v1';
 export const ROUTER_CONFIDENCE_THRESHOLD = 0.8;
 export const VERIFY_SESSION_CAP = 12;
 

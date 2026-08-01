@@ -18,12 +18,13 @@ export const trimTerminalCache = (cache: Map<string, unknown>, max = 40) => {
 export const fetchRetrieveTool = async (
   query: string,
   signal?: AbortSignal,
-  limit = 6
+  limit = 6,
+  profileHandle = 'dessi'
 ): Promise<Omit<RetrieveResult, 'fromCache'> | null> => {
   const response = await fetch('/api/tools', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ tool: 'retrieve', input: { query, limit } }),
+    body: JSON.stringify({ tool: 'retrieve', input: { query, limit }, profileHandle }),
     signal,
   });
   const payload = (await response.json().catch(() => ({}))) as
@@ -48,12 +49,13 @@ export const fetchRetrieveTool = async (
 
 export const fetchCiteTool = async (
   claim: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  profileHandle = 'dessi'
 ): Promise<Omit<CiteResult, 'fromCache'> | null> => {
   const response = await fetch('/api/tools', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ tool: 'cite', input: { claim } }),
+    body: JSON.stringify({ tool: 'cite', input: { claim }, profileHandle }),
     signal,
   });
   const payload = (await response.json().catch(() => ({}))) as
@@ -87,12 +89,13 @@ export type GenericToolPayload =
 export const fetchTerminalTool = async (
   tool: ToolName,
   input?: Record<string, unknown>,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  profileHandle = 'dessi'
 ): Promise<{ response: Response; payload: GenericToolPayload }> => {
   const response = await fetch('/api/tools', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ tool, input }),
+    body: JSON.stringify({ tool, input, profileHandle }),
     signal,
   });
   const payload = (await response.json().catch(() => ({}))) as GenericToolPayload;

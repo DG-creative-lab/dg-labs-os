@@ -33,7 +33,7 @@ const TOPICS: Record<
         bullets: [
           'Workbench: production systems, enterprise platforms, and engineering artifacts.',
           'System Map: curated relationships between career experience, engineering practices, systems, and public evidence.',
-          'Agents Terminal: command surface for deterministic actions, provider-aware reasoning, and evidence-grounded answers.',
+          'Profile Agent: ask questions about the public profile, inspect supporting evidence, or open the advanced terminal.',
           'Resume: canonical profile module with local downloadable formats.',
           'Technical Writing: a selected set of Performics Labs analysis connected to systems Dessi has built or investigated.',
         ],
@@ -59,7 +59,7 @@ const TOPICS: Record<
   },
   'terminal-guide': {
     title: 'Terminal Command Guide',
-    subtitle: 'Agents Runtime command reference',
+    subtitle: 'Profile Agent command reference',
     icon: 'terminal',
     sections: [
       {

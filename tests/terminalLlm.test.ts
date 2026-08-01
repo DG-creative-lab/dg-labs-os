@@ -1,16 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { userConfig } from '../src/config';
-import { labNotes } from '../src/config/labNotes';
-import { networkNodes } from '../src/config/network';
-import { workbench } from '../src/config/workbench';
 import {
   buildCitationChips,
   confidenceBadgeText,
   explainConfidenceLabel,
   explainVerificationGap,
   buildAgentJsonLines,
-  buildLlmMessages,
-  buildTerminalSystemContext,
   formatAnswerWithCitations,
   groupCitationChips,
   isLlmQuery,
@@ -21,9 +15,7 @@ import {
   readChatMeta,
   readChatMessage,
   resolveAnswerConfidenceLabel,
-  TERMINAL_LLM_HISTORY_CHAR_BUDGET,
   TERMINAL_LLM_MAX_QUERY_CHARS,
-  TERMINAL_LLM_SYSTEM_CHAR_BUDGET,
 } from '../src/utils/terminalLlm';
 
 describe('terminal llm helpers', () => {
@@ -61,101 +53,6 @@ describe('terminal llm helpers', () => {
       mode: 'projects',
       query: 'intent systems',
     });
-  });
-
-  it('builds grounded system context and messages', () => {
-    const ctx = {
-      user: userConfig,
-      workbench,
-      notes: labNotes,
-      network: networkNodes,
-    };
-    const system = buildTerminalSystemContext(ctx, 'research');
-    expect(system).toContain('DG-Labs OS brain');
-    expect(system).toContain(
-      'Identity contract: DG-Labs OS is the cognitive interface of Dessi Georgieva'
-    );
-    expect(system).toContain('Response mode: research');
-    expect(system).toContain('dryly funny');
-    const messages = buildLlmMessages(
-      'What is DG-Labs OS?',
-      ctx,
-      [
-        { role: 'user', content: 'hello' },
-        { role: 'assistant', content: 'hi' },
-      ],
-      [
-        {
-          id: 'workbench-intent-geometry-agent',
-          source: 'workbench',
-          title: 'Intent Recognition Agent',
-          snippet: 'Intent modeling system.',
-          tags: ['intent'],
-          score: 7,
-        },
-      ]
-    );
-    expect(messages[0].role).toBe('system');
-    expect(messages[0].content).toContain('Grounded context snippets');
-    expect(messages[0].content).toContain('Intent Recognition Agent');
-    expect(messages[0].content).toContain('Answer style: ask.');
-    expect(messages[messages.length - 1].content).toBe('What is DG-Labs OS?');
-  });
-
-  it('injects answer mode instruction for projects mode', () => {
-    const ctx = {
-      user: userConfig,
-      workbench,
-      notes: labNotes,
-      network: networkNodes,
-    };
-    const messages = buildLlmMessages('show systems', ctx, [], [], null, 'concise', 'projects');
-    expect(messages[0].content).toContain('Answer style: projects.');
-  });
-
-  it('applies context budget and prioritizes high-score grounding', () => {
-    const ctx = {
-      user: userConfig,
-      workbench,
-      notes: labNotes,
-      network: networkNodes,
-    };
-    const long = 'x'.repeat(600);
-    const messages = buildLlmMessages(
-      'Explain projects and research',
-      ctx,
-      Array.from({ length: 40 }, (_, i) => ({
-        role: (i % 2 === 0 ? 'user' : 'assistant') as 'user' | 'assistant',
-        content: `history-${i}-${long}`,
-      })),
-      [
-        {
-          id: 'low-score',
-          source: 'brain',
-          title: 'Low score',
-          snippet: long,
-          tags: ['test'],
-          score: 1,
-        },
-        {
-          id: 'high-score',
-          source: 'brain',
-          title: 'High score',
-          snippet: long,
-          tags: ['test'],
-          score: 99,
-        },
-      ]
-    );
-
-    const system = messages[0].content;
-    expect(system.length).toBeLessThanOrEqual(TERMINAL_LLM_SYSTEM_CHAR_BUDGET + 128);
-    expect(system).toContain('High score');
-
-    const historyChars = messages
-      .slice(1, -1)
-      .reduce((sum, message) => sum + message.content.length, 0);
-    expect(historyChars).toBeLessThanOrEqual(TERMINAL_LLM_HISTORY_CHAR_BUDGET);
   });
 
   it('extracts chat message from payload', () => {
@@ -275,23 +172,6 @@ describe('terminal llm helpers', () => {
     expect(confidenceBadgeText('local-only')).toBe('local only');
     expect(confidenceBadgeText('verified-only')).toBe('verified only');
     expect(confidenceBadgeText('low-confidence')).toBe('low confidence');
-  });
-
-  it('injects mode-specific instruction for ask, brief, cv and projects', () => {
-    const ctx = {
-      user: userConfig,
-      workbench,
-      notes: labNotes,
-      network: networkNodes,
-    };
-    const ask = buildLlmMessages('q', ctx, [], [], null, 'concise', 'ask')[0].content;
-    const brief = buildLlmMessages('q', ctx, [], [], null, 'concise', 'brief')[0].content;
-    const cv = buildLlmMessages('q', ctx, [], [], null, 'concise', 'cv')[0].content;
-    const projects = buildLlmMessages('q', ctx, [], [], null, 'concise', 'projects')[0].content;
-    expect(ask).toContain('Answer style: ask.');
-    expect(brief).toContain('Answer style: brief.');
-    expect(cv).toContain('Answer style: cv.');
-    expect(projects).toContain('Answer style: projects.');
   });
 
   it('builds grouped citation chips with local + web sources', () => {

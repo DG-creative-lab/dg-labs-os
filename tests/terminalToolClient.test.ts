@@ -75,6 +75,7 @@ describe('terminal tool client', () => {
     expect(JSON.parse(mockFetch.mock.calls[0][1].body)).toEqual({
       tool: 'retrieve',
       input: { query: 'intent systems', limit: 4 },
+      profileHandle: 'dessi',
     });
   });
 

@@ -1,4 +1,4 @@
-export type ChatRole = 'system' | 'user' | 'assistant';
+export type ChatRole = 'user' | 'assistant';
 
 export type ChatMessageInput = {
   role: ChatRole;
@@ -7,6 +7,8 @@ export type ChatMessageInput = {
 
 export type ChatResponseMode = 'narrative' | 'agent_json';
 export type ChatProvider = 'openrouter' | 'openai' | 'anthropic' | 'gemini';
+export type ChatAnswerMode = 'ask' | 'brief' | 'cv' | 'projects';
+export type ChatBrainMode = 'concise' | 'explainer' | 'research';
 
 export type ChatRequestInput = {
   messages: ChatMessageInput[];
@@ -15,6 +17,9 @@ export type ChatRequestInput = {
   model: string;
   byokApiKey?: string;
   providerFallbackAllowed: boolean;
+  profileHandle: string;
+  answerMode: ChatAnswerMode;
+  brainMode: ChatBrainMode;
 };
 
 export type ContactInput = {
@@ -40,6 +45,7 @@ export type ToolName =
 export type ToolCallInput = {
   tool: ToolName;
   input?: Record<string, unknown>;
+  profileHandle: string;
 };
 
 const asRecord = (input: unknown): Record<string, unknown> | null => {
@@ -72,7 +78,7 @@ export const parseChatMessagesInput = (input: unknown): ChatMessageInput[] | nul
   const body = asRecord(input);
   if (!body) return null;
   const messages = body.messages;
-  if (!Array.isArray(messages) || messages.length === 0) return null;
+  if (!Array.isArray(messages) || messages.length === 0 || messages.length > 13) return null;
 
   const parsed: ChatMessageInput[] = [];
   for (const item of messages) {
@@ -81,9 +87,10 @@ export const parseChatMessagesInput = (input: unknown): ChatMessageInput[] | nul
     const role = obj.role;
     const content = obj.content;
     if (
-      (role !== 'system' && role !== 'user' && role !== 'assistant') ||
+      (role !== 'user' && role !== 'assistant') ||
       typeof content !== 'string' ||
-      content.trim().length === 0
+      content.trim().length === 0 ||
+      content.length > 4000
     ) {
       return null;
     }
@@ -123,13 +130,41 @@ export const parseChatRequestInput = (input: unknown): ChatRequestInput | null =
 
   const byokApiKeyRaw = body.byokApiKey;
   const byokApiKey =
-    typeof byokApiKeyRaw === 'string' && byokApiKeyRaw.trim().length > 0
+    typeof byokApiKeyRaw === 'string' &&
+    byokApiKeyRaw.trim().length > 0 &&
+    byokApiKeyRaw.trim().length <= 2048
       ? byokApiKeyRaw.trim()
       : undefined;
 
   const providerFallbackAllowed = body.providerFallbackAllowed === true;
 
-  return { messages, responseMode, provider, model, byokApiKey, providerFallbackAllowed };
+  const profileHandleRaw = body.profileHandle;
+  const profileHandle =
+    typeof profileHandleRaw === 'string' && /^[a-z0-9][a-z0-9-]{0,63}$/.test(profileHandleRaw)
+      ? profileHandleRaw
+      : 'dessi';
+
+  const answerModeRaw = body.answerMode;
+  const answerMode: ChatAnswerMode =
+    answerModeRaw === 'brief' || answerModeRaw === 'cv' || answerModeRaw === 'projects'
+      ? answerModeRaw
+      : 'ask';
+
+  const brainModeRaw = body.brainMode;
+  const brainMode: ChatBrainMode =
+    brainModeRaw === 'concise' || brainModeRaw === 'research' ? brainModeRaw : 'explainer';
+
+  return {
+    messages,
+    responseMode,
+    provider,
+    model,
+    byokApiKey,
+    providerFallbackAllowed,
+    profileHandle,
+    answerMode,
+    brainMode,
+  };
 };
 
 export const parseVerifyInput = (input: unknown): VerifyInput | null => {
@@ -161,5 +196,10 @@ export const parseToolCallInput = (input: unknown): ToolCallInput | null => {
     maybeInput && typeof maybeInput === 'object' && !Array.isArray(maybeInput)
       ? (maybeInput as Record<string, unknown>)
       : undefined;
-  return { tool, input: parsedInput };
+  const profileHandleRaw = body.profileHandle;
+  const profileHandle =
+    typeof profileHandleRaw === 'string' && /^[a-z0-9][a-z0-9-]{0,63}$/.test(profileHandleRaw)
+      ? profileHandleRaw
+      : 'dessi';
+  return { tool, input: parsedInput, profileHandle };
 };

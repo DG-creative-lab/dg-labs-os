@@ -9,6 +9,8 @@ import {
   searchKnowledge,
   type KnowledgeHit,
 } from '../knowledge';
+import { findActiveProfile } from '../profiles';
+import { buildServerOwnedProfileAgentMessages } from '../utils/profileAgentPrompt';
 
 export type ChatServiceErrorCode =
   | 'CONFIG_ERROR'
@@ -18,7 +20,8 @@ export type ChatServiceErrorCode =
   | 'RATE_LIMITED'
   | 'QUOTA_EXCEEDED'
   | 'NETWORK_ERROR'
-  | 'PROVIDER_ERROR';
+  | 'PROVIDER_ERROR'
+  | 'PROFILE_NOT_FOUND';
 
 type AgentJsonResponse = {
   ok: true;
@@ -84,21 +87,6 @@ const latestUserQuery = (messages: readonly ChatMessageInput[]): string =>
     .reverse()
     .find((message) => message.role === 'user')
     ?.content.trim() ?? '';
-
-const buildKnowledgeGrounding = (query: string, hits: readonly KnowledgeHit[]): string => {
-  if (!query || hits.length === 0) return '';
-  const lines = [
-    'Grounding context (knowledge index):',
-    `query: ${query}`,
-    ...hits
-      .slice(0, 6)
-      .map(
-        (hit, index) =>
-          `${index + 1}. [${hit.type}] ${hit.title} :: ${hit.content.slice(0, 260).replace(/\s+/g, ' ')}`
-      ),
-  ];
-  return lines.join('\n');
-};
 
 const expandRelated = (seed: readonly KnowledgeHit[], limit = 8): KnowledgeHit[] => {
   const out: KnowledgeHit[] = [];
@@ -178,17 +166,6 @@ const serverKeys = () =>
 
 const providerOrder = ['openrouter', 'openai', 'anthropic', 'gemini'] as const;
 
-const buildGroundedMessages = (
-  query: string,
-  hits: readonly KnowledgeHit[],
-  messages: readonly ChatMessageInput[]
-) => {
-  const knowledgeGrounding = buildKnowledgeGrounding(query, hits);
-  return knowledgeGrounding
-    ? [{ role: 'system' as const, content: knowledgeGrounding }, ...messages]
-    : messages;
-};
-
 const buildProviderCandidates = ({
   provider,
   model,
@@ -218,7 +195,7 @@ const buildProviderCandidates = ({
 
 const runProviderCandidate = async (
   candidate: ProviderCandidate,
-  messages: readonly ChatMessageInput[]
+  messages: ReadonlyArray<{ role: 'system' | 'user' | 'assistant'; content: string }>
 ) => {
   const startedAt = Date.now();
   const result = await runLlmGateway({
@@ -237,9 +214,22 @@ export const runChatService = async ({
   model,
   byokApiKey,
   providerFallbackAllowed,
+  profileHandle,
+  answerMode,
+  brainMode,
 }: ChatRequestInput): Promise<ChatServiceResult> => {
   const query = latestUserQuery(messages);
   const localHits = query ? searchKnowledge(query, 6) : [];
+  const profile = findActiveProfile(profileHandle);
+
+  if (!profile) {
+    return {
+      ok: false,
+      status: 404,
+      code: 'PROFILE_NOT_FOUND',
+      message: `Published profile not found: ${profileHandle}`,
+    };
+  }
 
   if (responseMode === 'agent_json') {
     return {
@@ -250,7 +240,13 @@ export const runChatService = async ({
   }
 
   try {
-    const requestMessages = buildGroundedMessages(query, localHits, messages);
+    const requestMessages = buildServerOwnedProfileAgentMessages({
+      profile,
+      hits: localHits,
+      messages,
+      answerMode,
+      brainMode,
+    });
     const candidates = buildProviderCandidates({
       provider,
       model,
@@ -389,6 +385,9 @@ export const runChatStreamService = async ({
   model,
   byokApiKey,
   providerFallbackAllowed,
+  profileHandle,
+  answerMode,
+  brainMode,
 }: ChatRequestInput): Promise<ChatStreamResult> => {
   if (responseMode === 'agent_json') {
     return runChatService({
@@ -398,12 +397,30 @@ export const runChatStreamService = async ({
       model,
       byokApiKey,
       providerFallbackAllowed,
+      profileHandle,
+      answerMode,
+      brainMode,
     });
   }
 
   const query = latestUserQuery(messages);
   const localHits = query ? searchKnowledge(query, 6) : [];
-  const requestMessages = buildGroundedMessages(query, localHits, messages);
+  const profile = findActiveProfile(profileHandle);
+  if (!profile) {
+    return {
+      ok: false,
+      status: 404,
+      code: 'PROFILE_NOT_FOUND',
+      message: `Published profile not found: ${profileHandle}`,
+    };
+  }
+  const requestMessages = buildServerOwnedProfileAgentMessages({
+    profile,
+    hits: localHits,
+    messages,
+    answerMode,
+    brainMode,
+  });
   const candidates = buildProviderCandidates({
     provider,
     model,

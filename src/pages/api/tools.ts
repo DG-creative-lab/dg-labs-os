@@ -1,5 +1,4 @@
 import type { APIRoute } from 'astro';
-import { userConfig } from '../../config';
 import { labNotes } from '../../config/labNotes';
 import { networkNodes } from '../../config/network';
 import { workbench } from '../../config/workbench';
@@ -9,6 +8,7 @@ import { parseToolCallInput } from '../../utils/requestSchemas';
 import { retrieveKnowledge } from '../../utils/terminalKnowledge';
 import { performWebVerify } from '../../utils/webVerify';
 import { DESKTOP_APP_TARGETS } from '../../services/desktopAppRegistry';
+import { findActiveProfile } from '../../profiles';
 
 type ErrorCode =
   | 'INVALID_JSON'
@@ -41,6 +41,20 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
+  const profile = findActiveProfile(call.profileHandle);
+  if (!profile) {
+    return err('INVALID_INPUT', `Published profile not found: ${call.profileHandle}`, 404);
+  }
+  const profileIdentity = {
+    name: profile.identity.displayName,
+    ownerName: profile.identity.ownerName,
+    aliases: profile.identity.aliases,
+    role: profile.identity.role,
+    roleFocus: profile.identity.roleFocus,
+    location: profile.identity.location,
+    website: profile.contact.website,
+  };
+
   try {
     if (call.tool === 'local_context') {
       const query = asString(call.input?.query);
@@ -55,7 +69,7 @@ export const POST: APIRoute = async ({ request }) => {
       const hits = retrieveKnowledge(
         query,
         {
-          user: userConfig,
+          user: profileIdentity,
           workbench,
           notes: labNotes,
           network: networkNodes,
@@ -121,7 +135,7 @@ export const POST: APIRoute = async ({ request }) => {
       const hits = retrieveKnowledge(
         query,
         {
-          user: userConfig,
+          user: profileIdentity,
           workbench,
           notes: labNotes,
           network: networkNodes,
@@ -146,7 +160,7 @@ export const POST: APIRoute = async ({ request }) => {
       const evidence = retrieveKnowledge(
         claim,
         {
-          user: userConfig,
+          user: profileIdentity,
           workbench,
           notes: labNotes,
           network: networkNodes,

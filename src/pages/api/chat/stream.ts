@@ -2,8 +2,9 @@ import type { APIRoute } from 'astro';
 import { errorResponse } from '../../../utils/apiResponse';
 import { parseChatRequestInput } from '../../../utils/requestSchemas';
 import { runChatStreamService, type ChatServiceErrorCode } from '../../../services/chatService';
+import { consumeApiRateLimit } from '../../../utils/apiRateLimit';
 
-type ErrorCode = 'INVALID_JSON' | 'INVALID_MESSAGES' | ChatServiceErrorCode;
+type ErrorCode = 'INVALID_JSON' | 'INVALID_MESSAGES' | 'RATE_LIMITED' | ChatServiceErrorCode;
 
 const err = (code: ErrorCode, message: string, status: number, meta?: Record<string, unknown>) =>
   errorResponse(code, message, status, false, meta);
@@ -12,6 +13,13 @@ const toSseChunk = (event: string, payload: unknown) =>
   `event: ${event}\ndata: ${JSON.stringify(payload)}\n\n`;
 
 export const POST: APIRoute = async ({ request }) => {
+  const rateLimit = consumeApiRateLimit(request, 'profile-agent-chat-stream');
+  if (!rateLimit.allowed) {
+    const response = err('RATE_LIMITED', 'Too many requests. Please try again shortly.', 429);
+    response.headers.set('Retry-After', String(rateLimit.retryAfterSeconds));
+    return response;
+  }
+
   let body: unknown;
   try {
     body = await request.json();

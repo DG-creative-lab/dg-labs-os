@@ -14,7 +14,7 @@ export const fetchTerminalProviderHealth = async (
         provider: settings.llmProvider,
         model: settings.llmModel,
         byokApiKey: byokApiKey.trim().length > 0 ? byokApiKey.trim() : undefined,
-        probe: true,
+        probe: byokApiKey.trim().length > 0,
       }),
     });
     const payload = (await response.json().catch(() => null)) as {

@@ -1,11 +1,18 @@
 import type { NetworkNode } from '../config/network';
 import type { WorkbenchItem } from '../config/workbench';
 import type { LabNote } from '../config/labNotes';
-import type { UserConfig } from '../types';
 import { getKnowledgeEntries } from '../knowledge';
 
 export type TerminalKnowledgeContext = {
-  user: UserConfig;
+  user: {
+    name: string;
+    ownerName?: string;
+    aliases?: readonly string[];
+    role: string;
+    roleFocus: string;
+    location: string;
+    website: string;
+  };
   workbench: readonly WorkbenchItem[];
   notes: readonly LabNote[];
   network: readonly NetworkNode[];
