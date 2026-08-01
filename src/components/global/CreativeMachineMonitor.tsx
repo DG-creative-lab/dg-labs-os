@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { ActiveProfileRuntime } from '../../profiles';
 
 type MonitorMode = 'understand' | 'imagine' | 'build';
 
@@ -100,10 +101,14 @@ const BOOT_LINES = [
 const getNode = (id: string) => CORTEX_NODES.find((node) => node.id === id);
 
 type CreativeMachineMonitorProps = {
+  profile: ActiveProfileRuntime;
   embedded?: boolean;
 };
 
-export default function CreativeMachineMonitor({ embedded = false }: CreativeMachineMonitorProps) {
+export default function CreativeMachineMonitor({
+  profile,
+  embedded = false,
+}: CreativeMachineMonitorProps) {
   const [mode, setMode] = useState<MonitorMode>('understand');
   const [bootLineCount, setBootLineCount] = useState(0);
   const [activeLoopStep, setActiveLoopStep] = useState(0);
@@ -194,9 +199,9 @@ export default function CreativeMachineMonitor({ embedded = false }: CreativeMac
               A human becoming a machine that can imagine.
             </h1>
             <p className="mt-6 max-w-xl text-sm leading-6 text-white/62 sm:text-base sm:leading-7">
-              Her practice is becoming computational. Projects, readings, questions, decisions, and
-              failures become traceable patterns—material that can be revisited, recombined, and
-              used to build what comes next.
+              {profile.identity.possessiveName} practice is becoming computational. Projects,
+              readings, questions, decisions, and failures become traceable patterns—material that
+              can be revisited, recombined, and used to build what comes next.
             </p>
 
             <div className="monitor-processes mt-8 border-t border-white/14">
@@ -238,7 +243,7 @@ export default function CreativeMachineMonitor({ embedded = false }: CreativeMac
               aria-live="polite"
             >
               <p className="font-mono text-[10px] text-sky-200">
-                machine@dg-os:~$ {activeMode.command}
+                {profile.handle}@dg-os:~$ {activeMode.command}
               </p>
               <p className="mt-3 max-w-lg text-sm leading-6 text-white/68">
                 {activeMode.description}

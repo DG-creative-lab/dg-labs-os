@@ -16,5 +16,5 @@ import { activeProfile } from '../profiles';
     site_name: activeProfile.identity.displayName,
   }}
 >
-  <HomeDesktop client:load />
+  <HomeDesktop client:load profile={activeProfile} />
 </DesktopLayout>

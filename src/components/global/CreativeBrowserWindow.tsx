@@ -1,11 +1,13 @@
 import CreativeMachineMonitor from './CreativeMachineMonitor';
 import DraggableWindow from './DraggableWindow';
+import type { ActiveProfileRuntime } from '../../profiles';
 
 type CreativeBrowserWindowProps = {
+  profile: ActiveProfileRuntime;
   onClose: () => void;
 };
 
-export default function CreativeBrowserWindow({ onClose }: CreativeBrowserWindowProps) {
+export default function CreativeBrowserWindow({ profile, onClose }: CreativeBrowserWindowProps) {
   return (
     <DraggableWindow
       title="DG-OS Browser"
@@ -79,7 +81,7 @@ export default function CreativeBrowserWindow({ onClose }: CreativeBrowserWindow
               <span className="mr-2 text-sky-300" aria-hidden="true">
                 ◇
               </span>
-              <span className="truncate">dg-os.com / creative-machine</span>
+              <span className="truncate">dg-os.com / @{profile.handle} / creative-machine</span>
             </div>
             <div className="hidden items-center gap-2 font-mono text-[8px] tracking-[0.12em] text-white/30 uppercase sm:flex">
               <span>Private sources off</span>
@@ -89,7 +91,7 @@ export default function CreativeBrowserWindow({ onClose }: CreativeBrowserWindow
         </div>
 
         <div className="min-h-0 flex-1 overflow-hidden bg-[#070b12]">
-          <CreativeMachineMonitor embedded />
+          <CreativeMachineMonitor profile={profile} embedded />
         </div>
       </div>
     </DraggableWindow>

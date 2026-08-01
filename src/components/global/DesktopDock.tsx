@@ -52,6 +52,7 @@ const DesktopDock = ({ profile, activeApps }: DesktopDockProps) => {
   };
 
   const isDesktopShell = normalizedPath === '/desktop';
+  const profilePath = `/@${profile.handle}`;
   const isPathActive = (...paths: string[]) =>
     paths.some((path) => {
       const normalized = path.replace(/\/+$/, '') || '/';
@@ -194,14 +195,14 @@ const DesktopDock = ({ profile, activeApps }: DesktopDockProps) => {
       label: 'Browser',
       shortLabel: 'Browser',
       onClick: () => {
-        if (normalizedPath === '/') {
+        if (normalizedPath === '/' || normalizedPath === profilePath) {
           dispatchHomeBrowserToggle(window);
           return;
         }
-        window.location.href = '/';
+        window.location.href = profilePath;
       },
       glyph: 'browser',
-      active: isPathActive('/') && homeBrowserOpen,
+      active: isPathActive('/', profilePath) && homeBrowserOpen,
     },
     {
       id: 'workbench',

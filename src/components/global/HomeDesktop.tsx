@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { dispatchHomeBrowserState, onHomeBrowserToggle } from '../../services/homeBrowserEvents';
+import type { ActiveProfileRuntime } from '../../profiles';
 import CreativeBrowserWindow from './CreativeBrowserWindow';
 
-export default function HomeDesktop() {
+export default function HomeDesktop({ profile }: { profile: ActiveProfileRuntime }) {
   const [isBrowserOpen, setIsBrowserOpen] = useState(true);
 
   useEffect(() => {
@@ -16,5 +17,7 @@ export default function HomeDesktop() {
     dispatchHomeBrowserState(window, isBrowserOpen);
   }, [isBrowserOpen]);
 
-  return isBrowserOpen ? <CreativeBrowserWindow onClose={() => setIsBrowserOpen(false)} /> : null;
+  return isBrowserOpen ? (
+    <CreativeBrowserWindow profile={profile} onClose={() => setIsBrowserOpen(false)} />
+  ) : null;
 }

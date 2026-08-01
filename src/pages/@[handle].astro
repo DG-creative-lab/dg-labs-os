@@ -1,0 +1,40 @@
+---
+import HomeDesktop from '../components/global/HomeDesktop';
+import DesktopLayout from '../layouts/DesktopLayout.astro';
+import {
+  findActiveProfile,
+  getPublicProfileCanonicalUrl,
+  type ActiveProfileRuntime,
+} from '../profiles';
+
+const handle = Astro.params.handle ?? '';
+const profile = findActiveProfile(handle);
+
+if (!profile) {
+  return new Response('Public profile not found.', {
+    status: 404,
+    headers: {
+      'content-type': 'text/plain; charset=utf-8',
+      'x-robots-tag': 'noindex, nofollow',
+    },
+  });
+}
+
+const resolvedProfile: ActiveProfileRuntime = profile;
+const canonical = getPublicProfileCanonicalUrl(resolvedProfile);
+---
+
+<DesktopLayout
+  profile={resolvedProfile}
+  title={resolvedProfile.seo.title}
+  description={resolvedProfile.seo.description}
+  canonical={canonical}
+  openGraph={{
+    url: canonical,
+    title: resolvedProfile.seo.title,
+    description: resolvedProfile.seo.description,
+    site_name: resolvedProfile.identity.displayName,
+  }}
+>
+  <HomeDesktop client:load profile={resolvedProfile} />
+</DesktopLayout>

@@ -9,7 +9,10 @@ import { social } from '../src/config/social';
 import {
   activeProfile,
   createActiveProfileRuntime,
+  createPublicProfileRegistry,
   dessiProfileProjection,
+  getPublicProfileCanonicalUrl,
+  getPublicProfilePath,
   resolveActiveProfile,
   type ProfileProjection,
   validateProfileProjection,
@@ -57,6 +60,34 @@ describe('profile projection', () => {
       possessiveName: "Fixture's",
     });
     expect(activeProfile.identity.displayName).toBe('Dessi Georgieva');
+  });
+
+  it('resolves multiple published fixtures without crossing their identities', () => {
+    const fixtureProjection = {
+      ...dessiProfileProjection,
+      profileId: 'fixture_person',
+      handle: 'fixture-person',
+      identity: {
+        ...dessiProfileProjection.identity,
+        displayName: 'Fixture Person',
+        preferredName: 'Fixture',
+        ownerName: 'Fixture Person',
+      },
+    } as const;
+    const registry = createPublicProfileRegistry([dessiProfileProjection, fixtureProjection]);
+
+    expect(registry.list().map((profile) => profile.handle)).toEqual(['dessi', 'fixture-person']);
+    expect(registry.resolve('dessi').identity.displayName).toBe('Dessi Georgieva');
+    expect(registry.resolve('fixture-person').identity.displayName).toBe('Fixture Person');
+    expect(registry.find('missing')).toBeUndefined();
+  });
+
+  it('rejects duplicate handles and builds canonical profile addresses', () => {
+    expect(() =>
+      createPublicProfileRegistry([dessiProfileProjection, dessiProfileProjection])
+    ).toThrow('Duplicate published profile handle: dessi');
+    expect(getPublicProfilePath(activeProfile)).toBe('/@dessi');
+    expect(getPublicProfileCanonicalUrl(activeProfile)).toBe('https://dg-os.com/@dessi');
   });
 
   it('is the canonical source for identity, links, general CV, SEO, and systems evidence', () => {

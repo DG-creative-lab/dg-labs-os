@@ -60,9 +60,9 @@ The projection owns published CV asset references, while filenames and resume-ge
 
 ### 6. Routes and page metadata
 
-`/systems`, project routes, and page titles still assume the single Dessi profile. `/apply/openai-codex` is intentionally specific to one application.
+`/@dessi` is now the canonical registry-backed profile address, with an explicit 404 for unknown or unpublished handles. `/systems`, project routes, and application routes remain shared single-profile paths. `/apply/openai-codex` is intentionally specific to one application.
 
-**Disposition:** the existing shell and metadata now render from the active profile. Add a canonical profile route such as `/@dessi` only when a second fixture can exercise profile selection. Authentication and database-backed workspaces remain gated on a real second user.
+**Disposition:** extend profile-aware routing to the shared modules before registering a second real user. Authentication and database-backed workspaces remain gated on that real second-user requirement.
 
 ### 7. Tests
 
@@ -81,4 +81,4 @@ Existing terminal, API, and end-to-end suites contain fixture-specific Dessi ass
 
 ## Next implementation slice
 
-Add a canonical public profile route backed by the existing registry and use a second synthetic fixture in tests to prove route resolution and isolation. Authentication, workspaces, Neon, and Blob storage remain deferred until a real second user enters the product.
+Classify public content into versioned profile modules, beginning with Workbench projects and Evidence/Evolution records. The route and identity runtime are isolated; the content stores must reach the same boundary before a second real profile can be published.
