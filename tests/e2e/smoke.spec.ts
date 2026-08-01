@@ -85,6 +85,7 @@ test.describe('desktop smoke', () => {
     await expect(page.getByText('PRIVATE WORKSPACE', { exact: true })).toBeVisible();
     await expect(page.getByText('OWNER REVIEW', { exact: true })).toBeVisible();
     await expect(page.getByText('No ranking · No inferred score')).toBeVisible();
+    await expect(page.getByText('Owner reviewed 01 Aug 2026')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Workbench', exact: true })).toHaveCount(0);
 
     const enterProfile = page.getByRole('link', { name: "Enter Dessi's OS" });
