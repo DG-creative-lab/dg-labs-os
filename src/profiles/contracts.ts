@@ -41,7 +41,6 @@ export type ProfileCv = {
     docx: string;
     markdown: string;
   };
-  sourcePath: string;
 };
 
 export type ProfileSeo = {

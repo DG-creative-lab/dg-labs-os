@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { isMobileUserAgent } from '../src/utils/deviceDetection';
+import { isPublicProfilePath } from '../src/utils/profileRoutes';
 
 describe('isMobileUserAgent', () => {
   it('returns true for mobile user agents', () => {
@@ -16,5 +17,19 @@ describe('isMobileUserAgent', () => {
 
   it('returns false for null input', () => {
     expect(isMobileUserAgent(null)).toBe(false);
+  });
+});
+
+describe('isPublicProfilePath', () => {
+  it('recognises canonical handle routes with or without a trailing slash', () => {
+    expect(isPublicProfilePath('/@dessi')).toBe(true);
+    expect(isPublicProfilePath('/@dessi/')).toBe(true);
+    expect(isPublicProfilePath('/@fixture-person')).toBe(true);
+  });
+
+  it('does not treat nested or malformed paths as canonical profiles', () => {
+    expect(isPublicProfilePath('/mobile/@dessi')).toBe(false);
+    expect(isPublicProfilePath('/@Dessi')).toBe(false);
+    expect(isPublicProfilePath('/@dessi/apps')).toBe(false);
   });
 });

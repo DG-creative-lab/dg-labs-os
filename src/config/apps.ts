@@ -11,5 +11,4 @@ export const resume: ResumeConfig = {
   pdf: primaryCv.files.pdf,
   docx: primaryCv.files.docx,
   markdown: primaryCv.files.markdown,
-  sourcePath: primaryCv.sourcePath,
 };

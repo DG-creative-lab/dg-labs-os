@@ -106,10 +106,9 @@ describe('profile projection', () => {
     expect(social.linkedin).toBe(
       dessiProfileProjection.links.find((link) => link.id === 'linkedin')?.url
     );
-    expect(resume).toEqual({
-      ...dessiProfileProjection.cv.primary.files,
-      sourcePath: dessiProfileProjection.cv.primary.sourcePath,
-    });
+    expect(resume).toEqual(dessiProfileProjection.cv.primary.files);
+    expect(JSON.stringify(activeProfile)).not.toContain('sourcePath');
+    expect(JSON.stringify(activeProfile)).not.toContain('/src/');
     expect(seo).toBe(dessiProfileProjection.seo);
     expect(publicLinks).toHaveLength(dessiProfileProjection.links.length);
     expect(systemsEvidenceProfile).toMatchObject({
@@ -136,6 +135,7 @@ describe('profile projection', () => {
       links: [dessiProfileProjection.links[0], dessiProfileProjection.links[0]],
       metadata: {
         accessToken: 'must-not-be-published',
+        internalSource: '/src/data/resume/cv.md',
       },
     } as unknown as ProfileProjection;
 
@@ -144,6 +144,7 @@ describe('profile projection', () => {
     expect(issues.some((issue) => issue.path === 'contact.website')).toBe(true);
     expect(issues.some((issue) => issue.message.includes('local filesystem paths'))).toBe(true);
     expect(issues.some((issue) => issue.path === 'metadata.accessToken')).toBe(true);
+    expect(issues.some((issue) => issue.path === 'metadata.internalSource')).toBe(true);
     expect(issues.some((issue) => issue.message === 'Link IDs must be unique.')).toBe(true);
   });
 });

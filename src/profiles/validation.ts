@@ -12,9 +12,11 @@ export type ProfileProjectionIssue = {
 const HANDLE_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
 const ID_PATTERN = /^[a-z0-9][a-z0-9_-]*$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PRIVATE_PATH_PATTERN = /(?:file:\/\/|\/(?:Users|home)\/|[A-Za-z]:\\Users\\)/i;
+const PRIVATE_PATH_PATTERN = /(?:^file:\/\/|^\/(?:Users|home|src|scripts)\/|^[A-Za-z]:\\Users\\)/i;
 const SECRET_KEY_PATTERN =
   /(?:password|secret|private[_-]?key|access[_-]?token|refresh[_-]?token)/i;
+const INTERNAL_SOURCE_KEY_PATTERN =
+  /^(?:sourcePath|source_path|internalPath|internal_path|internalSource|internal_source)$/i;
 
 function isNonEmpty(value: string): boolean {
   return value.trim().length > 0;
@@ -34,6 +36,11 @@ function isWebUrl(value: string): boolean {
   } catch {
     return false;
   }
+}
+
+function isPublicCvAsset(value: string): boolean {
+  if (isWebUrl(value)) return true;
+  return value.startsWith('/cv/') && !value.split('/').includes('..');
 }
 
 function validateLink(link: ProfileLink, index: number): ProfileProjectionIssue[] {
@@ -87,6 +94,14 @@ function inspectForPrivateMaterial(
     const childPath = path ? `${path}.${key}` : key;
     if (SECRET_KEY_PATTERN.test(key) && child !== null && child !== undefined && child !== '') {
       issues.push({ path: childPath, message: 'Secret-bearing fields are forbidden.' });
+    }
+    if (
+      INTERNAL_SOURCE_KEY_PATTERN.test(key) &&
+      child !== null &&
+      child !== undefined &&
+      child !== ''
+    ) {
+      issues.push({ path: childPath, message: 'Internal source metadata is forbidden.' });
     }
     inspectForPrivateMaterial(child, childPath, issues);
   }
@@ -160,6 +175,14 @@ export function validateProfileProjection(projection: ProfileProjection): Profil
       issues.push({ path: `${path}.id`, message: 'CV IDs must be stable and unique.' });
     }
     cvIds.add(entry.id);
+    for (const [format, asset] of Object.entries(entry.files)) {
+      if (!isPublicCvAsset(asset)) {
+        issues.push({
+          path: `${path}.files.${format}`,
+          message: 'CV files must reference a public /cv asset or an absolute HTTP(S) URL.',
+        });
+      }
+    }
     if (!entry.files.pdf.endsWith('.pdf')) {
       issues.push({ path: `${path}.files.pdf`, message: 'PDF assets must end in .pdf.' });
     }

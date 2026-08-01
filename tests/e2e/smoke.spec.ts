@@ -58,6 +58,19 @@ test.describe('desktop smoke', () => {
     ).toBeVisible();
   });
 
+  test('canonical public profile resolves with its own metadata', async ({ page }) => {
+    await page.goto('/@dessi');
+    await expect(page).toHaveURL(/\/@dessi$/);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      'https://dg-os.com/@dessi'
+    );
+    await expect(page.getByRole('dialog', { name: 'DG-OS Browser' })).toBeVisible();
+    await expect(
+      page.getByText("Dessi's practice is becoming computational", { exact: false })
+    ).toBeVisible();
+  });
+
   test('home browser refits when the desktop viewport moves between displays', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto('/');
@@ -381,6 +394,24 @@ test.describe('mobile smoke', () => {
     const systemsHtml = await systems.text();
     expect(systemsHtml).toContain('AI Systems Engineer');
     expect(systemsHtml).toContain('What the evidence does not establish.');
+
+    const profile = await request.get('/@dessi', {
+      headers: { 'user-agent': ua },
+      maxRedirects: 0,
+    });
+    expect(profile.status()).toBe(200);
+    const profileHtml = await profile.text();
+    expect(profileHtml).toContain('Public profile / @dessi');
+    expect(profileHtml).toContain('Dessi Georgieva');
+    expect(profileHtml).toContain('Explore the profile');
+    expect(profileHtml).toContain('https://dg-os.com/@dessi');
+
+    const missingProfile = await request.get('/@missing-profile', {
+      headers: { 'user-agent': ua },
+      maxRedirects: 0,
+    });
+    expect(missingProfile.status()).toBe(404);
+    expect(missingProfile.headers()['x-robots-tag']).toBe('noindex, nofollow');
 
     const terminal = await request.get('/mobile/apps/terminal', {
       headers: { 'user-agent': ua },

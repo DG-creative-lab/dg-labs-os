@@ -89,7 +89,6 @@ export const dessiProfileProjection = defineProfileProjection({
         docx: '/cv/Dessi_Georgieva_CV.docx',
         markdown: '/cv/Dessi_Georgieva_CV.md',
       },
-      sourcePath: '/src/data/resume/cv.md',
     },
     variants: [],
   },

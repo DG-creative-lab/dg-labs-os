@@ -1,0 +1,118 @@
+---
+import type { ActiveProfileRuntime } from '../../profiles';
+
+interface Props {
+  profile: ActiveProfileRuntime;
+}
+
+const { profile } = Astro.props;
+const reviewedDate = new Intl.DateTimeFormat('en-GB', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+}).format(new Date(profile.publication.reviewedAt));
+
+const modules = [
+  {
+    index: '01',
+    label: 'Resume',
+    description: 'Experience, technical focus, and downloadable CV.',
+    href: '/mobile/apps/resume',
+  },
+  {
+    index: '02',
+    label: 'Evidence',
+    description: 'Reviewed claims, boundaries, questions, and revisions.',
+    href: '/mobile/apps/evolution',
+  },
+  {
+    index: '03',
+    label: 'Workbench',
+    description: 'Selected public systems and bounded professional work.',
+    href: '/mobile/apps/projects',
+  },
+  {
+    index: '04',
+    label: 'System Map',
+    description: 'Connections across experience, systems, and ideas.',
+    href: '/mobile/apps/network',
+  },
+] as const;
+---
+
+<main class="mx-auto min-h-screen max-w-3xl px-5 pb-24 pt-24 text-white sm:px-8">
+  <header class="border-b border-white/15 pb-8">
+    <div
+      class="flex items-center justify-between gap-4 font-mono text-[10px] uppercase tracking-[0.16em]"
+    >
+      <span class="text-sky-200">Public profile / @{profile.handle}</span>
+      <span class="text-white/35">v{profile.projectionVersion}</span>
+    </div>
+    <h1 class="mt-6 text-4xl font-semibold leading-[0.95] tracking-[-0.045em] sm:text-6xl">
+      {profile.identity.displayName}
+    </h1>
+    <p class="mt-4 text-xs font-semibold uppercase tracking-[0.15em] text-white/55">
+      {profile.identity.role} · {profile.identity.location}
+    </p>
+    <h2 class="mt-8 max-w-2xl text-2xl font-semibold leading-tight tracking-[-0.025em] sm:text-3xl">
+      {profile.identity.headline}
+    </h2>
+    <p class="mt-4 max-w-2xl text-sm leading-6 text-white/65 sm:text-base sm:leading-7">
+      {profile.identity.introduction}
+    </p>
+  </header>
+
+  <section class="py-8" aria-labelledby="profile-modules-title">
+    <div class="flex items-end justify-between gap-4 border-b border-white/15 pb-3">
+      <h2 id="profile-modules-title" class="text-xs font-semibold uppercase tracking-[0.15em]">
+        Explore the profile
+      </h2>
+      <span class="font-mono text-[10px] text-white/35">04 modules</span>
+    </div>
+    <ol>
+      {
+        modules.map((module) => (
+          <li class="border-b border-white/10">
+            <a class="grid grid-cols-[2rem_1fr_auto] gap-3 py-5" href={module.href}>
+              <span class="font-mono text-[10px] text-sky-300">{module.index}</span>
+              <span>
+                <strong class="block text-sm font-semibold">{module.label}</strong>
+                <span class="mt-1 block text-xs leading-5 text-white/50">{module.description}</span>
+              </span>
+              <span class="text-sky-200" aria-hidden="true">
+                →
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section class="border-t border-white/15 pt-6" aria-labelledby="public-links-title">
+    <h2 id="public-links-title" class="text-xs font-semibold uppercase tracking-[0.15em]">
+      Public footprint
+    </h2>
+    <div class="mt-4 flex flex-wrap gap-2">
+      {
+        profile.links
+          .filter((link) => link.surfaces.includes('profile'))
+          .map((link) => (
+            <a
+              href={link.url}
+              target={link.url.startsWith('http') ? '_blank' : undefined}
+              rel={link.url.startsWith('http') ? 'noopener noreferrer' : undefined}
+              class="rounded-md border border-white/15 px-3 py-2 text-xs text-white/65"
+            >
+              {link.label} ↗
+            </a>
+          ))
+      }
+    </div>
+  </section>
+
+  <footer class="mt-8 border-l border-sky-300/40 pl-3 text-[11px] leading-5 text-white/45">
+    <p>Owner-reviewed public projection · reviewed {reviewedDate}</p>
+    <p>Private workspace sources are not included.</p>
+  </footer>
+</main>

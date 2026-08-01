@@ -1,11 +1,14 @@
 ---
 import HomeDesktop from '../components/global/HomeDesktop';
+import PublicProfileMobile from '../components/profile/PublicProfileMobile.astro';
 import DesktopLayout from '../layouts/DesktopLayout.astro';
+import IPhoneAppLayout from '../layouts/iPhoneAppLayout.astro';
 import {
   findActiveProfile,
   getPublicProfileCanonicalUrl,
   type ActiveProfileRuntime,
 } from '../profiles';
+import { isMobileUserAgent } from '../utils/deviceDetection';
 
 const handle = Astro.params.handle ?? '';
 const profile = findActiveProfile(handle);
@@ -22,19 +25,35 @@ if (!profile) {
 
 const resolvedProfile: ActiveProfileRuntime = profile;
 const canonical = getPublicProfileCanonicalUrl(resolvedProfile);
+const isMobile = isMobileUserAgent(Astro.request.headers.get('user-agent'));
 ---
 
-<DesktopLayout
-  profile={resolvedProfile}
-  title={resolvedProfile.seo.title}
-  description={resolvedProfile.seo.description}
-  canonical={canonical}
-  openGraph={{
-    url: canonical,
-    title: resolvedProfile.seo.title,
-    description: resolvedProfile.seo.description,
-    site_name: resolvedProfile.identity.displayName,
-  }}
->
-  <HomeDesktop client:load profile={resolvedProfile} />
-</DesktopLayout>
+{
+  isMobile ? (
+    <IPhoneAppLayout
+      profile={resolvedProfile}
+      title={resolvedProfile.seo.title}
+      description={resolvedProfile.seo.description}
+      canonical={canonical}
+      appLabel={`@${resolvedProfile.handle}`}
+      backHref="/mobile"
+    >
+      <PublicProfileMobile profile={resolvedProfile} />
+    </IPhoneAppLayout>
+  ) : (
+    <DesktopLayout
+      profile={resolvedProfile}
+      title={resolvedProfile.seo.title}
+      description={resolvedProfile.seo.description}
+      canonical={canonical}
+      openGraph={{
+        url: canonical,
+        title: resolvedProfile.seo.title,
+        description: resolvedProfile.seo.description,
+        site_name: resolvedProfile.identity.displayName,
+      }}
+    >
+      <HomeDesktop client:load profile={resolvedProfile} />
+    </DesktopLayout>
+  )
+}
