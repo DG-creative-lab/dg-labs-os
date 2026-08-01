@@ -3,10 +3,11 @@ import Layout from './Layout.astro';
 import MacToolbar from '../components/global/MacToolbar';
 import DesktopDock from '../components/global/DesktopDock';
 import RippleGrid from '../components/global/RippleGrid';
-import { userConfig } from '../config/index';
+import { activeProfile, type ActiveProfileRuntime } from '../profiles';
 import type { ToolbarAppId } from '../services/desktopMenuModel';
 
 interface Props {
+  profile?: ActiveProfileRuntime;
   title?: string;
   description?: string;
   canonical?: string;
@@ -26,14 +27,15 @@ interface Props {
 }
 
 const {
-  title = userConfig.seo.title,
-  description = userConfig.seo.description,
-  canonical = userConfig.website,
+  profile = activeProfile,
+  title = profile.seo.title,
+  description = profile.seo.description,
+  canonical = profile.contact.website,
   openGraph = {
-    url: userConfig.website,
-    title: userConfig.seo.title,
-    description: userConfig.seo.description,
-    site_name: userConfig.name,
+    url: profile.contact.website,
+    title: profile.seo.title,
+    description: profile.seo.description,
+    site_name: profile.identity.displayName,
   },
   activeApps = {
     terminal: false,
@@ -45,7 +47,13 @@ const {
 } = Astro.props;
 ---
 
-<Layout title={title} description={description} canonical={canonical} openGraph={openGraph}>
+<Layout
+  profile={profile}
+  title={title}
+  description={description}
+  canonical={canonical}
+  openGraph={openGraph}
+>
   <div class="relative h-[100dvh] w-screen overflow-hidden bg-gray-900">
     <div class="absolute inset-0 opacity-70">
       <RippleGrid
@@ -66,11 +74,11 @@ const {
     >
     </div>
     <div class="relative z-30">
-      <MacToolbar client:load activeAppId={activeAppId} />
+      <MacToolbar client:load profile={profile} activeAppId={activeAppId} />
     </div>
     <main class="relative z-10 h-[calc(100dvh-1.5rem)] overflow-hidden pt-4">
       <slot />
     </main>
-    <DesktopDock client:load activeApps={activeApps} />
+    <DesktopDock client:load profile={profile} activeApps={activeApps} />
   </div>
 </Layout>

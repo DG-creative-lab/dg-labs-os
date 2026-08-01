@@ -1,5 +1,6 @@
 export * from './contracts';
 export * from './validation';
+export * from './runtime';
 export { dessiProfileProjection } from './dessi';
 
 import type { ProfileLink, ProfileProjection } from './contracts';

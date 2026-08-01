@@ -12,16 +12,17 @@ DG-OS currently renders one person, but much of its content is embedded directly
 
 ## Completed in the first contract slice
 
-| Area                                        | Canonical source                            | State                          |
-| ------------------------------------------- | ------------------------------------------- | ------------------------------ |
-| Identity, role, location, positioning       | `dessiProfileProjection.identity`           | Migrated                       |
-| Public contact details                      | `dessiProfileProjection.contact`            | Migrated                       |
-| Public links and their allowed surfaces     | `dessiProfileProjection.links`              | Migrated                       |
-| General CV asset references                 | `dessiProfileProjection.cv.primary`         | Migrated                       |
-| SEO title, description, and keywords        | `dessiProfileProjection.seo`                | Migrated                       |
-| Systems/Evidence hero identity              | projection-derived `systemsEvidenceProfile` | Migrated                       |
-| Owner approval and private-source exclusion | `dessiProfileProjection.publication`        | Enforced                       |
-| Application-specific OpenAI CV and role     | `openAiCodexApplication`                    | Intentionally separate variant |
+| Area                                        | Canonical source                     | State                          |
+| ------------------------------------------- | ------------------------------------ | ------------------------------ |
+| Identity, role, location, positioning       | `dessiProfileProjection.identity`    | Migrated                       |
+| Public contact details                      | `dessiProfileProjection.contact`     | Migrated                       |
+| Public links and their allowed surfaces     | `dessiProfileProjection.links`       | Migrated                       |
+| General CV asset references                 | `dessiProfileProjection.cv.primary`  | Migrated                       |
+| SEO title, description, and keywords        | `dessiProfileProjection.seo`         | Migrated                       |
+| Active profile resolution and runtime       | `src/profiles/runtime.ts`            | Migrated                       |
+| Shared shell, apps, and Evidence identity   | `activeProfile` runtime              | Migrated                       |
+| Owner approval and private-source exclusion | `dessiProfileProjection.publication` | Enforced                       |
+| Application-specific OpenAI CV and role     | `openAiCodexApplication`             | Intentionally separate variant |
 
 The validator rejects malformed identifiers and URLs, duplicate links and CV IDs, local filesystem paths, secret-bearing fields, and publication without the explicit privacy boundary. A JSON round-trip test protects the portability requirement.
 
@@ -29,9 +30,9 @@ The validator rejects malformed identifiers and URLs, duplicate links and CV IDs
 
 ### 1. Shared interface copy
 
-Direct references remain in `ResumeApp`, `EvolutionApp`, `TechnicalWritingApp`, `DesktopWorkspace`, `CreativeMachineMonitor`, `HelpGuideWindow`, and the Evidence surface. These should become copy or labels supplied through an active profile runtime, not individual component props added ad hoc.
+The desktop shell, Resume, Evolution, Technical Writing, Workbench introduction, and Evidence surface now receive an active profile runtime. Direct references remain in `CreativeMachineMonitor`, `HelpGuideWindow`, and lower-priority profile-specific modules.
 
-**Disposition:** introduce a small `ProfileRuntimeContext` generated from the public projection, then migrate the shared shell and apps one surface at a time.
+**Disposition:** continue passing the serialisable runtime across Astro and React island boundaries. Migrate remaining shared copy one surface at a time; do not introduce a browser-global mutable profile store.
 
 ### 2. Terminal and agent behaviour
 
@@ -61,7 +62,7 @@ The projection owns published CV asset references, while filenames and resume-ge
 
 `/systems`, project routes, and page titles still assume the single Dessi profile. `/apply/openai-codex` is intentionally specific to one application.
 
-**Disposition:** first render the existing shell from an active profile context. Add a canonical profile route such as `/@dessi` only when a second fixture can exercise profile selection. Authentication and database-backed workspaces remain gated on a real second user.
+**Disposition:** the existing shell and metadata now render from the active profile. Add a canonical profile route such as `/@dessi` only when a second fixture can exercise profile selection. Authentication and database-backed workspaces remain gated on a real second user.
 
 ### 7. Tests
 
@@ -80,4 +81,4 @@ Existing terminal, API, and end-to-end suites contain fixture-specific Dessi ass
 
 ## Next implementation slice
 
-Build an active-profile runtime around `ProfileProjection` and use it in the desktop shell, Resume, Evidence, and page metadata. This proves that the current Dessi experience is genuinely profile-driven before routes, workspaces, authentication, Neon, or Blob storage are introduced.
+Add a canonical public profile route backed by the existing registry and use a second synthetic fixture in tests to prove route resolution and isolation. Authentication, workspaces, Neon, and Blob storage remain deferred until a real second user enters the product.

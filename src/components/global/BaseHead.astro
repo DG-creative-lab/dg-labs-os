@@ -1,7 +1,24 @@
 ---
 import '../../styles/global.css';
 import { AstroSeo } from '@astrolib/seo';
-import { userConfig } from '../../config/index';
+import { activeProfile, type ActiveProfileRuntime } from '../../profiles';
+import { theme } from '../../config/site';
+
+interface Props {
+  profile?: ActiveProfileRuntime;
+  title?: string;
+  description?: string;
+  canonical?: string;
+  robots?: string;
+  openGraph?: {
+    url?: string;
+    title?: string;
+    description?: string;
+    site_name?: string;
+  };
+}
+
+const { profile = activeProfile } = Astro.props as Props;
 
 // Build safe defaults for SEO
 const siteOrigin = Astro.site ? new URL('/', Astro.site).origin : undefined;
@@ -13,19 +30,19 @@ const ogUrl = Astro.props.openGraph?.url || siteOrigin;
 <meta charset="UTF-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-<meta name="author" content={userConfig.name} />
+<meta name="author" content={profile.identity.displayName} />
 {Astro.props.robots ? <meta name="robots" content={Astro.props.robots} /> : null}
 
 <!-- SEO Configuration -->
 <AstroSeo
-  title={Astro.props.title || userConfig.seo.title}
-  description={Astro.props.description || userConfig.seo.description}
+  title={Astro.props.title || profile.seo.title}
+  description={Astro.props.description || profile.seo.description}
   canonical={canonicalUrl}
   openGraph={{
     url: ogUrl,
-    title: Astro.props.openGraph?.title || userConfig.seo.title,
-    description: Astro.props.openGraph?.description || userConfig.seo.description,
-    site_name: Astro.props.openGraph?.site_name || userConfig.name,
+    title: Astro.props.openGraph?.title || profile.seo.title,
+    description: Astro.props.openGraph?.description || profile.seo.description,
+    site_name: Astro.props.openGraph?.site_name || profile.identity.displayName,
   }}
   twitter={{
     cardType: 'summary_large_image',
@@ -42,8 +59,8 @@ const ogUrl = Astro.props.openGraph?.url || siteOrigin;
         '@context': 'https://schema.org',
         '@type': 'WebSite',
         url: siteOrigin,
-        name: userConfig.name,
-        description: userConfig.seo.description,
+        name: profile.identity.displayName,
+        description: profile.seo.description,
       })}
     />
   )
@@ -56,10 +73,12 @@ const ogUrl = Astro.props.openGraph?.url || siteOrigin;
       set:html={JSON.stringify({
         '@context': 'https://schema.org',
         '@type': 'Person',
-        name: userConfig.name,
-        jobTitle: userConfig.role,
+        name: profile.identity.displayName,
+        jobTitle: profile.identity.role,
         url: siteOrigin,
-        sameAs: [userConfig.social.github, userConfig.social.linkedin].filter(Boolean),
+        sameAs: profile.links
+          .filter((link) => link.kind === 'profile' || link.kind === 'code')
+          .map((link) => link.url),
       })}
     />
   )
@@ -71,8 +90,8 @@ const ogUrl = Astro.props.openGraph?.url || siteOrigin;
 <link rel="icon" type="image/svg+xml" href="/images/dg-labs.svg" />
 
 <!-- Theme colors for browsers -->
-<meta name="msapplication-TileColor" content={userConfig.theme.secondaryColor} />
-<meta name="theme-color" content={userConfig.theme.secondaryColor} />
+<meta name="msapplication-TileColor" content={theme.secondaryColor} />
+<meta name="theme-color" content={theme.secondaryColor} />
 
 <!-- Auto-generated sitemap -->
 <link rel="sitemap" href="/sitemap-index.xml" />

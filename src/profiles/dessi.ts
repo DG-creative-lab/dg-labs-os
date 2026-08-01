@@ -9,6 +9,7 @@ export const dessiProfileProjection = defineProfileProjection({
   status: 'published',
   identity: {
     displayName: 'Dessi Georgieva',
+    preferredName: 'Dessi',
     ownerName: 'Dessi Georgieva',
     aliases: ['Dessi', 'Dessi Georgieva', 'DG-OS', 'DG-Labs'],
     role: 'AI Systems Engineer',

@@ -1,17 +1,19 @@
 ---
 import SystemsEvidencePage from '../../components/evidence/SystemsEvidencePage.astro';
 import { openAiCodexApplication } from '../../config/applicationProfile';
-import { userConfig } from '../../config';
+import { activeProfile } from '../../profiles';
 import Layout from '../../layouts/Layout.astro';
 ---
 
 <Layout
-  title={`Dessi Georgieva — ${openAiCodexApplication.role}`}
+  profile={activeProfile}
+  title={`${activeProfile.identity.displayName} — ${openAiCodexApplication.role}`}
   description="Evidence-led application for the Applied AI Engineer, Codex Core Agent role."
-  canonical={`${userConfig.website}apply/openai-codex`}
+  canonical={`${activeProfile.contact.website}apply/openai-codex`}
   robots="noindex, nofollow"
 >
   <SystemsEvidencePage
+    profile={activeProfile}
     mode="application"
     cv={openAiCodexApplication.applicationCv}
     targetRole={{

@@ -1,11 +1,15 @@
 ---
 import BaseHead from '../components/global/BaseHead.astro';
 import Analytics from '@vercel/analytics/astro';
+import { activeProfile, type ActiveProfileRuntime } from '../profiles';
+
+const profile = (Astro.props.profile as ActiveProfileRuntime | undefined) ?? activeProfile;
 ---
 
 <html lang="en" class="scroll-smooth selection:bg-gray-900 selection:text-white overflow-x-hidden">
   <head>
     <BaseHead
+      profile={profile}
       title={Astro.props.title}
       description={Astro.props.description}
       canonical={Astro.props.canonical}

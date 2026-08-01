@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { dockLinks } from '../../config/links';
+import type { ActiveProfileRuntime } from '../../profiles';
 import {
   dispatchDesktopToggleWindow,
   onDesktopState,
@@ -11,6 +11,7 @@ import { dispatchHomeBrowserToggle, onHomeBrowserState } from '../../services/ho
 import DockGlyph from './DockGlyph';
 
 interface DesktopDockProps {
+  profile: ActiveProfileRuntime;
   activeApps: {
     terminal: boolean;
     notes: boolean;
@@ -29,7 +30,7 @@ type DockItem = {
   utility?: boolean;
 };
 
-const DesktopDock = ({ activeApps }: DesktopDockProps) => {
+const DesktopDock = ({ profile, activeApps }: DesktopDockProps) => {
   const [showConnectMenu, setShowConnectMenu] = useState(false);
   const [homeBrowserOpen, setHomeBrowserOpen] = useState(true);
   const [normalizedPath, setNormalizedPath] = useState('');
@@ -44,6 +45,7 @@ const DesktopDock = ({ activeApps }: DesktopDockProps) => {
   });
   const dockNavRef = useRef<HTMLElement>(null);
   const connectMenuRef = useRef<HTMLDivElement>(null);
+  const dockLinks = profile.links.filter((link) => link.surfaces.includes('dock'));
 
   const handleConnectClick = () => {
     setShowConnectMenu(!showConnectMenu);

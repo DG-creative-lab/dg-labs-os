@@ -1,12 +1,19 @@
 import DraggableWindow from './DraggableWindow';
+import type { ActiveProfileRuntime } from '../../profiles';
 
 interface AboutDGWindowProps {
+  profile: ActiveProfileRuntime;
   isOpen: boolean;
   onClose: () => void;
   onMoreInfo: () => void;
 }
 
-export default function AboutDGWindow({ isOpen, onClose, onMoreInfo }: AboutDGWindowProps) {
+export default function AboutDGWindow({
+  profile,
+  isOpen,
+  onClose,
+  onMoreInfo,
+}: AboutDGWindowProps) {
   if (!isOpen) return null;
 
   return (
@@ -44,18 +51,15 @@ export default function AboutDGWindow({ isOpen, onClose, onMoreInfo }: AboutDGWi
             <span>1.0</span>
           </div>
           <div className="flex justify-between gap-4">
-            <span className="text-white/60">Runtime</span>
-            <span>Research + engineering</span>
+            <span className="text-white/60">Owner</span>
+            <span>{profile.identity.displayName}</span>
           </div>
           <div className="flex justify-between gap-4">
             <span className="text-white/60">Primary output</span>
             <span>Systems, platforms, writing</span>
           </div>
         </div>
-        <p className="max-w-sm text-sm leading-6 text-white/70">
-          Converts ideas into production systems: agent runtimes, enterprise auth boundaries,
-          infrastructure control planes, and public technical interfaces.
-        </p>
+        <p className="max-w-sm text-sm leading-6 text-white/70">{profile.identity.roleFocus}</p>
         <button
           onClick={onMoreInfo}
           className="mt-2 rounded-full bg-white/10 px-4 py-1.5 text-sm text-white shadow hover:bg-white/20 transition"

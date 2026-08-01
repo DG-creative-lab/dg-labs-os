@@ -8,6 +8,7 @@ export type ProfileLinkTrust = 'high' | 'medium' | 'low';
 
 export type ProfileIdentity = {
   displayName: string;
+  preferredName: string;
   ownerName: string;
   aliases: readonly string[];
   role: string;

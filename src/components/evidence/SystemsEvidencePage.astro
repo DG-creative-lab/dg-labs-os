@@ -4,9 +4,8 @@ import {
   applicationClaims,
   currentBoundaries,
   evolutionEntries,
-  systemsEvidenceProfile,
 } from '../../config/applicationProfile';
-import { userConfig } from '../../config';
+import { activeProfile, type ActiveProfileRuntime } from '../../profiles';
 
 type DossierMode = 'general' | 'application';
 
@@ -22,14 +21,16 @@ type TargetRole = {
 };
 
 interface Props {
+  profile?: ActiveProfileRuntime;
   mode?: DossierMode;
   cv?: DossierCv;
   targetRole?: TargetRole;
 }
 
 const {
+  profile = activeProfile,
   mode = 'general',
-  cv = systemsEvidenceProfile.profileCv,
+  cv = profile.cv.primary.files,
   targetRole,
 } = Astro.props as Props;
 const isApplication = mode === 'application';
@@ -48,7 +49,7 @@ const confidenceLabel = {
   >
     <a class="brand" href="/desktop">
       <span>DG</span>
-      <strong>Dessi Georgieva</strong>
+      <strong>{profile.identity.displayName}</strong>
     </a>
     <div>
       <a href="#systems">Systems</a>
@@ -61,15 +62,15 @@ const confidenceLabel = {
   <section class="application-hero" aria-labelledby="application-title">
     <div class="hero-copy">
       <p class="kicker">
-        {isApplication ? 'Application' : systemsEvidenceProfile.role} · {
-          systemsEvidenceProfile.location
-        }
+        {isApplication ? 'Application' : profile.identity.role} · {profile.identity.location}
       </p>
-      <h1 id="application-title">{systemsEvidenceProfile.heading}</h1>
-      <p class="hero-intro">{systemsEvidenceProfile.introduction}</p>
+      <h1 id="application-title">{profile.identity.headline}</h1>
+      <p class="hero-intro">{profile.identity.introduction}</p>
       <div class="hero-actions">
         <a class="primary-action" href="#systems">Inspect the evidence</a>
-        <a href={`mailto:${userConfig.email}`}>Contact Dessi</a>
+        <a href={`mailto:${profile.contact.publicEmail}`}
+          >Contact {profile.identity.preferredName}</a
+        >
       </div>
     </div>
 

@@ -116,6 +116,7 @@ export function validateProfileProjection(projection: ProfileProjection): Profil
 
   const requiredIdentityFields = [
     ['identity.displayName', projection.identity.displayName],
+    ['identity.preferredName', projection.identity.preferredName],
     ['identity.ownerName', projection.identity.ownerName],
     ['identity.role', projection.identity.role],
     ['identity.location', projection.identity.location],

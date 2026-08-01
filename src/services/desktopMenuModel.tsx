@@ -1,7 +1,7 @@
 import type React from 'react';
 import { FaEnvelope, FaGithub, FaLinkedin, FaWindowRestore } from 'react-icons/fa';
 import { IoCodeSlash, IoDocumentText, IoHelpCircle, IoMail } from 'react-icons/io5';
-import { userConfig } from '../config';
+import type { ActiveProfileRuntime } from '../profiles';
 import {
   openAppFromMenu,
   openContactFromMenu,
@@ -45,6 +45,7 @@ export type DesktopMenuModel = {
 };
 
 type DesktopMenuModelOptions = {
+  profile: ActiveProfileRuntime;
   resolvedAppId: ToolbarAppId;
   onOpenContact?: () => void;
   onOpenAbout: () => void;
@@ -53,14 +54,15 @@ type DesktopMenuModelOptions = {
   onCopyText: (text: string, label: string) => void;
 };
 
-const contactAction = (onOpenContact?: () => void) => () => {
+const contactAction = (profile: ActiveProfileRuntime, onOpenContact?: () => void) => () => {
   openContactFromMenu({
-    email: userConfig.contact.email,
+    email: profile.contact.publicEmail,
     onOpenContact,
   });
 };
 
 export const buildDesktopMenuModel = ({
+  profile,
   resolvedAppId,
   onOpenContact,
   onOpenAbout,
@@ -68,6 +70,9 @@ export const buildDesktopMenuModel = ({
   onCloseApp,
   onCopyText,
 }: DesktopMenuModelOptions): DesktopMenuModel => {
+  const linkById = (id: string) => profile.links.find((link) => link.id === id)?.url;
+  const githubUrl = linkById('github-personal');
+  const linkedinUrl = linkById('linkedin');
   const commonMenus: MenuSet = {
     Apple: [
       {
@@ -99,7 +104,7 @@ export const buildDesktopMenuModel = ({
         icon: <IoDocumentText size={16} />,
         action: () =>
           onCopyText(
-            `${userConfig.ownerName} builds AI systems, agent infrastructure, and product interfaces that make complex automation inspectable and useful. DG-Labs OS connects the systems, professional writing, and evidence behind that work.`,
+            `${profile.identity.displayName}: ${profile.identity.roleFocus} DG-OS connects the systems, professional writing, and evidence behind that work.`,
             'Quick intro'
           ),
       },
@@ -107,14 +112,10 @@ export const buildDesktopMenuModel = ({
         label: 'Copy Public Footprint',
         icon: <IoMail size={16} />,
         action: () => {
-          const footprint = [
-            `LinkedIn: ${userConfig.social.linkedin}`,
-            `GitHub: ${userConfig.social.github}`,
-            'AI Knowledge Hub: https://github.com/ai-knowledge-hub',
-            'AI News Hub: https://ai-news-hub.performics-labs.com/',
-            'AI Skills Platform: https://skills.ai-knowledge-hub.org/',
-            `Email: ${userConfig.contact.email}`,
-          ].join('\n');
+          const footprint = profile.links
+            .filter((link) => link.surfaces.includes('profile'))
+            .map((link) => `${link.label}: ${link.url}`)
+            .join('\n');
           onCopyText(footprint, 'Public footprint');
         },
       },
@@ -145,12 +146,12 @@ export const buildDesktopMenuModel = ({
       {
         label: 'GitHub',
         icon: <FaGithub size={16} />,
-        action: () => window.open(userConfig.social.github, '_blank'),
+        action: () => githubUrl && window.open(githubUrl, '_blank'),
       },
       {
         label: 'LinkedIn',
         icon: <FaLinkedin size={16} />,
-        action: () => window.open(userConfig.social.linkedin, '_blank'),
+        action: () => linkedinUrl && window.open(linkedinUrl, '_blank'),
       },
       {
         label: 'Performics Labs Archive',
@@ -161,7 +162,7 @@ export const buildDesktopMenuModel = ({
         label: 'Email',
         icon: <FaEnvelope size={16} />,
         action: () => {
-          window.location.href = `mailto:${userConfig.contact.email}`;
+          window.location.href = `mailto:${profile.contact.publicEmail}`;
         },
       },
     ],
@@ -169,7 +170,7 @@ export const buildDesktopMenuModel = ({
       {
         label: 'Contact...',
         icon: <IoMail size={16} />,
-        action: contactAction(onOpenContact),
+        action: contactAction(profile, onOpenContact),
       },
     ],
     Help: [
@@ -226,7 +227,11 @@ export const buildDesktopMenuModel = ({
       },
     ],
     Window: [
-      { label: 'Contact...', icon: <IoMail size={16} />, action: contactAction(onOpenContact) },
+      {
+        label: 'Contact...',
+        icon: <IoMail size={16} />,
+        action: contactAction(profile, onOpenContact),
+      },
       {
         label: 'Open Resume',
         icon: <IoDocumentText size={16} />,
@@ -468,7 +473,7 @@ export const buildDesktopMenuModel = ({
   };
 
   const appMenuLabelMap: Record<ToolbarAppId, string> = {
-    home: userConfig.name,
+    home: profile.identity.displayName,
     terminal: 'Agents',
     network: 'System Map',
     projects: 'Workbench',

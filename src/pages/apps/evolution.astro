@@ -2,9 +2,10 @@
 import DesktopLayout from '../../layouts/DesktopLayout.astro';
 import DraggableAppWindow from '../../components/global/DraggableAppWindow';
 import EvolutionApp from '../../components/global/EvolutionApp';
+import { activeProfile } from '../../profiles';
 ---
 
-<DesktopLayout activeAppId="evolution">
+<DesktopLayout profile={activeProfile} activeAppId="evolution">
   <main class="relative min-h-[calc(100vh-4rem)] px-4 pt-10 text-white sm:px-6 sm:pt-12">
     <DraggableAppWindow
       client:load
@@ -14,7 +15,7 @@ import EvolutionApp from '../../components/global/EvolutionApp';
       initialSize={{ width: 980, height: 700 }}
       initialPosition={{ x: 90, y: 70 }}
     >
-      <EvolutionApp client:load />
+      <EvolutionApp client:load profile={activeProfile} />
     </DraggableAppWindow>
   </main>
 </DesktopLayout>

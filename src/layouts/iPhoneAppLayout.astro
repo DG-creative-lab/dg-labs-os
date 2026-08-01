@@ -2,9 +2,10 @@
 import Layout from './Layout.astro';
 import IPhoneHomeIndicator from '../components/mobile/iPhoneHomeIndicator.astro';
 import IPhoneStatusBar from '../components/mobile/iPhoneStatusBar.astro';
-import { userConfig } from '../config/index';
+import { activeProfile, type ActiveProfileRuntime } from '../profiles';
 
 interface Props {
+  profile?: ActiveProfileRuntime;
   title?: string;
   description?: string;
   canonical?: string;
@@ -19,21 +20,28 @@ interface Props {
 }
 
 const {
-  title = userConfig.seo.title,
-  description = userConfig.seo.description,
-  canonical = userConfig.website,
+  profile = activeProfile,
+  title = profile.seo.title,
+  description = profile.seo.description,
+  canonical = profile.contact.website,
   openGraph = {
-    url: userConfig.website,
-    title: userConfig.seo.title,
-    description: userConfig.seo.description,
-    site_name: userConfig.name,
+    url: profile.contact.website,
+    title: profile.seo.title,
+    description: profile.seo.description,
+    site_name: profile.identity.displayName,
   },
   appLabel,
   backHref = '/mobile',
 } = Astro.props;
 ---
 
-<Layout title={title} description={description} canonical={canonical} openGraph={openGraph}>
+<Layout
+  profile={profile}
+  title={title}
+  description={description}
+  canonical={canonical}
+  openGraph={openGraph}
+>
   <div
     class="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#030712] via-[#07111f] to-[#020617] text-white"
   >
