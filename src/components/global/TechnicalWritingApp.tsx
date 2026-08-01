@@ -4,10 +4,15 @@ import {
   handleNotesMenuAction,
   type NotesMenuEventDetail,
 } from '../../services/menuActionHandlers';
+import type { ActiveProfileRuntime } from '../../profiles';
 
 const archiveUrl = 'https://ai-news-hub.performics-labs.com/analysis';
 
-export default function TechnicalWritingApp() {
+type TechnicalWritingAppProps = {
+  profile: ActiveProfileRuntime;
+};
+
+export default function TechnicalWritingApp({ profile }: TechnicalWritingAppProps) {
   useEffect(() => {
     const onWritingMenuAction = (event: Event) => {
       const customEvent = event as CustomEvent<NotesMenuEventDetail>;
@@ -51,9 +56,10 @@ export default function TechnicalWritingApp() {
         <div className="col-span-4 md:col-span-9">
           <h1 className="text-2xl font-semibold tracking-[-0.02em]">Technical Writing</h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">
-            Selected analysis developed through Performics Labs and connected to systems Dessi has
-            built or investigated. These pieces show technical synthesis and design judgement. They
-            are professional writing, not independent academic research.
+            Selected analysis developed through Performics Labs and connected to systems{' '}
+            {profile.identity.preferredName} has built or investigated. These pieces show technical
+            synthesis and design judgement. They are professional writing, not independent academic
+            research.
           </p>
         </div>
       </header>

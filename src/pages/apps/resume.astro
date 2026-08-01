@@ -2,10 +2,10 @@
 import DesktopLayout from '../../layouts/DesktopLayout.astro';
 import DraggableAppWindow from '../../components/global/DraggableAppWindow';
 import ResumeApp from '../../components/global/ResumeApp';
-import { userConfig } from '../../config/index';
+import { activeProfile } from '../../profiles';
 ---
 
-<DesktopLayout activeAppId="resume">
+<DesktopLayout profile={activeProfile} activeAppId="resume">
   <main class="relative min-h-[calc(100vh-4rem)] px-6 pt-12 text-white">
     <DraggableAppWindow
       client:load
@@ -15,7 +15,7 @@ import { userConfig } from '../../config/index';
       initialSize={{ width: 920, height: 660 }}
       initialPosition={{ x: 130, y: 110 }}
     >
-      <ResumeApp client:load resume={userConfig.resume} />
+      <ResumeApp client:load profile={activeProfile} />
     </DraggableAppWindow>
   </main>
 </DesktopLayout>

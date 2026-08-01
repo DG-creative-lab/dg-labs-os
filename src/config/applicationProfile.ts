@@ -1,3 +1,5 @@
+import { dessiProfileProjection } from '../profiles';
+
 export type EvidenceConfidence = 'verified' | 'self-reported' | 'inferred';
 export type EvidenceVisibility =
   | 'public'
@@ -269,13 +271,22 @@ export const evolutionEntries: readonly EvolutionEntry[] = [
   },
 ] as const;
 
+export const systemsEvidenceProfile = {
+  role: dessiProfileProjection.identity.role,
+  location: dessiProfileProjection.identity.location,
+  heading: dessiProfileProjection.identity.headline,
+  introduction: dessiProfileProjection.identity.introduction,
+  profileCv: {
+    pdf: dessiProfileProjection.cv.primary.files.pdf,
+    docx: dessiProfileProjection.cv.primary.files.docx,
+    markdown: dessiProfileProjection.cv.primary.files.markdown,
+  },
+} as const;
+
 export const openAiCodexApplication = {
   role: 'Applied AI Engineer, Codex Core Agent',
-  location: 'London, UK',
+  location: systemsEvidenceProfile.location,
   roleUrl: links.openAiRole.url,
-  heading: 'I build the layer where agent capability becomes accountable behaviour.',
-  introduction:
-    'My work sits between models and use: tool execution, context, evidence, failure recovery, human control, and the feedback loops that make the next run better.',
   applicationCv: {
     pdf: '/cv/Dessi_Georgieva_OpenAI_Codex_CV.pdf',
     docx: '/cv/Dessi_Georgieva_OpenAI_Codex_CV.docx',

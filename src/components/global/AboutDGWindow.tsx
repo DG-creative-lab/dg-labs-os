@@ -1,12 +1,19 @@
 import DraggableWindow from './DraggableWindow';
+import type { ActiveProfileRuntime } from '../../profiles';
 
 interface AboutDGWindowProps {
+  profile: ActiveProfileRuntime;
   isOpen: boolean;
   onClose: () => void;
   onMoreInfo: () => void;
 }
 
-export default function AboutDGWindow({ isOpen, onClose, onMoreInfo }: AboutDGWindowProps) {
+export default function AboutDGWindow({
+  profile,
+  isOpen,
+  onClose,
+  onMoreInfo,
+}: AboutDGWindowProps) {
   if (!isOpen) return null;
 
   return (
@@ -44,27 +51,44 @@ export default function AboutDGWindow({ isOpen, onClose, onMoreInfo }: AboutDGWi
             <span>1.0</span>
           </div>
           <div className="flex justify-between gap-4">
-            <span className="text-white/60">Runtime</span>
-            <span>Research + engineering</span>
+            <span className="text-white/60">Owner</span>
+            <span>{profile.identity.displayName}</span>
           </div>
           <div className="flex justify-between gap-4">
             <span className="text-white/60">Primary output</span>
             <span>Systems, platforms, writing</span>
           </div>
         </div>
-        <p className="max-w-sm text-sm leading-6 text-white/70">
-          Converts ideas into production systems: agent runtimes, enterprise auth boundaries,
-          infrastructure control planes, and public technical interfaces.
-        </p>
+        <p className="max-w-sm text-sm leading-6 text-white/70">{profile.identity.roleFocus}</p>
         <button
           onClick={onMoreInfo}
           className="mt-2 rounded-full bg-white/10 px-4 py-1.5 text-sm text-white shadow hover:bg-white/20 transition"
         >
           More Info...
         </button>
-        <p className="mt-4 text-xs text-white/40">
-          DG-Labs OS prototype interface for systems thinking, research, and engineering.
-        </p>
+        <div className="mt-4 space-y-1 text-xs text-white/40">
+          <p>DG-Labs OS prototype interface for systems thinking, research, and engineering.</p>
+          <p>
+            Software licensed under{' '}
+            <a
+              className="text-sky-300/80 underline decoration-sky-300/30 underline-offset-2 hover:text-sky-200"
+              href="https://github.com/DG-creative-lab/dg-labs-os/blob/main/LICENSE"
+              target="_blank"
+              rel="noreferrer"
+            >
+              AGPL-3.0
+            </a>{' '}
+            ·{' '}
+            <a
+              className="text-sky-300/80 underline decoration-sky-300/30 underline-offset-2 hover:text-sky-200"
+              href="https://github.com/DG-creative-lab/dg-labs-os"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Source
+            </a>
+          </p>
+        </div>
       </div>
     </DraggableWindow>
   );

@@ -13,6 +13,49 @@ const SIDE_INSET = 8;
 const DEFAULT_BOTTOM_INSET = 118; // Keep windows clear of desktop dock.
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(value, max));
+
+type ViewportFit = {
+  widthRatio: number;
+  heightRatio: number;
+};
+
+type ViewportDimensions = {
+  width: number;
+  height: number;
+  bottomInset: number;
+};
+
+export const getViewportFitBounds = (viewport: ViewportDimensions, viewportFit: ViewportFit) => {
+  const maxWidth = Math.max(MIN_WIDTH, viewport.width - SIDE_INSET * 2);
+  const maxHeight = Math.max(MIN_HEIGHT, viewport.height - TOP_INSET - viewport.bottomInset);
+  const width = clamp(
+    Math.round(maxWidth * clamp(viewportFit.widthRatio, 0.1, 1)),
+    MIN_WIDTH,
+    maxWidth
+  );
+  const height = clamp(
+    Math.round(maxHeight * clamp(viewportFit.heightRatio, 0.1, 1)),
+    MIN_HEIGHT,
+    maxHeight
+  );
+
+  return {
+    size: { width, height },
+    position: {
+      x: clamp(
+        Math.round((viewport.width - width) / 2),
+        SIDE_INSET,
+        Math.max(SIDE_INSET, viewport.width - width - SIDE_INSET)
+      ),
+      y: clamp(
+        Math.round((viewport.height - TOP_INSET - viewport.bottomInset - height) / 2) + TOP_INSET,
+        TOP_INSET,
+        Math.max(TOP_INSET, viewport.height - viewport.bottomInset - height)
+      ),
+    },
+  };
+};
+
 const getBottomInset = () => {
   if (typeof window === 'undefined') return DEFAULT_BOTTOM_INSET;
   const raw = getComputedStyle(document.documentElement)
@@ -80,6 +123,7 @@ interface DraggableWindowProps {
   hideHeader?: boolean;
   centerOnMount?: boolean;
   isFocused?: boolean;
+  viewportFit?: ViewportFit;
 }
 
 export default function DraggableWindow({
@@ -94,6 +138,7 @@ export default function DraggableWindow({
   hideHeader = false,
   centerOnMount = false,
   isFocused = true,
+  viewportFit,
 }: DraggableWindowProps) {
   const titleId = useId();
   // Keep the server and first client render identical. Viewport-aware centring is
@@ -115,6 +160,8 @@ export default function DraggableWindow({
   const initialY = initialPosition.y;
   const initialWidth = initialSize.width;
   const initialHeight = initialSize.height;
+  const viewportWidthRatio = viewportFit?.widthRatio;
+  const viewportHeightRatio = viewportFit?.heightRatio;
 
   useIsomorphicLayoutEffect(() => {
     if (typeof window === 'undefined') return;
@@ -127,12 +174,29 @@ export default function DraggableWindow({
       setHasResolvedInitialBounds(true);
       return;
     }
-    const bounds = getWindowBounds(initialPosition, initialSize, true);
+    const bounds = viewportFit
+      ? getViewportFitBounds(
+          {
+            width: window.innerWidth,
+            height: window.innerHeight,
+            bottomInset: getBottomInset(),
+          },
+          viewportFit
+        )
+      : getWindowBounds(initialPosition, initialSize, true);
     setSize(bounds.size);
     setPosition(bounds.position);
     hasAppliedInitialCenterRef.current = true;
     setHasResolvedInitialBounds(true);
-  }, [centerOnMount, initialHeight, initialWidth, initialX, initialY]);
+  }, [
+    centerOnMount,
+    initialHeight,
+    initialWidth,
+    initialX,
+    initialY,
+    viewportHeightRatio,
+    viewportWidthRatio,
+  ]);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -153,6 +217,25 @@ export default function DraggableWindow({
   // Keep existing windows visible if viewport size changes.
   useEffect(() => {
     if (isMobile) return;
+
+    if (viewportFit) {
+      const fitToViewport = () => {
+        const bounds = getViewportFitBounds(
+          {
+            width: window.innerWidth,
+            height: window.innerHeight,
+            bottomInset: getBottomInset(),
+          },
+          viewportFit
+        );
+        setSize(bounds.size);
+        setPosition(bounds.position);
+      };
+      window.addEventListener('resize', fitToViewport);
+      fitToViewport();
+      return () => window.removeEventListener('resize', fitToViewport);
+    }
+
     const clampInViewport = () => {
       const bottomInset = getBottomInset();
       setSize((prev) => {
@@ -173,7 +256,7 @@ export default function DraggableWindow({
     window.addEventListener('resize', clampInViewport);
     clampInViewport();
     return () => window.removeEventListener('resize', clampInViewport);
-  }, [isMobile, size.width, size.height]);
+  }, [isMobile, size.width, size.height, viewportHeightRatio, viewportWidthRatio]);
 
   const bringToFront = () => {
     globalZIndex += 1;

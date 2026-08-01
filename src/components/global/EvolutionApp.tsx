@@ -3,6 +3,7 @@ import {
   currentBoundaries,
   evolutionEntries,
 } from '../../config/applicationProfile';
+import type { ActiveProfileRuntime } from '../../profiles';
 
 const stateLabel = {
   observed: 'Observed',
@@ -10,7 +11,11 @@ const stateLabel = {
   reviewed: 'Reviewed revision',
 } as const;
 
-export default function EvolutionApp() {
+type EvolutionAppProps = {
+  profile: ActiveProfileRuntime;
+};
+
+export default function EvolutionApp({ profile }: EvolutionAppProps) {
   const claimsById = new Map(applicationClaims.map((claim) => [claim.id, claim]));
 
   return (
@@ -29,15 +34,15 @@ export default function EvolutionApp() {
             Evidence &amp; Evolution
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">
-            DG-OS is a record of work in motion. This panel traces how Dessi&apos;s ideas, systems,
-            and questions change over time—what prompted a revision, which evidence supports it, and
-            what remains open.
+            DG-OS is a record of work in motion. This panel traces how{' '}
+            {profile.identity.possessiveName} ideas, systems, and questions change over time—what
+            prompted a revision, which evidence supports it, and what remains open.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-white/65">
-            Behind it is Dessi Space, a private review environment built from principles explored in
-            Learning Foundry. It observes approved work and learning sources, keeps evidence,
-            reflection, and agent interpretation separate, and prepares selected public entries for
-            DG-OS.
+            Behind it is {profile.identity.preferredName} Space, a private review environment built
+            from principles explored in Learning Foundry. It observes approved work and learning
+            sources, keeps evidence, reflection, and agent interpretation separate, and prepares
+            selected public entries for DG-OS.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-white/65">
             Approved entries join the System Map, where connections between projects, experience,
@@ -72,7 +77,8 @@ export default function EvolutionApp() {
             <div>
               <h3 className="text-sm font-semibold text-white sm:mt-3">Observe</h3>
               <p className="mt-1 text-xs leading-5 text-white/58">
-                Dessi Space records bounded evidence from approved projects and learning sources.
+                {profile.identity.preferredName} Space records bounded evidence from approved
+                projects and learning sources.
               </p>
             </div>
           </li>
@@ -91,8 +97,8 @@ export default function EvolutionApp() {
             <div>
               <h3 className="text-sm font-semibold text-white sm:mt-3">Project</h3>
               <p className="mt-1 text-xs leading-5 text-white/58">
-                Dessi reviews what can become public. Approved entries enter DG-OS and the System
-                Map.
+                {profile.identity.preferredName} reviews what can become public. Approved entries
+                enter DG-OS and the System Map.
               </p>
             </div>
           </li>
@@ -186,10 +192,10 @@ export default function EvolutionApp() {
             ))}
           </ol>
           <a
-            href="/apply/openai-codex"
+            href="/systems"
             className="mt-6 inline-flex rounded-sm border border-sky-300/35 bg-sky-400/10 px-3 py-2 text-xs font-semibold text-sky-100 transition hover:bg-sky-400/20"
           >
-            Open application evidence →
+            Open Systems &amp; Evidence →
           </a>
         </aside>
       </div>

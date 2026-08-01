@@ -4,7 +4,8 @@
  */
 
 import type { ContactInfo } from '../types';
+import { dessiProfileProjection } from '../profiles';
 
 export const contact: ContactInfo = {
-  email: 'dessi.georgieva8@gmail.com',
+  email: dessiProfileProjection.contact.publicEmail,
 };

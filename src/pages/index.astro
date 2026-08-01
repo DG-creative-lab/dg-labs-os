@@ -1,16 +1,20 @@
 ---
 import DesktopLayout from '../layouts/DesktopLayout.astro';
-import { userConfig } from '../config/index';
+import HomeDesktop from '../components/global/HomeDesktop';
+import { activeProfile } from '../profiles';
 ---
 
 <DesktopLayout
-  title={userConfig.seo.title}
-  description={userConfig.seo.description}
-  canonical={userConfig.website}
+  profile={activeProfile}
+  title={activeProfile.seo.title}
+  description={activeProfile.seo.description}
+  canonical={activeProfile.contact.website}
   openGraph={{
-    url: userConfig.website,
-    title: userConfig.seo.title,
-    description: userConfig.seo.description,
-    site_name: userConfig.name,
+    url: activeProfile.contact.website,
+    title: activeProfile.seo.title,
+    description: activeProfile.seo.description,
+    site_name: activeProfile.identity.displayName,
   }}
-/>
+>
+  <HomeDesktop client:load profile={activeProfile} />
+</DesktopLayout>

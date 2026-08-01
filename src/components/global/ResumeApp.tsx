@@ -4,13 +4,14 @@ import {
   handleResumeMenuAction,
   type ResumeMenuEventDetail,
 } from '../../services/menuActionHandlers';
-import type { ResumeConfig } from '../../types';
+import type { ActiveProfileRuntime } from '../../profiles';
 
 type ResumeAppProps = {
-  resume: ResumeConfig;
+  profile: ActiveProfileRuntime;
 };
 
-export default function ResumeApp({ resume }: ResumeAppProps) {
+export default function ResumeApp({ profile }: ResumeAppProps) {
+  const resume = profile.cv.primary.files;
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -76,11 +77,12 @@ export default function ResumeApp({ resume }: ResumeAppProps) {
         <div>
           <h1 className="text-2xl font-semibold">Resume</h1>
           <p className="mt-2 text-white/70">
-            Canonical resume module with local downloadable formats.
+            {profile.identity.possessiveName} experience, technical focus, and selected systems.
+            Available in PDF, DOCX, and Markdown.
           </p>
         </div>
         <div className="hidden text-right text-xs text-white/50 md:block">
-          <p>DG-Labs OS</p>
+          <p>DG-OS</p>
           <p>Module: Resume</p>
         </div>
       </div>
@@ -115,46 +117,17 @@ export default function ResumeApp({ resume }: ResumeAppProps) {
         </a>
       </div>
 
-      {resume.targeted ? (
-        <aside className="mt-4 rounded-xl border border-sky-300/25 bg-sky-400/8 p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-200/75">
-            Targeted application
-          </p>
-          <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-            <a
-              className="text-sm font-medium text-sky-100 underline decoration-sky-300/40 underline-offset-4"
-              href="/apply/openai-codex"
-            >
-              View evidence dossier
-            </a>
-            <span className="hidden text-white/25 sm:inline">·</span>
-            <a
-              className="text-sm text-white/75 hover:text-white"
-              href={resume.targeted.pdf}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {resume.targeted.label} (PDF)
-            </a>
-            <a
-              className="text-sm text-white/55 hover:text-white"
-              href={resume.targeted.docx}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              DOCX
-            </a>
-            <a
-              className="text-sm text-white/55 hover:text-white"
-              href={resume.targeted.markdown}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Markdown
-            </a>
-          </div>
-        </aside>
-      ) : null}
+      <aside className="mt-4 rounded-xl border border-sky-300/25 bg-sky-400/8 p-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-200/75">
+          Systems &amp; Evidence
+        </p>
+        <a
+          className="mt-2 inline-flex text-sm font-medium text-sky-100 underline decoration-sky-300/40 underline-offset-4"
+          href="/systems"
+        >
+          Inspect selected systems, claims, and boundaries →
+        </a>
+      </aside>
 
       <div
         id="resume-body"

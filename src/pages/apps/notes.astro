@@ -2,9 +2,10 @@
 import DesktopLayout from '../../layouts/DesktopLayout.astro';
 import DraggableAppWindow from '../../components/global/DraggableAppWindow';
 import TechnicalWritingApp from '../../components/global/TechnicalWritingApp';
+import { activeProfile } from '../../profiles';
 ---
 
-<DesktopLayout activeAppId="notes">
+<DesktopLayout profile={activeProfile} activeAppId="notes">
   <main class="relative min-h-[calc(100vh-4rem)] px-6 pt-12 text-white">
     <DraggableAppWindow
       client:load
@@ -14,7 +15,7 @@ import TechnicalWritingApp from '../../components/global/TechnicalWritingApp';
       initialSize={{ width: 920, height: 680 }}
       initialPosition={{ x: 110, y: 80 }}
     >
-      <TechnicalWritingApp client:load />
+      <TechnicalWritingApp client:load profile={activeProfile} />
     </DraggableAppWindow>
   </main>
 </DesktopLayout>

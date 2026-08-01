@@ -4,15 +4,17 @@
  */
 
 import type { PersonalInfo } from '../types';
+import { dessiProfileProjection } from '../profiles';
+
+const { identity, contact } = dessiProfileProjection;
 
 export const personal: PersonalInfo = {
-  name: 'Dessi Georgieva',
-  ownerName: 'Dessi Georgieva',
-  aliases: ['Dessi', 'Dessi Georgieva', 'DG-OS', 'DG-Labs'],
-  role: 'AI Systems Engineer',
-  location: 'London, UK',
-  email: 'dessi.georgieva8@gmail.com',
-  website: 'https://dg-os.com/',
-  roleFocus:
-    'Building inspectable agent systems, evaluation loops, and human-controlled AI infrastructure.',
+  name: identity.displayName,
+  ownerName: identity.ownerName,
+  aliases: identity.aliases,
+  role: identity.role,
+  location: identity.location,
+  email: contact.publicEmail,
+  website: contact.website,
+  roleFocus: identity.roleFocus,
 };

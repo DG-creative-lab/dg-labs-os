@@ -1,5 +1,6 @@
 import { defineMiddleware } from 'astro/middleware';
 import { isMobileUserAgent } from './utils/deviceDetection';
+import { isPublicProfilePath } from './utils/profileRoutes';
 
 export const onRequest = defineMiddleware((context, next) => {
   const pathname = new URL(context.request.url).pathname;
@@ -8,6 +9,8 @@ export const onRequest = defineMiddleware((context, next) => {
   const isMobile = isMobileUserAgent(userAgent);
   const isMobilePath = pathname.startsWith('/mobile');
   const isDesktopPath = pathname.startsWith('/desktop');
+  const isStandaloneResponsivePath =
+    pathname === '/systems' || pathname.startsWith('/apply/') || isPublicProfilePath(pathname);
   const isAsset =
     pathname.startsWith('/_astro') ||
     pathname.startsWith('/favicon') ||
@@ -15,7 +18,7 @@ export const onRequest = defineMiddleware((context, next) => {
     pathname.startsWith('/assets') ||
     pathname.startsWith('/api');
 
-  if (!isAsset && isMobile && !isMobilePath) {
+  if (!isAsset && isMobile && !isMobilePath && !isStandaloneResponsivePath) {
     return context.redirect('/mobile/lock');
   }
 

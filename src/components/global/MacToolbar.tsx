@@ -9,6 +9,7 @@ import {
 } from '../../services/desktopEvents';
 import { clearDesktopReady, markDesktopReady } from '../../services/desktopReady';
 import { copyTextWithFallback } from '../../services/clipboardService';
+import type { ActiveProfileRuntime } from '../../profiles';
 import {
   buildDesktopMenuModel,
   type MenuItem,
@@ -18,11 +19,16 @@ import AboutDGWindow from './AboutDGWindow';
 import HelpGuideWindow, { type HelpTopic } from './HelpGuideWindow';
 
 interface MacToolbarProps {
+  profile: ActiveProfileRuntime;
   onOpenContact?: () => void;
   activeAppId?: ToolbarAppId;
 }
 
-export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacToolbarProps) {
+export default function MacToolbar({
+  profile,
+  onOpenContact,
+  activeAppId = 'home',
+}: MacToolbarProps) {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [showAbout, setShowAbout] = useState(false);
@@ -150,6 +156,7 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
   const resolvedAppId = focusedAppId ?? activeAppId;
 
   const { appMenuLabelMap, appMenuItemsMap, menus, menuOrder } = buildDesktopMenuModel({
+    profile,
     resolvedAppId,
     onOpenContact,
     onOpenAbout: () => setShowAbout(true),
@@ -278,6 +285,7 @@ export default function MacToolbar({ onOpenContact, activeAppId = 'home' }: MacT
         </div>
       </div>
       <AboutDGWindow
+        profile={profile}
         isOpen={showAbout}
         onClose={() => setShowAbout(false)}
         onMoreInfo={() => {

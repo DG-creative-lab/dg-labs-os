@@ -1,7 +1,7 @@
 import { useEffect, useReducer } from 'react';
 import { networkIdeaEdges, networkNodes, networkPaths } from '../../config/network';
-import { userConfig } from '../../config';
 import { workbench, workbenchCategories } from '../../config/workbench';
+import type { ActiveProfileRuntime } from '../../profiles';
 import {
   dispatchDesktopAppFocus,
   dispatchDesktopState,
@@ -42,7 +42,7 @@ const jumpTo = (id: string) => {
   el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
-function ProjectsPanel() {
+function ProjectsPanel({ profile }: { profile: ActiveProfileRuntime }) {
   useEffect(() => {
     const onWorkbenchMenuAction = (event: Event) => {
       const customEvent = event as CustomEvent<WorkbenchMenuEventDetail>;
@@ -66,7 +66,8 @@ function ProjectsPanel() {
     <div>
       <h1 className="text-2xl font-semibold">Workbench</h1>
       <p className="mt-2 text-white/70">
-        Selected systems Dessi can show, explain, and bound with evidence.
+        Selected systems {profile.identity.preferredName} can show, explain, and bound with
+        evidence.
       </p>
       <div className="mt-8 space-y-10">
         {workbenchCategories.map((cat) => {
@@ -124,7 +125,7 @@ function ProjectsPanel() {
   );
 }
 
-export default function DesktopWorkspace() {
+export default function DesktopWorkspace({ profile }: { profile: ActiveProfileRuntime }) {
   const [state, dispatch] = useReducer(desktopShellReducer, INITIAL_DESKTOP_SHELL_STATE);
   const { open, focusedAppId } = state;
 
@@ -199,7 +200,7 @@ export default function DesktopWorkspace() {
           initialPosition={{ x: projectsWindow.x, y: projectsWindow.y }}
           isFocused={focusedAppId === 'projects'}
         >
-          <ProjectsPanel />
+          <ProjectsPanel profile={profile} />
         </DraggableAppWindow>
       ) : null}
 
@@ -212,7 +213,7 @@ export default function DesktopWorkspace() {
           initialPosition={{ x: notesWindow.x, y: notesWindow.y }}
           isFocused={focusedAppId === 'notes'}
         >
-          <TechnicalWritingApp />
+          <TechnicalWritingApp profile={profile} />
         </DraggableAppWindow>
       ) : null}
 
@@ -225,7 +226,7 @@ export default function DesktopWorkspace() {
           initialPosition={{ x: evolutionWindow.x, y: evolutionWindow.y }}
           isFocused={focusedAppId === 'evolution'}
         >
-          <EvolutionApp />
+          <EvolutionApp profile={profile} />
         </DraggableAppWindow>
       ) : null}
 
@@ -238,7 +239,7 @@ export default function DesktopWorkspace() {
           initialPosition={{ x: resumeWindow.x, y: resumeWindow.y }}
           isFocused={focusedAppId === 'resume'}
         >
-          <ResumeApp resume={userConfig.resume} />
+          <ResumeApp profile={profile} />
         </DraggableAppWindow>
       ) : null}
 

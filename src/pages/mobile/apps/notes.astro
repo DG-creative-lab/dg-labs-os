@@ -1,10 +1,11 @@
 ---
 import IPhoneAppLayout from '../../../layouts/iPhoneAppLayout.astro';
 import TechnicalWritingApp from '../../../components/global/TechnicalWritingApp';
+import { activeProfile } from '../../../profiles';
 ---
 
-<IPhoneAppLayout appLabel="Writing">
+<IPhoneAppLayout profile={activeProfile} appLabel="Writing">
   <main class="min-h-screen px-4 pb-24 pt-24 text-white sm:px-6">
-    <TechnicalWritingApp client:load />
+    <TechnicalWritingApp client:load profile={activeProfile} />
   </main>
 </IPhoneAppLayout>

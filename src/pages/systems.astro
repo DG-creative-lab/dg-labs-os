@@ -1,0 +1,14 @@
+---
+import SystemsEvidencePage from '../components/evidence/SystemsEvidencePage.astro';
+import Layout from '../layouts/Layout.astro';
+import { activeProfile } from '../profiles';
+---
+
+<Layout
+  profile={activeProfile}
+  title={`Systems & Evidence — ${activeProfile.identity.displayName}`}
+  description={`An evidence-led account of ${activeProfile.identity.possessiveName} AI systems work: contributions, evaluations, results, limitations, and current questions.`}
+  canonical={`${activeProfile.contact.website}systems`}
+>
+  <SystemsEvidencePage profile={activeProfile} />
+</Layout>

@@ -1,13 +1,13 @@
 ---
 import IPhoneAppLayout from '../../../layouts/iPhoneAppLayout.astro';
 import ResumeApp from '../../../components/global/ResumeApp';
-import { userConfig } from '../../../config/index';
+import { activeProfile } from '../../../profiles';
 ---
 
-<IPhoneAppLayout appLabel="Resume">
+<IPhoneAppLayout profile={activeProfile} appLabel="Resume">
   <main class="min-h-screen px-4 pb-24 pt-24 text-white sm:px-6">
     <div class="mx-auto max-w-3xl">
-      <ResumeApp client:load resume={userConfig.resume} />
+      <ResumeApp client:load profile={activeProfile} />
     </div>
   </main>
 </IPhoneAppLayout>

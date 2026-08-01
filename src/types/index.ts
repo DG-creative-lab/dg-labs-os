@@ -146,13 +146,6 @@ export interface ResumeConfig {
   pdf: string;
   docx: string;
   markdown: string;
-  sourcePath: string;
-  targeted?: {
-    label: string;
-    pdf: string;
-    docx: string;
-    markdown: string;
-  };
 }
 
 export interface SEOConfig {

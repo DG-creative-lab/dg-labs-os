@@ -4,8 +4,9 @@
  */
 
 import type { SocialLinks } from '../types';
+import { dessiProfileProjection, getRequiredProfileLink } from '../profiles';
 
 export const social: SocialLinks = {
-  github: 'https://github.com/DG-creative-lab',
-  linkedin: 'https://www.linkedin.com/in/dessi-georgieva/',
+  github: getRequiredProfileLink(dessiProfileProjection, 'github-personal').url,
+  linkedin: getRequiredProfileLink(dessiProfileProjection, 'linkedin').url,
 };

@@ -3,16 +3,12 @@
  */
 
 import type { ResumeConfig } from '../types';
+import { dessiProfileProjection } from '../profiles';
+
+const primaryCv = dessiProfileProjection.cv.primary;
 
 export const resume: ResumeConfig = {
-  pdf: '/cv/Dessi_Georgieva_CV.pdf',
-  docx: '/cv/Dessi_Georgieva_CV.docx',
-  markdown: '/cv/Dessi_Georgieva_CV.md',
-  sourcePath: '/src/data/resume/cv.md',
-  targeted: {
-    label: 'OpenAI Codex application CV',
-    pdf: '/cv/Dessi_Georgieva_OpenAI_Codex_CV.pdf',
-    docx: '/cv/Dessi_Georgieva_OpenAI_Codex_CV.docx',
-    markdown: '/cv/Dessi_Georgieva_OpenAI_Codex_CV.md',
-  },
+  pdf: primaryCv.files.pdf,
+  docx: primaryCv.files.docx,
+  markdown: primaryCv.files.markdown,
 };
