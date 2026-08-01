@@ -4,12 +4,14 @@ import {
   dispatchDesktopOpenWindow,
   dispatchDesktopState,
   dispatchDesktopToggleWindow,
+  dispatchDockBoundsChange,
   dispatchDockCloseLinks,
   dispatchDockOpenLinks,
   onDesktopAppFocus,
   onDesktopOpenWindow,
   onDesktopState,
   onDesktopToggleWindow,
+  onDockBoundsChange,
   onDockCloseLinks,
   onDockOpenLinks,
 } from '../src/services/desktopEvents';
@@ -86,5 +88,18 @@ describe('desktopEvents', () => {
 
     offOpen();
     offClose();
+  });
+
+  it('notifies fitted windows when dock bounds change', () => {
+    const target = new EventTarget();
+    let changes = 0;
+    const offBoundsChange = onDockBoundsChange(target as unknown as Window, () => {
+      changes += 1;
+    });
+
+    dispatchDockBoundsChange(target as unknown as Window);
+    expect(changes).toBe(1);
+
+    offBoundsChange();
   });
 });

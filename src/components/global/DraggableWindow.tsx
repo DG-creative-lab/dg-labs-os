@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useId, useLayoutEffect } from 'react';
 import type { DesktopFocusedAppId } from '../../services/desktopAppRegistry';
-import { dispatchDesktopAppFocus } from '../../services/desktopEvents';
+import { dispatchDesktopAppFocus, onDockBoundsChange } from '../../services/desktopEvents';
 
 // Global z-index counter
 let globalZIndex = 10;
@@ -232,8 +232,12 @@ export default function DraggableWindow({
         setPosition(bounds.position);
       };
       window.addEventListener('resize', fitToViewport);
+      const unsubscribeDockBounds = onDockBoundsChange(window, fitToViewport);
       fitToViewport();
-      return () => window.removeEventListener('resize', fitToViewport);
+      return () => {
+        window.removeEventListener('resize', fitToViewport);
+        unsubscribeDockBounds();
+      };
     }
 
     const clampInViewport = () => {

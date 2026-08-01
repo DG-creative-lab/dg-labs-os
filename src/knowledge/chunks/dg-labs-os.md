@@ -1,7 +1,7 @@
 ---
 id: 'project-dg-labs-os'
 type: 'project'
-title: 'DG-Labs OS — Portfolio as Operating System'
+title: 'DG-Labs OS - Portfolio as Operating System'
 tags: ['project', 'portfolio', 'os-metaphor', 'astro', 'react', 'agent', 'terminal']
 confidence: 'verified'
 sources: ['https://github.com/DG-creative-lab']
@@ -10,7 +10,7 @@ related:
   ['identity-profile', 'identity-philosophy', 'capability-technical-stack', 'meta-how-to-query']
 ---
 
-# DG-Labs OS — Portfolio as Operating System
+# DG-Labs OS - Portfolio as Operating System
 
 **Classification**: Portfolio / meta-system
 **Status**: Active development
@@ -18,7 +18,7 @@ related:
 
 ## What It Is
 
-A personal portfolio presented as a cognitive operating system. Facts about Dessi's systems, professional writing, and evolving ideas are represented as apps, windows, nodes, and workflows. The UI metaphor is not decorative — it _is_ the information architecture.
+A personal portfolio presented as a cognitive operating system. Facts about Dessi's systems, professional writing, and evolving ideas are represented as apps, windows, nodes, and workflows. The UI metaphor is not decorative. It _is_ the information architecture.
 
 ## Core Metaphor
 
@@ -48,7 +48,7 @@ iPhone-inspired lock/home UX for mobile visitors. Tap-to-unlock gesture, app gri
 - **Evidence & Evolution** (`/apps/evolution`): reviewed public entries showing how ideas, systems, questions, and interpretations change over time
 - **Systems & Evidence** (`/systems`): a public dossier separating Dessi's contribution, evaluation, result, and limitation across selected systems
 - **System Map** (`/apps/network`): React Flow projection of a curated Graphology model with typed, evidence-bearing relationships and guided paths
-- **Terminal** (`/apps/terminal`): hybrid runtime — deterministic CLI + LLM-grounded responses
+- **Terminal** (`/apps/terminal`): hybrid runtime with deterministic CLI and LLM-grounded responses
 - **Resume** (`/apps/resume`): career trajectory and milestones
 
 ### Agent Runtime (Terminal)
@@ -66,4 +66,4 @@ Most developer portfolios are lists of projects with links. DG-Labs OS reframes 
 
 ## Self-Referential Note
 
-This knowledge file is part of the system it describes. The agent answering your questions right now is drawing from this file and others like it. This is by design — the portfolio demonstrates its own capabilities by being built with them.
+This knowledge file is part of the system it describes. The agent answering your questions right now is drawing from this file and others like it. This is by design. The portfolio demonstrates its own capabilities by being built with them.

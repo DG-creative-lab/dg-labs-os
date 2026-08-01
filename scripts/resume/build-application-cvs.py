@@ -121,7 +121,7 @@ def set_repeatable_styles(document: Document) -> None:
 
 def set_document_metadata(document: Document, label: str) -> None:
     properties = document.core_properties
-    properties.title = f"Dessi Georgieva — {label}"
+    properties.title = f"Dessi Georgieva - {label}"
     properties.subject = "AI systems engineering resume"
     properties.keywords = "AI systems, agents, evaluation, Python, FastAPI, TypeScript"
     properties.author = ""

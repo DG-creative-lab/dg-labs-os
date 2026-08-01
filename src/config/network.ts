@@ -134,7 +134,7 @@ export const networkNodes: readonly NetworkNode[] = [
     evidence: 'Professional context',
     provenance: 'Professional work in Publicis and Performics innovation environments.',
     boundary:
-      'Paid-work claims are intentionally high level. Public projects elsewhere in the map provide supporting—not equivalent—evidence.',
+      'Paid-work claims are intentionally high level. Public projects elsewhere in the map provide supporting, but not equivalent, evidence.',
     tags: ['agent systems', 'multi-tenant platforms', 'identity', 'infrastructure'],
     bullets: [
       'Builds agent systems, policy boundaries, multi-tenant platforms, and infrastructure controls.',

@@ -10,7 +10,10 @@ export const onRequest = defineMiddleware((context, next) => {
   const isMobilePath = pathname.startsWith('/mobile');
   const isDesktopPath = pathname.startsWith('/desktop');
   const isStandaloneResponsivePath =
-    pathname === '/systems' || pathname.startsWith('/apply/') || isPublicProfilePath(pathname);
+    pathname === '/' ||
+    pathname === '/systems' ||
+    pathname.startsWith('/apply/') ||
+    isPublicProfilePath(pathname);
   const isAsset =
     pathname.startsWith('/_astro') ||
     pathname.startsWith('/favicon') ||

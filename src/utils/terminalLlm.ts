@@ -636,7 +636,7 @@ export const formatAnswerWithCitations = (
   const citationLines = citationOrder.map((evidenceIndex) => {
     const citation = evidenceToCitation.get(evidenceIndex)!;
     const evidence = evidences[evidenceIndex];
-    const tail = evidence.url ? ` — ${evidence.url}` : '';
+    const tail = evidence.url ? ` - ${evidence.url}` : '';
     return `[${citation}] ${evidence.title}${tail}`;
   });
 

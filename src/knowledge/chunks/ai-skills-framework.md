@@ -28,7 +28,7 @@ Reusable skills documented with a consistent structure: what the skill does, whe
 
 ### Go CLI Tool
 
-A command-line tool for discovering, installing, and managing AI agent skills. Built in Go for cross-platform compatibility and fast execution. Demonstrates infrastructure thinking — this isn't just content, it's tooling.
+A command-line tool for discovering, installing, and managing AI agent skills. Built in Go for cross-platform compatibility and fast execution. It demonstrates infrastructure thinking. This isn't just content; it's tooling.
 
 ### Next.js Catalog Website
 
@@ -36,7 +36,7 @@ A browseable, searchable interface for the skill catalog. Deployed and public. P
 
 ### Educational Architecture
 
-Progressive guides that build from "what is an AI agent" to "how to orchestrate multi-agent workflows." The educational design is deliberate — it's structured to build genuine understanding, not just provide recipes.
+Progressive guides that build from "what is an AI agent" to "how to orchestrate multi-agent workflows." The educational design is deliberate. It is structured to build genuine understanding, not just provide recipes.
 
 ## Why This Matters
 
@@ -44,7 +44,7 @@ This project demonstrates ecosystem-level thinking. It combines a CLI, catalog, 
 
 ## Cross-Runtime Compatibility
 
-Skills are designed to work across different agent runtimes and frameworks, avoiding vendor lock-in. This is an architectural decision rooted in the same philosophy of empowerment — teams should be able to use these skills with whatever runtime they choose.
+Skills are designed to work across different agent runtimes and frameworks, avoiding vendor lock-in. This architectural decision gives teams the freedom to use the skills with whatever runtime they choose.
 
 ## Technical Stack
 

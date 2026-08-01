@@ -6,6 +6,7 @@ import { theme } from '../../config/site';
 
 interface Props {
   profile?: ActiveProfileRuntime;
+  pageKind?: 'platform' | 'profile';
   title?: string;
   description?: string;
   canonical?: string;
@@ -18,31 +19,33 @@ interface Props {
   };
 }
 
-const { profile = activeProfile } = Astro.props as Props;
+const { profile = activeProfile, pageKind = 'profile' } = Astro.props as Props;
 
 // Build safe defaults for SEO
 const siteOrigin = Astro.site ? new URL('/', Astro.site).origin : undefined;
 const canonicalUrl = Astro.props.canonical || siteOrigin;
 const ogUrl = Astro.props.openGraph?.url || siteOrigin;
+const pageDescription = Astro.props.description || profile.seo.description;
+const siteName = Astro.props.openGraph?.site_name || profile.identity.displayName;
 ---
 
 <!-- Core meta tags -->
 <meta charset="UTF-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-<meta name="author" content={profile.identity.displayName} />
+<meta name="author" content={pageKind === 'platform' ? siteName : profile.identity.displayName} />
 {Astro.props.robots ? <meta name="robots" content={Astro.props.robots} /> : null}
 
 <!-- SEO Configuration -->
 <AstroSeo
   title={Astro.props.title || profile.seo.title}
-  description={Astro.props.description || profile.seo.description}
+  description={pageDescription}
   canonical={canonicalUrl}
   openGraph={{
     url: ogUrl,
     title: Astro.props.openGraph?.title || profile.seo.title,
-    description: Astro.props.openGraph?.description || profile.seo.description,
-    site_name: Astro.props.openGraph?.site_name || profile.identity.displayName,
+    description: Astro.props.openGraph?.description || pageDescription,
+    site_name: siteName,
   }}
   twitter={{
     cardType: 'summary_large_image',
@@ -59,14 +62,14 @@ const ogUrl = Astro.props.openGraph?.url || siteOrigin;
         '@context': 'https://schema.org',
         '@type': 'WebSite',
         url: siteOrigin,
-        name: profile.identity.displayName,
-        description: profile.seo.description,
+        name: siteName,
+        description: pageDescription,
       })}
     />
   )
 }
 {
-  siteOrigin && (
+  siteOrigin && pageKind === 'profile' && (
     <script
       type="application/ld+json"
       is:inline
@@ -75,7 +78,7 @@ const ogUrl = Astro.props.openGraph?.url || siteOrigin;
         '@type': 'Person',
         name: profile.identity.displayName,
         jobTitle: profile.identity.role,
-        url: siteOrigin,
+        url: canonicalUrl,
         sameAs: profile.links
           .filter((link) => link.kind === 'profile' || link.kind === 'code')
           .map((link) => link.url),

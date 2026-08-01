@@ -108,7 +108,7 @@ function ProjectsPanel({ profile }: { profile: ActiveProfileRuntime }) {
                       <ul className="space-y-2 text-sm leading-relaxed text-white/70">
                         {item.highlights.slice(0, 3).map((highlight) => (
                           <li className="grid grid-cols-[0.75rem_1fr] gap-2" key={highlight}>
-                            <span className="text-white/30">—</span>
+                            <span className="text-white/30">-</span>
                             <span>{highlight}</span>
                           </li>
                         ))}

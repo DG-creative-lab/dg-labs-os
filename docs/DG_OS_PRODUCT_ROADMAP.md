@@ -93,7 +93,7 @@ The first shared contract is `ProfileProjection`. It should eventually contain:
 
 ## 5. Delivery roadmap
 
-### Phase 0 — Complete the Dessi proof
+### Phase 0 - Complete the Dessi proof
 
 Status: in progress.
 
@@ -105,7 +105,10 @@ Status: in progress.
 
 Exit condition: a new visitor can explain DG-OS, Dessi's current professional direction, and the relationship between evidence and evolution after one visit.
 
-### Phase 1 — Make Dessi an instance of a profile contract
+### Phase 1 - Make Dessi an instance of a profile contract
+
+Status: in progress. The public contract, registry, canonical route, and first projection are live;
+content modules still need to finish crossing the profile boundary.
 
 - define and validate `ProfileProjection`;
 - move Dessi-specific content behind one profile boundary;
@@ -116,7 +119,10 @@ Exit condition: a new visitor can explain DG-OS, Dessi's current professional di
 
 Exit condition: the renderer can load a second fixture profile without editing shared interface components.
 
-### Phase 2 — Add the DG-OS platform entrance
+### Phase 2 - Add the DG-OS platform entrance
+
+Status: in progress. The root browser now introduces the product, publication method, and first live
+profile before a visitor enters Dessi's personal OS.
 
 - turn the simulated browser home into the DG-OS platform page;
 - introduce Dessi as `Instance 01`;
@@ -128,7 +134,7 @@ Exit condition: the renderer can load a second fixture profile without editing s
 
 Exit condition: the root domain represents DG-OS as a product while Dessi's profile remains the complete live proof.
 
-### Phase 3 — Connect the private Personal System
+### Phase 3 - Connect the private Personal System
 
 - define a signed, versioned projection bundle;
 - build a local review queue and publication preview;
@@ -139,7 +145,7 @@ Exit condition: the root domain represents DG-OS as a product while Dessi's prof
 
 Exit condition: a reviewed change made locally updates Dessi's public profile without manually editing portfolio source files.
 
-### Phase 4 — Add the OpenAI interface
+### Phase 4 - Add the OpenAI interface
 
 - implement one MCP contract shared by ChatGPT and Codex;
 - package it as a DG-OS plugin with focused skills and an authenticated app;
@@ -150,7 +156,7 @@ Exit condition: a reviewed change made locally updates Dessi's public profile wi
 
 Exit condition: Dessi can ask Codex or ChatGPT to inspect her workspace and prepare a bounded update while publication remains human-controlled.
 
-### Phase 5 — Pilot a second person
+### Phase 5 - Pilot a second person
 
 - introduce accounts, workspaces, and memberships;
 - add an identity provider and OAuth for the DG-OS MCP app;
@@ -161,7 +167,7 @@ Exit condition: Dessi can ask Codex or ChatGPT to inspect her workspace and prep
 
 Exit condition: a second person can create and maintain an isolated profile without Dessi or a developer editing code for them.
 
-### Phase 6 — Build the network carefully
+### Phase 6 - Build the network carefully
 
 - add profile discovery by evidenced capabilities, domains, questions, and availability;
 - introduce relationships only when both their meaning and provenance are clear;

@@ -35,7 +35,7 @@ export default function EvolutionApp({ profile }: EvolutionAppProps) {
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">
             DG-OS is a record of work in motion. This panel traces how{' '}
-            {profile.identity.possessiveName} ideas, systems, and questions change over time—what
+            {profile.identity.possessiveName} ideas, systems, and questions change over time: what
             prompted a revision, which evidence supports it, and what remains open.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-white/65">

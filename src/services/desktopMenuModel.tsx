@@ -46,6 +46,7 @@ export type DesktopMenuModel = {
 
 type DesktopMenuModelOptions = {
   profile: ActiveProfileRuntime;
+  platformMode?: boolean;
   resolvedAppId: ToolbarAppId;
   onOpenContact?: () => void;
   onOpenAbout: () => void;
@@ -63,6 +64,7 @@ const contactAction = (profile: ActiveProfileRuntime, onOpenContact?: () => void
 
 export const buildDesktopMenuModel = ({
   profile,
+  platformMode = false,
   resolvedAppId,
   onOpenContact,
   onOpenAbout,
@@ -104,7 +106,9 @@ export const buildDesktopMenuModel = ({
         icon: <IoDocumentText size={16} />,
         action: () =>
           onCopyText(
-            `${profile.identity.displayName}: ${profile.identity.roleFocus} DG-OS connects the systems, professional writing, and evidence behind that work.`,
+            platformMode
+              ? 'DG-OS turns owner-reviewed evidence from learning, projects, and experience into navigable public profiles while private activity stays private.'
+              : `${profile.identity.displayName}: ${profile.identity.roleFocus} DG-OS connects the systems, professional writing, and evidence behind that work.`,
             'Quick intro'
           ),
       },
@@ -258,6 +262,79 @@ export const buildDesktopMenuModel = ({
         label: 'About DG-Labs OS',
         icon: <IoHelpCircle size={16} />,
         action: () => onOpenHelp('about-os'),
+      },
+    ],
+  };
+
+  const platformMenus: MenuSet = {
+    Apple: [
+      {
+        label: 'About DG-OS',
+        icon: <FaWindowRestore size={16} />,
+        action: () => onOpenHelp('about-os'),
+      },
+    ],
+    File: [
+      {
+        label: `Open ${profile.identity.preferredName}'s Public Profile`,
+        icon: <FaWindowRestore size={16} />,
+        action: () => {
+          window.location.href = `/@${profile.handle}`;
+        },
+      },
+    ],
+    Edit: [
+      commonMenus.Edit[0],
+      {
+        label: 'Copy Platform Link',
+        icon: <IoCodeSlash size={16} />,
+        action: () => onCopyText(window.location.origin, 'Platform link'),
+      },
+    ],
+    View: [
+      {
+        label: 'Publication Method',
+        icon: <IoDocumentText size={16} />,
+        action: () => {
+          window.location.hash = 'projection-method';
+        },
+      },
+      {
+        label: 'Live Profiles',
+        icon: <IoDocumentText size={16} />,
+        action: () => {
+          document.getElementById('live-profiles-title')?.scrollIntoView({ behavior: 'smooth' });
+        },
+      },
+    ],
+    Go: [
+      {
+        label: `${profile.identity.preferredName}'s OS`,
+        icon: <FaWindowRestore size={16} />,
+        action: () => {
+          window.location.href = `/@${profile.handle}`;
+        },
+      },
+      {
+        label: 'GitHub',
+        icon: <FaGithub size={16} />,
+        action: () => githubUrl && window.open(githubUrl, '_blank'),
+      },
+    ],
+    Window: [
+      {
+        label: 'Contact Creator...',
+        icon: <IoMail size={16} />,
+        action: contactAction(profile, onOpenContact),
+      },
+    ],
+    Help: [
+      {
+        label: 'About the Publication Boundary',
+        icon: <IoHelpCircle size={16} />,
+        action: () => {
+          window.location.hash = 'projection-method';
+        },
       },
     ],
   };
@@ -473,7 +550,7 @@ export const buildDesktopMenuModel = ({
   };
 
   const appMenuLabelMap: Record<ToolbarAppId, string> = {
-    home: profile.identity.displayName,
+    home: platformMode ? 'DG-OS' : profile.identity.displayName,
     terminal: 'Agents',
     network: 'System Map',
     projects: 'Workbench',
@@ -484,24 +561,39 @@ export const buildDesktopMenuModel = ({
   };
 
   const appMenuItemsMap: Record<ToolbarAppId, MenuItem[]> = {
-    home: [
-      { label: 'About DG-Labs Pro', icon: <FaWindowRestore size={16} />, action: onOpenAbout },
-      {
-        label: 'Open Workbench',
-        icon: <IoCodeSlash size={16} />,
-        action: () => openAppFromMenu('projects'),
-      },
-      {
-        label: 'Open System Map',
-        icon: <IoDocumentText size={16} />,
-        action: () => openAppFromMenu('network'),
-      },
-      {
-        label: 'Open Agents Runtime',
-        icon: <IoHelpCircle size={16} />,
-        action: () => openAppFromMenu('terminal'),
-      },
-    ],
+    home: platformMode
+      ? [
+          {
+            label: `Open ${profile.identity.preferredName}'s public profile`,
+            icon: <FaWindowRestore size={16} />,
+            action: () => {
+              window.location.href = `/@${profile.handle}`;
+            },
+          },
+          {
+            label: 'About DG-OS',
+            icon: <IoHelpCircle size={16} />,
+            action: () => onOpenHelp('about-os'),
+          },
+        ]
+      : [
+          { label: 'About DG-Labs Pro', icon: <FaWindowRestore size={16} />, action: onOpenAbout },
+          {
+            label: 'Open Workbench',
+            icon: <IoCodeSlash size={16} />,
+            action: () => openAppFromMenu('projects'),
+          },
+          {
+            label: 'Open System Map',
+            icon: <IoDocumentText size={16} />,
+            action: () => openAppFromMenu('network'),
+          },
+          {
+            label: 'Open Agents Runtime',
+            icon: <IoHelpCircle size={16} />,
+            action: () => openAppFromMenu('terminal'),
+          },
+        ],
     terminal: [
       {
         label: 'Terminal Help',
@@ -627,19 +719,21 @@ export const buildDesktopMenuModel = ({
   };
 
   const menus =
-    resolvedAppId === 'home'
-      ? homeMenus
-      : resolvedAppId === 'terminal'
-        ? terminalMenus
-        : resolvedAppId === 'network'
-          ? networkMenus
-          : resolvedAppId === 'projects'
-            ? workbenchMenus
-            : resolvedAppId === 'notes'
-              ? notesMenus
-              : resolvedAppId === 'resume'
-                ? resumeMenus
-                : commonMenus;
+    platformMode && resolvedAppId === 'home'
+      ? platformMenus
+      : resolvedAppId === 'home'
+        ? homeMenus
+        : resolvedAppId === 'terminal'
+          ? terminalMenus
+          : resolvedAppId === 'network'
+            ? networkMenus
+            : resolvedAppId === 'projects'
+              ? workbenchMenus
+              : resolvedAppId === 'notes'
+                ? notesMenus
+                : resolvedAppId === 'resume'
+                  ? resumeMenus
+                  : commonMenus;
 
   return {
     appMenuLabelMap,

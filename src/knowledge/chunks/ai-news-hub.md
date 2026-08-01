@@ -1,7 +1,7 @@
 ---
 id: 'project-ai-news-hub'
 type: 'project'
-title: 'Technical Writing — Performics Labs'
+title: 'Technical Writing - Performics Labs'
 tags: ['project', 'writing', 'technical-analysis', 'content-platform', 'astro', 'publications']
 confidence: 'verified'
 sources: ['https://ai-news-hub.performics-labs.com/analysis']
@@ -10,7 +10,7 @@ related:
   ['research-geometry-of-intention', 'research-phenomenology-of-search', 'project-agentic-commerce']
 ---
 
-# Technical Writing — Performics Labs
+# Technical Writing - Performics Labs
 
 **Classification**: Professional technical writing and content-platform work
 

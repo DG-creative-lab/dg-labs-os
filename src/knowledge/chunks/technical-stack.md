@@ -50,4 +50,4 @@ related:
 
 ## Development Approach
 
-Dessi uses AI coding agents for frontend development (Next.js, React, Node.js), which she treats as a modern development workflow that provides velocity advantages. She maintains deep technical ownership of AI system architecture, backend services, and algorithm design — the AI-assisted work is in the UI layer, not the core intelligence.
+Dessi uses AI coding agents for frontend development (Next.js, React, Node.js), which she treats as a modern development workflow that provides velocity advantages. She maintains deep technical ownership of AI system architecture, backend services, and algorithm design. The AI-assisted work is in the UI layer, not the core intelligence.

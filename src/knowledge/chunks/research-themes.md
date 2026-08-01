@@ -1,7 +1,7 @@
 ---
 id: 'research-themes'
 type: 'research'
-title: 'Research Themes — Cross-Cutting Threads'
+title: 'Research Themes - Cross-Cutting Threads'
 tags: ['research', 'themes', 'intent', 'agency', 'agents', 'learning-systems', 'phenomenology']
 confidence: 'verified'
 sources: ['https://ai-news-hub.performics-labs.com/']
@@ -18,7 +18,7 @@ related:
 
 # Research Themes
 
-Seven interconnected research threads run through Dessi's work. These are not isolated topics — they are idea-edges that connect projects, publications, and systems to each other.
+Seven interconnected research threads run through Dessi's work. These are not isolated topics. They are idea-edges that connect projects, publications, and systems to each other.
 
 ## 1. Intent & Behavior Understanding
 
@@ -34,11 +34,11 @@ How do we make AI capabilities accessible to teams that aren't building from scr
 
 ## 4. Marketing Intelligence
 
-How do we make marketing systems smarter without making them more extractive? This thread runs through all the Performics work — turning commercial problems into research questions about behavior, intent, and learning.
+How do we make marketing systems smarter without making them more extractive? This thread runs through all the Performics work, turning commercial problems into research questions about behavior, intent, and learning.
 
 ## 5. Human Agency & Empowerment
 
-The meta-thread. How do we build systems that serve people rather than optimise against them? This connects everything — from architectural decisions to research writing to the portfolio itself.
+The meta-thread. How do we build systems that serve people rather than optimise against them? This connects everything, from architectural decisions to research writing to the portfolio itself.
 
 ## 6. Data Visualization & Representation
 

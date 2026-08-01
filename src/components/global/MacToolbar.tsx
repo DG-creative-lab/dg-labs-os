@@ -20,12 +20,14 @@ import HelpGuideWindow, { type HelpTopic } from './HelpGuideWindow';
 
 interface MacToolbarProps {
   profile: ActiveProfileRuntime;
+  platformMode?: boolean;
   onOpenContact?: () => void;
   activeAppId?: ToolbarAppId;
 }
 
 export default function MacToolbar({
   profile,
+  platformMode = false,
   onOpenContact,
   activeAppId = 'home',
 }: MacToolbarProps) {
@@ -157,6 +159,7 @@ export default function MacToolbar({
 
   const { appMenuLabelMap, appMenuItemsMap, menus, menuOrder } = buildDesktopMenuModel({
     profile,
+    platformMode,
     resolvedAppId,
     onOpenContact,
     onOpenAbout: () => setShowAbout(true),

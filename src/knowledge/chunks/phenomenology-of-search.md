@@ -27,7 +27,7 @@ Search behavior is typically analysed from the outside: click-through rates, que
 
 ## Key Ideas
 
-**Search as disclosure**: Every search query is a moment where a person articulates what they don't know. The structure of that articulation — its specificity, its vocabulary, its refinements — reveals something about the phenomenology of not-knowing.
+**Search as disclosure**: Every search query is a moment where a person articulates what they don't know. The structure of that articulation, including its specificity, vocabulary, and refinements, reveals something about the phenomenology of not-knowing.
 
 **The gap between query and intent**: Phenomenological analysis reveals that search queries are heavily compressed representations of much richer intentional states. Systems that treat the query as the intent are systematically misunderstanding what people are doing.
 
@@ -35,8 +35,8 @@ Search behavior is typically analysed from the outside: click-through rates, que
 
 ## Philosophical Method
 
-The piece draws on phenomenological tradition (studying the structure of experience as it is lived) and applies it to a domain that is usually analysed purely quantitatively. This is enabled by Dessi's training in philosophy of science — the methodological vocabulary is not borrowed; it's native.
+The piece draws on phenomenological tradition (studying the structure of experience as it is lived) and applies it to a domain that is usually analysed purely quantitatively. Dessi's training in philosophy of science enables this approach. The methodological vocabulary is not borrowed; it's native.
 
 ## Connection to Practice
 
-This research complements "The Geometry of Intention" — where that piece asks about the _structure_ of intent, this one asks about the _experience_ of expressing it. Together, they form a two-sided argument for rethinking how marketing intelligence systems model human behavior.
+This research complements "The Geometry of Intention": where that piece asks about the _structure_ of intent, this one asks about the _experience_ of expressing it. Together, they form a two-sided argument for rethinking how marketing intelligence systems model human behavior.

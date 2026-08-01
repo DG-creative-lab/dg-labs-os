@@ -36,7 +36,7 @@ const isMobile = isMobileUserAgent(Astro.request.headers.get('user-agent'));
       description={resolvedProfile.seo.description}
       canonical={canonical}
       appLabel={`@${resolvedProfile.handle}`}
-      backHref="/mobile"
+      backHref="/"
     >
       <PublicProfileMobile profile={resolvedProfile} />
     </IPhoneAppLayout>

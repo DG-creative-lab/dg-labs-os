@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import type { ActiveProfileRuntime } from '../../profiles';
 import {
   dispatchDesktopToggleWindow,
+  dispatchDockBoundsChange,
   onDesktopState,
   onDockCloseLinks,
   onDockOpenLinks,
@@ -12,6 +13,7 @@ import DockGlyph from './DockGlyph';
 
 interface DesktopDockProps {
   profile: ActiveProfileRuntime;
+  platformMode?: boolean;
   activeApps: {
     terminal: boolean;
     notes: boolean;
@@ -30,7 +32,7 @@ type DockItem = {
   utility?: boolean;
 };
 
-const DesktopDock = ({ profile, activeApps }: DesktopDockProps) => {
+const DesktopDock = ({ profile, platformMode = false, activeApps }: DesktopDockProps) => {
   const [showConnectMenu, setShowConnectMenu] = useState(false);
   const [homeBrowserOpen, setHomeBrowserOpen] = useState(true);
   const [normalizedPath, setNormalizedPath] = useState('');
@@ -141,6 +143,7 @@ const DesktopDock = ({ profile, activeApps }: DesktopDockProps) => {
       // Pixels from dock top to viewport bottom, plus a small safety margin.
       const safeBottom = Math.max(96, Math.ceil(window.innerHeight - rect.top + 8));
       document.documentElement.style.setProperty('--dg-dock-safe-bottom', `${safeBottom}px`);
+      dispatchDockBoundsChange(window);
     };
 
     setDockInsetVar();
@@ -164,7 +167,11 @@ const DesktopDock = ({ profile, activeApps }: DesktopDockProps) => {
         <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.12em] text-sky-200">
           Connect
         </p>
-        <p className="mt-1 text-[11px] text-white/46">Public profiles and direct contact.</p>
+        <p className="mt-1 text-[11px] text-white/46">
+          {platformMode
+            ? 'Contact the creator or inspect the first public profile.'
+            : 'Public profiles and direct contact.'}
+        </p>
       </div>
       <div className="border-t border-white/12">
         {dockLinks.map((item) => (
@@ -199,7 +206,7 @@ const DesktopDock = ({ profile, activeApps }: DesktopDockProps) => {
           dispatchHomeBrowserToggle(window);
           return;
         }
-        window.location.href = profilePath;
+        window.location.href = '/';
       },
       glyph: 'browser',
       active: isPathActive('/', profilePath) && homeBrowserOpen,
@@ -309,6 +316,9 @@ const DesktopDock = ({ profile, activeApps }: DesktopDockProps) => {
         : activeApps.terminal || isPathActive('/apps/terminal'),
     },
   ];
+  const visibleIcons = platformMode
+    ? icons.filter((item) => item.id === 'browser' || item.id === 'links')
+    : icons;
 
   return (
     <>
@@ -323,7 +333,7 @@ const DesktopDock = ({ profile, activeApps }: DesktopDockProps) => {
           className="rounded-xl border border-white/15 bg-[#111113] p-1"
         >
           <div className="flex items-stretch">
-            {icons.map((item) => (
+            {visibleIcons.map((item) => (
               <div
                 key={item.id}
                 ref={item.id === 'links' ? connectMenuRef : undefined}
