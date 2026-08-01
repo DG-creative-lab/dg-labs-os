@@ -1,13 +1,25 @@
 import CreativeMachineMonitor from './CreativeMachineMonitor';
 import DraggableWindow from './DraggableWindow';
 import type { ActiveProfileRuntime } from '../../profiles';
+import PlatformHome from './PlatformHome';
 
 type CreativeBrowserWindowProps = {
   profile: ActiveProfileRuntime;
+  profiles: readonly ActiveProfileRuntime[];
+  surface: 'platform' | 'profile';
   onClose: () => void;
 };
 
-export default function CreativeBrowserWindow({ profile, onClose }: CreativeBrowserWindowProps) {
+export default function CreativeBrowserWindow({
+  profile,
+  profiles,
+  surface,
+  onClose,
+}: CreativeBrowserWindowProps) {
+  const isPlatform = surface === 'platform';
+  const tabTitle = isPlatform ? 'DG-OS / Public Profiles' : 'Creative Machine Monitor';
+  const address = isPlatform ? 'dg-os.com / profiles' : `dg-os.com / @${profile.handle} / cortex`;
+
   return (
     <DraggableWindow
       title="DG-OS Browser"
@@ -16,7 +28,7 @@ export default function CreativeBrowserWindow({ profile, onClose }: CreativeBrow
       initialPosition={{ x: 60, y: 60 }}
       centerOnMount
       hideHeader
-      viewportFit={{ widthRatio: 0.9, heightRatio: 0.86 }}
+      viewportFit={{ widthRatio: 0.94, heightRatio: 0.96 }}
       className="bg-[#090b0f]"
     >
       <div className="flex h-full min-h-0 flex-col bg-[#090b0f]">
@@ -45,11 +57,11 @@ export default function CreativeBrowserWindow({ profile, onClose }: CreativeBrow
               <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full border border-white/15 font-mono text-[8px] text-sky-200">
                 DG
               </span>
-              <span className="truncate">Creative Machine Monitor</span>
+              <span className="truncate">{tabTitle}</span>
               <button
                 type="button"
                 onClick={onClose}
-                aria-label="Close Creative Machine Monitor tab"
+                aria-label={`Close ${tabTitle} tab`}
                 className="ml-auto text-base leading-none text-white/35 transition hover:text-white/75 focus-visible:outline-none focus-visible:text-white"
               >
                 ×
@@ -62,14 +74,27 @@ export default function CreativeBrowserWindow({ profile, onClose }: CreativeBrow
           </div>
 
           <div className="flex h-10 items-center gap-2 bg-[#242427] px-3">
-            <div className="flex items-center gap-1 text-white/28" aria-hidden="true">
-              <span className="grid h-7 w-7 place-items-center">←</span>
-              <span className="grid h-7 w-7 place-items-center">→</span>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                disabled={isPlatform}
+                onClick={() => {
+                  window.location.href = '/';
+                }}
+                aria-label={isPlatform ? 'Back unavailable' : 'Back to DG-OS home'}
+                title={isPlatform ? 'Already at DG-OS home' : 'Back to DG-OS home'}
+                className="grid h-7 w-7 place-items-center rounded-md text-white/48 transition hover:bg-white/[0.05] hover:text-white/80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-300 disabled:cursor-default disabled:text-white/18 disabled:hover:bg-transparent"
+              >
+                ←
+              </button>
+              <span className="grid h-7 w-7 place-items-center text-white/18" aria-hidden="true">
+                →
+              </span>
             </div>
             <button
               type="button"
               onClick={() => window.location.reload()}
-              aria-label="Reload Creative Machine Monitor"
+              aria-label={`Reload ${tabTitle}`}
               className="grid h-7 w-7 place-items-center rounded-md text-sm text-white/45 transition hover:bg-white/[0.05] hover:text-white/75 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-300"
             >
               ↻
@@ -81,17 +106,21 @@ export default function CreativeBrowserWindow({ profile, onClose }: CreativeBrow
               <span className="mr-2 text-sky-300" aria-hidden="true">
                 ◇
               </span>
-              <span className="truncate">dg-os.com / @{profile.handle} / creative-machine</span>
+              <span className="truncate">{address}</span>
             </div>
             <div className="hidden items-center gap-2 font-mono text-[8px] tracking-[0.12em] text-white/30 uppercase sm:flex">
-              <span>Private sources off</span>
+              <span>{isPlatform ? `${profiles.length} profile live` : 'Private sources off'}</span>
               <span className="h-1.5 w-1.5 bg-emerald-300/80" aria-hidden="true" />
             </div>
           </div>
         </div>
 
         <div className="min-h-0 flex-1 overflow-hidden bg-[#070b12]">
-          <CreativeMachineMonitor profile={profile} embedded />
+          {isPlatform ? (
+            <PlatformHome profiles={profiles} embedded />
+          ) : (
+            <CreativeMachineMonitor profile={profile} embedded />
+          )}
         </div>
       </div>
     </DraggableWindow>

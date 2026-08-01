@@ -17,7 +17,7 @@ related:
 
 # Agentic Commerce Learning Loop
 
-**Classification**: Flagship system — long-term research and delivery project
+**Classification**: Flagship system, long-term research and delivery project
 **Status**: Collaborative public engineering project / active development
 
 ## What It Is
@@ -28,7 +28,7 @@ A multi-tenant Bayesian learning system that enables marketing agents to learn f
 
 ### Bayesian Learning Core
 
-The system uses progressive Bayesian updating — each new commerce signal refines the agent's posterior beliefs about what works. This is fundamentally different from batch retraining; the system learns continuously and its uncertainty estimates are always current.
+The system uses progressive Bayesian updating. Each new commerce signal refines the agent's posterior beliefs about what works. This is fundamentally different from batch retraining; the system learns continuously and its uncertainty estimates are always current.
 
 ### Multi-Tenant Isolation
 

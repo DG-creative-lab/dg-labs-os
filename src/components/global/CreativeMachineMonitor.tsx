@@ -200,13 +200,13 @@ export default function CreativeMachineMonitor({
             </h1>
             <p className="mt-6 max-w-xl text-sm leading-6 text-white/62 sm:text-base sm:leading-7">
               {profile.identity.possessiveName} practice is becoming computational. Projects,
-              readings, questions, decisions, and failures become traceable patterns—material that
+              readings, questions, decisions, and failures become traceable patterns, material that
               can be revisited, recombined, and used to build what comes next.
             </p>
 
             <div className="monitor-processes mt-8 border-t border-white/14">
               <p className="py-3 font-mono text-[9px] tracking-[0.16em] text-white/38 uppercase">
-                One pattern substrate / select a process / keys 1—3
+                One pattern substrate / select a process / keys 1-3
               </p>
               <div className="grid border-t border-white/10 sm:grid-cols-3">
                 {MODE_ORDER.map((modeId) => {

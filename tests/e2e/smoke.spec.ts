@@ -19,11 +19,12 @@ test.describe('desktop smoke', () => {
   });
 
   test('creative machine monitor explains and changes its working mode', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/@dessi');
     await expect(page.getByRole('dialog', { name: 'DG-OS Browser' })).toBeVisible();
     await expect(
       page.getByRole('heading', { name: 'A human becoming a machine that can imagine.' })
     ).toBeVisible();
+
     await expect(
       page.getByText(
         'Projects, readings, questions, decisions, and failures become traceable patterns',
@@ -56,6 +57,45 @@ test.describe('desktop smoke', () => {
     await expect(
       page.getByRole('heading', { name: 'A human becoming a machine that can imagine.' })
     ).toBeVisible();
+
+    await page.getByRole('button', { name: 'Back to DG-OS home' }).click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(
+      page.getByRole('heading', {
+        name: 'Public profiles for work that can be inspected, not merely claimed.',
+      })
+    ).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Back unavailable' })).toBeDisabled();
+  });
+
+  test('platform home explains the product before entering a personal OS', async ({ page }) => {
+    await page.goto('/');
+
+    await expect(page).toHaveTitle('DG-OS - Public profiles backed by evidence');
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      'https://dg-os.com/'
+    );
+    await expect(page.getByRole('dialog', { name: 'DG-OS Browser' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', {
+        name: 'Public profiles for work that can be inspected, not merely claimed.',
+      })
+    ).toBeVisible();
+    await expect(page.getByText('PRIVATE WORKSPACE', { exact: true })).toBeVisible();
+    await expect(page.getByText('OWNER REVIEW', { exact: true })).toBeVisible();
+    await expect(page.getByText('No ranking · No inferred score')).toBeVisible();
+    await expect(page.getByText('Owner reviewed 01 Aug 2026')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Workbench', exact: true })).toHaveCount(0);
+
+    const enterProfile = page.getByRole('link', { name: "Enter Dessi's OS" });
+    await expect(enterProfile).toHaveAttribute('href', '/@dessi');
+    await enterProfile.click();
+
+    await expect(page).toHaveURL(/\/@dessi$/);
+    await expect(
+      page.getByRole('heading', { name: 'A human becoming a machine that can imagine.' })
+    ).toBeVisible();
   });
 
   test('canonical public profile resolves with its own metadata', async ({ page }) => {
@@ -76,7 +116,15 @@ test.describe('desktop smoke', () => {
     await page.goto('/');
     const browserWindow = page.getByRole('dialog', { name: 'DG-OS Browser' });
     const compactBounds = await browserWindow.boundingBox();
+    const compactDockBounds = await page.getByRole('navigation', { name: 'Dock' }).boundingBox();
     expect(compactBounds).not.toBeNull();
+    expect(compactDockBounds).not.toBeNull();
+    expect(compactBounds?.width ?? 0).toBeGreaterThan(1280 * 0.9);
+    expect(compactBounds?.y ?? 100).toBeLessThan(80);
+    const compactDockGap =
+      (compactDockBounds?.y ?? 0) - ((compactBounds?.y ?? 0) + (compactBounds?.height ?? 0));
+    expect(compactDockGap).toBeGreaterThanOrEqual(0);
+    expect(compactDockGap).toBeLessThan(60);
 
     await page.setViewportSize({ width: 2048, height: 1150 });
     await expect
@@ -327,16 +375,19 @@ test.describe('desktop smoke', () => {
 });
 
 test.describe('mobile smoke', () => {
-  test('mobile request redirects to lock and mobile routes resolve', async ({ request }) => {
+  test('mobile platform home and OS routes resolve', async ({ request }) => {
     const ua =
       'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
 
-    const redirect = await request.get('/', {
+    const platformHome = await request.get('/', {
       headers: { 'user-agent': ua },
       maxRedirects: 0,
     });
-    expect(redirect.status()).toBe(302);
-    expect(redirect.headers()['location']).toBe('/mobile/lock');
+    expect(platformHome.status()).toBe(200);
+    const platformHtml = await platformHome.text();
+    expect(platformHtml).toContain('Public profiles for work that can be inspected');
+    expect(platformHtml).toContain('href="/@dessi"');
+    expect(platformHtml).toContain('https://dg-os.com/');
 
     const lock = await request.get('/mobile/lock', {
       headers: { 'user-agent': ua },
@@ -405,6 +456,7 @@ test.describe('mobile smoke', () => {
     expect(profileHtml).toContain('Dessi Georgieva');
     expect(profileHtml).toContain('Explore the profile');
     expect(profileHtml).toContain('https://dg-os.com/@dessi');
+    expect(profileHtml).toContain('href="/"');
 
     const missingProfile = await request.get('/@missing-profile', {
       headers: { 'user-agent': ua },

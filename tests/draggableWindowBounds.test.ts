@@ -2,7 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { getViewportFitBounds } from '../src/components/global/DraggableWindow';
 
 describe('viewport-fitted window bounds', () => {
-  const fit = { widthRatio: 0.9, heightRatio: 0.86 };
+  const fit = { widthRatio: 0.94, heightRatio: 0.96 };
+
+  it('uses most of the area above the dock on a compact display', () => {
+    const bounds = getViewportFitBounds({ width: 1280, height: 720, bottomInset: 118 }, fit);
+
+    expect(bounds.size).toEqual({ width: 1188, height: 524 });
+    expect(bounds.position).toEqual({ x: 46, y: 67 });
+  });
 
   it('scales and recentres a window for a larger display', () => {
     const compact = getViewportFitBounds({ width: 1280, height: 720, bottomInset: 118 }, fit);

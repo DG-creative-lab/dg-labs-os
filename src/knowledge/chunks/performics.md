@@ -1,7 +1,7 @@
 ---
 id: 'experience-performics'
 type: 'experience'
-title: 'Performics Innovations Lab — Publicis Media'
+title: 'Performics Innovations Lab - Publicis Media'
 tags: ['experience', 'current-role', 'marketing-intelligence', 'publicis', 'performics']
 confidence: 'self-reported'
 sources:
@@ -13,7 +13,7 @@ last_verified: '2026-07-26'
 related: ['project-intent-recognition', 'project-agentic-commerce', 'identity-profile']
 ---
 
-# Performics Innovations Lab — Publicis Media
+# Performics Innovations Lab - Publicis Media
 
 **Title**: Engineer
 **Location**: London, UK
@@ -27,7 +27,7 @@ The role involves designing and building AI and data systems: FastAPI services, 
 
 ### Intent Recognition Agent
 
-A four-layer marketing intelligence system that models consumer intention through behavioral embeddings, clustering, and LLM-powered persona generation. This is not a standard analytics pipeline — it treats intent as a geometric structure that can be decomposed, clustered, and reasoned about. See: `project-intent-recognition` for full details.
+A four-layer marketing intelligence system that models consumer intention through behavioral embeddings, clustering, and LLM-powered persona generation. This is not a standard analytics pipeline. It treats intent as a geometric structure that can be decomposed, clustered, and reasoned about. See: `project-intent-recognition` for full details.
 
 ### Agentic Commerce Learning Loop
 

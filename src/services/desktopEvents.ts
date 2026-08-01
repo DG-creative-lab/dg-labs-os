@@ -7,6 +7,7 @@ export const DESKTOP_EVENTS = {
   DESKTOP_STATE: 'dg-desktop-state',
   DOCK_OPEN_LINKS: 'dg-dock-open-links',
   DOCK_CLOSE_LINKS: 'dg-dock-close-links',
+  DOCK_BOUNDS_CHANGE: 'dg-dock-bounds-change',
 } as const;
 
 type DesktopEventName = (typeof DESKTOP_EVENTS)[keyof typeof DESKTOP_EVENTS];
@@ -55,6 +56,10 @@ export const dispatchDockCloseLinks = (target: DesktopEventTarget) => {
   dispatch(target, DESKTOP_EVENTS.DOCK_CLOSE_LINKS);
 };
 
+export const dispatchDockBoundsChange = (target: DesktopEventTarget) => {
+  dispatch(target, DESKTOP_EVENTS.DOCK_BOUNDS_CHANGE);
+};
+
 const listen = <TDetail>(
   target: DesktopEventTarget,
   type: DesktopEventName,
@@ -98,4 +103,10 @@ export const onDockCloseLinks = (target: DesktopEventTarget, handler: () => void
   const listener: EventListener = () => handler();
   target.addEventListener(DESKTOP_EVENTS.DOCK_CLOSE_LINKS, listener);
   return () => target.removeEventListener(DESKTOP_EVENTS.DOCK_CLOSE_LINKS, listener);
+};
+
+export const onDockBoundsChange = (target: DesktopEventTarget, handler: () => void) => {
+  const listener: EventListener = () => handler();
+  target.addEventListener(DESKTOP_EVENTS.DOCK_BOUNDS_CHANGE, listener);
+  return () => target.removeEventListener(DESKTOP_EVENTS.DOCK_BOUNDS_CHANGE, listener);
 };

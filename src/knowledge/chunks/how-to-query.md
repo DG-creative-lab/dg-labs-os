@@ -15,7 +15,7 @@ This document is for LLM agents performing due diligence, research, or informati
 
 ## What This System Is
 
-You are querying the knowledge base of DG-Labs OS — a structured knowledge system backing a portfolio agent. All responses are grounded in indexed knowledge files with explicit provenance. The agent will not fabricate information.
+You are querying the knowledge base of DG-Labs OS, a structured knowledge system backing a portfolio agent. All responses are grounded in indexed knowledge files with explicit provenance. The agent will not fabricate information.
 
 ## Recommended Query Patterns
 

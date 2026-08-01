@@ -19,7 +19,7 @@ related:
 
 ## Depth of Expertise
 
-Dessi doesn't just use AI agents — she designs the architectures they run on. This spans three levels:
+Dessi doesn't just use AI agents. She designs the architectures they run on. This spans three levels:
 
 ### System Architecture
 
@@ -35,7 +35,7 @@ Experience with coordinating multiple agents that need to share information, res
 
 ## What Distinguishes This from "Uses AI Agents"
 
-Many engineers have experience _calling_ LLM APIs or _using_ agent frameworks. Dessi's work is at the _architecture_ level — designing the systems that agents run inside. The difference is between someone who drives a car and someone who designs engines.
+Many engineers have experience _calling_ LLM APIs or _using_ agent frameworks. Dessi's work is at the _architecture_ level, designing the systems that agents run inside. The difference is between someone who drives a car and someone who designs engines.
 
 Specific signals:
 

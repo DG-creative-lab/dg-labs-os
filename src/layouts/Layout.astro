@@ -10,6 +10,7 @@ const profile = (Astro.props.profile as ActiveProfileRuntime | undefined) ?? act
   <head>
     <BaseHead
       profile={profile}
+      pageKind={Astro.props.pageKind}
       title={Astro.props.title}
       description={Astro.props.description}
       canonical={Astro.props.canonical}

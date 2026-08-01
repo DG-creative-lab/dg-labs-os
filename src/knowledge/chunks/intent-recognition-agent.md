@@ -46,7 +46,7 @@ Raw behavioral signals (search queries, browsing patterns, commerce actions) are
 
 ### Layer 2: Intent Clustering
 
-The embedding space is clustered to discover natural groupings of intentional behavior. These clusters represent emergent intent categories — they are discovered from data, not predefined by taxonomies. This is where the "geometry of intention" thesis becomes operational.
+The embedding space is clustered to discover natural groupings of intentional behavior. These clusters represent emergent intent categories. They are discovered from data, not predefined by taxonomies. This is where the "geometry of intention" thesis becomes operational.
 
 ### Layer 3: Persona Generation
 
@@ -54,11 +54,11 @@ LLM-powered synthesis of cluster characteristics into human-readable persona des
 
 ### Layer 4: Intelligence Interface
 
-The output layer that makes intent intelligence actionable — connecting discovered intent patterns to campaign strategy, audience targeting, and content recommendations.
+The output layer makes intent intelligence actionable by connecting discovered intent patterns to campaign strategy, audience targeting, and content recommendations.
 
 ## Why This Matters
 
-Most marketing intelligence systems treat intent as a classification problem: map a query to a bucket. This system treats intent as a _modeling_ problem: represent the full structure of intentional behavior and let patterns emerge. The difference is architectural, not cosmetic — it changes what questions you can ask and what insights are possible.
+Most marketing intelligence systems treat intent as a classification problem: map a query to a bucket. This system treats intent as a _modeling_ problem: represent the full structure of intentional behavior and let patterns emerge. The difference is architectural, not cosmetic. It changes what questions you can ask and what insights are possible.
 
 ## Technical Stack
 

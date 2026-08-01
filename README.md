@@ -1,6 +1,6 @@
-# DG-Labs OS
+# DG-OS
 
-DG-Labs OS is a portfolio presented as a personal operating system - an interface for exploring what DG-Labs thinks about, builds, and ships. The UI leans on familiar OS metaphors (toolbar, dock, windows) but reframes them as a brain-like control panel: a machine of memory, experiments, and evolving ideas.
+DG-OS is an evidence-led public profile system presented through an operating-system interface. The root route introduces the platform and its private-to-public publication boundary; `/@dessi` is the first live profile instance. Familiar OS metaphors become a navigable model of memory, experiments, evidence, and evolving ideas.
 
 ## Documentation
 
@@ -13,6 +13,9 @@ DG-Labs OS is a portfolio presented as a personal operating system - an interfac
 
 ## Features
 
+- Product entrance and public profile registry at `/`
+- Canonical, responsive public profile at `/@dessi`
+- Owner-reviewed profile projection contract with private-source boundaries
 - Desktop OS UI with a Mac-style toolbar and dock
 - Focus-aware desktop menubar (menu sets update by active/focused app)
 - Mobile iPhone-inspired lock + home screens (`/mobile`)
@@ -35,9 +38,9 @@ DG-Labs OS is a portfolio presented as a personal operating system - an interfac
 
 ## Current Priority
 
-- Vercel deployment hardening and production runbook execution.
-- Agent Runtime v3 UX polish (provider diagnostics, citation compactness, fallback messaging).
-- Module cross-link integrity and post-deploy content polish.
+- Complete the Dessi proof as one versioned public projection.
+- Migrate remaining profile content behind the shared profile boundary.
+- Prepare the private review-and-publication contract before adding hosted accounts or storage.
 
 ## Tech Stack
 
@@ -157,6 +160,8 @@ git rm --cached .env.local .env.production .env
 Public profile identity, links, CV references, SEO, and publication approval now enter through the
 versioned contract in `src/profiles/`. Legacy files in `src/config/` are compatibility adapters while
 the remaining single-profile surfaces are migrated incrementally.
+
+Platform identity and root-route SEO live in `src/config/platform.ts`.
 
 Edit the remaining content config files in `src/config/`:
 

@@ -1,20 +1,52 @@
 ---
 import DesktopLayout from '../layouts/DesktopLayout.astro';
+import IPhoneAppLayout from '../layouts/iPhoneAppLayout.astro';
 import HomeDesktop from '../components/global/HomeDesktop';
-import { activeProfile } from '../profiles';
+import PlatformHome from '../components/global/PlatformHome';
+import { platform } from '../config/platform';
+import { activeProfile, publicProfileRegistry } from '../profiles';
+import { isMobileUserAgent } from '../utils/deviceDetection';
+
+const profiles = publicProfileRegistry.list();
+const isMobile = isMobileUserAgent(Astro.request.headers.get('user-agent'));
 ---
 
-<DesktopLayout
-  profile={activeProfile}
-  title={activeProfile.seo.title}
-  description={activeProfile.seo.description}
-  canonical={activeProfile.contact.website}
-  openGraph={{
-    url: activeProfile.contact.website,
-    title: activeProfile.seo.title,
-    description: activeProfile.seo.description,
-    site_name: activeProfile.identity.displayName,
-  }}
->
-  <HomeDesktop client:load profile={activeProfile} />
-</DesktopLayout>
+{
+  isMobile ? (
+    <IPhoneAppLayout
+      profile={activeProfile}
+      pageKind="platform"
+      title={platform.seo.title}
+      description={platform.seo.description}
+      canonical={platform.canonical}
+      openGraph={{
+        url: platform.canonical,
+        title: platform.seo.title,
+        description: platform.seo.description,
+        site_name: platform.name,
+      }}
+      appLabel={platform.name}
+      backHref="/mobile"
+    >
+      <main class="min-h-screen bg-[#070b12] pb-16 pt-16">
+        <PlatformHome client:load profiles={profiles} />
+      </main>
+    </IPhoneAppLayout>
+  ) : (
+    <DesktopLayout
+      profile={activeProfile}
+      pageKind="platform"
+      title={platform.seo.title}
+      description={platform.seo.description}
+      canonical={platform.canonical}
+      openGraph={{
+        url: platform.canonical,
+        title: platform.seo.title,
+        description: platform.seo.description,
+        site_name: platform.name,
+      }}
+    >
+      <HomeDesktop client:load profile={activeProfile} profiles={profiles} surface="platform" />
+    </DesktopLayout>
+  )
+}

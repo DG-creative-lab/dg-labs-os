@@ -3,7 +3,17 @@ import { dispatchHomeBrowserState, onHomeBrowserToggle } from '../../services/ho
 import type { ActiveProfileRuntime } from '../../profiles';
 import CreativeBrowserWindow from './CreativeBrowserWindow';
 
-export default function HomeDesktop({ profile }: { profile: ActiveProfileRuntime }) {
+type HomeDesktopProps = {
+  profile: ActiveProfileRuntime;
+  profiles?: readonly ActiveProfileRuntime[];
+  surface?: 'platform' | 'profile';
+};
+
+export default function HomeDesktop({
+  profile,
+  profiles = [profile],
+  surface = 'profile',
+}: HomeDesktopProps) {
   const [isBrowserOpen, setIsBrowserOpen] = useState(true);
 
   useEffect(() => {
@@ -18,6 +28,11 @@ export default function HomeDesktop({ profile }: { profile: ActiveProfileRuntime
   }, [isBrowserOpen]);
 
   return isBrowserOpen ? (
-    <CreativeBrowserWindow profile={profile} onClose={() => setIsBrowserOpen(false)} />
+    <CreativeBrowserWindow
+      profile={profile}
+      profiles={profiles}
+      surface={surface}
+      onClose={() => setIsBrowserOpen(false)}
+    />
   ) : null;
 }

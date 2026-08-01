@@ -17,17 +17,17 @@ This is the central design thesis that runs through all of Dessi's work. It is b
 
 AI systems, particularly in marketing and advertising, are overwhelmingly designed to extract: attention, data, behavioral surplus, decision-making autonomy. The dominant paradigm treats humans as targets to be optimized against.
 
-Dessi's work asks a different question: what if the same technical capabilities — behavioral modeling, intent recognition, agent orchestration — were designed to _empower_ the people they interact with? Not as a feel-good overlay, but as a fundamental architectural decision that changes what you build and how.
+Dessi's work asks a different question: what if the same technical capabilities, including behavioral modeling, intent recognition, and agent orchestration, were designed to _empower_ the people they interact with? Not as a feel-good overlay, but as a fundamental architectural decision that changes what you build and how.
 
 ## How It Manifests in Practice
 
 **In system design**: The Intent Recognition Agent doesn't just predict what users will do so advertisers can intercept them. It models intention as a rich geometric structure that could, in principle, help users understand their own behavioral patterns.
 
-**In research writing**: Articles like "The Geometry of Intention" and "The Phenomenology of Search" don't just report technical findings — they interrogate the assumptions embedded in how marketing intelligence systems frame human behavior.
+**In research writing**: Articles like "The Geometry of Intention" and "The Phenomenology of Search" do more than report technical findings. They interrogate the assumptions embedded in how marketing intelligence systems frame human behavior.
 
 **In open-source work**: The AI Agent Skills Framework is designed to help marketing teams _adopt and understand_ AI agents, not to create black-box dependencies. The educational architecture (guides, skill catalog, progressive complexity) is deliberate.
 
-**In this portfolio itself**: DG-Labs OS presents information as a cognitive operating system — not because it's a clever UI trick, but because it reframes the portfolio from "look at my credentials" to "explore how I think." That reframing is an instance of the same thesis: empower the visitor's agency in navigating the information.
+**In this portfolio itself**: DG-Labs OS presents information as a cognitive operating system because it reframes the portfolio from "look at my credentials" to "explore how I think." That reframing is an instance of the same thesis: give the visitor agency in navigating the information.
 
 ## Philosophical Roots
 
