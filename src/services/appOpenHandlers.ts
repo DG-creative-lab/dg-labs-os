@@ -8,6 +8,11 @@ import {
 import { emitWorkbenchMenuAction } from './menubarActions';
 import type { DesktopAppId } from './desktopWindowService';
 import { DESKTOP_APP_ROUTES } from './desktopAppRegistry';
+import {
+  getPublicProfileModulePath,
+  isPublicProfileModuleId,
+  matchPublicProfilePathShape,
+} from '../utils/profileRoutes';
 
 export const APP_ROUTE_MAP: Record<DesktopAppId, string> = DESKTOP_APP_ROUTES;
 
@@ -73,5 +78,25 @@ export const openWorkbenchSectionFromMenu = (
     return;
   }
 
+  const profileRoute = matchPublicProfilePathShape(path);
+  if (profileRoute?.moduleId === 'workbench') {
+    emitWorkbenchMenuAction(adapter, 'jump_section', { sectionId });
+    return;
+  }
+
+  if (profileRoute?.moduleId && isPublicProfileModuleId(profileRoute.moduleId)) {
+    adapter.location.href = `${getPublicProfileModulePath(profileRoute.handle, 'workbench')}#${sectionId}`;
+    return;
+  }
+
   adapter.location.href = `/apps/projects#${sectionId}`;
+};
+
+export const getAppCloseDestination = (pathname: string): string => {
+  const profileRoute = matchPublicProfilePathShape(normalizePath(pathname));
+  if (profileRoute?.moduleId && isPublicProfileModuleId(profileRoute.moduleId)) {
+    return `/@${profileRoute.handle}`;
+  }
+
+  return '/desktop';
 };

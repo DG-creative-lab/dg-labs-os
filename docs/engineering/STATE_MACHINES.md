@@ -12,7 +12,7 @@ The executable catalogue is `architecture/state-machines/catalog.ts`.
 | Machine                     | Current maturity  | Deterministic boundary                                      |
 | --------------------------- | ----------------- | ----------------------------------------------------------- |
 | Desktop shell               | Explicit reducer  | Open windows and focused application                        |
-| Profile activation          | Boundary-enforced | Published projection or rejection                           |
+| Profile activation          | Boundary-enforced | Published projection, handle-preserving route, or rejection |
 | Profile module registration | Boundary-enforced | Matching profile, Network, and Writing modules or rejection |
 | Profile Agent request       | Implicit          | Validation, evidence scope, provider and SSE sequencing     |
 

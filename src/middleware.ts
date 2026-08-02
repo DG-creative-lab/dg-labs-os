@@ -1,6 +1,6 @@
 import { defineMiddleware } from 'astro/middleware';
 import { isMobileUserAgent } from './utils/deviceDetection';
-import { isPublicProfilePath } from './utils/profileRoutes';
+import { isPotentialPublicProfilePath } from './utils/profileRoutes';
 
 export const onRequest = defineMiddleware((context, next) => {
   const pathname = new URL(context.request.url).pathname;
@@ -13,7 +13,7 @@ export const onRequest = defineMiddleware((context, next) => {
     pathname === '/' ||
     pathname === '/systems' ||
     pathname.startsWith('/apply/') ||
-    isPublicProfilePath(pathname);
+    isPotentialPublicProfilePath(pathname);
   const isAsset =
     pathname.startsWith('/_astro') ||
     pathname.startsWith('/favicon') ||
