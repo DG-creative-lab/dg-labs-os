@@ -1,8 +1,10 @@
 ---
 import DesktopLayout from '../../layouts/DesktopLayout.astro';
 import DraggableAppWindow from '../../components/global/DraggableAppWindow';
-import { workbench, workbenchCategories } from '../../config/workbench';
 import { activeProfile } from '../../profiles';
+import { activeProfileModules } from '../../profiles/modules';
+
+const { workbench } = activeProfileModules;
 
 const toSectionId = (category: string) =>
   `workbench-${category.toLowerCase().replace(/\s+/g, '-')}`;
@@ -34,8 +36,8 @@ const toSectionId = (category: string) =>
 
       <div class="mt-8 space-y-10">
         {
-          workbenchCategories.map((cat) => {
-            const items = workbench.filter((x) => x.category === cat);
+          workbench.categories.map((cat) => {
+            const items = workbench.items.filter((x) => x.category === cat);
             if (items.length === 0) return null;
             return (
               <section id={toSectionId(cat)}>
@@ -45,9 +47,7 @@ const toSectionId = (category: string) =>
                       {cat}
                     </h2>
                     <p class="mt-1 max-w-2xl text-xs leading-relaxed text-white/50">
-                      {cat === 'Selected Systems'
-                        ? 'Public code and live systems that can be inspected directly.'
-                        : 'Production experience described within employer and client boundaries.'}
+                      {workbench.categoryDescriptions[cat]}
                     </p>
                   </div>
                   <span class="text-[10px] uppercase tracking-[0.18em] text-white/35">

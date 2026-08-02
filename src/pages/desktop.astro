@@ -2,6 +2,7 @@
 import DesktopLayout from '../layouts/DesktopLayout.astro';
 import DesktopWorkspace from '../components/global/DesktopWorkspace';
 import { activeProfile } from '../profiles';
+import { activeProfileModules } from '../profiles/modules';
 ---
 
 <DesktopLayout
@@ -16,5 +17,5 @@ import { activeProfile } from '../profiles';
     site_name: activeProfile.identity.displayName,
   }}
 >
-  <DesktopWorkspace client:load profile={activeProfile} />
+  <DesktopWorkspace client:load profile={activeProfile} modules={activeProfileModules} />
 </DesktopLayout>

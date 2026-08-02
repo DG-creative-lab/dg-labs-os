@@ -1,7 +1,7 @@
 import type { NetworkNode } from '../config/network';
-import type { WorkbenchItem } from '../config/workbench';
 import type { LabNote } from '../config/labNotes';
 import type { KnowledgeEntry } from '../knowledge';
+import type { WorkbenchItem } from '../profiles/modules';
 
 export type TerminalKnowledgeContext = {
   user: {

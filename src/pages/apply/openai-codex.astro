@@ -2,6 +2,7 @@
 import SystemsEvidencePage from '../../components/evidence/SystemsEvidencePage.astro';
 import { openAiCodexApplication } from '../../config/applicationProfile';
 import { activeProfile } from '../../profiles';
+import { activeProfileModules } from '../../profiles/modules';
 import Layout from '../../layouts/Layout.astro';
 ---
 
@@ -14,6 +15,7 @@ import Layout from '../../layouts/Layout.astro';
 >
   <SystemsEvidencePage
     profile={activeProfile}
+    modules={activeProfileModules}
     mode="application"
     cv={openAiCodexApplication.applicationCv}
     targetRole={{

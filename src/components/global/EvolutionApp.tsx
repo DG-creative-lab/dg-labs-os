@@ -1,9 +1,5 @@
-import {
-  applicationClaims,
-  currentBoundaries,
-  evolutionEntries,
-} from '../../config/applicationProfile';
 import type { ActiveProfileRuntime } from '../../profiles';
+import type { EvidenceEvolutionModule } from '../../profiles/modules';
 
 const stateLabel = {
   observed: 'Observed',
@@ -13,10 +9,11 @@ const stateLabel = {
 
 type EvolutionAppProps = {
   profile: ActiveProfileRuntime;
+  evidenceEvolution: EvidenceEvolutionModule;
 };
 
-export default function EvolutionApp({ profile }: EvolutionAppProps) {
-  const claimsById = new Map(applicationClaims.map((claim) => [claim.id, claim]));
+export default function EvolutionApp({ profile, evidenceEvolution }: EvolutionAppProps) {
+  const claimsById = new Map(evidenceEvolution.claims.map((claim) => [claim.id, claim]));
 
   return (
     <section className="text-white">
@@ -26,7 +23,7 @@ export default function EvolutionApp({ profile }: EvolutionAppProps) {
             04 / Learning record
           </p>
           <p className="mt-2 font-mono text-[10px] text-white/40">
-            {evolutionEntries.length} reviewed entries
+            {evidenceEvolution.entries.length} reviewed entries
           </p>
         </div>
         <div className="col-span-4 md:col-span-9">
@@ -115,7 +112,7 @@ export default function EvolutionApp({ profile }: EvolutionAppProps) {
           </div>
 
           <ol className="border-t border-white/18">
-            {evolutionEntries.map((entry, index) => (
+            {evidenceEvolution.entries.map((entry, index) => (
               <li
                 key={`${entry.date}-${entry.title}`}
                 className="grid grid-cols-[2rem_minmax(0,1fr)] gap-x-3 border-b border-white/10 py-5 sm:grid-cols-[3rem_minmax(0,1fr)_7rem] sm:gap-x-4"
@@ -177,11 +174,11 @@ export default function EvolutionApp({ profile }: EvolutionAppProps) {
               Current boundaries
             </h2>
             <span className="font-mono text-[10px] text-white/35">
-              {String(currentBoundaries.length).padStart(2, '0')}
+              {String(evidenceEvolution.boundaries.length).padStart(2, '0')}
             </span>
           </div>
           <ol className="border-t border-white/18">
-            {currentBoundaries.map((boundary, index) => (
+            {evidenceEvolution.boundaries.map((boundary, index) => (
               <li
                 key={boundary}
                 className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 border-b border-white/10 py-4 text-xs leading-5"
