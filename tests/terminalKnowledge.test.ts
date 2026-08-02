@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { userConfig } from '../src/config';
-import { labNotes } from '../src/config/labNotes';
 import { networkNodes } from '../src/config/network';
 import { workbench } from '../src/config/workbench';
 import { getKnowledgeEntries } from '../src/knowledge';
+import { dessiWritingModule } from '../src/profiles/writing';
 import {
   buildKnowledgeIndex,
   getKnowledgeSourceStats,
@@ -13,7 +13,7 @@ import {
 const ctx = {
   user: userConfig,
   workbench,
-  notes: labNotes,
+  writing: dessiWritingModule.entries,
   network: networkNodes,
   brain: getKnowledgeEntries(),
 };
@@ -23,7 +23,7 @@ describe('terminalKnowledge', () => {
     const stats = getKnowledgeSourceStats(ctx);
     const index = buildKnowledgeIndex(ctx);
     expect(index.length).toBe(
-      stats.personal + stats.workbench + stats.notes + stats.network + stats.brain
+      stats.personal + stats.workbench + stats.writing + stats.network + stats.brain
     );
     expect(index.some((item) => item.source === 'personal')).toBe(true);
     expect(index.some((item) => item.source === 'brain')).toBe(true);
@@ -33,7 +33,7 @@ describe('terminalKnowledge', () => {
     const stats = getKnowledgeSourceStats(ctx);
     expect(stats.personal).toBe(1);
     expect(stats.workbench).toBe(workbench.length);
-    expect(stats.notes).toBe(labNotes.length);
+    expect(stats.writing).toBe(dessiWritingModule.entries.length);
     expect(stats.network).toBe(networkNodes.length);
     expect(stats.brain).toBeGreaterThan(0);
   });

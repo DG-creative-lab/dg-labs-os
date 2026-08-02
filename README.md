@@ -20,7 +20,7 @@ DG-OS is an evidence-led public profile system presented through an operating-sy
 - Product entrance and public profile registry at `/`
 - Canonical, responsive public profile at `/@dessi`
 - Owner-reviewed profile projection contract with private-source boundaries
-- Versioned Workbench and Evidence/Evolution modules shared by the UI and Profile Agent
+- Versioned Workbench, Evidence/Evolution, and Writing modules shared by the UI and Profile Agent
 - Desktop OS UI with a Mac-style toolbar and dock
 - Focus-aware desktop menubar (menu sets update by active/focused app)
 - Mobile iPhone-inspired lock + home screens (`/mobile`)
@@ -173,13 +173,16 @@ git rm --cached .env.local .env.production .env
 
 Public profile identity, links, CV references, SEO, and publication approval enter through the
 versioned contract in `src/profiles/`. Workbench and Evidence/Evolution records enter through the
-versioned module bundle in `src/profiles/modules/`. Their files in `src/config/` are compatibility
-adapters; the remaining single-profile surfaces continue to migrate incrementally.
+versioned module bundle in `src/profiles/modules/`. Writing is independently versioned in
+`src/profiles/writing/`, which allows its contract to evolve without changing the frozen profile
+modules v1 schema. The remaining single-profile surfaces continue to migrate incrementally.
 
 Platform identity and root-route SEO live in `src/config/platform.ts`.
 
 Edit profile-owned public Workbench and Evidence/Evolution content in
 `src/profiles/modules/dessiWorkbench.ts` and `src/profiles/modules/dessiEvidenceEvolution.ts`.
+
+Edit profile-owned public Writing content in `src/profiles/writing/dessi.ts`.
 
 Edit the remaining content config files in `src/config/`:
 

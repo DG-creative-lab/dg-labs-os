@@ -2,6 +2,8 @@ export * from './contracts';
 export * from './validation';
 export * from './runtime';
 export { dessiProfileProjection } from './dessi';
+export type { PublicProfileModules } from './modules/contracts';
+export type { PublicWritingModule } from './writing/contracts';
 
 import type { ProfileLink, ProfileProjection } from './contracts';
 

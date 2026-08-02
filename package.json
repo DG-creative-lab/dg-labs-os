@@ -21,7 +21,7 @@
     "test:e2e": "playwright test",
     "test:e2e:smoke": "playwright test tests/e2e/smoke.spec.ts",
     "test:architecture": "pnpm architecture:check && vitest run tests/architecture",
-    "test:contracts": "vitest run tests/contracts",
+    "test:contracts": "vitest run tests/contracts tests/writingModules.test.tsx",
     "test:machines": "vitest run tests/machines",
     "test:interactions": "vitest run tests/interactions",
     "test:harness": "pnpm test:architecture && pnpm test:contracts && pnpm test:machines && pnpm test:interactions",

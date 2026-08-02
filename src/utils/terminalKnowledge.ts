@@ -1,7 +1,7 @@
 import type { NetworkNode } from '../config/network';
-import type { LabNote } from '../config/labNotes';
 import type { KnowledgeEntry } from '../knowledge';
 import type { WorkbenchItem } from '../profiles/modules';
+import type { PublicWritingEntry } from '../profiles/writing/contracts';
 
 export type TerminalKnowledgeContext = {
   user: {
@@ -14,12 +14,12 @@ export type TerminalKnowledgeContext = {
     website: string;
   };
   workbench: readonly WorkbenchItem[];
-  notes: readonly LabNote[];
+  writing: readonly PublicWritingEntry[];
   network: readonly NetworkNode[];
   brain?: readonly KnowledgeEntry[];
 };
 
-export type KnowledgeSource = 'personal' | 'workbench' | 'notes' | 'network' | 'brain';
+export type KnowledgeSource = 'personal' | 'workbench' | 'writing' | 'network' | 'brain';
 
 export type KnowledgeItem = {
   id: string;
@@ -78,13 +78,13 @@ export const buildKnowledgeIndex = (ctx: TerminalKnowledgeContext): KnowledgeIte
     url: item.links.site ?? item.links.repo ?? item.links.article ?? item.links.demo,
   }));
 
-  const noteItems: KnowledgeItem[] = ctx.notes.map((note) => ({
-    id: `note-${note.id}`,
-    source: 'notes',
-    title: note.title,
-    snippet: `${note.subtitle}. Reading time: ${note.readingTime}.`,
-    tags: note.tags,
-    url: note.url,
+  const writingItems: KnowledgeItem[] = ctx.writing.map((entry) => ({
+    id: `writing-${entry.id}`,
+    source: 'writing',
+    title: entry.title,
+    snippet: `${entry.subtitle}. Reading time: ${entry.readingTime}. Boundary: ${entry.boundary}`,
+    tags: entry.topics,
+    url: entry.url,
   }));
 
   const networkItems: KnowledgeItem[] = ctx.network.map((node) => ({
@@ -105,7 +105,7 @@ export const buildKnowledgeIndex = (ctx: TerminalKnowledgeContext): KnowledgeIte
     url: entry.sources[0],
   }));
 
-  return [personalItem, ...workbenchItems, ...noteItems, ...networkItems, ...brainItems];
+  return [personalItem, ...workbenchItems, ...writingItems, ...networkItems, ...brainItems];
 };
 
 export const getKnowledgeSourceStats = (
@@ -113,7 +113,7 @@ export const getKnowledgeSourceStats = (
 ): Record<KnowledgeSource, number> => ({
   personal: 1,
   workbench: ctx.workbench.length,
-  notes: ctx.notes.length,
+  writing: ctx.writing.length,
   network: ctx.network.length,
   brain: (ctx.brain ?? []).length,
 });

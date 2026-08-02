@@ -1,18 +1,22 @@
 import { useEffect } from 'react';
-import { labNotes } from '../../config/labNotes';
 import {
   handleNotesMenuAction,
   type NotesMenuEventDetail,
 } from '../../services/menuActionHandlers';
 import type { ActiveProfileRuntime } from '../../profiles';
-
-const archiveUrl = 'https://ai-news-hub.performics-labs.com/analysis';
+import type { PublicWritingModule } from '../../profiles/writing';
 
 type TechnicalWritingAppProps = {
   profile: ActiveProfileRuntime;
+  writing: PublicWritingModule;
 };
 
-export default function TechnicalWritingApp({ profile }: TechnicalWritingAppProps) {
+const contributionConfidenceLabels = {
+  verified: 'Verified',
+  'self-reported': 'Self-reported',
+} as const;
+
+export default function TechnicalWritingApp({ profile, writing }: TechnicalWritingAppProps) {
   useEffect(() => {
     const onWritingMenuAction = (event: Event) => {
       const customEvent = event as CustomEvent<NotesMenuEventDetail>;
@@ -23,7 +27,7 @@ export default function TechnicalWritingApp({ profile }: TechnicalWritingAppProp
           element.scrollIntoView({ behavior: 'smooth', block: 'start' });
         },
         openNewsHub: () => {
-          window.open(archiveUrl, '_blank', 'noopener,noreferrer');
+          window.open(writing.archive.url, '_blank', 'noopener,noreferrer');
         },
         scrollTop: () => {
           document
@@ -37,7 +41,7 @@ export default function TechnicalWritingApp({ profile }: TechnicalWritingAppProp
     return () => {
       window.removeEventListener('dg-notes-menu-action', onWritingMenuAction as EventListener);
     };
-  }, []);
+  }, [writing.archive.url]);
 
   return (
     <section className="text-white">
@@ -50,16 +54,15 @@ export default function TechnicalWritingApp({ profile }: TechnicalWritingAppProp
             05 / Selected writing
           </p>
           <p className="mt-2 font-mono text-[10px] text-white/40">
-            {labNotes.length} technical pieces
+            {writing.entries.length} technical pieces
           </p>
         </div>
         <div className="col-span-4 md:col-span-9">
-          <h1 className="text-2xl font-semibold tracking-[-0.02em]">Technical Writing</h1>
+          <h1 className="text-2xl font-semibold tracking-[-0.02em]">{writing.title}</h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">
-            Selected analysis developed through Performics Labs and connected to systems{' '}
-            {profile.identity.preferredName} has built or investigated. These pieces show technical
-            synthesis and design judgement. They are professional writing, not independent academic
-            research.
+            {writing.description} These pieces show technical synthesis and design judgement. The
+            published byline and {profile.identity.preferredName}'s contribution are stated
+            separately; this is professional writing, not independent academic research.
           </p>
         </div>
       </header>
@@ -76,7 +79,7 @@ export default function TechnicalWritingApp({ profile }: TechnicalWritingAppProp
         </div>
 
         <ol className="border-t border-white/18">
-          {labNotes.map((note, index) => (
+          {writing.entries.map((note, index) => (
             <li
               key={note.id}
               className="grid grid-cols-[2rem_minmax(0,1fr)] gap-x-3 border-b border-white/10 py-5 sm:grid-cols-[3rem_minmax(0,1fr)_7rem] sm:gap-x-4"
@@ -91,7 +94,7 @@ export default function TechnicalWritingApp({ profile }: TechnicalWritingAppProp
                     {note.kind}
                   </p>
                   <time className="font-mono text-[10px] text-white/38 sm:hidden">
-                    {note.published}
+                    {note.publishedOn}
                   </time>
                 </div>
                 <h3 className="mt-2 text-lg font-semibold leading-snug">
@@ -105,9 +108,25 @@ export default function TechnicalWritingApp({ profile }: TechnicalWritingAppProp
                   </a>
                 </h3>
                 <p className="mt-2 text-sm leading-6 text-white/65">{note.subtitle}</p>
-                <p className="mt-3 text-xs leading-5 text-white/48">
-                  <span className="text-white/70">Connected system:</span> {note.relatedSystem}
-                </p>
+                <dl className="mt-3 grid gap-2 text-xs leading-5 text-white/48">
+                  <div>
+                    <dt className="inline text-white/70">Connected system:</dt>{' '}
+                    <dd className="inline">{note.relatedSystem}</dd>
+                  </div>
+                  <div>
+                    <dt className="inline text-white/70">Publication byline:</dt>{' '}
+                    <dd className="inline">{note.authorship.byline}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-white/70">
+                      {profile.identity.possessiveName} contribution
+                      <span className="ml-2 font-mono text-[9px] uppercase tracking-[0.08em] text-sky-200/65">
+                        {contributionConfidenceLabels[note.authorship.contributionConfidence]}
+                      </span>
+                    </dt>
+                    <dd className="mt-1 max-w-2xl">{note.authorship.contribution}</dd>
+                  </div>
+                </dl>
 
                 <details className="group mt-4 border-t border-white/10 pt-3">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-xs text-white/55 transition hover:text-sky-100">
@@ -126,7 +145,7 @@ export default function TechnicalWritingApp({ profile }: TechnicalWritingAppProp
               </article>
 
               <div className="hidden text-right sm:block">
-                <time className="font-mono text-[10px] text-white/38">{note.published}</time>
+                <time className="font-mono text-[10px] text-white/38">{note.publishedOn}</time>
                 <p className="mt-2 text-[10px] uppercase tracking-[0.1em] text-white/45">
                   {note.readingTime}
                 </p>
@@ -137,18 +156,14 @@ export default function TechnicalWritingApp({ profile }: TechnicalWritingAppProp
       </section>
 
       <footer id="writing-archive" className="border-t border-white/12 pt-5">
-        <p className="max-w-2xl text-xs leading-5 text-white/50">
-          The complete Performics Labs archive also includes timely industry coverage and earlier
-          conceptual essays. Those pieces remain available without being treated as portfolio
-          evidence.
-        </p>
+        <p className="max-w-2xl text-xs leading-5 text-white/50">{writing.archive.boundary}</p>
         <a
-          href={archiveUrl}
+          href={writing.archive.url}
           target="_blank"
           rel="noopener noreferrer"
           className="mt-4 inline-flex rounded-sm border border-sky-300/35 bg-sky-400/10 px-3 py-2 text-xs font-semibold text-sky-100 transition hover:bg-sky-400/20"
         >
-          Open the full archive ↗
+          {writing.archive.label} ↗
         </a>
       </footer>
     </section>

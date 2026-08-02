@@ -1,13 +1,13 @@
-import { labNotes } from '../config/labNotes';
 import { networkNodes } from '../config/network';
 import { getKnowledgeEntries, type KnowledgeEntry } from '../knowledge';
 import { dessiProfileModules, type PublicProfileModules } from './modules';
 import { findActiveProfile, type ActiveProfileRuntime } from './runtime';
+import { dessiWritingModule, type PublicWritingModule } from './writing';
 
 export type ProfileAgentEvidence = {
   workbench: PublicProfileModules['workbench']['items'];
   evidenceEvolution: PublicProfileModules['evidenceEvolution'];
-  notes: typeof labNotes;
+  writing: PublicWritingModule['entries'];
   network: typeof networkNodes;
   brain: readonly KnowledgeEntry[];
   currentFocus: readonly string[];
@@ -122,6 +122,33 @@ export function buildProfileModuleKnowledgeEntries(
   ];
 }
 
+export function buildWritingModuleKnowledgeEntries(
+  writing: PublicWritingModule
+): readonly KnowledgeEntry[] {
+  return writing.entries.map((entry) => {
+    const content = [
+      entry.subtitle,
+      `Published by: ${entry.authorship.byline}.`,
+      `Profile contribution: ${entry.authorship.contribution}`,
+      `Connected system: ${entry.relatedSystem}.`,
+      `Boundary: ${entry.boundary}`,
+    ].join(' ');
+    return {
+      id: `writing-${entry.id}`,
+      type: 'research' as const,
+      title: entry.title,
+      tags: [entry.kind, ...entry.topics],
+      confidence: entry.authorship.contributionConfidence,
+      sources: entry.evidence.map((source) => source.url),
+      lastVerified: entry.reviewedOn,
+      related: [],
+      content,
+      tokenEstimate: estimateTokens(content),
+      file: 'profile-module:writing',
+    };
+  });
+}
+
 export type ProfileAgentContext = {
   profile: ActiveProfileRuntime;
   evidence: ProfileAgentEvidence;
@@ -138,9 +165,13 @@ const evidenceByProfileHandle = new Map<string, ProfileAgentEvidence>([
     {
       workbench: dessiProfileModules.workbench.items,
       evidenceEvolution: dessiProfileModules.evidenceEvolution,
-      notes: labNotes,
+      writing: dessiWritingModule.entries,
       network: networkNodes,
-      brain: [...buildProfileModuleKnowledgeEntries(dessiProfileModules), ...getKnowledgeEntries()],
+      brain: [
+        ...buildProfileModuleKnowledgeEntries(dessiProfileModules),
+        ...buildWritingModuleKnowledgeEntries(dessiWritingModule),
+        ...getKnowledgeEntries(),
+      ],
       currentFocus: dessiProfileModules.evidenceEvolution.entries
         .filter((entry) => entry.state === 'active')
         .map((entry) => entry.title),
