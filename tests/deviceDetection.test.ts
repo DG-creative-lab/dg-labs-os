@@ -3,8 +3,10 @@ import { isMobileUserAgent } from '../src/utils/deviceDetection';
 import {
   getPublicProfileModuleCanonicalUrl,
   getPublicProfileModulePath,
+  isPotentialPublicProfilePath,
   isPublicProfileModuleId,
   isPublicProfilePath,
+  matchPublicProfilePathShape,
 } from '../src/utils/profileRoutes';
 
 describe('isMobileUserAgent', () => {
@@ -41,6 +43,17 @@ describe('isPublicProfilePath', () => {
     expect(isPublicProfilePath('/@Dessi')).toBe(false);
     expect(isPublicProfilePath('/@dessi/apps')).toBe(false);
     expect(isPublicProfilePath('/@dessi/network/extra')).toBe(false);
+  });
+
+  it('recognises potential profile route shapes independently from supported modules', () => {
+    expect(isPotentialPublicProfilePath('/@dessi/unknown-module')).toBe(true);
+    expect(isPotentialPublicProfilePath('/@dessi/Unknown_Module')).toBe(true);
+    expect(matchPublicProfilePathShape('/@fixture-person/unknown-module/')).toEqual({
+      handle: 'fixture-person',
+      moduleId: 'unknown-module',
+    });
+    expect(isPotentialPublicProfilePath('/@dessi/network/extra')).toBe(false);
+    expect(isPotentialPublicProfilePath('/@Dessi/unknown-module')).toBe(false);
   });
 
   it('builds canonical paths only for supported public modules', () => {

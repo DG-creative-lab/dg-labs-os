@@ -13,6 +13,10 @@ import { createPublicProfileRegistry } from '../../src/profiles';
 import { createPublicProfileModuleRegistry } from '../../src/profiles/modules';
 import { createPublicNetworkModuleRegistry } from '../../src/profiles/network';
 import { createPublicWritingModuleRegistry } from '../../src/profiles/writing';
+import {
+  getAppCloseDestination,
+  openWorkbenchSectionFromMenu,
+} from '../../src/services/appOpenHandlers';
 
 describe('public profile interaction boundary', () => {
   it('preserves identity from profile resolution through agent retrieval', () => {
@@ -55,5 +59,29 @@ describe('public profile interaction boundary', () => {
     expect(() => networks.resolve(profiles.resolve('contract-fixture').handle)).toThrow(
       'Published Network module not found'
     );
+  });
+
+  it('preserves the selected handle across profile module menu actions', () => {
+    const events: Event[] = [];
+    const adapter = {
+      location: {
+        pathname: '/@contract-fixture/network',
+        href: '/@contract-fixture/network',
+      },
+      dispatchEvent: (event: Event) => {
+        events.push(event);
+        return true;
+      },
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+      setTimeout: () => 0,
+    } as unknown as Window;
+
+    openWorkbenchSectionFromMenu('workbench-selected-systems', adapter);
+
+    expect(events).toHaveLength(0);
+    expect(adapter.location.href).toBe('/@contract-fixture/workbench#workbench-selected-systems');
+    expect(getAppCloseDestination('/@contract-fixture/network')).toBe('/@contract-fixture');
+    expect(adapter.location.href).not.toContain('@dessi');
   });
 });

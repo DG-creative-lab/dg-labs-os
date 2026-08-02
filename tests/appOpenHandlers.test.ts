@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   APP_ROUTE_MAP,
+  getAppCloseDestination,
   openAppFromMenu,
   openContactFromMenu,
   openWorkbenchSectionFromMenu,
@@ -107,11 +108,35 @@ describe('appOpenHandlers', () => {
     expect(timers).toHaveLength(0);
   });
 
+  it('jumps locally on a profile-owned workbench route', () => {
+    const { adapter, events, timers } = createAdapter('/@fixture-person/workbench');
+    openWorkbenchSectionFromMenu('workbench-selected-systems', adapter);
+    expect(events).toHaveLength(1);
+    expect(events[0].type).toBe('dg-workbench-menu-action');
+    expect(timers).toHaveLength(0);
+    expect(adapter.location.href).toBe('/@fixture-person/workbench');
+  });
+
+  it('preserves profile identity when opening Workbench from another profile module', () => {
+    const { adapter, events, timers } = createAdapter('/@fixture-person/network');
+    openWorkbenchSectionFromMenu('workbench-professional-context', adapter);
+    expect(events).toHaveLength(0);
+    expect(timers).toHaveLength(0);
+    expect(adapter.location.href).toBe('/@fixture-person/workbench#workbench-professional-context');
+  });
+
   it('navigates to section anchor when outside desktop and workbench route', () => {
     const { adapter, events, timers } = createAdapter('/apps/network');
     openWorkbenchSectionFromMenu('workbench-professional-context', adapter);
     expect(events).toHaveLength(0);
     expect(timers).toHaveLength(0);
     expect(adapter.location.href).toBe('/apps/projects#workbench-professional-context');
+  });
+
+  it('closes profile modules to the selected profile home', () => {
+    expect(getAppCloseDestination('/@fixture-person/workbench')).toBe('/@fixture-person');
+    expect(getAppCloseDestination('/@fixture-person/network/')).toBe('/@fixture-person');
+    expect(getAppCloseDestination('/apps/projects')).toBe('/desktop');
+    expect(getAppCloseDestination('/@fixture-person/unknown-module')).toBe('/desktop');
   });
 });

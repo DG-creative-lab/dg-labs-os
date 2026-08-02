@@ -525,6 +525,13 @@ test.describe('mobile smoke', () => {
     expect(missingProfile.status()).toBe(404);
     expect(missingProfile.headers()['x-robots-tag']).toBe('noindex, nofollow');
 
+    const missingModule = await request.get('/@dessi/unknown-module', {
+      headers: { 'user-agent': ua },
+      maxRedirects: 0,
+    });
+    expect(missingModule.status()).toBe(404);
+    expect(missingModule.headers()['x-robots-tag']).toBe('noindex, nofollow');
+
     const terminal = await request.get('/mobile/apps/terminal', {
       headers: { 'user-agent': ua },
     });

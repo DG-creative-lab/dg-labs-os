@@ -9,6 +9,7 @@ import {
 } from '../../services/desktopEvents';
 import { clearDesktopReady, markDesktopReady } from '../../services/desktopReady';
 import { copyTextWithFallback } from '../../services/clipboardService';
+import { getAppCloseDestination } from '../../services/appOpenHandlers';
 import type { ActiveProfileRuntime } from '../../profiles';
 import {
   buildDesktopMenuModel,
@@ -147,12 +148,7 @@ export default function MacToolbar({
       return;
     }
 
-    if (path === `/apps/${appId === 'projects' ? 'projects' : appId}`) {
-      window.location.href = '/desktop';
-      return;
-    }
-
-    window.location.href = '/desktop';
+    window.location.href = getAppCloseDestination(path);
   };
 
   const resolvedAppId = focusedAppId ?? activeAppId;
