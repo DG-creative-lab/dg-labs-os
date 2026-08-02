@@ -9,6 +9,7 @@ export type ProfileAgentEvidence = {
   notes: typeof labNotes;
   network: typeof networkNodes;
   brain: readonly KnowledgeEntry[];
+  currentFocus: readonly string[];
 };
 
 export type ProfileAgentContext = {
@@ -29,6 +30,11 @@ const evidenceByProfileHandle = new Map<string, ProfileAgentEvidence>([
       notes: labNotes,
       network: networkNodes,
       brain: getKnowledgeEntries(),
+      currentFocus: [
+        'Agentic commerce learning loops',
+        'Agent infrastructure with inspectable boundaries and evidence',
+        'Evolving DG-OS from portfolio into a working knowledge interface',
+      ],
     },
   ],
 ]);

@@ -474,6 +474,28 @@ describe('API route success contracts', () => {
     expect(body.tool).toBe('local_context');
   });
 
+  it('tools profile_context executes deterministic commands against registered evidence', async () => {
+    const { POST } = await import('../src/pages/api/tools');
+    const request = new Request('http://localhost/api/tools', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        profileHandle: 'dessi',
+        tool: 'profile_context',
+        input: { command: 'projects' },
+      }),
+    });
+
+    const response = await POST({ request } as Parameters<typeof POST>[0]);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as unknown;
+    expect(isToolSuccessEnvelope(body)).toBe(true);
+    if (!isToolSuccessEnvelope(body)) return;
+    expect(body.tool).toBe('profile_context');
+    expect(body.result).toMatchObject({ command: 'projects' });
+    expect(Array.isArray((body.result as { lines?: unknown }).lines)).toBe(true);
+  });
+
   it('llm health POST probes selected provider with BYOK', async () => {
     mockGlobalFetch.mockResolvedValue(
       new Response(

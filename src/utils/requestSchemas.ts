@@ -35,6 +35,7 @@ export type VerifyInput = {
 };
 
 export type ToolName =
+  | 'profile_context'
   | 'local_context'
   | 'web_verify'
   | 'open_app'
@@ -188,6 +189,7 @@ export const parseToolCallInput = (input: unknown): ToolCallInput | null => {
   if (!body) return null;
   const tool = body.tool;
   if (
+    tool !== 'profile_context' &&
     tool !== 'local_context' &&
     tool !== 'web_verify' &&
     tool !== 'open_app' &&

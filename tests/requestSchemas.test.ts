@@ -102,6 +102,16 @@ describe('request schemas', () => {
     expect(parsed?.profileHandle).toBe('dessi');
   });
 
+  it('parses profile-scoped deterministic command calls', () => {
+    const parsed = parseToolCallInput({
+      profileHandle: 'dessi',
+      tool: 'profile_context',
+      input: { command: 'projects' },
+    });
+    expect(parsed?.tool).toBe('profile_context');
+    expect(parsed?.input).toEqual({ command: 'projects' });
+  });
+
   it('parses retrieve/cite tool call input', () => {
     const retrieve = parseToolCallInput({
       profileHandle: 'dessi',

@@ -1,9 +1,4 @@
-import type { NetworkNode } from '../config/network';
-import type { WorkbenchItem } from '../config/workbench';
-import type { LabNote } from '../config/labNotes';
-import type { UserConfig } from '../types';
-import { publicLinks } from '../config/links';
-import { getKnowledgeSourceStats, retrieveKnowledge } from './terminalKnowledge';
+import type { ActiveProfileRuntime } from '../profiles';
 import type { TerminalBrainMode } from './terminalSettings';
 
 export type TerminalAction =
@@ -16,7 +11,14 @@ export type TerminalAction =
   | { type: 'list_tools' }
   | {
       type: 'tool_call';
-      tool: 'local_context' | 'web_verify' | 'open_app' | 'list_projects' | 'retrieve' | 'cite';
+      tool:
+        | 'profile_context'
+        | 'local_context'
+        | 'web_verify'
+        | 'open_app'
+        | 'list_projects'
+        | 'retrieve'
+        | 'cite';
       input?: Record<string, unknown>;
     }
   | { type: 'clear' }
@@ -28,10 +30,7 @@ export type TerminalResponse = {
 };
 
 export type TerminalContext = {
-  user: UserConfig;
-  workbench: readonly WorkbenchItem[];
-  notes: readonly LabNote[];
-  network: readonly NetworkNode[];
+  profile: ActiveProfileRuntime;
 };
 
 const APP_TARGETS: Record<string, string> = {
@@ -80,7 +79,7 @@ const HELP_TEXT = [
   'Talk naturally by default. Use commands when you want something exact.',
   'Available commands:',
   '  help                         Show this list',
-  '  whoami                       DG-Labs summary',
+  '  whoami                       Public profile summary',
   '  open <app>                   Open app: projects|writing|resume|network|desktop',
   '  projects                     List workbench projects',
   '  project <id>                 Show one project details',
@@ -102,16 +101,6 @@ const HELP_TEXT = [
 ];
 
 const normalize = (value: string) => value.trim().toLowerCase();
-
-const searchableText = (node: NetworkNode | WorkbenchItem | LabNote): string => {
-  if ('summary' in node) {
-    return `${node.title} ${node.subtitle} ${node.summary} ${node.stack.join(' ')}`.toLowerCase();
-  }
-  if ('readingTime' in node) {
-    return `${node.title} ${node.subtitle} ${node.tags.join(' ')}`.toLowerCase();
-  }
-  return `${node.title} ${node.subtitle} ${node.tags.join(' ')} ${node.bullets.join(' ')}`.toLowerCase();
-};
 
 export const executeTerminalCommand = (
   rawInput: string,
@@ -137,10 +126,10 @@ export const executeTerminalCommand = (
   if (command === 'whoami') {
     return {
       lines: [
-        `${ctx.user.name} // cognitive interface`,
-        `${ctx.user.role}`,
-        `Focus: ${ctx.user.roleFocus}`,
-        `Location: ${ctx.user.location}`,
+        `${ctx.profile.identity.displayName} // cognitive interface`,
+        `${ctx.profile.identity.role}`,
+        `Focus: ${ctx.profile.identity.roleFocus}`,
+        `Location: ${ctx.profile.identity.location}`,
       ],
       action: { type: 'none' },
     };
@@ -162,42 +151,37 @@ export const executeTerminalCommand = (
   }
 
   if (command === 'projects') {
-    const lines = ctx.workbench.map((item) => `- ${item.id}: ${item.title}`);
     return {
-      lines: ['Workbench projects:', ...lines],
-      action: { type: 'none' },
+      lines: [],
+      action: { type: 'tool_call', tool: 'profile_context', input: { command: 'projects' } },
     };
   }
 
   if (command === 'project') {
-    const id = normalize(args);
-    const item = ctx.workbench.find((x) => normalize(x.id) === id);
-    if (!item) {
+    if (!args) {
       return {
-        lines: [`Project "${args}" not found. Run "projects" to list valid ids.`],
+        lines: ['Usage: project <id>'],
         action: { type: 'none' },
       };
     }
-    const link = item.links.site ?? item.links.repo ?? item.links.article;
-    const lines = [
-      `${item.title} (${item.id})`,
-      item.subtitle,
-      item.summary,
-      `Stack: ${item.stack.slice(0, 6).join(', ')}`,
-    ];
-    if (link) {
-      lines.push(`Primary link: ${link}`);
-    }
-    return { lines, action: { type: 'none' } };
+    return {
+      lines: [],
+      action: {
+        type: 'tool_call',
+        tool: 'profile_context',
+        input: { command: 'project', args },
+      },
+    };
   }
 
   if (command === 'resume') {
+    const files = ctx.profile.cv.primary.files;
     return {
       lines: [
         'Timeline module ready.',
-        `PDF: ${ctx.user.resume.pdf}`,
-        `DOCX: ${ctx.user.resume.docx}`,
-        `Markdown: ${ctx.user.resume.markdown}`,
+        `PDF: ${files.pdf}`,
+        `DOCX: ${files.docx}`,
+        `Markdown: ${files.markdown}`,
         'Use "open resume" to navigate.',
       ],
       action: { type: 'none' },
@@ -205,7 +189,7 @@ export const executeTerminalCommand = (
   }
 
   if (command === 'links') {
-    const lines = publicLinks
+    const lines = ctx.profile.links
       .filter((link) => link.trust === 'high')
       .map((link) => `${link.label}: ${link.url}`);
     return {
@@ -216,33 +200,15 @@ export const executeTerminalCommand = (
 
   if (command === 'now') {
     return {
-      lines: [
-        'Active focus:',
-        '- Agentic commerce learning loops',
-        '- Agent infrastructure with inspectable boundaries and evidence',
-        '- Evolving DG-Labs OS from portfolio into a working knowledge interface',
-      ],
-      action: { type: 'none' },
+      lines: [],
+      action: { type: 'tool_call', tool: 'profile_context', input: { command: 'now' } },
     };
   }
 
   if (command === 'network') {
-    const total = ctx.network.length;
-    const systems = ctx.network.filter((n) => n.kind === 'System').length;
-    const practices = ctx.network.filter((n) => n.kind === 'Practice').length;
-    const career = ctx.network.filter((n) => n.kind === 'Career').length;
-    const evidence = ctx.network.filter((n) => n.kind === 'Evidence').length;
-
     return {
-      lines: [
-        `System Map nodes: ${total}`,
-        `Systems: ${systems}`,
-        `Practices: ${practices}`,
-        `Career eras: ${career}`,
-        `Evidence surfaces: ${evidence}`,
-        'Use "open map" to explore the guided relationships.',
-      ],
-      action: { type: 'none' },
+      lines: [],
+      action: { type: 'tool_call', tool: 'profile_context', input: { command: 'network' } },
     };
   }
 
@@ -250,39 +216,20 @@ export const executeTerminalCommand = (
     if (!args) {
       return { lines: ['Usage: search <query>'], action: { type: 'none' } };
     }
-    const q = args.toLowerCase();
-    const hits: string[] = [];
-
-    for (const item of ctx.workbench) {
-      if (searchableText(item).includes(q)) hits.push(`project: ${item.title}`);
-    }
-    for (const note of ctx.notes) {
-      if (searchableText(note).includes(q)) hits.push(`note: ${note.title}`);
-    }
-    for (const node of ctx.network) {
-      if (searchableText(node).includes(q)) hits.push(`node: ${node.title}`);
-    }
-
-    if (hits.length === 0) {
-      return { lines: [`No results for "${args}".`], action: { type: 'none' } };
-    }
     return {
-      lines: [`Results for "${args}" (${hits.length}):`, ...hits.slice(0, 12)],
-      action: { type: 'none' },
+      lines: [],
+      action: {
+        type: 'tool_call',
+        tool: 'profile_context',
+        input: { command: 'search', args },
+      },
     };
   }
 
   if (command === 'sources') {
-    const stats = getKnowledgeSourceStats(ctx);
     return {
-      lines: [
-        'Indexed sources:',
-        `- personal: ${stats.personal}`,
-        `- workbench: ${stats.workbench}`,
-        `- notes: ${stats.notes}`,
-        `- network: ${stats.network}`,
-      ],
-      action: { type: 'none' },
+      lines: [],
+      action: { type: 'tool_call', tool: 'profile_context', input: { command: 'sources' } },
     };
   }
 
@@ -290,17 +237,14 @@ export const executeTerminalCommand = (
     if (!args) {
       return { lines: ['Usage: context <query>'], action: { type: 'none' } };
     }
-    const hits = retrieveKnowledge(args, ctx, 5);
-    if (hits.length === 0) {
-      return { lines: [`No context hits for "${args}".`], action: { type: 'none' } };
-    }
-    const lines: string[] = [`Context hits for "${args}" (${hits.length}):`];
-    for (const [index, hit] of hits.entries()) {
-      lines.push(`${index + 1}. [${hit.source}] ${hit.title}`);
-      lines.push(`   ${hit.snippet}`);
-      if (hit.url) lines.push(`   source: ${hit.url}`);
-    }
-    return { lines, action: { type: 'none' } };
+    return {
+      lines: [],
+      action: {
+        type: 'tool_call',
+        tool: 'profile_context',
+        input: { command: 'context', args },
+      },
+    };
   }
 
   if (command === 'mode') {

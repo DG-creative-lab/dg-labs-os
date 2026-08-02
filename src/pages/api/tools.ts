@@ -6,6 +6,10 @@ import { retrieveKnowledge } from '../../utils/terminalKnowledge';
 import { performWebVerify } from '../../utils/webVerify';
 import { DESKTOP_APP_TARGETS } from '../../services/desktopAppRegistry';
 import { findProfileAgentContext } from '../../profiles/agentEvidence';
+import {
+  executeProfileEvidenceCommand,
+  isProfileEvidenceCommand,
+} from '../../services/profileEvidenceCommands';
 
 type ErrorCode =
   | 'INVALID_JSON'
@@ -38,7 +42,7 @@ export const POST: APIRoute = async ({ request }) => {
   if (!call) {
     return err(
       'INVALID_TOOL_CALL',
-      'tool must be one of: local_context, web_verify, open_app, list_projects, retrieve, cite',
+      'tool must be one of: profile_context, local_context, web_verify, open_app, list_projects, retrieve, cite',
       400
     );
   }
@@ -59,6 +63,19 @@ export const POST: APIRoute = async ({ request }) => {
   };
 
   try {
+    if (call.tool === 'profile_context') {
+      const command = asString(call.input?.command)?.toLowerCase();
+      const args = asString(call.input?.args) ?? '';
+      if (!command || !isProfileEvidenceCommand(command)) {
+        return err('INVALID_INPUT', 'profile_context requires a valid input.command', 400);
+      }
+      if ((command === 'project' || command === 'search' || command === 'context') && !args) {
+        return err('INVALID_INPUT', `profile_context ${command} requires input.args`, 400);
+      }
+      const lines = executeProfileEvidenceCommand(command, args, agentContext);
+      return jsonResponse(toolSuccess('profile_context', { command, lines }), 200);
+    }
+
     if (call.tool === 'local_context') {
       const query = asString(call.input?.query);
       const limitRaw = call.input?.limit;

@@ -14,6 +14,7 @@ export type LlmHistoryMessage = {
 };
 
 export type ToolName =
+  | 'profile_context'
   | 'local_context'
   | 'web_verify'
   | 'open_app'
@@ -79,6 +80,7 @@ export type ProviderHealth = {
 export type TerminalPanelTab = 'connection' | 'advanced' | 'evidence' | null;
 
 export const INITIAL_TOOL_USAGE: ToolUsage = {
+  profile_context: 0,
   local_context: 0,
   web_verify: 0,
   open_app: 0,

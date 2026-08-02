@@ -252,4 +252,24 @@ describe('API route contracts', () => {
     expect(isApiErrorEnvelope(body)).toBe(true);
     if (isApiErrorEnvelope(body)) expect(body.code).toBe('INVALID_PROFILE_HANDLE');
   });
+
+  it('tools POST does not fall back to Dessi evidence for an unregistered profile agent', async () => {
+    const request = new Request('http://localhost/api/tools', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        profileHandle: 'another-person',
+        tool: 'profile_context',
+        input: { command: 'projects' },
+      }),
+    });
+
+    const response = await toolsPost(ctx(request));
+    expect(response.status).toBe(404);
+    const body = (await response.json()) as unknown;
+    expect(isApiErrorEnvelope(body)).toBe(true);
+    if (!isApiErrorEnvelope(body)) return;
+    expect(body.code).toBe('INVALID_INPUT');
+    expect(body.message).toContain('another-person');
+  });
 });

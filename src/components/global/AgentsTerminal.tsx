@@ -1,8 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { userConfig } from '../../config';
-import { labNotes } from '../../config/labNotes';
-import { networkNodes } from '../../config/network';
-import { workbench } from '../../config/workbench';
 import type { ActiveProfileRuntime } from '../../profiles';
 import {
   executeTerminalCommand,
@@ -194,6 +190,7 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
 
   const toolStatusLines = (): string[] => [
     'Tool status:',
+    `- profile_context: used ${toolUsage.profile_context} time(s)`,
     `- local_context: used ${toolUsage.local_context} time(s)`,
     `- web_verify: used ${toolUsage.web_verify} time(s), cap ${VERIFY_SESSION_CAP}`,
     `- open_app: used ${toolUsage.open_app} time(s)`,
@@ -697,6 +694,20 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
         return;
       }
 
+      if (tool === 'profile_context') {
+        const result = payload.result as { lines?: unknown };
+        const lines = Array.isArray(result.lines)
+          ? result.lines.filter((line): line is string => typeof line === 'string')
+          : [];
+        setHistory((prev) => [
+          ...prev,
+          ...(lines.length > 0
+            ? lines.map((line) => pushLine('output', line))
+            : [pushLine('output', 'No reviewed profile context was returned.')]),
+        ]);
+        return;
+      }
+
       const result = payload.result as { count?: unknown; projects?: unknown };
       const projects = Array.isArray(result.projects)
         ? result.projects.filter(
@@ -759,13 +770,18 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
         },
         verifyProfile: () => {
           void runQuickAction('verify-profile-menu', () =>
-            runVerify('Dessi Georgieva LinkedIn profile work experience education')
+            runVerify(
+              `${profile.identity.displayName} ${profile.identity.role} work experience education`
+            )
           );
         },
         verifyProjects: () => {
           void runQuickAction('verify-projects-menu', () =>
             runVerify(
-              'Dessi Georgieva projects DG-creative-lab ai-knowledge-hub AI News Hub skills ai-knowledge-hub'
+              `${profile.identity.displayName} projects ${profile.links
+                .filter((link) => link.kind === 'code' || link.kind === 'platform')
+                .map((link) => link.label)
+                .join(' ')}`
             )
           );
         },
@@ -837,12 +853,7 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
       return;
     }
 
-    const response = executeTerminalCommand(commandToRun, {
-      user: userConfig,
-      workbench,
-      notes: labNotes,
-      network: networkNodes,
-    });
+    const response = executeTerminalCommand(commandToRun, { profile });
 
     if (response.action.type === 'clear') {
       setHistory([]);
