@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "dg-os.dependency-baseline/v1",
+  "recordedAt": "2026-08-02",
+  "observed": {
+    "files": 142,
+    "internalEdges": 338,
+    "graphDensity": 2.3803,
+    "maximumFanOut": 15,
+    "maximumDependencyDepth": 10
+  },
+  "maximumGraphDensity": 2.45,
+  "maximumFanOut": 15,
+  "maximumDependencyDepth": 10,
+  "policy": "Budgets may change only with an explained architecture decision. Never update this file solely to make CI pass."
+}

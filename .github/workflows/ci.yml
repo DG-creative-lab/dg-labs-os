@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   quality:
-    name: Lint, Format, Tests, Typecheck
+    name: Architecture, Contracts, Tests, Typecheck
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -37,6 +37,18 @@ jobs:
 
       - name: Run quality checks
         run: pnpm check
+
+      - name: Write architecture report
+        if: always()
+        run: node scripts/architecture/check-dependencies.mjs --json > architecture-report.json
+
+      - name: Upload architecture report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: architecture-report
+          path: architecture-report.json
+          if-no-files-found: error
 
   build:
     name: Build
