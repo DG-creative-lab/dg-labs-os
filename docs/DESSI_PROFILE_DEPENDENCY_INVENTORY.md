@@ -1,7 +1,7 @@
 # Dessi Profile Dependency Inventory
 
-> Status: active migration map  
-> Last reviewed: 2026-08-01  
+> Status: active migration map
+> Last reviewed: 2026-08-02
 > Related: [`DG_OS_PRODUCT_ROADMAP.md`](./DG_OS_PRODUCT_ROADMAP.md)
 
 ## Purpose
@@ -12,17 +12,21 @@ DG-OS currently renders one person, but much of its content is embedded directly
 
 ## Completed in the first contract slice
 
-| Area                                        | Canonical source                     | State                          |
-| ------------------------------------------- | ------------------------------------ | ------------------------------ |
-| Identity, role, location, positioning       | `dessiProfileProjection.identity`    | Migrated                       |
-| Public contact details                      | `dessiProfileProjection.contact`     | Migrated                       |
-| Public links and their allowed surfaces     | `dessiProfileProjection.links`       | Migrated                       |
-| General CV asset references                 | `dessiProfileProjection.cv.primary`  | Migrated                       |
-| SEO title, description, and keywords        | `dessiProfileProjection.seo`         | Migrated                       |
-| Active profile resolution and runtime       | `src/profiles/runtime.ts`            | Migrated                       |
-| Shared shell, apps, and Evidence identity   | `activeProfile` runtime              | Migrated                       |
-| Owner approval and private-source exclusion | `dessiProfileProjection.publication` | Enforced                       |
-| Application-specific OpenAI CV and role     | `openAiCodexApplication`             | Intentionally separate variant |
+| Area                                        | Canonical source                        | State                          |
+| ------------------------------------------- | --------------------------------------- | ------------------------------ |
+| Identity, role, location, positioning       | `dessiProfileProjection.identity`       | Migrated                       |
+| Public contact details                      | `dessiProfileProjection.contact`        | Migrated                       |
+| Public links and their allowed surfaces     | `dessiProfileProjection.links`          | Migrated                       |
+| General CV asset references                 | `dessiProfileProjection.cv.primary`     | Migrated                       |
+| SEO title, description, and keywords        | `dessiProfileProjection.seo`            | Migrated                       |
+| Active profile resolution and runtime       | `src/profiles/runtime.ts`               | Migrated                       |
+| Shared shell, apps, and Evidence identity   | `activeProfile` runtime                 | Migrated                       |
+| Owner approval and private-source exclusion | `dessiProfileProjection.publication`    | Enforced                       |
+| Application-specific OpenAI CV and role     | `openAiCodexApplication`                | Intentionally separate variant |
+| Workbench projects and categories           | `dessiProfileModules.workbench`         | Migrated                       |
+| Claims, case studies, boundaries, evolution | `dessiProfileModules.evidenceEvolution` | Migrated                       |
+| Shared Workbench and Evolution components   | Explicit profile-module props           | Migrated                       |
+| Profile Agent module evidence               | Selected profile module registry        | Migrated                       |
 
 The validator rejects malformed identifiers and URLs, duplicate links and CV IDs, local filesystem paths, secret-bearing fields, and publication without the explicit privacy boundary. A JSON round-trip test protects the portability requirement.
 
@@ -46,11 +50,19 @@ The Markdown chunks under `src/knowledge/chunks/` mix reusable DG-OS concepts wi
 
 **Disposition:** classify each chunk as `platform`, `profile`, or `application`; attach an owner profile ID and publication state to profile material; generate the profile system context only from approved chunks. The current corpus remains the Dessi fixture until this classification exists.
 
-### 4. Projects, evolution, writing, and network data
+### 4. Writing and network data
 
-`workbench.ts`, `applicationProfile.ts`, `labNotes.ts`, `network.ts`, education, experience, and related configuration are still single-profile content stores.
+Workbench and Evidence/Evolution now use the versioned `dg-os.profile-modules/v1` bundle. The
+production registry contains only Dessi; a synthetic second-profile fixture verifies that shared
+Workbench and Evolution components, module resolution, and agent knowledge construction do not
+cross profile boundaries.
 
-**Disposition:** extend the contract with versioned public modules or stable module references after the base identity contract has proved stable. Preserve evidence confidence, visibility, source boundaries, and owner review rather than flattening these records into generic portfolio cards.
+`labNotes.ts`, `network.ts`, education, experience, and related configuration remain single-profile
+content stores.
+
+**Disposition:** migrate Writing and Network next. Preserve evidence confidence, visibility, source
+boundaries, owner review, and relationship provenance rather than flattening these records into
+generic cards.
 
 ### 5. CV sources and build scripts
 
@@ -72,13 +84,21 @@ Existing terminal, API, and end-to-end suites contain fixture-specific Dessi ass
 
 ## Migration rules
 
-1. Data flows in one direction: public projection → compatibility config → UI.
+1. Data flows in one direction: public projection and modules → compatibility config → UI.
 2. `src/profiles/` must not import UI code, terminal providers, private workspace services, or legacy config.
 3. A projection must remain serialisable JSON with a declared schema and projection version.
 4. No secrets, local paths, private repository identifiers, raw activity, or unreviewed claims may enter a public projection.
 5. Each migrated module keeps its current behaviour covered by tests before the legacy value is removed.
 6. Application campaigns are profile variants, not the canonical identity.
 
+## Completed implementation slice
+
+Workbench and Evidence/Evolution are now versioned public modules. The registry rejects invalid,
+unpublished, mismatched, private-path-bearing, and cross-profile bundles. The UI and Profile Agent
+consume the selected bundle explicitly.
+
 ## Next implementation slice
 
-Classify public content into versioned profile modules, beginning with Workbench projects and Evidence/Evolution records. The route and identity runtime are isolated; the content stores must reach the same boundary before a second real profile can be published.
+Choose the next profile-owned module boundary. Writing is the smaller migration; Network is the more
+important one for the product model because it requires typed relationships and provenance. Keep
+authentication, hosted workspaces, and database storage behind the second-real-user gate.

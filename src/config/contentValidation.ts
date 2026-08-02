@@ -1,7 +1,7 @@
 import type { LabNote } from './labNotes';
 import type { PublicLink } from './links';
 import type { NetworkIdeaEdge, NetworkNode } from './network';
-import type { WorkbenchItem } from './workbench';
+import type { WorkbenchItem } from '../profiles/modules/contracts';
 
 type ValidationIssue = {
   scope: 'workbench' | 'labNotes' | 'links' | 'network';

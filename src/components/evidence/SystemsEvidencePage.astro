@@ -1,11 +1,6 @@
 ---
-import {
-  applicationCaseStudies,
-  applicationClaims,
-  currentBoundaries,
-  evolutionEntries,
-} from '../../config/applicationProfile';
 import { activeProfile, type ActiveProfileRuntime } from '../../profiles';
+import { activeProfileModules, type PublicProfileModules } from '../../profiles/modules';
 
 type DossierMode = 'general' | 'application';
 
@@ -22,6 +17,7 @@ type TargetRole = {
 
 interface Props {
   profile?: ActiveProfileRuntime;
+  modules?: PublicProfileModules;
   mode?: DossierMode;
   cv?: DossierCv;
   targetRole?: TargetRole;
@@ -29,11 +25,18 @@ interface Props {
 
 const {
   profile = activeProfile,
+  modules = activeProfileModules,
   mode = 'general',
   cv = profile.cv.primary.files,
   targetRole,
 } = Astro.props as Props;
 const isApplication = mode === 'application';
+const {
+  claims: applicationClaims,
+  caseStudies: applicationCaseStudies,
+  boundaries: currentBoundaries,
+  entries: evolutionEntries,
+} = modules.evidenceEvolution;
 
 const confidenceLabel = {
   verified: 'Publicly verifiable',

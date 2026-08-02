@@ -107,8 +107,10 @@ Exit condition: a new visitor can explain DG-OS, Dessi's current professional di
 
 ### Phase 1 - Make Dessi an instance of a profile contract
 
-Status: in progress. The public contract, registry, canonical route, and first projection are live;
-content modules still need to finish crossing the profile boundary.
+Status: in progress. The public contract, registry, canonical route, and first projection are live.
+Workbench and Evidence/Evolution now use a validated, versioned module bundle shared by the public
+UI and Profile Agent. Writing, Network, and remaining profile content still need to cross the
+boundary.
 
 - define and validate `ProfileProjection`;
 - move Dessi-specific content behind one profile boundary;
@@ -256,14 +258,12 @@ References:
 
 The next DG-OS work should proceed in this order:
 
-1. finish and verify the current Dessi interface changes;
-2. inventory every Dessi-specific dependency in code and content;
-3. design `ProfileProjection` and its validation rules;
-4. migrate Dessi into the first projection fixture;
-5. render the existing applications from that fixture without changing their meaning;
-6. build the browser-based platform entrance and `/dessi` route;
-7. generate the general CV from the same projection;
-8. specify the local publication bundle and API boundary.
+1. migrate Writing into a reviewed public profile module;
+2. model Network as profile-owned nodes and typed, evidenced relationships;
+3. extend profile-aware routing to shared module pages;
+4. generate the general CV from the same approved profile data;
+5. specify the signed local publication bundle and narrow API boundary;
+6. keep authentication and hosted workspaces behind the second-real-user gate.
 
 Aion integration remains deferred until the second-user gate. Its stable identity, workspace, project, delegated-grant, approval, and audit patterns may shape the contracts without introducing an authentication dependency into the current proof.
 

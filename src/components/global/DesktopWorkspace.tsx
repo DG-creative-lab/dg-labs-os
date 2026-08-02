@@ -1,7 +1,7 @@
 import { useEffect, useReducer } from 'react';
 import { networkIdeaEdges, networkNodes, networkPaths } from '../../config/network';
-import { workbench, workbenchCategories } from '../../config/workbench';
 import type { ActiveProfileRuntime } from '../../profiles';
+import type { PublicProfileModules } from '../../profiles/modules';
 import {
   dispatchDesktopAppFocus,
   dispatchDesktopState,
@@ -42,7 +42,13 @@ const jumpTo = (id: string) => {
   el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
-function ProjectsPanel({ profile }: { profile: ActiveProfileRuntime }) {
+export function ProjectsPanel({
+  profile,
+  workbench,
+}: {
+  profile: ActiveProfileRuntime;
+  workbench: PublicProfileModules['workbench'];
+}) {
   useEffect(() => {
     const onWorkbenchMenuAction = (event: Event) => {
       const customEvent = event as CustomEvent<WorkbenchMenuEventDetail>;
@@ -70,8 +76,8 @@ function ProjectsPanel({ profile }: { profile: ActiveProfileRuntime }) {
         evidence.
       </p>
       <div className="mt-8 space-y-10">
-        {workbenchCategories.map((cat) => {
-          const items = workbench.filter((x) => x.category === cat);
+        {workbench.categories.map((cat) => {
+          const items = workbench.items.filter((x) => x.category === cat);
           if (items.length === 0) return null;
           return (
             <section key={cat} id={toWorkbenchSectionId(cat)}>
@@ -81,9 +87,7 @@ function ProjectsPanel({ profile }: { profile: ActiveProfileRuntime }) {
                     {cat}
                   </h2>
                   <p className="mt-1 text-xs leading-relaxed text-white/50">
-                    {cat === 'Selected Systems'
-                      ? 'Public code and live systems that can be inspected directly.'
-                      : 'Production experience described within employer and client boundaries.'}
+                    {workbench.categoryDescriptions[cat]}
                   </p>
                 </div>
                 <span className="text-[10px] uppercase tracking-[0.18em] text-white/35">
@@ -125,7 +129,13 @@ function ProjectsPanel({ profile }: { profile: ActiveProfileRuntime }) {
   );
 }
 
-export default function DesktopWorkspace({ profile }: { profile: ActiveProfileRuntime }) {
+export default function DesktopWorkspace({
+  profile,
+  modules,
+}: {
+  profile: ActiveProfileRuntime;
+  modules: PublicProfileModules;
+}) {
   const [state, dispatch] = useReducer(desktopShellReducer, INITIAL_DESKTOP_SHELL_STATE);
   const { open, focusedAppId } = state;
 
@@ -200,7 +210,7 @@ export default function DesktopWorkspace({ profile }: { profile: ActiveProfileRu
           initialPosition={{ x: projectsWindow.x, y: projectsWindow.y }}
           isFocused={focusedAppId === 'projects'}
         >
-          <ProjectsPanel profile={profile} />
+          <ProjectsPanel profile={profile} workbench={modules.workbench} />
         </DraggableAppWindow>
       ) : null}
 
@@ -226,7 +236,7 @@ export default function DesktopWorkspace({ profile }: { profile: ActiveProfileRu
           initialPosition={{ x: evolutionWindow.x, y: evolutionWindow.y }}
           isFocused={focusedAppId === 'evolution'}
         >
-          <EvolutionApp profile={profile} />
+          <EvolutionApp profile={profile} evidenceEvolution={modules.evidenceEvolution} />
         </DraggableAppWindow>
       ) : null}
 

@@ -2,10 +2,15 @@
 import IPhoneAppLayout from '../../../layouts/iPhoneAppLayout.astro';
 import EvolutionApp from '../../../components/global/EvolutionApp';
 import { activeProfile } from '../../../profiles';
+import { activeProfileModules } from '../../../profiles/modules';
 ---
 
 <IPhoneAppLayout profile={activeProfile} appLabel="Evidence">
   <main class="min-h-screen px-4 pb-24 pt-24 text-white sm:px-6">
-    <EvolutionApp client:load profile={activeProfile} />
+    <EvolutionApp
+      client:load
+      profile={activeProfile}
+      evidenceEvolution={activeProfileModules.evidenceEvolution}
+    />
   </main>
 </IPhoneAppLayout>

@@ -1,18 +1,21 @@
 ---
 import IPhoneAppLayout from '../../../layouts/iPhoneAppLayout.astro';
-import { workbench, workbenchCategories } from '../../../config/workbench';
+import { activeProfile } from '../../../profiles';
+import { activeProfileModules } from '../../../profiles/modules';
+
+const { workbench } = activeProfileModules;
 ---
 
-<IPhoneAppLayout appLabel="Workbench">
+<IPhoneAppLayout profile={activeProfile} appLabel="Workbench">
   <main class="min-h-screen px-4 pb-24 pt-24 text-white sm:px-6">
     <h1 class="text-2xl font-semibold">Workbench</h1>
     <p class="mt-2 text-white/70">
-      Selected systems Dessi can show, explain, and bound with evidence.
+      Selected systems {activeProfile.identity.preferredName} can show, explain, and bound with evidence.
     </p>
 
     <div class="mt-4 flex flex-wrap gap-2">
       {
-        workbenchCategories.map((category) => (
+        workbench.categories.map((category) => (
           <a
             href={`#${category.toLowerCase().replace(/\s+/g, '-')}`}
             class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/75"
@@ -25,8 +28,8 @@ import { workbench, workbenchCategories } from '../../../config/workbench';
 
     <div class="mt-6 space-y-6">
       {
-        workbenchCategories.map((category) => {
-          const items = workbench.filter((item) => item.category === category);
+        workbench.categories.map((category) => {
+          const items = workbench.items.filter((item) => item.category === category);
           if (items.length === 0) return null;
 
           return (
