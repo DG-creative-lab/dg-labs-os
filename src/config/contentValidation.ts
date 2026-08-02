@@ -1,10 +1,10 @@
-import type { LabNote } from './labNotes';
+import type { PublicWritingEntry } from '../profiles/writing/contracts';
 import type { PublicLink } from './links';
 import type { NetworkIdeaEdge, NetworkNode } from './network';
 import type { WorkbenchItem } from '../profiles/modules/contracts';
 
 type ValidationIssue = {
-  scope: 'workbench' | 'labNotes' | 'links' | 'network';
+  scope: 'workbench' | 'writing' | 'links' | 'network';
   id: string;
   message: string;
 };
@@ -68,48 +68,48 @@ const validateWorkbench = (items: readonly WorkbenchItem[]): ValidationIssue[] =
   return issues;
 };
 
-const validateLabNotes = (notes: readonly LabNote[]): ValidationIssue[] => {
+const validateWriting = (entries: readonly PublicWritingEntry[]): ValidationIssue[] => {
   const issues: ValidationIssue[] = [];
   const ids = new Set<string>();
 
-  for (const note of notes) {
+  for (const note of entries) {
     if (!note.id.trim()) {
-      issues.push({ scope: 'labNotes', id: note.id || '(missing-id)', message: 'Missing id.' });
+      issues.push({ scope: 'writing', id: note.id || '(missing-id)', message: 'Missing id.' });
       continue;
     }
     if (ids.has(note.id)) {
-      issues.push({ scope: 'labNotes', id: note.id, message: 'Duplicate id.' });
+      issues.push({ scope: 'writing', id: note.id, message: 'Duplicate id.' });
     }
     ids.add(note.id);
 
     if (!note.title.trim()) {
-      issues.push({ scope: 'labNotes', id: note.id, message: 'Missing title.' });
+      issues.push({ scope: 'writing', id: note.id, message: 'Missing title.' });
     }
     if (!note.subtitle.trim()) {
-      issues.push({ scope: 'labNotes', id: note.id, message: 'Missing subtitle.' });
+      issues.push({ scope: 'writing', id: note.id, message: 'Missing subtitle.' });
     }
     if (!note.readingTime.trim()) {
-      issues.push({ scope: 'labNotes', id: note.id, message: 'Missing reading time.' });
+      issues.push({ scope: 'writing', id: note.id, message: 'Missing reading time.' });
     }
-    if (!note.published.trim()) {
-      issues.push({ scope: 'labNotes', id: note.id, message: 'Missing publication date.' });
+    if (!note.publishedOn.trim()) {
+      issues.push({ scope: 'writing', id: note.id, message: 'Missing publication date.' });
     }
     if (!note.relatedSystem.trim()) {
-      issues.push({ scope: 'labNotes', id: note.id, message: 'Missing related system.' });
+      issues.push({ scope: 'writing', id: note.id, message: 'Missing related system.' });
     }
     if (!note.boundary.trim()) {
-      issues.push({ scope: 'labNotes', id: note.id, message: 'Missing scope boundary.' });
+      issues.push({ scope: 'writing', id: note.id, message: 'Missing scope boundary.' });
     }
     if (!isHttpUrl(note.url)) {
       issues.push({
-        scope: 'labNotes',
+        scope: 'writing',
         id: note.id,
         message: 'URL must be an absolute http(s) URL.',
       });
     }
-    if (!hasNonEmptyStrings(note.tags)) {
+    if (!hasNonEmptyStrings(note.topics)) {
       issues.push({
-        scope: 'labNotes',
+        scope: 'writing',
         id: note.id,
         message: 'Tags must contain non-empty entries.',
       });
@@ -282,7 +282,7 @@ const validateNetwork = (
 
 export const validateContentConfigs = ({
   workbench,
-  labNotes,
+  writing,
   publicLinks,
   dockLinks,
   verificationLinks,
@@ -291,7 +291,7 @@ export const validateContentConfigs = ({
   networkLinks,
 }: {
   workbench: readonly WorkbenchItem[];
-  labNotes: readonly LabNote[];
+  writing: readonly PublicWritingEntry[];
   publicLinks: readonly PublicLink[];
   dockLinks: readonly PublicLink[];
   verificationLinks: readonly PublicLink[];
@@ -300,7 +300,7 @@ export const validateContentConfigs = ({
   networkLinks: Record<string, string>;
 }): ValidationIssue[] => [
   ...validateWorkbench(workbench),
-  ...validateLabNotes(labNotes),
+  ...validateWriting(writing),
   ...validateLinks(
     publicLinks,
     dockLinks.map((link) => link.id),

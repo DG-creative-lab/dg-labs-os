@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { labNotes } from '../src/config/labNotes';
 import { workbench } from '../src/config/workbench';
+import { dessiWritingModule } from '../src/profiles/writing';
 
 describe('content config sanity', () => {
-  it('labNotes contains unique ids and absolute urls', () => {
+  it('public Writing contains unique ids and absolute URLs', () => {
     const ids = new Set<string>();
-    for (const note of labNotes) {
+    for (const note of dessiWritingModule.entries) {
       expect(ids.has(note.id)).toBe(false);
       ids.add(note.id);
       expect(note.url.startsWith('http://') || note.url.startsWith('https://')).toBe(true);

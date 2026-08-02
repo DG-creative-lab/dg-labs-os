@@ -1,7 +1,10 @@
 import { useEffect, useReducer } from 'react';
 import { networkIdeaEdges, networkNodes, networkPaths } from '../../config/network';
-import type { ActiveProfileRuntime } from '../../profiles';
-import type { PublicProfileModules } from '../../profiles/modules';
+import type {
+  ActiveProfileRuntime,
+  PublicProfileModules,
+  PublicWritingModule,
+} from '../../profiles';
 import {
   dispatchDesktopAppFocus,
   dispatchDesktopState,
@@ -132,9 +135,11 @@ export function ProjectsPanel({
 export default function DesktopWorkspace({
   profile,
   modules,
+  writing,
 }: {
   profile: ActiveProfileRuntime;
   modules: PublicProfileModules;
+  writing: PublicWritingModule;
 }) {
   const [state, dispatch] = useReducer(desktopShellReducer, INITIAL_DESKTOP_SHELL_STATE);
   const { open, focusedAppId } = state;
@@ -223,7 +228,7 @@ export default function DesktopWorkspace({
           initialPosition={{ x: notesWindow.x, y: notesWindow.y }}
           isFocused={focusedAppId === 'notes'}
         >
-          <TechnicalWritingApp profile={profile} />
+          <TechnicalWritingApp profile={profile} writing={writing} />
         </DraggableAppWindow>
       ) : null}
 

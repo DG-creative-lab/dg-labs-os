@@ -35,7 +35,7 @@ export function executeProfileEvidenceCommand(
       website: profile.contact.website,
     },
     workbench: evidence.workbench,
-    notes: evidence.notes,
+    writing: evidence.writing,
     network: evidence.network,
     brain: evidence.brain,
   };
@@ -85,7 +85,7 @@ export function executeProfileEvidenceCommand(
       'Indexed sources:',
       `- personal: ${stats.personal}`,
       `- workbench: ${stats.workbench}`,
-      `- notes: ${stats.notes}`,
+      `- writing: ${stats.writing}`,
       `- network: ${stats.network}`,
       `- brain: ${stats.brain}`,
     ];

@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { labNotes } from '../src/config/labNotes';
 import { dockLinks, publicLinks, verificationLinks } from '../src/config/links';
 import { validateContentConfigs } from '../src/config/contentValidation';
 import { networkIdeaEdges, networkLinks, networkNodes } from '../src/config/network';
 import { workbench } from '../src/config/workbench';
+import { dessiWritingModule } from '../src/profiles/writing';
 
 describe('content validation', () => {
   it('passes for the committed content configs', () => {
     const issues = validateContentConfigs({
       workbench,
-      labNotes,
+      writing: dessiWritingModule.entries,
       publicLinks,
       dockLinks,
       verificationLinks,
@@ -31,11 +31,11 @@ describe('content validation', () => {
           links: { repo: 'not-a-url' },
         },
       ],
-      labNotes: [
-        ...labNotes,
+      writing: [
+        ...dessiWritingModule.entries,
         {
-          ...labNotes[0],
-          id: labNotes[0].id,
+          ...dessiWritingModule.entries[0],
+          id: dessiWritingModule.entries[0].id,
           url: '/relative-path',
         },
       ],
@@ -79,12 +79,12 @@ describe('content validation', () => {
       )
     ).toBe(true);
     expect(
-      issues.some((issue) => issue.scope === 'labNotes' && issue.message === 'Duplicate id.')
+      issues.some((issue) => issue.scope === 'writing' && issue.message === 'Duplicate id.')
     ).toBe(true);
     expect(
       issues.some(
         (issue) =>
-          issue.scope === 'labNotes' && issue.message === 'URL must be an absolute http(s) URL.'
+          issue.scope === 'writing' && issue.message === 'URL must be an absolute http(s) URL.'
       )
     ).toBe(true);
     expect(

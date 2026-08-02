@@ -27,6 +27,9 @@ DG-OS currently renders one person, but much of its content is embedded directly
 | Claims, case studies, boundaries, evolution | `dessiProfileModules.evidenceEvolution` | Migrated                       |
 | Shared Workbench and Evolution components   | Explicit profile-module props           | Migrated                       |
 | Profile Agent module evidence               | Selected profile module registry        | Migrated                       |
+| Selected professional writing               | `dessiWritingModule.entries`            | Migrated                       |
+| Writing authorship and evidence boundaries  | `dg-os.profile-writing/v1`              | Enforced                       |
+| Shared Writing component and agent evidence | Selected Writing registry               | Migrated                       |
 
 The validator rejects malformed identifiers and URLs, duplicate links and CV IDs, local filesystem paths, secret-bearing fields, and publication without the explicit privacy boundary. A JSON round-trip test protects the portability requirement.
 
@@ -40,7 +43,10 @@ The desktop shell, Resume, Evolution, Technical Writing, Workbench introduction,
 
 ### 2. Terminal and agent behaviour
 
-`terminalLlm.ts`, `webVerify.ts`, `AgentsTerminal`, and `TerminalControlPanels` currently assume Dessi in prompts, query routing, and verification language. This is behavioural identity and must not silently switch profiles through string replacement.
+Profile Agent requests and deterministic terminal retrieval now require a registered profile and
+use that profile's approved Workbench, Evidence/Evolution, and Writing records. `webVerify.ts` still
+contains Dessi-specific verification terms, and the legacy Markdown knowledge corpus remains
+registered only for Dessi.
 
 **Disposition:** derive a public agent context from the active projection and a separately approved knowledge registry. Keep provider credentials, private memories, and local source access outside the projection.
 
@@ -52,17 +58,17 @@ The Markdown chunks under `src/knowledge/chunks/` mix reusable DG-OS concepts wi
 
 ### 4. Writing and network data
 
-Workbench and Evidence/Evolution now use the versioned `dg-os.profile-modules/v1` bundle. The
-production registry contains only Dessi; a synthetic second-profile fixture verifies that shared
-Workbench and Evolution components, module resolution, and agent knowledge construction do not
-cross profile boundaries.
+Workbench and Evidence/Evolution use the versioned `dg-os.profile-modules/v1` bundle. Writing uses
+the independent `dg-os.profile-writing/v1` contract. The Writing registry verifies profile identity,
+projection version, owner review, publication status, public evidence links, authorship boundaries,
+and private-source exclusion. Synthetic second-profile fixtures verify that the shared Writing UI
+and agent evidence builder do not inherit Dessi's records.
 
-`labNotes.ts`, `network.ts`, education, experience, and related configuration remain single-profile
-content stores.
+`network.ts`, education, experience, and related configuration remain single-profile content
+stores.
 
-**Disposition:** migrate Writing and Network next. Preserve evidence confidence, visibility, source
-boundaries, owner review, and relationship provenance rather than flattening these records into
-generic cards.
+**Disposition:** migrate Network next. Preserve evidence confidence, visibility, source boundaries,
+owner review, and relationship provenance rather than flattening its records into a generic graph.
 
 ### 5. CV sources and build scripts
 
@@ -93,12 +99,11 @@ Existing terminal, API, and end-to-end suites contain fixture-specific Dessi ass
 
 ## Completed implementation slice
 
-Workbench and Evidence/Evolution are now versioned public modules. The registry rejects invalid,
-unpublished, mismatched, private-path-bearing, and cross-profile bundles. The UI and Profile Agent
-consume the selected bundle explicitly.
+Workbench, Evidence/Evolution, and Writing are now versioned public modules. Their registries reject
+invalid, unpublished, mismatched, private-path-bearing, and cross-profile bundles. The UI and
+Profile Agent consume the selected modules explicitly.
 
 ## Next implementation slice
 
-Choose the next profile-owned module boundary. Writing is the smaller migration; Network is the more
-important one for the product model because it requires typed relationships and provenance. Keep
-authentication, hosted workspaces, and database storage behind the second-real-user gate.
+Migrate Network as profile-owned nodes and typed, evidenced relationships. Keep authentication,
+hosted workspaces, and database storage behind the second-real-user gate.

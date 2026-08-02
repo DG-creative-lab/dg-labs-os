@@ -91,7 +91,7 @@ export const POST: APIRoute = async ({ request }) => {
         {
           user: profileIdentity,
           workbench: profileEvidence.workbench,
-          notes: profileEvidence.notes,
+          writing: profileEvidence.writing,
           network: profileEvidence.network,
           brain: profileEvidence.brain,
         },
@@ -158,7 +158,7 @@ export const POST: APIRoute = async ({ request }) => {
         {
           user: profileIdentity,
           workbench: profileEvidence.workbench,
-          notes: profileEvidence.notes,
+          writing: profileEvidence.writing,
           network: profileEvidence.network,
           brain: profileEvidence.brain,
         },
@@ -184,7 +184,7 @@ export const POST: APIRoute = async ({ request }) => {
         {
           user: profileIdentity,
           workbench: profileEvidence.workbench,
-          notes: profileEvidence.notes,
+          writing: profileEvidence.writing,
           network: profileEvidence.network,
           brain: profileEvidence.brain,
         },

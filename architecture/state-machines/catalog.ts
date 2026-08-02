@@ -48,10 +48,15 @@ export const stateMachineCatalog = [
     id: 'profile-module-registration',
     purpose: 'Bind reviewed public modules to exactly one matching published profile.',
     maturity: 'boundary-enforced',
-    implementation: ['src/profiles/modules/runtime.ts', 'src/profiles/modules/validation.ts'],
+    implementation: [
+      'src/profiles/modules/runtime.ts',
+      'src/profiles/modules/validation.ts',
+      'src/profiles/writing/runtime.ts',
+      'src/profiles/writing/validation.ts',
+    ],
     states: ['unregistered', 'registered', 'rejected'],
     inputs: ['VALIDATE', 'REGISTER', 'RESOLVE'],
-    outputs: ['PublicProfileModules', 'typed rejection'],
+    outputs: ['PublicProfileModules', 'PublicWritingModule', 'typed rejection'],
     invariants: [
       'Profile ID, handle, and projection version match the owning profile.',
       'Invalid or unpublished modules cannot be registered.',

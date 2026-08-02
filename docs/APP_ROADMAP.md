@@ -54,7 +54,7 @@ Primary metaphor:
 ### 2.4 Content Modules
 
 - Workbench (`/apps/projects`) mapped from `src/config/workbench.ts`
-- Lab Notes (`/apps/notes`) mapped from `src/config/labNotes.ts`
+- Technical Writing (`/apps/notes`) mapped from the reviewed module in `src/profiles/writing/`
 - Network (`/apps/network`) backed by weighted nodes + idea edges in `src/config/network.ts`
 - Resume and Terminal pages currently minimal
 - News app route exists (`/apps/news`)
@@ -104,7 +104,7 @@ Primary metaphor:
 The app intent is not only in README; it is already encoded across:
 
 - `src/config/workbench.ts`: flagship systems/platform/writing/hackathons narrative
-- `src/config/labNotes.ts`: deep-dive research thread and principles
+- `src/profiles/writing/dessi.ts`: reviewed professional writing and its evidence boundaries
 - `src/config/network.ts`: knowledge-graph structure, weighting, and idea edges
 - `src/components/global/DesktopDock.tsx`: OS metaphor through module naming
 
@@ -137,7 +137,7 @@ This means roadmap execution can be incremental without redesigning the whole in
 ### 4.3 System Gaps
 
 - No central planning document currently in repo (this file fixes that baseline).
-- Content schema validation now covers the core portfolio modules (`workbench`, `network`, `labNotes`, `publicLinks`) in CI; next iteration can expand into richer semantic rules.
+- Content schema validation now covers the core portfolio modules (`workbench`, `network`, `writing`, `publicLinks`) in CI; next iteration can expand into richer semantic rules.
 - Need deeper E2E coverage beyond smoke (terminal tool interactions, graph interaction modes, window lifecycle edge cases).
 - Deployment is not yet fully hardened for Vercel production (secrets, provider routing, runtime checks, observability).
 

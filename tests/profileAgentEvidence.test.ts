@@ -9,7 +9,18 @@ describe('Profile Agent evidence registry', () => {
     expect(context?.profile.handle).toBe('dessi');
     expect(context?.evidence.brain.length).toBeGreaterThan(0);
     expect(context?.evidence.workbench.length).toBeGreaterThan(0);
+    expect(context?.evidence.writing.length).toBeGreaterThan(0);
     expect(context?.evidence.currentFocus.length).toBeGreaterThan(0);
+  });
+
+  it('includes only registered reviewed Writing in deterministic retrieval', () => {
+    const context = findProfileAgentContext('dessi');
+    expect(context).toBeDefined();
+    if (!context) return;
+
+    const lines = executeProfileEvidenceCommand('search', 'deterministic core', context);
+    expect(lines.join('\n')).toContain('[writing] The Deterministic Core');
+    expect(lines.join('\n')).not.toContain('[notes]');
   });
 
   it('does not fall back to Dessi evidence for another handle', () => {
