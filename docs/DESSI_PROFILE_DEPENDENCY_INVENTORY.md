@@ -67,8 +67,9 @@ and agent evidence builder do not inherit Dessi's records.
 `network.ts`, education, experience, and related configuration remain single-profile content
 stores.
 
-**Disposition:** migrate Network next. Preserve evidence confidence, visibility, source boundaries,
-owner review, and relationship provenance rather than flattening its records into a generic graph.
+**Disposition:** migrated into `dg-os.profile-network/v1`. The registered module preserves evidence
+confidence, visibility, source boundaries, owner review, and relationship provenance rather than
+flattening its records into a generic graph.
 
 ### 5. CV sources and build scripts
 
@@ -105,5 +106,5 @@ Profile Agent consume the selected modules explicitly.
 
 ## Next implementation slice
 
-Migrate Network as profile-owned nodes and typed, evidenced relationships. Keep authentication,
-hosted workspaces, and database storage behind the second-real-user gate.
+Extend profile-aware routing to the shared module pages. Keep authentication, hosted workspaces,
+and database storage behind the second-real-user gate.

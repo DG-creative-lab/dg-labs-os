@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { dockLinks, publicLinks, verificationLinks } from '../src/config/links';
 import { validateContentConfigs } from '../src/config/contentValidation';
-import { networkIdeaEdges, networkLinks, networkNodes } from '../src/config/network';
 import { workbench } from '../src/config/workbench';
 import { dessiWritingModule } from '../src/profiles/writing';
 
@@ -13,15 +12,12 @@ describe('content validation', () => {
       publicLinks,
       dockLinks,
       verificationLinks,
-      networkNodes,
-      networkIdeaEdges,
-      networkLinks,
     });
 
     expect(issues).toEqual([]);
   });
 
-  it('catches duplicate ids, invalid urls, and dangling network edges', () => {
+  it('catches duplicate ids and invalid URLs in legacy compatibility content', () => {
     const issues = validateContentConfigs({
       workbench: [
         ...workbench,
@@ -50,22 +46,6 @@ describe('content validation', () => {
       ],
       dockLinks,
       verificationLinks,
-      networkNodes,
-      networkIdeaEdges: [
-        ...networkIdeaEdges,
-        {
-          id: 'missing-edge',
-          from: 'missing-node',
-          to: networkNodes[0].id,
-          relation: 'informed',
-          evidence: '',
-          confidence: 'interpretive',
-        },
-      ],
-      networkLinks: {
-        ...networkLinks,
-        githubOrg: 'relative-url',
-      },
     });
 
     expect(
@@ -94,25 +74,6 @@ describe('content validation', () => {
       issues.some(
         (issue) =>
           issue.scope === 'links' && issue.message === 'URL must be absolute http(s) or mailto.'
-      )
-    ).toBe(true);
-    expect(
-      issues.some(
-        (issue) =>
-          issue.scope === 'network' &&
-          issue.message === 'Edge source "missing-node" does not exist.'
-      )
-    ).toBe(true);
-    expect(
-      issues.some(
-        (issue) => issue.scope === 'network' && issue.message === 'Edge evidence must be non-empty.'
-      )
-    ).toBe(true);
-    expect(
-      issues.some(
-        (issue) =>
-          issue.scope === 'network' &&
-          issue.message === 'networkLinks "githubOrg" must be an absolute http(s) URL.'
       )
     ).toBe(true);
   });

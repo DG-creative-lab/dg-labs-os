@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { filterNetworkNodes } from '../src/utils/networkSearch';
-import { networkNodes } from '../src/config/network';
+import { dessiNetworkModule } from '../src/profiles/network';
+
+const networkNodes = dessiNetworkModule.nodes;
 
 describe('filterNetworkNodes', () => {
   it('returns all nodes with ALL filter and empty query', () => {

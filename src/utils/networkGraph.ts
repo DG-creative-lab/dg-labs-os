@@ -1,15 +1,15 @@
 import Graph from 'graphology';
-import type { NetworkIdeaEdge, NetworkNode } from '../config/network';
+import type { NetworkNode, NetworkRelationship } from '../profiles/network';
 
 export type NetworkModel = {
   graph: Graph;
   nodesById: ReadonlyMap<string, NetworkNode>;
-  edgesById: ReadonlyMap<string, NetworkIdeaEdge>;
+  edgesById: ReadonlyMap<string, NetworkRelationship>;
 };
 
 export const buildNetworkModel = (
   nodes: readonly NetworkNode[],
-  edges: readonly NetworkIdeaEdge[]
+  edges: readonly NetworkRelationship[]
 ): NetworkModel => {
   const graph = new Graph({ multi: true, type: 'directed', allowSelfLoops: false });
   const nodesById = new Map(nodes.map((node) => [node.id, node]));
@@ -30,12 +30,12 @@ export const buildNetworkModel = (
 export const getNodeRelationships = (
   model: NetworkModel,
   nodeId: string
-): readonly NetworkIdeaEdge[] => {
+): readonly NetworkRelationship[] => {
   if (!model.graph.hasNode(nodeId)) return [];
 
-  const relationships: NetworkIdeaEdge[] = [];
+  const relationships: NetworkRelationship[] = [];
   model.graph.forEachEdge(nodeId, (_edgeId, attributes) => {
-    const relationship = attributes.relationship as NetworkIdeaEdge | undefined;
+    const relationship = attributes.relationship as NetworkRelationship | undefined;
     if (relationship) relationships.push(relationship);
   });
 
@@ -44,7 +44,7 @@ export const getNodeRelationships = (
 
 export const getRelatedNode = (
   model: NetworkModel,
-  relationship: NetworkIdeaEdge,
+  relationship: NetworkRelationship,
   nodeId: string
 ): NetworkNode | undefined => {
   const relatedId = relationship.from === nodeId ? relationship.to : relationship.from;

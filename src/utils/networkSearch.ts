@@ -1,4 +1,4 @@
-import type { NetworkNode } from '../config/network';
+import type { NetworkNode } from '../profiles/network';
 
 export type KindFilter = 'ALL' | NetworkNode['kind'];
 

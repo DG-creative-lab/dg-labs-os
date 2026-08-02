@@ -55,16 +55,16 @@ Primary metaphor:
 
 - Workbench (`/apps/projects`) mapped from `src/config/workbench.ts`
 - Technical Writing (`/apps/notes`) mapped from the reviewed module in `src/profiles/writing/`
-- Network (`/apps/network`) backed by weighted nodes + idea edges in `src/config/network.ts`
+- Network (`/apps/network`) backed by the reviewed profile module in `src/profiles/network/`
 - Resume and Terminal pages currently minimal
 - News app route exists (`/apps/news`)
 
 ### 2.5 Network Graph
 
-- Sigma.js graph view with:
-  - weighted nodes
-  - idea edges (strength + solid/dotted style)
-  - filters (All/Education/Research/Projects/Experience)
+- React Flow graph view over a validated Graphology model with:
+  - profile-owned nodes with evidence confidence, visibility, provenance, and boundaries
+  - typed relationships with explicit provenance and confidence
+  - filters for foundations, career, practices, systems, and evidence
   - search
   - list <-> graph toggle
   - dark-mode labels/tooltips
@@ -105,7 +105,7 @@ The app intent is not only in README; it is already encoded across:
 
 - `src/config/workbench.ts`: flagship systems/platform/writing/hackathons narrative
 - `src/profiles/writing/dessi.ts`: reviewed professional writing and its evidence boundaries
-- `src/config/network.ts`: knowledge-graph structure, weighting, and idea edges
+- `src/profiles/network/dessi.ts`: reviewed profile-owned nodes, relationships, and guided paths
 - `src/components/global/DesktopDock.tsx`: OS metaphor through module naming
 
 This means roadmap execution can be incremental without redesigning the whole information model.

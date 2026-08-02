@@ -109,9 +109,9 @@ Exit condition: a new visitor can explain DG-OS, Dessi's current professional di
 
 Status: in progress. The public contract, registry, canonical route, and first projection are live.
 Workbench and Evidence/Evolution now use a validated, versioned module bundle shared by the public
-UI and Profile Agent. Writing now uses its own validated v1 module so it can evolve independently
-without changing the frozen profile-modules v1 schema. Network and remaining profile content still
-need to cross the boundary.
+UI and Profile Agent. Writing and Network now use independent validated v1 modules so they can
+evolve without changing the frozen profile-modules v1 schema. Remaining profile content still needs
+to cross the boundary.
 
 - define and validate `ProfileProjection`;
 - move Dessi-specific content behind one profile boundary;
@@ -260,8 +260,8 @@ References:
 The next DG-OS work should proceed in this order:
 
 1. completed: migrate Writing into a reviewed public profile module;
-2. next: model Network as profile-owned nodes and typed, evidenced relationships;
-3. extend profile-aware routing to shared module pages;
+2. completed: model Network as profile-owned nodes and typed, evidenced relationships;
+3. next: extend profile-aware routing to shared module pages;
 4. generate the general CV from the same approved profile data;
 5. specify the signed local publication bundle and narrow API boundary;
 6. keep authentication and hosted workspaces behind the second-real-user gate.

@@ -1,7 +1,7 @@
 ---
 import DesktopLayout from '../../layouts/DesktopLayout.astro';
-import { networkIdeaEdges, networkNodes, networkPaths } from '../../config/network';
 import NetworkApp from '../../components/network/NetworkApp';
+import { activeNetworkModule } from '../../profiles/network';
 import DraggableAppWindow from '../../components/global/DraggableAppWindow';
 ---
 
@@ -31,7 +31,12 @@ import DraggableAppWindow from '../../components/global/DraggableAppWindow';
         </div>
       </div>
 
-      <NetworkApp client:load nodes={networkNodes} ideas={networkIdeaEdges} paths={networkPaths} />
+      <NetworkApp
+        client:load
+        nodes={activeNetworkModule.nodes}
+        ideas={activeNetworkModule.relationships}
+        paths={activeNetworkModule.paths}
+      />
     </DraggableAppWindow>
   </main>
 </DesktopLayout>

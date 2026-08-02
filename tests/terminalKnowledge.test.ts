@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { userConfig } from '../src/config';
-import { networkNodes } from '../src/config/network';
+import { dessiNetworkModule } from '../src/profiles/network';
 import { workbench } from '../src/config/workbench';
 import { getKnowledgeEntries } from '../src/knowledge';
 import { dessiWritingModule } from '../src/profiles/writing';
@@ -14,7 +14,7 @@ const ctx = {
   user: userConfig,
   workbench,
   writing: dessiWritingModule.entries,
-  network: networkNodes,
+  network: dessiNetworkModule.nodes,
   brain: getKnowledgeEntries(),
 };
 
@@ -34,7 +34,7 @@ describe('terminalKnowledge', () => {
     expect(stats.personal).toBe(1);
     expect(stats.workbench).toBe(workbench.length);
     expect(stats.writing).toBe(dessiWritingModule.entries.length);
-    expect(stats.network).toBe(networkNodes.length);
+    expect(stats.network).toBe(dessiNetworkModule.nodes.length);
     expect(stats.brain).toBeGreaterThan(0);
   });
 

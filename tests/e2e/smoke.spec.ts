@@ -354,7 +354,11 @@ test.describe('desktop smoke', () => {
     ).toBeVisible();
 
     await page.getByRole('button', { name: 'Index', exact: true }).click();
-    await expect(page.getByRole('button', { name: /Data Operations/ })).toBeVisible();
+    const dataOperations = page.getByRole('button', { name: /Data Operations/ });
+    await expect(dataOperations).toBeVisible();
+    await dataOperations.click();
+    await expect(page.getByText('Self-reported / Private evidence boundary')).toBeVisible();
+    await expect(page.getByText('Direct / Private evidence boundary')).toBeVisible();
   });
 
   test('window lifecycle survives rapid open/close and refocus', async ({ page }) => {
