@@ -11,6 +11,11 @@ type TechnicalWritingAppProps = {
   writing: PublicWritingModule;
 };
 
+const contributionConfidenceLabels = {
+  verified: 'Verified',
+  'self-reported': 'Self-reported',
+} as const;
+
 export default function TechnicalWritingApp({ profile, writing }: TechnicalWritingAppProps) {
   useEffect(() => {
     const onWritingMenuAction = (event: Event) => {
@@ -103,12 +108,25 @@ export default function TechnicalWritingApp({ profile, writing }: TechnicalWriti
                   </a>
                 </h3>
                 <p className="mt-2 text-sm leading-6 text-white/65">{note.subtitle}</p>
-                <p className="mt-3 text-xs leading-5 text-white/48">
-                  <span className="text-white/70">Connected system:</span> {note.relatedSystem}
-                </p>
-                <p className="mt-2 text-xs leading-5 text-white/48">
-                  <span className="text-white/70">Published by:</span> {note.authorship.byline}
-                </p>
+                <dl className="mt-3 grid gap-2 text-xs leading-5 text-white/48">
+                  <div>
+                    <dt className="inline text-white/70">Connected system:</dt>{' '}
+                    <dd className="inline">{note.relatedSystem}</dd>
+                  </div>
+                  <div>
+                    <dt className="inline text-white/70">Publication byline:</dt>{' '}
+                    <dd className="inline">{note.authorship.byline}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-white/70">
+                      {profile.identity.possessiveName} contribution
+                      <span className="ml-2 font-mono text-[9px] uppercase tracking-[0.08em] text-sky-200/65">
+                        {contributionConfidenceLabels[note.authorship.contributionConfidence]}
+                      </span>
+                    </dt>
+                    <dd className="mt-1 max-w-2xl">{note.authorship.contribution}</dd>
+                  </div>
+                </dl>
 
                 <details className="group mt-4 border-t border-white/10 pt-3">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-xs text-white/55 transition hover:text-sky-100">

@@ -50,7 +50,86 @@ describe('public Writing modules', () => {
     expect(html).toContain('Fixture Writing');
     expect(html).toContain('Writing Contract Fixture');
     expect(html).toContain('Fixture Publisher');
+    expect(html).toContain('Fixture&#x27;s contribution');
+    expect(html).toContain('Synthetic contribution used only for compatibility testing.');
+    expect(html).toContain('Verified');
     expect(html).not.toContain('Performics Labs');
+  });
+
+  it('renders self-reported contribution confidence for Dessi writing', () => {
+    const profile = createActiveProfileRuntime(dessiProfileProjection);
+    const html = renderToStaticMarkup(
+      <TechnicalWritingApp profile={profile} writing={dessiWritingModule} />
+    );
+
+    expect(html).toContain('Dessi&#x27;s contribution');
+    expect(html).toContain('Self-reported');
+    expect(html).toContain(
+      'Professional article selected as evidence of Dessi&#x27;s technical synthesis and design judgement.'
+    );
+  });
+
+  it('rejects embedded Unix, file URL, and Windows private paths in prose', () => {
+    const embeddedPaths = [
+      {
+        module: {
+          ...writingModuleV1Fixture,
+          entries: [
+            {
+              ...writingModuleV1Fixture.entries[0],
+              boundary: 'Draft stored at /Users/name/private.md before review.',
+            },
+          ],
+        },
+        expectedPath: 'entries[0].boundary',
+      },
+      {
+        module: {
+          ...writingModuleV1Fixture,
+          entries: [
+            {
+              ...writingModuleV1Fixture.entries[0],
+              authorship: {
+                ...writingModuleV1Fixture.entries[0].authorship,
+                contribution: 'Prepared from file:///home/name/private.md before publication.',
+              },
+            },
+          ],
+        },
+        expectedPath: 'entries[0].authorship.contribution',
+      },
+      {
+        module: {
+          ...writingModuleV1Fixture,
+          archive: {
+            ...writingModuleV1Fixture.archive,
+            boundary: 'Draft stored at C:\\Users\\name\\private.md before publication.',
+          },
+        },
+        expectedPath: 'archive.boundary',
+      },
+    ] as const;
+
+    for (const fixture of embeddedPaths) {
+      expect(validatePublicWritingModule(fixture.module)).toContainEqual({
+        path: fixture.expectedPath,
+        message: 'Public writing cannot contain local filesystem paths.',
+      });
+    }
+  });
+
+  it('does not mistake a public URL path for a local source path', () => {
+    const publicUrl = {
+      ...writingModuleV1Fixture,
+      entries: [
+        {
+          ...writingModuleV1Fixture.entries[0],
+          boundary: 'Public reference: https://example.com/src/article.',
+        },
+      ],
+    };
+
+    expect(validatePublicWritingModule(publicUrl)).toEqual([]);
   });
 
   it('builds bounded Profile Agent evidence from the selected Writing module', () => {
