@@ -48,6 +48,7 @@
     "@types/react-dom": "^19.0.3",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@vercel/analytics": "^1.6.1",
+    "@vercel/firewall": "^1.2.2",
     "@xyflow/react": "^12.11.2",
     "astro": "^5.15.3",
     "fuse.js": "^7.1.0",

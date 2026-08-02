@@ -3,6 +3,7 @@ import {
   parseChatRequestInput,
   parseChatMessagesInput,
   parseContactInput,
+  parseRequiredProfileHandle,
   parseToolCallInput,
   parseVerifyInput,
 } from '../src/utils/requestSchemas';
@@ -44,6 +45,7 @@ describe('request schemas', () => {
 
   it('parses valid chat request with response mode', () => {
     const parsed = parseChatRequestInput({
+      profileHandle: 'dessi',
       messages: [{ role: 'user', content: 'hello' }],
       responseMode: 'agent_json',
       provider: 'openrouter',
@@ -61,11 +63,23 @@ describe('request schemas', () => {
 
   it('defaults chat provider/model when omitted', () => {
     const parsed = parseChatRequestInput({
+      profileHandle: 'dessi',
       messages: [{ role: 'user', content: 'hello' }],
     });
     expect(parsed?.provider).toBe('openrouter');
     expect(parsed?.model).toBe('openai/gpt-oss-120b');
     expect(parsed?.providerFallbackAllowed).toBe(false);
+  });
+
+  it('requires an explicit valid profile handle for chat requests', () => {
+    expect(parseChatRequestInput({ messages: [{ role: 'user', content: 'hello' }] })).toBeNull();
+    expect(
+      parseChatRequestInput({
+        profileHandle: 'Dessi!',
+        messages: [{ role: 'user', content: 'hello' }],
+      })
+    ).toBeNull();
+    expect(parseRequiredProfileHandle({ profileHandle: 'dessi' })).toBe('dessi');
   });
 
   it('parses valid verify input', () => {
@@ -79,19 +93,32 @@ describe('request schemas', () => {
   });
 
   it('parses valid tool call input', () => {
-    const parsed = parseToolCallInput({ tool: 'local_context', input: { query: 'intent' } });
+    const parsed = parseToolCallInput({
+      profileHandle: 'dessi',
+      tool: 'local_context',
+      input: { query: 'intent' },
+    });
     expect(parsed?.tool).toBe('local_context');
     expect(parsed?.profileHandle).toBe('dessi');
   });
 
   it('parses retrieve/cite tool call input', () => {
-    const retrieve = parseToolCallInput({ tool: 'retrieve', input: { query: 'projects' } });
-    const cite = parseToolCallInput({ tool: 'cite', input: { claim: 'Dessi built X' } });
+    const retrieve = parseToolCallInput({
+      profileHandle: 'dessi',
+      tool: 'retrieve',
+      input: { query: 'projects' },
+    });
+    const cite = parseToolCallInput({
+      profileHandle: 'dessi',
+      tool: 'cite',
+      input: { claim: 'Dessi built X' },
+    });
     expect(retrieve?.tool).toBe('retrieve');
     expect(cite?.tool).toBe('cite');
   });
 
   it('rejects invalid tool call input', () => {
     expect(parseToolCallInput({ tool: 'bad_tool' })).toBeNull();
+    expect(parseToolCallInput({ tool: 'list_projects' })).toBeNull();
   });
 });

@@ -47,6 +47,9 @@ importers:
       '@vercel/analytics':
         specifier: ^1.6.1
         version: 1.6.1(react@19.2.3)
+      '@vercel/firewall':
+        specifier: ^1.2.2
+        version: 1.2.2
       '@xyflow/react':
         specifier: ^12.11.2
         version: 12.11.2(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -1314,6 +1317,10 @@ packages:
         optional: true
       vue-router:
         optional: true
+
+  '@vercel/firewall@1.2.2':
+    resolution: {integrity: sha512-y5bzJ9xkYSKNVmGNjFvLB9Rv0mr+ZXsHZYF8Kw99NJpgo6Sahynk8epd+EGI3womRG0WhW9NZ7c92FfVY82cng==}
+    engines: {node: '>= 20'}
 
   '@vercel/functions@2.2.13':
     resolution: {integrity: sha512-14ArBSIIcOBx9nrEgaJb4Bw+en1gl6eSoJWh8qjifLl5G3E4dRXCFOT8HP+w66vb9Wqyd1lAQBrmRhRwOj9X9A==}
@@ -4821,6 +4828,8 @@ snapshots:
   '@vercel/analytics@1.6.1(react@19.2.3)':
     optionalDependencies:
       react: 19.2.3
+
+  '@vercel/firewall@1.2.2': {}
 
   '@vercel/functions@2.2.13':
     dependencies:

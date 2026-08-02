@@ -49,6 +49,23 @@ git ls-files | rg -n "^\\.env"
 
 Expected: only `.env.example`.
 
+### Required Profile Agent Firewall rule
+
+The serverless functions use Vercel Firewall's shared rate-limit service. Before deploying a build that enables the Profile Agent:
+
+1. Open the Vercel project, then go to Firewall and create a custom rule.
+2. Add the condition `@vercel/firewall` equals `profile-agent-chat`.
+3. Add a rate-limit action. The initial policy is 30 requests per 60 seconds per Vercel-derived client identity, with a `429` response when exceeded.
+4. Publish the rule to Production. Configure the same rule for Preview when testing a Preview deployment.
+
+Both `/api/chat` and `/api/chat/stream` call this rule through `@vercel/firewall`. The application does not parse client-supplied forwarding headers. On Vercel, an absent or unavailable rule returns `503 RATE_LIMIT_UNAVAILABLE`, so provider budget is protected by default.
+
+References:
+
+- [Vercel Rate Limiting SDK](https://vercel.com/docs/vercel-firewall/vercel-waf/rate-limiting-sdk)
+- [Vercel request headers](https://vercel.com/docs/headers/request-headers)
+- [Vercel rate limiting guide](https://vercel.com/kb/guide/add-rate-limiting-vercel)
+
 ## 4) Post-deploy Smoke Checks
 
 After Preview/Production deployment:
@@ -59,6 +76,8 @@ After Preview/Production deployment:
 4. Terminal chat:
    - run one deterministic command (`help`)
    - run one LLM command (`ask what is dg-labs os`)
+   - confirm a normal request does not return `RATE_LIMIT_UNAVAILABLE`
+   - confirm the published `profile-agent-chat` rule records requests in Vercel Firewall
 5. Provider diagnostics:
    - `GET /api/llm/health?probe=0` returns provider status array
    - optional `POST /api/llm/health` probe for selected provider
@@ -91,6 +110,7 @@ If Production deploy regresses:
   - `CONFIG_ERROR` (missing provider key)
   - `TIMEOUT` (provider latency/availability)
   - `INVALID_RESPONSE` (provider contract drift)
+  - `RATE_LIMIT_UNAVAILABLE` (missing or unavailable `profile-agent-chat` Firewall rule)
 
 ## 8) Security Notes
 

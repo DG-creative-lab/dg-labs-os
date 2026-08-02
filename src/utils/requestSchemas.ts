@@ -53,6 +53,15 @@ const asRecord = (input: unknown): Record<string, unknown> | null => {
   return input as Record<string, unknown>;
 };
 
+const PROFILE_HANDLE_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
+
+export const parseRequiredProfileHandle = (input: unknown): string | null => {
+  const body = asRecord(input);
+  if (!body || typeof body.profileHandle !== 'string') return null;
+  const handle = body.profileHandle.trim();
+  return PROFILE_HANDLE_PATTERN.test(handle) ? handle : null;
+};
+
 export const parseContactInput = (input: unknown): ContactInput | null => {
   const body = asRecord(input);
   if (!body) return null;
@@ -138,11 +147,8 @@ export const parseChatRequestInput = (input: unknown): ChatRequestInput | null =
 
   const providerFallbackAllowed = body.providerFallbackAllowed === true;
 
-  const profileHandleRaw = body.profileHandle;
-  const profileHandle =
-    typeof profileHandleRaw === 'string' && /^[a-z0-9][a-z0-9-]{0,63}$/.test(profileHandleRaw)
-      ? profileHandleRaw
-      : 'dessi';
+  const profileHandle = parseRequiredProfileHandle(body);
+  if (!profileHandle) return null;
 
   const answerModeRaw = body.answerMode;
   const answerMode: ChatAnswerMode =
@@ -196,10 +202,7 @@ export const parseToolCallInput = (input: unknown): ToolCallInput | null => {
     maybeInput && typeof maybeInput === 'object' && !Array.isArray(maybeInput)
       ? (maybeInput as Record<string, unknown>)
       : undefined;
-  const profileHandleRaw = body.profileHandle;
-  const profileHandle =
-    typeof profileHandleRaw === 'string' && /^[a-z0-9][a-z0-9-]{0,63}$/.test(profileHandleRaw)
-      ? profileHandleRaw
-      : 'dessi';
+  const profileHandle = parseRequiredProfileHandle(body);
+  if (!profileHandle) return null;
   return { tool, input: parsedInput, profileHandle };
 };

@@ -35,6 +35,7 @@ DG-OS is an evidence-led public profile system presented through an operating-sy
 - `Window -> Contact...` opens dock Links panel on desktop (email fallback on page routes)
 - Modular config in `src/config/`
 - API routes for chat + contact
+- Distributed Profile Agent rate limiting through a required Vercel Firewall rule
 
 ## Current Priority
 
@@ -236,11 +237,14 @@ git ls-files | rg -n "^\\.env"
 
 Expected: only `.env.example`.
 
+Before Production deployment, publish the Vercel Firewall rule with ID `profile-agent-chat` as described in `docs/VERCEL_DEPLOYMENT_RUNBOOK.md`. The Profile Agent API fails closed with `503 RATE_LIMIT_UNAVAILABLE` if the rule is missing on Vercel.
+
 3. Post-deploy smoke checks
 
 - Open `/desktop`
 - Open `/apps/network` and toggle List/Graph
 - Open `/apps/terminal`, run `help` and one `ask ...`
+- Confirm the Profile Agent request succeeds without `RATE_LIMIT_UNAVAILABLE`
 - Check provider status endpoint: `/api/llm/health?probe=0`
 
 4. Full operational guide

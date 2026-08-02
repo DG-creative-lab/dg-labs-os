@@ -5,11 +5,12 @@ import { runLlmGateway, runLlmGatewayStream, type LlmProvider } from './llmGatew
 import { defaultModelForProvider } from './llmProviderDefaults';
 import {
   classifyKnowledgeQuery,
-  getKnowledgeById,
-  searchKnowledge,
+  getKnowledgeEntryById,
+  searchKnowledgeEntries,
+  type KnowledgeEntry,
   type KnowledgeHit,
 } from '../knowledge';
-import { findActiveProfile } from '../profiles';
+import { findProfileAgentContext } from '../profiles/agentEvidence';
 import { buildServerOwnedProfileAgentMessages } from '../utils/profileAgentPrompt';
 
 export type ChatServiceErrorCode =
@@ -88,7 +89,11 @@ const latestUserQuery = (messages: readonly ChatMessageInput[]): string =>
     .find((message) => message.role === 'user')
     ?.content.trim() ?? '';
 
-const expandRelated = (seed: readonly KnowledgeHit[], limit = 8): KnowledgeHit[] => {
+const expandRelated = (
+  seed: readonly KnowledgeHit[],
+  entries: readonly KnowledgeEntry[],
+  limit = 8
+): KnowledgeHit[] => {
   const out: KnowledgeHit[] = [];
   const seen = new Set<string>();
   for (const item of seed) {
@@ -98,7 +103,7 @@ const expandRelated = (seed: readonly KnowledgeHit[], limit = 8): KnowledgeHit[]
     }
     if (out.length >= limit) break;
     for (const relId of item.related) {
-      const rel = getKnowledgeById(relId);
+      const rel = getKnowledgeEntryById(entries, relId);
       if (!rel || seen.has(rel.id)) continue;
       seen.add(rel.id);
       out.push({ ...rel, score: Math.max(1, item.score - 1) });
@@ -111,10 +116,11 @@ const expandRelated = (seed: readonly KnowledgeHit[], limit = 8): KnowledgeHit[]
 
 const buildAgentJsonResponse = (
   query: string,
-  hits: readonly KnowledgeHit[]
+  hits: readonly KnowledgeHit[],
+  entries: readonly KnowledgeEntry[]
 ): AgentJsonResponse => {
   const classification = classifyKnowledgeQuery(query);
-  const chunks = expandRelated(hits, 8);
+  const chunks = expandRelated(hits, entries, 8);
   const sources = Array.from(new Set(chunks.flatMap((chunk) => chunk.sources))).slice(0, 12);
   const answer =
     chunks.length === 0
@@ -219,23 +225,24 @@ export const runChatService = async ({
   brainMode,
 }: ChatRequestInput): Promise<ChatServiceResult> => {
   const query = latestUserQuery(messages);
-  const localHits = query ? searchKnowledge(query, 6) : [];
-  const profile = findActiveProfile(profileHandle);
+  const agentContext = findProfileAgentContext(profileHandle);
 
-  if (!profile) {
+  if (!agentContext) {
     return {
       ok: false,
       status: 404,
       code: 'PROFILE_NOT_FOUND',
-      message: `Published profile not found: ${profileHandle}`,
+      message: `Published Profile Agent not found: ${profileHandle}`,
     };
   }
+  const { profile, evidence } = agentContext;
+  const localHits = query ? searchKnowledgeEntries(evidence.brain, query, 6) : [];
 
   if (responseMode === 'agent_json') {
     return {
       ok: true,
       status: 200,
-      payload: buildAgentJsonResponse(query, localHits),
+      payload: buildAgentJsonResponse(query, localHits, evidence.brain),
     };
   }
 
@@ -404,16 +411,17 @@ export const runChatStreamService = async ({
   }
 
   const query = latestUserQuery(messages);
-  const localHits = query ? searchKnowledge(query, 6) : [];
-  const profile = findActiveProfile(profileHandle);
-  if (!profile) {
+  const agentContext = findProfileAgentContext(profileHandle);
+  if (!agentContext) {
     return {
       ok: false,
       status: 404,
       code: 'PROFILE_NOT_FOUND',
-      message: `Published profile not found: ${profileHandle}`,
+      message: `Published Profile Agent not found: ${profileHandle}`,
     };
   }
+  const { profile, evidence } = agentContext;
+  const localHits = query ? searchKnowledgeEntries(evidence.brain, query, 6) : [];
   const requestMessages = buildServerOwnedProfileAgentMessages({
     profile,
     hits: localHits,

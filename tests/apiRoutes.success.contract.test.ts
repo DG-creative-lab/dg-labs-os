@@ -60,6 +60,7 @@ describe('API route success contracts', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        profileHandle: 'dessi',
         messages: [{ role: 'user', content: 'hello' }],
       }),
     });
@@ -97,6 +98,7 @@ describe('API route success contracts', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        profileHandle: 'dessi',
         messages: [{ role: 'user', content: 'hello' }],
       }),
     });
@@ -122,6 +124,7 @@ describe('API route success contracts', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        profileHandle: 'dessi',
         provider: 'openai',
         model: 'gpt-4.1-mini',
         providerFallbackAllowed: true,
@@ -153,6 +156,7 @@ describe('API route success contracts', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        profileHandle: 'dessi',
         provider: 'openai',
         model: 'gpt-4.1-mini',
         providerFallbackAllowed: false,
@@ -183,6 +187,7 @@ describe('API route success contracts', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        profileHandle: 'dessi',
         provider: 'openai',
         model: 'gpt-4.1-mini',
         byokApiKey: 'test-openai-key',
@@ -214,6 +219,7 @@ describe('API route success contracts', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        profileHandle: 'dessi',
         provider: 'anthropic',
         model: 'claude-3-5-sonnet-latest',
         byokApiKey: 'test-anthropic-key',
@@ -251,6 +257,7 @@ describe('API route success contracts', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        profileHandle: 'dessi',
         provider: 'gemini',
         model: 'gemini-2.0-flash',
         byokApiKey: 'test-gemini-key',
@@ -280,6 +287,7 @@ describe('API route success contracts', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        profileHandle: 'dessi',
         provider: 'openai',
         model: 'gpt-4.1-mini',
         byokApiKey: 'bad-key',
@@ -314,6 +322,7 @@ describe('API route success contracts', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        profileHandle: 'dessi',
         provider: 'anthropic',
         model: 'claude-3-5-sonnet-latest',
         byokApiKey: 'rate-limited-key',
@@ -347,6 +356,7 @@ describe('API route success contracts', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        profileHandle: 'dessi',
         provider: 'gemini',
         model: 'gemini-2.0-flash',
         byokApiKey: 'quota-key',
@@ -372,6 +382,7 @@ describe('API route success contracts', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        profileHandle: 'dessi',
         responseMode: 'agent_json',
         messages: [{ role: 'user', content: 'tell me about dessi projects' }],
       }),
@@ -448,7 +459,11 @@ describe('API route success contracts', () => {
     const request = new Request('http://localhost/api/tools', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tool: 'local_context', input: { query: 'intent' } }),
+      body: JSON.stringify({
+        profileHandle: 'dessi',
+        tool: 'local_context',
+        input: { query: 'intent' },
+      }),
     });
 
     const response = await POST({ request } as Parameters<typeof POST>[0]);
@@ -512,7 +527,11 @@ describe('API route success contracts', () => {
     const request = new Request('http://localhost/api/tools', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tool: 'web_verify', input: { query: 'mcp standard' } }),
+      body: JSON.stringify({
+        profileHandle: 'dessi',
+        tool: 'web_verify',
+        input: { query: 'mcp standard' },
+      }),
     });
 
     const response = await POST({ request } as Parameters<typeof POST>[0]);
@@ -528,7 +547,11 @@ describe('API route success contracts', () => {
     const request = new Request('http://localhost/api/tools', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tool: 'retrieve', input: { query: 'intent recognition projects' } }),
+      body: JSON.stringify({
+        profileHandle: 'dessi',
+        tool: 'retrieve',
+        input: { query: 'intent recognition projects' },
+      }),
     });
 
     const response = await POST({ request } as Parameters<typeof POST>[0]);
@@ -544,7 +567,11 @@ describe('API route success contracts', () => {
     const request = new Request('http://localhost/api/tools', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tool: 'cite', input: { claim: 'Dessi built intent systems' } }),
+      body: JSON.stringify({
+        profileHandle: 'dessi',
+        tool: 'cite',
+        input: { claim: 'Dessi built intent systems' },
+      }),
     });
 
     const response = await POST({ request } as Parameters<typeof POST>[0]);

@@ -1,7 +1,7 @@
 import type { NetworkNode } from '../config/network';
 import type { WorkbenchItem } from '../config/workbench';
 import type { LabNote } from '../config/labNotes';
-import { getKnowledgeEntries } from '../knowledge';
+import type { KnowledgeEntry } from '../knowledge';
 
 export type TerminalKnowledgeContext = {
   user: {
@@ -16,6 +16,7 @@ export type TerminalKnowledgeContext = {
   workbench: readonly WorkbenchItem[];
   notes: readonly LabNote[];
   network: readonly NetworkNode[];
+  brain?: readonly KnowledgeEntry[];
 };
 
 export type KnowledgeSource = 'personal' | 'workbench' | 'notes' | 'network' | 'brain';
@@ -95,7 +96,7 @@ export const buildKnowledgeIndex = (ctx: TerminalKnowledgeContext): KnowledgeIte
     url: node.links?.url ?? node.links?.repo ?? node.links?.article,
   }));
 
-  const brainItems: KnowledgeItem[] = getKnowledgeEntries().map((entry) => ({
+  const brainItems: KnowledgeItem[] = (ctx.brain ?? []).map((entry) => ({
     id: `brain-${entry.id}`,
     source: 'brain',
     title: entry.title,
@@ -114,7 +115,7 @@ export const getKnowledgeSourceStats = (
   workbench: ctx.workbench.length,
   notes: ctx.notes.length,
   network: ctx.network.length,
-  brain: getKnowledgeEntries().length,
+  brain: (ctx.brain ?? []).length,
 });
 
 export const retrieveKnowledge = (

@@ -170,7 +170,7 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
       return { ...cached, fromCache: true };
     }
 
-    const materialized = await fetchRetrieveTool(query, signal, limit, profile.handle);
+    const materialized = await fetchRetrieveTool(profile.handle, query, signal, limit);
     if (!materialized) return null;
     retrieveCacheRef.current.set(key, materialized);
     trimTerminalCache(retrieveCacheRef.current);
@@ -185,7 +185,7 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
       return { ...cached, fromCache: true };
     }
 
-    const materialized = await fetchCiteTool(claim, signal, profile.handle);
+    const materialized = await fetchCiteTool(profile.handle, claim, signal);
     if (!materialized) return null;
     citeCacheRef.current.set(key, materialized);
     trimTerminalCache(citeCacheRef.current);
@@ -597,10 +597,10 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
       }
 
       const { response, payload } = await fetchTerminalTool(
+        profile.handle,
         tool,
         input,
-        controller.signal,
-        profile.handle
+        controller.signal
       );
 
       if (!response.ok || !payload?.ok || payload.tool !== tool || !payload.result) {

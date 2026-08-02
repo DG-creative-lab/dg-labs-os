@@ -16,10 +16,10 @@ export const trimTerminalCache = (cache: Map<string, unknown>, max = 40) => {
 };
 
 export const fetchRetrieveTool = async (
+  profileHandle: string,
   query: string,
   signal?: AbortSignal,
-  limit = 6,
-  profileHandle = 'dessi'
+  limit = 6
 ): Promise<Omit<RetrieveResult, 'fromCache'> | null> => {
   const response = await fetch('/api/tools', {
     method: 'POST',
@@ -48,9 +48,9 @@ export const fetchRetrieveTool = async (
 };
 
 export const fetchCiteTool = async (
+  profileHandle: string,
   claim: string,
-  signal?: AbortSignal,
-  profileHandle = 'dessi'
+  signal?: AbortSignal
 ): Promise<Omit<CiteResult, 'fromCache'> | null> => {
   const response = await fetch('/api/tools', {
     method: 'POST',
@@ -87,10 +87,10 @@ export type GenericToolPayload =
   | undefined;
 
 export const fetchTerminalTool = async (
+  profileHandle: string,
   tool: ToolName,
   input?: Record<string, unknown>,
-  signal?: AbortSignal,
-  profileHandle = 'dessi'
+  signal?: AbortSignal
 ): Promise<{ response: Response; payload: GenericToolPayload }> => {
   const response = await fetch('/api/tools', {
     method: 'POST',

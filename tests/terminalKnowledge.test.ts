@@ -3,6 +3,7 @@ import { userConfig } from '../src/config';
 import { labNotes } from '../src/config/labNotes';
 import { networkNodes } from '../src/config/network';
 import { workbench } from '../src/config/workbench';
+import { getKnowledgeEntries } from '../src/knowledge';
 import {
   buildKnowledgeIndex,
   getKnowledgeSourceStats,
@@ -14,6 +15,7 @@ const ctx = {
   workbench,
   notes: labNotes,
   network: networkNodes,
+  brain: getKnowledgeEntries(),
 };
 
 describe('terminalKnowledge', () => {

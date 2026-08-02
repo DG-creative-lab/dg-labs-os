@@ -53,7 +53,7 @@ describe('terminal tool client', () => {
       )
     );
 
-    const result = await fetchRetrieveTool('intent systems', undefined, 4);
+    const result = await fetchRetrieveTool('dessi', 'intent systems', undefined, 4);
 
     expect(result).toEqual({
       query: 'intent systems',
@@ -91,12 +91,12 @@ describe('terminal tool client', () => {
         new Response(JSON.stringify({ ok: true, tool: 'retrieve', result: {} }), { status: 200 })
       );
 
-    await expect(fetchCiteTool('Dessi builds systems')).resolves.toEqual({
+    await expect(fetchCiteTool('dessi', 'Dessi builds systems')).resolves.toEqual({
       claim: 'Dessi builds systems',
       verdict: 'unknown',
       evidence: [],
     });
-    await expect(fetchCiteTool('Dessi builds systems')).resolves.toBeNull();
+    await expect(fetchCiteTool('dessi', 'Dessi builds systems')).resolves.toBeNull();
   });
 
   it('returns the raw response and an empty payload when a generic tool response is invalid JSON', async () => {
@@ -104,6 +104,9 @@ describe('terminal tool client', () => {
     const response = new Response('not json', { status: 502 });
     mockFetch.mockResolvedValue(response);
 
-    await expect(fetchTerminalTool('list_projects')).resolves.toEqual({ response, payload: {} });
+    await expect(fetchTerminalTool('dessi', 'list_projects')).resolves.toEqual({
+      response,
+      payload: {},
+    });
   });
 });

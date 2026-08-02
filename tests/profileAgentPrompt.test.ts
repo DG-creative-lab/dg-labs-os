@@ -1,16 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { searchKnowledge } from '../src/knowledge';
-import { activeProfile } from '../src/profiles';
+import { searchKnowledgeEntries } from '../src/knowledge';
+import { findProfileAgentContext } from '../src/profiles/agentEvidence';
 import {
   buildProfileAgentSystemPrompt,
   buildServerOwnedProfileAgentMessages,
 } from '../src/utils/profileAgentPrompt';
 
 describe('profile agent prompt', () => {
+  const agentContext = findProfileAgentContext('dessi');
+  if (!agentContext) throw new Error('Dessi Profile Agent fixture is unavailable.');
+
   it('defines a profile-scoped identity and evidence boundary', () => {
     const prompt = buildProfileAgentSystemPrompt({
-      profile: activeProfile,
-      hits: searchKnowledge('agent reliability projects', 3),
+      profile: agentContext.profile,
+      hits: searchKnowledgeEntries(agentContext.evidence.brain, 'agent reliability projects', 3),
       answerMode: 'ask',
       brainMode: 'research',
     });
@@ -25,8 +28,8 @@ describe('profile agent prompt', () => {
 
   it('keeps the system message server-owned and bounds conversation history', () => {
     const messages = buildServerOwnedProfileAgentMessages({
-      profile: activeProfile,
-      hits: searchKnowledge('projects', 2),
+      profile: agentContext.profile,
+      hits: searchKnowledgeEntries(agentContext.evidence.brain, 'projects', 2),
       messages: Array.from({ length: 14 }, (_, index) => ({
         role: (index % 2 === 0 ? 'user' : 'assistant') as 'user' | 'assistant',
         content: `message-${index}`,

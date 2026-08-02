@@ -1,18 +1,16 @@
 import type { APIRoute } from 'astro';
-import { labNotes } from '../../config/labNotes';
-import { networkNodes } from '../../config/network';
-import { workbench } from '../../config/workbench';
 import { toolSuccess } from '../../utils/apiContracts';
 import { errorResponse, jsonResponse } from '../../utils/apiResponse';
-import { parseToolCallInput } from '../../utils/requestSchemas';
+import { parseRequiredProfileHandle, parseToolCallInput } from '../../utils/requestSchemas';
 import { retrieveKnowledge } from '../../utils/terminalKnowledge';
 import { performWebVerify } from '../../utils/webVerify';
 import { DESKTOP_APP_TARGETS } from '../../services/desktopAppRegistry';
-import { findActiveProfile } from '../../profiles';
+import { findProfileAgentContext } from '../../profiles/agentEvidence';
 
 type ErrorCode =
   | 'INVALID_JSON'
   | 'INVALID_TOOL_CALL'
+  | 'INVALID_PROFILE_HANDLE'
   | 'INVALID_INPUT'
   | 'TIMEOUT'
   | 'UPSTREAM_ERROR'
@@ -32,6 +30,10 @@ export const POST: APIRoute = async ({ request }) => {
     return err('INVALID_JSON', 'Invalid request format', 400);
   }
 
+  if (!parseRequiredProfileHandle(body)) {
+    return err('INVALID_PROFILE_HANDLE', 'A valid profileHandle is required.', 400);
+  }
+
   const call = parseToolCallInput(body);
   if (!call) {
     return err(
@@ -41,10 +43,11 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  const profile = findActiveProfile(call.profileHandle);
-  if (!profile) {
-    return err('INVALID_INPUT', `Published profile not found: ${call.profileHandle}`, 404);
+  const agentContext = findProfileAgentContext(call.profileHandle);
+  if (!agentContext) {
+    return err('INVALID_INPUT', `Published Profile Agent not found: ${call.profileHandle}`, 404);
   }
+  const { profile, evidence: profileEvidence } = agentContext;
   const profileIdentity = {
     name: profile.identity.displayName,
     ownerName: profile.identity.ownerName,
@@ -70,9 +73,10 @@ export const POST: APIRoute = async ({ request }) => {
         query,
         {
           user: profileIdentity,
-          workbench,
-          notes: labNotes,
-          network: networkNodes,
+          workbench: profileEvidence.workbench,
+          notes: profileEvidence.notes,
+          network: profileEvidence.network,
+          brain: profileEvidence.brain,
         },
         limit
       ).map((hit) => ({
@@ -136,9 +140,10 @@ export const POST: APIRoute = async ({ request }) => {
         query,
         {
           user: profileIdentity,
-          workbench,
-          notes: labNotes,
-          network: networkNodes,
+          workbench: profileEvidence.workbench,
+          notes: profileEvidence.notes,
+          network: profileEvidence.network,
+          brain: profileEvidence.brain,
         },
         limit
       ).map((hit) => ({
@@ -161,9 +166,10 @@ export const POST: APIRoute = async ({ request }) => {
         claim,
         {
           user: profileIdentity,
-          workbench,
-          notes: labNotes,
-          network: networkNodes,
+          workbench: profileEvidence.workbench,
+          notes: profileEvidence.notes,
+          network: profileEvidence.network,
+          brain: profileEvidence.brain,
         },
         5
       ).map((hit) => ({
@@ -180,7 +186,7 @@ export const POST: APIRoute = async ({ request }) => {
       return jsonResponse(toolSuccess('cite', { claim, verdict, evidence }), 200);
     }
 
-    const projects = workbench.map((item) => ({
+    const projects = profileEvidence.workbench.map((item) => ({
       id: item.id,
       title: item.title,
       subtitle: item.subtitle,
