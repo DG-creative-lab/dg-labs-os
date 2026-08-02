@@ -53,6 +53,44 @@ export function buildProfileModuleKnowledgeEntries(
     };
   });
 
+  const caseStudyEntries = modules.evidenceEvolution.caseStudies.map((study) => {
+    const content = [
+      `Contribution: ${study.contribution}`,
+      `Failure surface: ${study.problem}`,
+      `Intervention: ${study.intervention}`,
+      `Evaluation: ${study.evaluation}`,
+      `Result: ${study.result}`,
+      `Limitation: ${study.limitation}`,
+    ].join(' ');
+    return {
+      id: `module-case-study-${study.id}`,
+      type: 'project' as const,
+      title: study.title,
+      tags: ['case study', study.classification, ...study.roleSignals],
+      confidence: 'self-reported' as const,
+      sources: study.evidence.map((link) => link.url),
+      lastVerified: modules.publication.reviewedAt.slice(0, 10),
+      related: [],
+      content,
+      tokenEstimate: estimateTokens(content),
+      file: 'profile-module:evidence-evolution',
+    };
+  });
+
+  const boundaryEntries = modules.evidenceEvolution.boundaries.map((boundary, index) => ({
+    id: `module-boundary-${String(index + 1).padStart(2, '0')}`,
+    type: 'meta' as const,
+    title: `Current evidence boundary ${String(index + 1).padStart(2, '0')}`,
+    tags: ['boundary', 'limitation', 'evidence scope'],
+    confidence: 'self-reported' as const,
+    sources: [],
+    lastVerified: modules.publication.reviewedAt.slice(0, 10),
+    related: [],
+    content: boundary,
+    tokenEstimate: estimateTokens(boundary),
+    file: 'profile-module:evidence-evolution',
+  }));
+
   const evolutionEntries = modules.evidenceEvolution.entries.map((entry) => {
     const supportingClaims = modules.evidenceEvolution.claims.filter((claim) =>
       entry.evidenceIds.includes(claim.id)
@@ -75,7 +113,13 @@ export function buildProfileModuleKnowledgeEntries(
     };
   });
 
-  return [...workbenchEntries, ...claimEntries, ...evolutionEntries];
+  return [
+    ...workbenchEntries,
+    ...claimEntries,
+    ...caseStudyEntries,
+    ...boundaryEntries,
+    ...evolutionEntries,
+  ];
 }
 
 export type ProfileAgentContext = {

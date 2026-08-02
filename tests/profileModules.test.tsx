@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { ProjectsPanel } from '../src/components/global/DesktopWorkspace';
 import EvolutionApp from '../src/components/global/EvolutionApp';
+import { searchKnowledgeEntries } from '../src/knowledge';
 import { buildProfileModuleKnowledgeEntries } from '../src/profiles/agentEvidence';
 import {
   createActiveProfileRuntime,
@@ -77,7 +78,27 @@ const fixtureModules = {
         ],
       },
     ],
-    caseStudies: [],
+    caseStudies: [
+      {
+        id: 'fixture-case-study',
+        title: 'Fixture Reliability Study',
+        classification: 'Synthetic public case study',
+        contribution: 'Designed the isolated fixture boundary.',
+        problem: 'Profile records could cross identity boundaries.',
+        intervention: 'Introduced a registry-scoped module projection.',
+        evaluation: 'Rendered and retrieved the second fixture independently.',
+        result: 'Fixture-only records remain searchable without Dessi content.',
+        limitation: 'This verifies isolation, not production scale.',
+        roleSignals: ['evidence boundaries', 'retrieval'],
+        evidence: [
+          {
+            label: 'Fixture case-study evidence',
+            url: 'https://example.com/fixture-case-study',
+            kind: 'site',
+          },
+        ],
+      },
+    ],
     boundaries: ['This is test data, not a published person.'],
     entries: [
       {
@@ -137,10 +158,35 @@ describe('public profile modules', () => {
 
   it('builds Profile Agent knowledge from the selected module bundle only', () => {
     const entries = buildProfileModuleKnowledgeEntries(fixtureModules);
+    const expectedEntryCount =
+      fixtureModules.workbench.items.length +
+      fixtureModules.evidenceEvolution.claims.length +
+      fixtureModules.evidenceEvolution.caseStudies.length +
+      fixtureModules.evidenceEvolution.boundaries.length +
+      fixtureModules.evidenceEvolution.entries.length;
 
+    expect(entries).toHaveLength(expectedEntryCount);
     expect(entries.some((entry) => entry.title === 'Fixture System')).toBe(true);
+    expect(entries.some((entry) => entry.title === 'Fixture Reliability Study')).toBe(true);
+    expect(entries.some((entry) => entry.id === 'module-boundary-01')).toBe(true);
     expect(entries.some((entry) => entry.title === 'Fixture evolution entry')).toBe(true);
     expect(JSON.stringify(entries)).not.toContain('Agentic Commerce');
+  });
+
+  it('retrieves case-study outcomes, limitations, and current boundaries', () => {
+    const entries = buildProfileModuleKnowledgeEntries(fixtureModules);
+    const caseStudyHits = searchKnowledgeEntries(
+      entries,
+      'registry scoped intervention production scale limitation',
+      5
+    );
+    const boundaryHits = searchKnowledgeEntries(entries, 'test data published person boundary', 5);
+
+    expect(caseStudyHits[0]?.id).toBe('module-case-study-fixture-case-study');
+    expect(caseStudyHits[0]?.content).toContain('Intervention:');
+    expect(caseStudyHits[0]?.content).toContain('Result:');
+    expect(caseStudyHits[0]?.content).toContain('Limitation:');
+    expect(boundaryHits.some((entry) => entry.id === 'module-boundary-01')).toBe(true);
   });
 
   it('rejects mismatched identities, private paths, and dangling evidence references', () => {
