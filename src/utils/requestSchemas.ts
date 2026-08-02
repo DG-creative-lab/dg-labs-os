@@ -1,4 +1,4 @@
-export type ChatRole = 'system' | 'user' | 'assistant';
+export type ChatRole = 'user' | 'assistant';
 
 export type ChatMessageInput = {
   role: ChatRole;
@@ -7,6 +7,8 @@ export type ChatMessageInput = {
 
 export type ChatResponseMode = 'narrative' | 'agent_json';
 export type ChatProvider = 'openrouter' | 'openai' | 'anthropic' | 'gemini';
+export type ChatAnswerMode = 'ask' | 'brief' | 'cv' | 'projects';
+export type ChatBrainMode = 'concise' | 'explainer' | 'research';
 
 export type ChatRequestInput = {
   messages: ChatMessageInput[];
@@ -15,6 +17,9 @@ export type ChatRequestInput = {
   model: string;
   byokApiKey?: string;
   providerFallbackAllowed: boolean;
+  profileHandle: string;
+  answerMode: ChatAnswerMode;
+  brainMode: ChatBrainMode;
 };
 
 export type ContactInput = {
@@ -30,6 +35,7 @@ export type VerifyInput = {
 };
 
 export type ToolName =
+  | 'profile_context'
   | 'local_context'
   | 'web_verify'
   | 'open_app'
@@ -40,11 +46,21 @@ export type ToolName =
 export type ToolCallInput = {
   tool: ToolName;
   input?: Record<string, unknown>;
+  profileHandle: string;
 };
 
 const asRecord = (input: unknown): Record<string, unknown> | null => {
   if (!input || typeof input !== 'object' || Array.isArray(input)) return null;
   return input as Record<string, unknown>;
+};
+
+const PROFILE_HANDLE_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
+
+export const parseRequiredProfileHandle = (input: unknown): string | null => {
+  const body = asRecord(input);
+  if (!body || typeof body.profileHandle !== 'string') return null;
+  const handle = body.profileHandle.trim();
+  return PROFILE_HANDLE_PATTERN.test(handle) ? handle : null;
 };
 
 export const parseContactInput = (input: unknown): ContactInput | null => {
@@ -72,7 +88,7 @@ export const parseChatMessagesInput = (input: unknown): ChatMessageInput[] | nul
   const body = asRecord(input);
   if (!body) return null;
   const messages = body.messages;
-  if (!Array.isArray(messages) || messages.length === 0) return null;
+  if (!Array.isArray(messages) || messages.length === 0 || messages.length > 13) return null;
 
   const parsed: ChatMessageInput[] = [];
   for (const item of messages) {
@@ -81,9 +97,10 @@ export const parseChatMessagesInput = (input: unknown): ChatMessageInput[] | nul
     const role = obj.role;
     const content = obj.content;
     if (
-      (role !== 'system' && role !== 'user' && role !== 'assistant') ||
+      (role !== 'user' && role !== 'assistant') ||
       typeof content !== 'string' ||
-      content.trim().length === 0
+      content.trim().length === 0 ||
+      content.length > 4000
     ) {
       return null;
     }
@@ -123,13 +140,38 @@ export const parseChatRequestInput = (input: unknown): ChatRequestInput | null =
 
   const byokApiKeyRaw = body.byokApiKey;
   const byokApiKey =
-    typeof byokApiKeyRaw === 'string' && byokApiKeyRaw.trim().length > 0
+    typeof byokApiKeyRaw === 'string' &&
+    byokApiKeyRaw.trim().length > 0 &&
+    byokApiKeyRaw.trim().length <= 2048
       ? byokApiKeyRaw.trim()
       : undefined;
 
   const providerFallbackAllowed = body.providerFallbackAllowed === true;
 
-  return { messages, responseMode, provider, model, byokApiKey, providerFallbackAllowed };
+  const profileHandle = parseRequiredProfileHandle(body);
+  if (!profileHandle) return null;
+
+  const answerModeRaw = body.answerMode;
+  const answerMode: ChatAnswerMode =
+    answerModeRaw === 'brief' || answerModeRaw === 'cv' || answerModeRaw === 'projects'
+      ? answerModeRaw
+      : 'ask';
+
+  const brainModeRaw = body.brainMode;
+  const brainMode: ChatBrainMode =
+    brainModeRaw === 'concise' || brainModeRaw === 'research' ? brainModeRaw : 'explainer';
+
+  return {
+    messages,
+    responseMode,
+    provider,
+    model,
+    byokApiKey,
+    providerFallbackAllowed,
+    profileHandle,
+    answerMode,
+    brainMode,
+  };
 };
 
 export const parseVerifyInput = (input: unknown): VerifyInput | null => {
@@ -147,6 +189,7 @@ export const parseToolCallInput = (input: unknown): ToolCallInput | null => {
   if (!body) return null;
   const tool = body.tool;
   if (
+    tool !== 'profile_context' &&
     tool !== 'local_context' &&
     tool !== 'web_verify' &&
     tool !== 'open_app' &&
@@ -161,5 +204,7 @@ export const parseToolCallInput = (input: unknown): ToolCallInput | null => {
     maybeInput && typeof maybeInput === 'object' && !Array.isArray(maybeInput)
       ? (maybeInput as Record<string, unknown>)
       : undefined;
-  return { tool, input: parsedInput };
+  const profileHandle = parseRequiredProfileHandle(body);
+  if (!profileHandle) return null;
+  return { tool, input: parsedInput, profileHandle };
 };

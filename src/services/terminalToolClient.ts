@@ -16,6 +16,7 @@ export const trimTerminalCache = (cache: Map<string, unknown>, max = 40) => {
 };
 
 export const fetchRetrieveTool = async (
+  profileHandle: string,
   query: string,
   signal?: AbortSignal,
   limit = 6
@@ -23,7 +24,7 @@ export const fetchRetrieveTool = async (
   const response = await fetch('/api/tools', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ tool: 'retrieve', input: { query, limit } }),
+    body: JSON.stringify({ tool: 'retrieve', input: { query, limit }, profileHandle }),
     signal,
   });
   const payload = (await response.json().catch(() => ({}))) as
@@ -47,13 +48,14 @@ export const fetchRetrieveTool = async (
 };
 
 export const fetchCiteTool = async (
+  profileHandle: string,
   claim: string,
   signal?: AbortSignal
 ): Promise<Omit<CiteResult, 'fromCache'> | null> => {
   const response = await fetch('/api/tools', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ tool: 'cite', input: { claim } }),
+    body: JSON.stringify({ tool: 'cite', input: { claim }, profileHandle }),
     signal,
   });
   const payload = (await response.json().catch(() => ({}))) as
@@ -85,6 +87,7 @@ export type GenericToolPayload =
   | undefined;
 
 export const fetchTerminalTool = async (
+  profileHandle: string,
   tool: ToolName,
   input?: Record<string, unknown>,
   signal?: AbortSignal
@@ -92,7 +95,7 @@ export const fetchTerminalTool = async (
   const response = await fetch('/api/tools', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ tool, input }),
+    body: JSON.stringify({ tool, input, profileHandle }),
     signal,
   });
   const payload = (await response.json().catch(() => ({}))) as GenericToolPayload;

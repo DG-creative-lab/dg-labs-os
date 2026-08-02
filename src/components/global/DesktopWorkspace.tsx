@@ -280,17 +280,10 @@ export default function DesktopWorkspace({ profile }: { profile: ActiveProfileRu
           initialSize={{ width: terminalWindow.width, height: terminalWindow.height }}
           initialPosition={{ x: terminalWindow.x, y: terminalWindow.y }}
           isFocused={focusedAppId === 'terminal'}
-          contentClassName="h-full min-h-0 flex flex-col overflow-auto no-scrollbar overscroll-contain p-4 text-white"
+          viewportFit={{ widthRatio: 0.84, heightRatio: 0.94 }}
+          contentClassName="h-full min-h-0 flex flex-col overflow-hidden text-white"
         >
-          <h1 className="text-2xl font-semibold">Agents Runtime</h1>
-          <p className="mt-2 text-sm text-white/65">
-            Modes: <code>ask</code> (narrative), <code>brief</code> (bullets), <code>cv</code>{' '}
-            (experience-first), <code>projects</code> (builds-first). Use
-            <code> context &lt;query&gt;</code> for raw snippets.
-          </p>
-          <div className="mt-4 min-h-0 flex-1">
-            <AgentsTerminal />
-          </div>
+          <AgentsTerminal profile={profile} />
         </DraggableAppWindow>
       ) : null}
     </>

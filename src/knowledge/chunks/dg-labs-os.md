@@ -31,7 +31,7 @@ A personal portfolio presented as a cognitive operating system. Facts about Dess
 
 ### Desktop Shell
 
-Mac-style toolbar and dock with RippleGrid animated background. Toolbar includes Apple menu and app menus. Dock provides access to the public modules: Workbench, Technical Writing, Evidence & Evolution, Resume, System Map, Links, and Agents.
+Mac-style toolbar and dock with RippleGrid animated background. Toolbar includes the system menu and app menus. The dock provides access to the public modules: Browser, Workbench, Technical Writing, Evidence & Evolution, Timeline, System Map, Connect, and Profile Agent.
 
 The root desktop opens a browser window containing the **Creative Machine Monitor**: an interactive model of the constructive loop behind DG-OS. Its Understand, Imagine, and Build modes show how projects, readings, questions, decisions, and failures become traceable patterns that can be revisited and recombined. Each public module is a different projection of this evolving material rather than an isolated portfolio page.
 

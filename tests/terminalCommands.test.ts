@@ -1,15 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { userConfig } from '../src/config';
-import { labNotes } from '../src/config/labNotes';
-import { networkNodes } from '../src/config/network';
-import { workbench } from '../src/config/workbench';
+import { activeProfile } from '../src/profiles';
 import { executeTerminalCommand } from '../src/utils/terminalCommands';
 
 const ctx = {
-  user: userConfig,
-  workbench,
-  notes: labNotes,
-  network: networkNodes,
+  profile: activeProfile,
 };
 
 describe('executeTerminalCommand', () => {
@@ -33,24 +27,40 @@ describe('executeTerminalCommand', () => {
     expect(result.lines.join(' ')).toContain('Unknown command');
   });
 
-  it('searches across app content', () => {
+  it('routes search through the profile-scoped server boundary', () => {
     const result = executeTerminalCommand('search evaluation', ctx);
-    expect(result.action.type).toBe('none');
-    expect(result.lines[0]).toContain('Results for');
+    expect(result.action).toEqual({
+      type: 'tool_call',
+      tool: 'profile_context',
+      input: { command: 'search', args: 'evaluation' },
+    });
   });
 
-  it('shows indexed sources', () => {
+  it('routes project listings through the profile-scoped server boundary', () => {
+    const result = executeTerminalCommand('projects', ctx);
+    expect(result.action).toEqual({
+      type: 'tool_call',
+      tool: 'profile_context',
+      input: { command: 'projects' },
+    });
+  });
+
+  it('routes source counts through the profile-scoped server boundary', () => {
     const result = executeTerminalCommand('sources', ctx);
-    expect(result.action.type).toBe('none');
-    expect(result.lines[0]).toContain('Indexed sources');
-    expect(result.lines.join(' ')).toContain('workbench');
+    expect(result.action).toEqual({
+      type: 'tool_call',
+      tool: 'profile_context',
+      input: { command: 'sources' },
+    });
   });
 
-  it('retrieves grounded context snippets', () => {
+  it('routes grounded context through the profile-scoped server boundary', () => {
     const result = executeTerminalCommand('context intent', ctx);
-    expect(result.action.type).toBe('none');
-    expect(result.lines[0]).toContain('Context hits for');
-    expect(result.lines.join(' ')).toMatch(/\[(workbench|network|brain)\]/);
+    expect(result.action).toEqual({
+      type: 'tool_call',
+      tool: 'profile_context',
+      input: { command: 'context', args: 'intent' },
+    });
   });
 
   it('sets brain mode with deterministic mode command', () => {

@@ -147,12 +147,21 @@ export const getKnowledgeEntries = (): readonly KnowledgeEntry[] => knowledgeEnt
 
 export const getKnowledgeById = (id: string): KnowledgeEntry | undefined => knowledgeById.get(id);
 
-export const searchKnowledge = (query: string, topK = 8): KnowledgeHit[] => {
+export const getKnowledgeEntryById = (
+  entries: readonly KnowledgeEntry[],
+  id: string
+): KnowledgeEntry | undefined => entries.find((entry) => entry.id === id);
+
+export const searchKnowledgeEntries = (
+  entries: readonly KnowledgeEntry[],
+  query: string,
+  topK = 8
+): KnowledgeHit[] => {
   const queryTokens = uniqueTokens(query);
   if (queryTokens.length === 0) return [];
 
   const hits: KnowledgeHit[] = [];
-  for (const entry of knowledgeEntries) {
+  for (const entry of entries) {
     const title = entry.title.toLowerCase();
     const tags = entry.tags.join(' ').toLowerCase();
     const body = entry.content.toLowerCase();
@@ -168,6 +177,9 @@ export const searchKnowledge = (query: string, topK = 8): KnowledgeHit[] => {
 
   return hits.sort((a, b) => b.score - a.score).slice(0, topK);
 };
+
+export const searchKnowledge = (query: string, topK = 8): KnowledgeHit[] =>
+  searchKnowledgeEntries(knowledgeEntries, query, topK);
 
 const CLASSIFICATION_KEYWORDS: Record<QueryClassification, readonly string[]> = {
   identity: ['who', 'about', 'background', 'dessi', 'georgieva', 'yourself', 'profile'],

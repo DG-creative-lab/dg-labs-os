@@ -30,10 +30,10 @@ export type DesktopAppDefinition = {
 export const DESKTOP_APPS: Record<DesktopAppId, DesktopAppDefinition> = {
   terminal: {
     id: 'terminal',
-    label: 'Agents Terminal',
+    label: 'Profile Agent',
     route: '/apps/terminal',
-    aliases: ['agents'],
-    window: { title: 'Agents Terminal', width: 920, height: 600, x: 80, y: 80 },
+    aliases: ['agents', 'profile-agent'],
+    window: { title: 'Profile Agent', width: 1120, height: 720, x: 80, y: 64 },
   },
   network: {
     id: 'network',

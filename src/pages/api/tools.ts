@@ -1,18 +1,20 @@
 import type { APIRoute } from 'astro';
-import { userConfig } from '../../config';
-import { labNotes } from '../../config/labNotes';
-import { networkNodes } from '../../config/network';
-import { workbench } from '../../config/workbench';
 import { toolSuccess } from '../../utils/apiContracts';
 import { errorResponse, jsonResponse } from '../../utils/apiResponse';
-import { parseToolCallInput } from '../../utils/requestSchemas';
+import { parseRequiredProfileHandle, parseToolCallInput } from '../../utils/requestSchemas';
 import { retrieveKnowledge } from '../../utils/terminalKnowledge';
 import { performWebVerify } from '../../utils/webVerify';
 import { DESKTOP_APP_TARGETS } from '../../services/desktopAppRegistry';
+import { findProfileAgentContext } from '../../profiles/agentEvidence';
+import {
+  executeProfileEvidenceCommand,
+  isProfileEvidenceCommand,
+} from '../../services/profileEvidenceCommands';
 
 type ErrorCode =
   | 'INVALID_JSON'
   | 'INVALID_TOOL_CALL'
+  | 'INVALID_PROFILE_HANDLE'
   | 'INVALID_INPUT'
   | 'TIMEOUT'
   | 'UPSTREAM_ERROR'
@@ -32,16 +34,48 @@ export const POST: APIRoute = async ({ request }) => {
     return err('INVALID_JSON', 'Invalid request format', 400);
   }
 
+  if (!parseRequiredProfileHandle(body)) {
+    return err('INVALID_PROFILE_HANDLE', 'A valid profileHandle is required.', 400);
+  }
+
   const call = parseToolCallInput(body);
   if (!call) {
     return err(
       'INVALID_TOOL_CALL',
-      'tool must be one of: local_context, web_verify, open_app, list_projects, retrieve, cite',
+      'tool must be one of: profile_context, local_context, web_verify, open_app, list_projects, retrieve, cite',
       400
     );
   }
 
+  const agentContext = findProfileAgentContext(call.profileHandle);
+  if (!agentContext) {
+    return err('INVALID_INPUT', `Published Profile Agent not found: ${call.profileHandle}`, 404);
+  }
+  const { profile, evidence: profileEvidence } = agentContext;
+  const profileIdentity = {
+    name: profile.identity.displayName,
+    ownerName: profile.identity.ownerName,
+    aliases: profile.identity.aliases,
+    role: profile.identity.role,
+    roleFocus: profile.identity.roleFocus,
+    location: profile.identity.location,
+    website: profile.contact.website,
+  };
+
   try {
+    if (call.tool === 'profile_context') {
+      const command = asString(call.input?.command)?.toLowerCase();
+      const args = asString(call.input?.args) ?? '';
+      if (!command || !isProfileEvidenceCommand(command)) {
+        return err('INVALID_INPUT', 'profile_context requires a valid input.command', 400);
+      }
+      if ((command === 'project' || command === 'search' || command === 'context') && !args) {
+        return err('INVALID_INPUT', `profile_context ${command} requires input.args`, 400);
+      }
+      const lines = executeProfileEvidenceCommand(command, args, agentContext);
+      return jsonResponse(toolSuccess('profile_context', { command, lines }), 200);
+    }
+
     if (call.tool === 'local_context') {
       const query = asString(call.input?.query);
       const limitRaw = call.input?.limit;
@@ -55,10 +89,11 @@ export const POST: APIRoute = async ({ request }) => {
       const hits = retrieveKnowledge(
         query,
         {
-          user: userConfig,
-          workbench,
-          notes: labNotes,
-          network: networkNodes,
+          user: profileIdentity,
+          workbench: profileEvidence.workbench,
+          notes: profileEvidence.notes,
+          network: profileEvidence.network,
+          brain: profileEvidence.brain,
         },
         limit
       ).map((hit) => ({
@@ -121,10 +156,11 @@ export const POST: APIRoute = async ({ request }) => {
       const hits = retrieveKnowledge(
         query,
         {
-          user: userConfig,
-          workbench,
-          notes: labNotes,
-          network: networkNodes,
+          user: profileIdentity,
+          workbench: profileEvidence.workbench,
+          notes: profileEvidence.notes,
+          network: profileEvidence.network,
+          brain: profileEvidence.brain,
         },
         limit
       ).map((hit) => ({
@@ -146,10 +182,11 @@ export const POST: APIRoute = async ({ request }) => {
       const evidence = retrieveKnowledge(
         claim,
         {
-          user: userConfig,
-          workbench,
-          notes: labNotes,
-          network: networkNodes,
+          user: profileIdentity,
+          workbench: profileEvidence.workbench,
+          notes: profileEvidence.notes,
+          network: profileEvidence.network,
+          brain: profileEvidence.brain,
         },
         5
       ).map((hit) => ({
@@ -166,7 +203,7 @@ export const POST: APIRoute = async ({ request }) => {
       return jsonResponse(toolSuccess('cite', { claim, verdict, evidence }), 200);
     }
 
-    const projects = workbench.map((item) => ({
+    const projects = profileEvidence.workbench.map((item) => ({
       id: item.id,
       title: item.title,
       subtitle: item.subtitle,

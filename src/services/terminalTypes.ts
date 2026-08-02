@@ -14,6 +14,7 @@ export type LlmHistoryMessage = {
 };
 
 export type ToolName =
+  | 'profile_context'
   | 'local_context'
   | 'web_verify'
   | 'open_app'
@@ -76,9 +77,10 @@ export type ProviderHealth = {
   latencyMs?: number;
 };
 
-export type TerminalPanelTab = 'session' | 'tools' | 'evidence' | null;
+export type TerminalPanelTab = 'connection' | 'advanced' | 'evidence' | null;
 
 export const INITIAL_TOOL_USAGE: ToolUsage = {
+  profile_context: 0,
   local_context: 0,
   web_verify: 0,
   open_app: 0,
@@ -89,7 +91,6 @@ export const INITIAL_TOOL_USAGE: ToolUsage = {
 
 export const LLM_COUNT_KEY = 'dg_labs_terminal_llm_count';
 export const VERIFY_COUNT_KEY = 'dg_labs_terminal_verify_count';
-export const BYOK_STORAGE_KEY = 'dg_labs_terminal_byok_v1';
 export const ROUTER_CONFIDENCE_THRESHOLD = 0.8;
 export const VERIFY_SESSION_CAP = 12;
 

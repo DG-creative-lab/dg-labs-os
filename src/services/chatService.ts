@@ -5,10 +5,13 @@ import { runLlmGateway, runLlmGatewayStream, type LlmProvider } from './llmGatew
 import { defaultModelForProvider } from './llmProviderDefaults';
 import {
   classifyKnowledgeQuery,
-  getKnowledgeById,
-  searchKnowledge,
+  getKnowledgeEntryById,
+  searchKnowledgeEntries,
+  type KnowledgeEntry,
   type KnowledgeHit,
 } from '../knowledge';
+import { findProfileAgentContext } from '../profiles/agentEvidence';
+import { buildServerOwnedProfileAgentMessages } from '../utils/profileAgentPrompt';
 
 export type ChatServiceErrorCode =
   | 'CONFIG_ERROR'
@@ -18,7 +21,8 @@ export type ChatServiceErrorCode =
   | 'RATE_LIMITED'
   | 'QUOTA_EXCEEDED'
   | 'NETWORK_ERROR'
-  | 'PROVIDER_ERROR';
+  | 'PROVIDER_ERROR'
+  | 'PROFILE_NOT_FOUND';
 
 type AgentJsonResponse = {
   ok: true;
@@ -85,22 +89,11 @@ const latestUserQuery = (messages: readonly ChatMessageInput[]): string =>
     .find((message) => message.role === 'user')
     ?.content.trim() ?? '';
 
-const buildKnowledgeGrounding = (query: string, hits: readonly KnowledgeHit[]): string => {
-  if (!query || hits.length === 0) return '';
-  const lines = [
-    'Grounding context (knowledge index):',
-    `query: ${query}`,
-    ...hits
-      .slice(0, 6)
-      .map(
-        (hit, index) =>
-          `${index + 1}. [${hit.type}] ${hit.title} :: ${hit.content.slice(0, 260).replace(/\s+/g, ' ')}`
-      ),
-  ];
-  return lines.join('\n');
-};
-
-const expandRelated = (seed: readonly KnowledgeHit[], limit = 8): KnowledgeHit[] => {
+const expandRelated = (
+  seed: readonly KnowledgeHit[],
+  entries: readonly KnowledgeEntry[],
+  limit = 8
+): KnowledgeHit[] => {
   const out: KnowledgeHit[] = [];
   const seen = new Set<string>();
   for (const item of seed) {
@@ -110,7 +103,7 @@ const expandRelated = (seed: readonly KnowledgeHit[], limit = 8): KnowledgeHit[]
     }
     if (out.length >= limit) break;
     for (const relId of item.related) {
-      const rel = getKnowledgeById(relId);
+      const rel = getKnowledgeEntryById(entries, relId);
       if (!rel || seen.has(rel.id)) continue;
       seen.add(rel.id);
       out.push({ ...rel, score: Math.max(1, item.score - 1) });
@@ -123,10 +116,11 @@ const expandRelated = (seed: readonly KnowledgeHit[], limit = 8): KnowledgeHit[]
 
 const buildAgentJsonResponse = (
   query: string,
-  hits: readonly KnowledgeHit[]
+  hits: readonly KnowledgeHit[],
+  entries: readonly KnowledgeEntry[]
 ): AgentJsonResponse => {
   const classification = classifyKnowledgeQuery(query);
-  const chunks = expandRelated(hits, 8);
+  const chunks = expandRelated(hits, entries, 8);
   const sources = Array.from(new Set(chunks.flatMap((chunk) => chunk.sources))).slice(0, 12);
   const answer =
     chunks.length === 0
@@ -178,17 +172,6 @@ const serverKeys = () =>
 
 const providerOrder = ['openrouter', 'openai', 'anthropic', 'gemini'] as const;
 
-const buildGroundedMessages = (
-  query: string,
-  hits: readonly KnowledgeHit[],
-  messages: readonly ChatMessageInput[]
-) => {
-  const knowledgeGrounding = buildKnowledgeGrounding(query, hits);
-  return knowledgeGrounding
-    ? [{ role: 'system' as const, content: knowledgeGrounding }, ...messages]
-    : messages;
-};
-
 const buildProviderCandidates = ({
   provider,
   model,
@@ -218,7 +201,7 @@ const buildProviderCandidates = ({
 
 const runProviderCandidate = async (
   candidate: ProviderCandidate,
-  messages: readonly ChatMessageInput[]
+  messages: ReadonlyArray<{ role: 'system' | 'user' | 'assistant'; content: string }>
 ) => {
   const startedAt = Date.now();
   const result = await runLlmGateway({
@@ -237,20 +220,40 @@ export const runChatService = async ({
   model,
   byokApiKey,
   providerFallbackAllowed,
+  profileHandle,
+  answerMode,
+  brainMode,
 }: ChatRequestInput): Promise<ChatServiceResult> => {
   const query = latestUserQuery(messages);
-  const localHits = query ? searchKnowledge(query, 6) : [];
+  const agentContext = findProfileAgentContext(profileHandle);
+
+  if (!agentContext) {
+    return {
+      ok: false,
+      status: 404,
+      code: 'PROFILE_NOT_FOUND',
+      message: `Published Profile Agent not found: ${profileHandle}`,
+    };
+  }
+  const { profile, evidence } = agentContext;
+  const localHits = query ? searchKnowledgeEntries(evidence.brain, query, 6) : [];
 
   if (responseMode === 'agent_json') {
     return {
       ok: true,
       status: 200,
-      payload: buildAgentJsonResponse(query, localHits),
+      payload: buildAgentJsonResponse(query, localHits, evidence.brain),
     };
   }
 
   try {
-    const requestMessages = buildGroundedMessages(query, localHits, messages);
+    const requestMessages = buildServerOwnedProfileAgentMessages({
+      profile,
+      hits: localHits,
+      messages,
+      answerMode,
+      brainMode,
+    });
     const candidates = buildProviderCandidates({
       provider,
       model,
@@ -389,6 +392,9 @@ export const runChatStreamService = async ({
   model,
   byokApiKey,
   providerFallbackAllowed,
+  profileHandle,
+  answerMode,
+  brainMode,
 }: ChatRequestInput): Promise<ChatStreamResult> => {
   if (responseMode === 'agent_json') {
     return runChatService({
@@ -398,12 +404,31 @@ export const runChatStreamService = async ({
       model,
       byokApiKey,
       providerFallbackAllowed,
+      profileHandle,
+      answerMode,
+      brainMode,
     });
   }
 
   const query = latestUserQuery(messages);
-  const localHits = query ? searchKnowledge(query, 6) : [];
-  const requestMessages = buildGroundedMessages(query, localHits, messages);
+  const agentContext = findProfileAgentContext(profileHandle);
+  if (!agentContext) {
+    return {
+      ok: false,
+      status: 404,
+      code: 'PROFILE_NOT_FOUND',
+      message: `Published Profile Agent not found: ${profileHandle}`,
+    };
+  }
+  const { profile, evidence } = agentContext;
+  const localHits = query ? searchKnowledgeEntries(evidence.brain, query, 6) : [];
+  const requestMessages = buildServerOwnedProfileAgentMessages({
+    profile,
+    hits: localHits,
+    messages,
+    answerMode,
+    brainMode,
+  });
   const candidates = buildProviderCandidates({
     provider,
     model,

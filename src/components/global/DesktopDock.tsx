@@ -299,8 +299,8 @@ const DesktopDock = ({ profile, platformMode = false, activeApps }: DesktopDockP
     },
     {
       id: 'terminal',
-      label: 'Agents',
-      shortLabel: 'Agents',
+      label: 'Profile Agent',
+      shortLabel: 'Agent',
       onClick: () => {
         if (isDesktopShell) {
           toggleDesktopWindow('terminal');

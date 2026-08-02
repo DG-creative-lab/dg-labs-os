@@ -179,23 +179,23 @@ test.describe('desktop smoke', () => {
     await expect(workbenchAnchor).toHaveCount(0);
   });
 
-  test('dock opens Agents Terminal window', async ({ page }) => {
+  test('dock opens Profile Agent window', async ({ page }) => {
     await page.goto('/desktop');
     await waitForDesktopReady(page);
-    await page.getByRole('button', { name: 'Agents' }).click();
-    await expect(page.getByRole('dialog', { name: 'Agents Terminal' })).toBeVisible();
-    await expect(page.getByText('Agents Runtime', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Profile Agent' }).click();
+    await expect(page.getByRole('dialog', { name: 'Profile Agent' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Profile Agent', exact: true })).toBeVisible();
   });
 
-  test('terminal tools panel runs list_projects quick action', async ({ page }) => {
+  test('Profile Agent advanced panel runs list_projects quick action', async ({ page }) => {
     await page.goto('/desktop');
     await waitForDesktopReady(page);
-    const dockAgents = page.getByRole('button', { name: 'Agents', exact: true });
+    const dockAgents = page.getByRole('button', { name: 'Profile Agent', exact: true });
     await dockAgents.click();
-    const terminalDialog = page.getByRole('dialog', { name: 'Agents Terminal' });
+    const terminalDialog = page.getByRole('dialog', { name: 'Profile Agent' });
     await expect(terminalDialog).toBeVisible();
 
-    await page.getByRole('button', { name: 'Tools', exact: true }).click();
+    await page.getByRole('button', { name: 'Advanced', exact: true }).click();
     await page.getByRole('button', { name: 'List projects', exact: true }).click();
     await expect(page.getByText(/Tool list_projects returned \d+ project\(s\):/)).toBeVisible();
   });
@@ -254,10 +254,10 @@ test.describe('desktop smoke', () => {
 
     await page.goto('/desktop');
     await waitForDesktopReady(page);
-    await page.getByRole('button', { name: 'Agents', exact: true }).click();
-    await expect(page.getByRole('dialog', { name: 'Agents Terminal' })).toBeVisible();
+    await page.getByRole('button', { name: 'Profile Agent', exact: true }).click();
+    await expect(page.getByRole('dialog', { name: 'Profile Agent' })).toBeVisible();
 
-    const input = page.getByRole('textbox', { name: 'Terminal command input' });
+    const input = page.getByRole('textbox', { name: "Ask Dessi's public profile" });
     await input.fill('tell me about dessi');
     await input.press('Enter');
     await requestIntercepted;
@@ -265,6 +265,17 @@ test.describe('desktop smoke', () => {
     await expect(page.getByText('Preparing answer…', { exact: true })).toBeVisible();
     releaseResponse();
     await expect(page.getByText('Dessi builds agentic systems.', { exact: true })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Ask another question', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'What has Dessi built? →' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Start over', exact: true }).click();
+    await expect(page.getByText('Dessi builds agentic systems.', { exact: true })).toHaveCount(0);
+    await expect(
+      page.getByRole('heading', {
+        name: 'Ask what Dessi has built, learned, or can support with evidence.',
+      })
+    ).toBeVisible();
   });
 
   test('menubar View opens Workbench and resets after close', async ({ page }) => {
@@ -351,9 +362,9 @@ test.describe('desktop smoke', () => {
     await waitForDesktopReady(page);
 
     const dockWorkbench = page.getByRole('button', { name: 'Workbench', exact: true });
-    const dockAgents = page.getByRole('button', { name: 'Agents', exact: true });
+    const dockAgents = page.getByRole('button', { name: 'Profile Agent', exact: true });
     const closeWorkbench = page.getByRole('button', { name: 'Close Workbench', exact: true });
-    const closeAgents = page.getByRole('button', { name: 'Close Agents Terminal', exact: true });
+    const closeAgents = page.getByRole('button', { name: 'Close Profile Agent', exact: true });
 
     // Rapid lifecycle operations via dock toggles (more stable than titlebar dots during motion).
     await dockWorkbench.click();
@@ -470,8 +481,8 @@ test.describe('mobile smoke', () => {
     });
     expect(terminal.status()).toBe(200);
     const terminalHtml = await terminal.text();
-    expect(terminalHtml).toContain('Ask targeted questions');
-    expect(terminalHtml).toContain('aria-label="Terminal command input"');
+    expect(terminalHtml).toContain('What has Dessi built?');
+    expect(terminalHtml).toContain('aria-label="Ask Dessi&#x27;s public profile"');
 
     const network = await request.get('/mobile/apps/network', {
       headers: { 'user-agent': ua },

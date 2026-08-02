@@ -1,22 +1,13 @@
 ---
 import IPhoneAppLayout from '../../../layouts/iPhoneAppLayout.astro';
 import AgentsTerminal from '../../../components/global/AgentsTerminal';
+import { activeProfile } from '../../../profiles';
 ---
 
-<IPhoneAppLayout appLabel="Terminal">
-  <main class="min-h-screen px-4 pb-24 pt-24 text-white sm:px-6">
-    <div class="mx-auto max-w-3xl">
-      <header>
-        <h1 class="text-2xl font-semibold text-white">Terminal</h1>
-        <p class="mt-2 text-sm text-white/70">
-          Ask targeted questions, inspect deterministic commands, and verify profile details from
-          mobile.
-        </p>
-      </header>
-
-      <div class="mt-4 h-[calc(100dvh-12.5rem)] min-h-[28rem]">
-        <AgentsTerminal client:load />
-      </div>
+<IPhoneAppLayout profile={activeProfile} appLabel="Profile Agent">
+  <main class="min-h-screen px-3 pb-24 pt-20 text-white">
+    <div class="mx-auto h-[calc(100dvh-7rem)] min-h-[32rem] max-w-3xl">
+      <AgentsTerminal client:load profile={activeProfile} />
     </div>
   </main>
 </IPhoneAppLayout>

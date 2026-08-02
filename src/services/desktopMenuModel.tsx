@@ -179,7 +179,7 @@ export const buildDesktopMenuModel = ({
     ],
     Help: [
       {
-        label: 'Search Help in Agents...',
+        label: 'Search Help in Profile Agent...',
         icon: <IoHelpCircle size={16} />,
         action: () => openTerminalGuideFromMenu(),
       },
@@ -254,7 +254,7 @@ export const buildDesktopMenuModel = ({
         action: () => onOpenHelp('navigation-tips'),
       },
       {
-        label: 'Search Help in Agents...',
+        label: 'Search Help in Profile Agent...',
         icon: <IoHelpCircle size={16} />,
         action: () => openTerminalGuideFromMenu(),
       },
@@ -551,7 +551,7 @@ export const buildDesktopMenuModel = ({
 
   const appMenuLabelMap: Record<ToolbarAppId, string> = {
     home: platformMode ? 'DG-OS' : profile.identity.displayName,
-    terminal: 'Agents',
+    terminal: 'Profile Agent',
     network: 'System Map',
     projects: 'Workbench',
     notes: 'Technical Writing',
@@ -589,7 +589,7 @@ export const buildDesktopMenuModel = ({
             action: () => openAppFromMenu('network'),
           },
           {
-            label: 'Open Agents Runtime',
+            label: 'Open Profile Agent',
             icon: <IoHelpCircle size={16} />,
             action: () => openAppFromMenu('terminal'),
           },
@@ -606,7 +606,7 @@ export const buildDesktopMenuModel = ({
         action: () => emitTerminalMenuAction(window, 'clear_output'),
       },
       {
-        label: 'Close Agents Terminal',
+        label: 'Close Profile Agent',
         icon: <FaWindowRestore size={16} />,
         action: () => onCloseApp('terminal'),
       },
