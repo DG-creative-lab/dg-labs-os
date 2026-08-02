@@ -10,7 +10,11 @@ describe('Profile Agent evidence registry', () => {
     expect(context?.evidence.brain.length).toBeGreaterThan(0);
     expect(context?.evidence.workbench.length).toBeGreaterThan(0);
     expect(context?.evidence.writing.length).toBeGreaterThan(0);
+    expect(context?.evidence.network.length).toBeGreaterThan(0);
     expect(context?.evidence.currentFocus.length).toBeGreaterThan(0);
+    expect(context?.evidence.brain.some((entry) => entry.file === 'profile-module:network')).toBe(
+      true
+    );
   });
 
   it('includes only registered reviewed Writing in deterministic retrieval', () => {

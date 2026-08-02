@@ -1,4 +1,4 @@
-import type { NetworkNode } from '../config/network';
+import type { NetworkNode } from '../profiles/network';
 import type { KnowledgeEntry } from '../knowledge';
 import type { WorkbenchItem } from '../profiles/modules';
 import type { PublicWritingEntry } from '../profiles/writing/contracts';

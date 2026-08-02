@@ -10,6 +10,7 @@ export const architectureManifest = {
         /^src\/profiles\/contracts\.ts$/,
         /^src\/profiles\/validation\.ts$/,
         /^src\/profiles\/modules\/(?:contracts|applicationValidation|validation)\.ts$/,
+        /^src\/profiles\/network\/(?:contracts|validation)\.ts$/,
         /^src\/profiles\/writing\/(?:contracts|validation)\.ts$/,
       ],
       mayImport: ['profile-contracts'],
@@ -20,6 +21,7 @@ export const architectureManifest = {
       matches: [
         /^src\/profiles\/dessi\.ts$/,
         /^src\/profiles\/modules\/dessi(?:Workbench|EvidenceEvolution)?\.ts$/,
+        /^src\/profiles\/network\/dessi\.ts$/,
         /^src\/profiles\/writing\/dessi\.ts$/,
       ],
       mayImport: ['profile-contracts', 'profile-data'],
@@ -30,6 +32,7 @@ export const architectureManifest = {
       matches: [
         /^src\/profiles\/(?:index|runtime)\.ts$/,
         /^src\/profiles\/modules\/(?:index|runtime)\.ts$/,
+        /^src\/profiles\/network\/(?:index|runtime)\.ts$/,
         /^src\/profiles\/writing\/(?:index|runtime)\.ts$/,
       ],
       mayImport: ['profile-contracts', 'profile-data', 'profile-runtime'],
@@ -113,10 +116,13 @@ export const architectureManifest = {
     'src/profiles/validation.ts': 1,
     'src/profiles/modules/applicationValidation.ts': 1,
     'src/profiles/modules/validation.ts': 2,
+    'src/profiles/network/contracts.ts': 0,
+    'src/profiles/network/validation.ts': 1,
     'src/profiles/writing/contracts.ts': 0,
     'src/profiles/writing/validation.ts': 1,
     'src/profiles/runtime.ts': 3,
     'src/profiles/modules/runtime.ts': 4,
+    'src/profiles/network/runtime.ts': 4,
     'src/profiles/writing/runtime.ts': 4,
   },
 };

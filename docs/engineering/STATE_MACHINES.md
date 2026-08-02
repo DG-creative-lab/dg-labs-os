@@ -9,12 +9,12 @@ The executable catalogue is `architecture/state-machines/catalog.ts`.
 
 ## Current machines
 
-| Machine                     | Current maturity  | Deterministic boundary                                  |
-| --------------------------- | ----------------- | ------------------------------------------------------- |
-| Desktop shell               | Explicit reducer  | Open windows and focused application                    |
-| Profile activation          | Boundary-enforced | Published projection or rejection                       |
-| Profile module registration | Boundary-enforced | Matching profile and Writing modules or rejection       |
-| Profile Agent request       | Implicit          | Validation, evidence scope, provider and SSE sequencing |
+| Machine                     | Current maturity  | Deterministic boundary                                      |
+| --------------------------- | ----------------- | ----------------------------------------------------------- |
+| Desktop shell               | Explicit reducer  | Open windows and focused application                        |
+| Profile activation          | Boundary-enforced | Published projection or rejection                           |
+| Profile module registration | Boundary-enforced | Matching profile, Network, and Writing modules or rejection |
+| Profile Agent request       | Implicit          | Validation, evidence scope, provider and SSE sequencing     |
 
 `implicit` means behaviour is tested across services but is not yet represented by one transition
 function. New complex workflows should prefer an explicit transition model.

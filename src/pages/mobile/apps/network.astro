@@ -1,7 +1,7 @@
 ---
 import IPhoneAppLayout from '../../../layouts/iPhoneAppLayout.astro';
-import { networkIdeaEdges, networkNodes, networkPaths } from '../../../config/network';
 import NetworkApp from '../../../components/network/NetworkApp';
+import { activeNetworkModule } from '../../../profiles/network';
 ---
 
 <IPhoneAppLayout appLabel="System Map">
@@ -16,9 +16,9 @@ import NetworkApp from '../../../components/network/NetworkApp';
 
     <NetworkApp
       client:load
-      nodes={networkNodes}
-      ideas={networkIdeaEdges}
-      paths={networkPaths}
+      nodes={activeNetworkModule.nodes}
+      ideas={activeNetworkModule.relationships}
+      paths={activeNetworkModule.paths}
       initialView="INDEX"
       compact={true}
     />

@@ -3,6 +3,7 @@ import DesktopLayout from '../layouts/DesktopLayout.astro';
 import DesktopWorkspace from '../components/global/DesktopWorkspace';
 import { activeProfile } from '../profiles';
 import { activeProfileModules } from '../profiles/modules';
+import { activeNetworkModule } from '../profiles/network';
 import { activeWritingModule } from '../profiles/writing';
 ---
 
@@ -22,6 +23,7 @@ import { activeWritingModule } from '../profiles/writing';
     client:load
     profile={activeProfile}
     modules={activeProfileModules}
+    network={activeNetworkModule}
     writing={activeWritingModule}
   />
 </DesktopLayout>

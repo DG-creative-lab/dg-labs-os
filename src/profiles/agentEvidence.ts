@@ -1,6 +1,6 @@
-import { networkNodes } from '../config/network';
 import { getKnowledgeEntries, type KnowledgeEntry } from '../knowledge';
 import { dessiProfileModules, type PublicProfileModules } from './modules';
+import { dessiNetworkModule, type PublicNetworkModule } from './network';
 import { findActiveProfile, type ActiveProfileRuntime } from './runtime';
 import { dessiWritingModule, type PublicWritingModule } from './writing';
 
@@ -8,7 +8,7 @@ export type ProfileAgentEvidence = {
   workbench: PublicProfileModules['workbench']['items'];
   evidenceEvolution: PublicProfileModules['evidenceEvolution'];
   writing: PublicWritingModule['entries'];
-  network: typeof networkNodes;
+  network: PublicNetworkModule['nodes'];
   brain: readonly KnowledgeEntry[];
   currentFocus: readonly string[];
 };
@@ -149,6 +149,45 @@ export function buildWritingModuleKnowledgeEntries(
   });
 }
 
+export function buildNetworkModuleKnowledgeEntries(
+  network: PublicNetworkModule
+): readonly KnowledgeEntry[] {
+  return network.nodes.map((node) => {
+    const relationships = network.relationships.filter(
+      (relationship) => relationship.from === node.id || relationship.to === node.id
+    );
+    const relatedNodeIds = relationships.map((relationship) =>
+      relationship.from === node.id ? relationship.to : relationship.from
+    );
+    const content = [
+      node.subtitle,
+      ...node.bullets,
+      `Provenance: ${node.provenance}`,
+      `Evidence confidence: ${node.evidenceConfidence}.`,
+      `Evidence visibility: ${node.evidenceVisibility}.`,
+      `Boundary: ${node.boundary}`,
+      ...relationships.map(
+        (relationship) =>
+          `Relationship ${relationship.relation} ${relationship.from === node.id ? relationship.to : relationship.from}: ${relationship.evidence} Confidence: ${relationship.confidence}. Evidence visibility: ${relationship.evidenceVisibility}.`
+      ),
+    ].join(' ');
+
+    return {
+      id: `network-${node.id}`,
+      type: node.kind === 'System' ? ('project' as const) : ('research' as const),
+      title: node.title,
+      tags: [node.kind, node.evidence, ...node.tags],
+      confidence: node.evidenceConfidence,
+      sources: Object.values(node.links ?? {}).filter((value): value is string => Boolean(value)),
+      lastVerified: network.publication.reviewedAt.slice(0, 10),
+      related: relatedNodeIds.map((id) => `network-${id}`),
+      content,
+      tokenEstimate: estimateTokens(content),
+      file: 'profile-module:network',
+    };
+  });
+}
+
 export type ProfileAgentContext = {
   profile: ActiveProfileRuntime;
   evidence: ProfileAgentEvidence;
@@ -166,10 +205,11 @@ const evidenceByProfileHandle = new Map<string, ProfileAgentEvidence>([
       workbench: dessiProfileModules.workbench.items,
       evidenceEvolution: dessiProfileModules.evidenceEvolution,
       writing: dessiWritingModule.entries,
-      network: networkNodes,
+      network: dessiNetworkModule.nodes,
       brain: [
         ...buildProfileModuleKnowledgeEntries(dessiProfileModules),
         ...buildWritingModuleKnowledgeEntries(dessiWritingModule),
+        ...buildNetworkModuleKnowledgeEntries(dessiNetworkModule),
         ...getKnowledgeEntries(),
       ],
       currentFocus: dessiProfileModules.evidenceEvolution.entries

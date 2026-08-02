@@ -10,7 +10,7 @@ import {
   type NodeProps,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import type { NetworkIdeaEdge, NetworkNode } from '../../config/network';
+import type { NetworkNode, NetworkRelationship } from '../../profiles/network';
 
 type MapNodeData = {
   item: NetworkNode;
@@ -24,7 +24,7 @@ type MapNode = Node<MapNodeData, 'system-map'>;
 
 type Props = {
   nodes: readonly NetworkNode[];
-  edges: readonly NetworkIdeaEdge[];
+  edges: readonly NetworkRelationship[];
   selectedNodeId: string | null;
   activeNodeIds: ReadonlySet<string>;
   activeEdgeIds: ReadonlySet<string>;

@@ -1,7 +1,7 @@
 import { useEffect, useReducer } from 'react';
-import { networkIdeaEdges, networkNodes, networkPaths } from '../../config/network';
 import type {
   ActiveProfileRuntime,
+  PublicNetworkModule,
   PublicProfileModules,
   PublicWritingModule,
 } from '../../profiles';
@@ -135,10 +135,12 @@ export function ProjectsPanel({
 export default function DesktopWorkspace({
   profile,
   modules,
+  network,
   writing,
 }: {
   profile: ActiveProfileRuntime;
   modules: PublicProfileModules;
+  network: PublicNetworkModule;
   writing: PublicWritingModule;
 }) {
   const [state, dispatch] = useReducer(desktopShellReducer, INITIAL_DESKTOP_SHELL_STATE);
@@ -283,7 +285,7 @@ export default function DesktopWorkspace({
               <p>Module: Connections</p>
             </div>
           </div>
-          <NetworkApp nodes={networkNodes} ideas={networkIdeaEdges} paths={networkPaths} />
+          <NetworkApp nodes={network.nodes} ideas={network.relationships} paths={network.paths} />
         </DraggableAppWindow>
       ) : null}
 

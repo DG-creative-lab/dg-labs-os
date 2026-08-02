@@ -1,18 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { networkIdeaEdges, networkNodes } from '../src/config/network';
+import { dessiNetworkModule } from '../src/profiles/network';
 import { buildNetworkModel, getNodeRelationships, getRelatedNode } from '../src/utils/networkGraph';
 
 describe('system map model', () => {
   it('builds the curated nodes and typed relationships in Graphology', () => {
-    const model = buildNetworkModel(networkNodes, networkIdeaEdges);
+    const model = buildNetworkModel(dessiNetworkModule.nodes, dessiNetworkModule.relationships);
 
-    expect(model.graph.order).toBe(networkNodes.length);
-    expect(model.graph.size).toBe(networkIdeaEdges.length);
+    expect(model.graph.order).toBe(dessiNetworkModule.nodes.length);
+    expect(model.graph.size).toBe(dessiNetworkModule.relationships.length);
     expect(model.graph.type).toBe('directed');
   });
 
   it('resolves relationships and their neighboring nodes', () => {
-    const model = buildNetworkModel(networkNodes, networkIdeaEdges);
+    const model = buildNetworkModel(dessiNetworkModule.nodes, dessiNetworkModule.relationships);
     const relationships = getNodeRelationships(model, 'system-agentic-commerce');
 
     expect(relationships.length).toBeGreaterThan(0);

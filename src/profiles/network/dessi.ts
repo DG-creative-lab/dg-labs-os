@@ -1,61 +1,13 @@
-export type NetworkKind = 'Foundation' | 'Career' | 'Practice' | 'System' | 'Evidence';
+import { dessiProfileProjection } from '../dessi';
+import {
+  PUBLIC_NETWORK_SCHEMA_VERSION,
+  type NetworkNode,
+  type NetworkPath,
+  type NetworkRelationship,
+} from './contracts';
+import { definePublicNetworkModule } from './validation';
 
-export type NetworkEvidence =
-  | 'Background'
-  | 'Professional context'
-  | 'Public artifact'
-  | 'Practice';
-
-export type NetworkNode = {
-  id: string;
-  kind: NetworkKind;
-  title: string;
-  subtitle: string;
-  period?: string;
-  evidence: NetworkEvidence;
-  provenance: string;
-  boundary: string;
-  tags: readonly string[];
-  bullets: readonly string[];
-  map: {
-    column: 0 | 1 | 2 | 3;
-    row: number;
-  };
-  links?: Partial<{
-    url: string;
-    repo: string;
-    article: string;
-  }>;
-};
-
-export type NetworkRelation =
-  | 'informed'
-  | 'led to'
-  | 'built during'
-  | 'applied in'
-  | 'supports'
-  | 'documented by'
-  | 'presented by'
-  | 'shares pattern with';
-
-export type NetworkIdeaEdge = {
-  id: string;
-  from: string;
-  to: string;
-  relation: NetworkRelation;
-  evidence: string;
-  confidence: 'direct' | 'supported' | 'interpretive';
-};
-
-export type NetworkPath = {
-  id: string;
-  question: string;
-  answer: string;
-  nodeIds: readonly string[];
-  edgeIds: readonly string[];
-};
-
-export const networkNodes: readonly NetworkNode[] = [
+const networkNodes: readonly NetworkNode[] = [
   {
     id: 'foundation-systems-knowledge',
     kind: 'Foundation',
@@ -63,6 +15,8 @@ export const networkNodes: readonly NetworkNode[] = [
     subtitle: 'Philosophy of science',
     period: '2003–2007',
     evidence: 'Background',
+    evidenceConfidence: 'self-reported',
+    evidenceVisibility: 'public',
     provenance: 'BA Philosophy, Sofia University.',
     boundary:
       'Academic background explains an enduring interest in knowledge and systems; it is not evidence of engineering capability by itself.',
@@ -80,6 +34,8 @@ export const networkNodes: readonly NetworkNode[] = [
     subtitle: 'Applied human rights',
     period: '2009–2011',
     evidence: 'Background',
+    evidenceConfidence: 'self-reported',
+    evidenceVisibility: 'public',
     provenance: 'MA Applied Human Rights, University of York.',
     boundary:
       'This background informs questions about agency and accountability without establishing that every later design decision follows directly from it.',
@@ -97,6 +53,8 @@ export const networkNodes: readonly NetworkNode[] = [
     subtitle: 'Mission-led and marketing organisations',
     period: '2012–2019',
     evidence: 'Professional context',
+    evidenceConfidence: 'self-reported',
+    evidenceVisibility: 'private-employer',
     provenance:
       'Roles spanning nonprofit operations, CRM data, SQL, segmentation, and data quality.',
     boundary:
@@ -115,6 +73,8 @@ export const networkNodes: readonly NetworkNode[] = [
     subtitle: 'BI, experimentation, and cloud data',
     period: '2019–2023',
     evidence: 'Professional context',
+    evidenceConfidence: 'self-reported',
+    evidenceVisibility: 'private-employer',
     provenance: 'Analytics and BI roles across Toaster, Founders Forum, Jellyfish, and Publicis.',
     boundary:
       'Employer systems are summarized at capability level because implementation artifacts are not publicly available.',
@@ -132,6 +92,8 @@ export const networkNodes: readonly NetworkNode[] = [
     subtitle: 'Applied AI engineering',
     period: '2023–Present',
     evidence: 'Professional context',
+    evidenceConfidence: 'self-reported',
+    evidenceVisibility: 'private-employer',
     provenance: 'Professional work in Publicis and Performics innovation environments.',
     boundary:
       'Paid-work claims are intentionally high level. Public projects elsewhere in the map provide supporting, but not equivalent, evidence.',
@@ -148,6 +110,8 @@ export const networkNodes: readonly NetworkNode[] = [
     title: 'Identity & Policy',
     subtitle: 'Who may act, where, and with whose approval',
     evidence: 'Practice',
+    evidenceConfidence: 'self-reported',
+    evidenceVisibility: 'public',
     provenance:
       'Recurring pattern across auth, tenant isolation, agent permissions, and approval gates.',
     boundary: 'A cross-project design practice, not a standalone shipped product.',
@@ -164,6 +128,8 @@ export const networkNodes: readonly NetworkNode[] = [
     title: 'Learning Loops',
     subtitle: 'Observe, update, and retain uncertainty',
     evidence: 'Practice',
+    evidenceConfidence: 'self-reported',
+    evidenceVisibility: 'public',
     provenance: 'Implemented most explicitly in the Agentic Commerce prototype.',
     boundary:
       'Prototype learning loops demonstrate architecture and policy behavior, not commercial uplift.',
@@ -180,6 +146,8 @@ export const networkNodes: readonly NetworkNode[] = [
     title: 'Evaluation & Evidence',
     subtitle: 'Claims remain tied to observable artifacts',
     evidence: 'Practice',
+    evidenceConfidence: 'self-reported',
+    evidenceVisibility: 'public',
     provenance:
       'Visible in tests, validation receipts, deterministic projections, and portfolio boundaries.',
     boundary:
@@ -197,6 +165,8 @@ export const networkNodes: readonly NetworkNode[] = [
     title: 'Infrastructure Reliability',
     subtitle: 'Contracts, reproducibility, and controlled change',
     evidence: 'Practice',
+    evidenceConfidence: 'self-reported',
+    evidenceVisibility: 'public',
     provenance: 'Professional infrastructure work and public system-design patterns.',
     boundary:
       'Private infrastructure details are not disclosed; the map records the operating pattern only.',
@@ -214,6 +184,8 @@ export const networkNodes: readonly NetworkNode[] = [
     subtitle: 'Reusable capabilities for agent runtimes',
     period: '2024–Present',
     evidence: 'Public artifact',
+    evidenceConfidence: 'verified',
+    evidenceVisibility: 'public',
     provenance: 'Public AI Knowledge Hub site and repository.',
     boundary:
       'The public catalog demonstrates reusable skill design; adoption and production impact require separate evidence.',
@@ -235,6 +207,8 @@ export const networkNodes: readonly NetworkNode[] = [
     subtitle: 'Multi-tenant identity and capability control',
     period: '2025–Present',
     evidence: 'Professional context',
+    evidenceConfidence: 'self-reported',
+    evidenceVisibility: 'private-employer',
     provenance: 'Private project developed from enterprise authentication requirements.',
     boundary:
       'The repository is private. Claims are limited to the architecture Dessi can describe without exposing employer or client material.',
@@ -252,6 +226,8 @@ export const networkNodes: readonly NetworkNode[] = [
     subtitle: 'Inspectable intent-inference prototype',
     period: '2024–Present',
     evidence: 'Public artifact',
+    evidenceConfidence: 'verified',
+    evidenceVisibility: 'public',
     provenance:
       'Public repository and prototype derived from an applied marketing-intelligence question.',
     boundary:
@@ -274,6 +250,8 @@ export const networkNodes: readonly NetworkNode[] = [
     subtitle: 'Learning loop and discoverability control plane',
     period: '2024–Present',
     evidence: 'Public artifact',
+    evidenceConfidence: 'verified',
+    evidenceVisibility: 'public',
     provenance: 'Public repository with implementation, tests, and technical writing.',
     boundary:
       'Observed and simulated validation remain distinct; the prototype does not claim commercial performance.',
@@ -296,6 +274,8 @@ export const networkNodes: readonly NetworkNode[] = [
     subtitle: 'Multi-tenant marketing and ecommerce systems',
     period: '2023–Present',
     evidence: 'Professional context',
+    evidenceConfidence: 'self-reported',
+    evidenceVisibility: 'private-employer',
     provenance: 'Paid platform work across marketing automation and ecommerce optimization.',
     boundary:
       'Client and employer implementation details remain private; only architectural scope and publicly verifiable recognition are included.',
@@ -317,6 +297,8 @@ export const networkNodes: readonly NetworkNode[] = [
     subtitle: 'Ephemeral environments and lifecycle control',
     period: '2025–Present',
     evidence: 'Professional context',
+    evidenceConfidence: 'self-reported',
+    evidenceVisibility: 'private-employer',
     provenance: 'Paid infrastructure work in the OneSuite platform environment.',
     boundary:
       'Operational details and source remain private; the map records the reproducibility and governance pattern.',
@@ -334,6 +316,8 @@ export const networkNodes: readonly NetworkNode[] = [
     subtitle: 'Portfolio evolving into a working knowledge interface',
     period: '2025–Present',
     evidence: 'Public artifact',
+    evidenceConfidence: 'verified',
+    evidenceVisibility: 'public',
     provenance: 'The portfolio application currently being inspected.',
     boundary:
       'The current release is a curated interface; automated source ingestion and the private learning plane remain future work.',
@@ -355,6 +339,8 @@ export const networkNodes: readonly NetworkNode[] = [
     subtitle: 'Selected Performics Labs analysis',
     period: '2024–Present',
     evidence: 'Public artifact',
+    evidenceConfidence: 'verified',
+    evidenceVisibility: 'public',
     provenance: 'Published under the Performics Labs byline.',
     boundary:
       'Professional technical writing demonstrates synthesis and communication, not independent academic research or sole authorship.',
@@ -375,6 +361,8 @@ export const networkNodes: readonly NetworkNode[] = [
     subtitle: 'Constructive-learning experiment',
     period: '2026',
     evidence: 'Public artifact',
+    evidenceConfidence: 'verified',
+    evidenceVisibility: 'public',
     provenance: 'OpenAI Build Week submission preserved at the submitted commit.',
     boundary:
       'The linked state is a hackathon prototype. It demonstrates interaction and evidence design, not a mature learning product.',
@@ -390,7 +378,7 @@ export const networkNodes: readonly NetworkNode[] = [
   },
 ] as const;
 
-export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
+const networkRelationships: readonly NetworkRelationship[] = [
   {
     id: 'foundation-knowledge-to-evaluation',
     from: 'foundation-systems-knowledge',
@@ -398,6 +386,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     relation: 'informed',
     evidence: 'Both focus on how claims are formed, tested, and revised.',
     confidence: 'interpretive',
+    evidenceVisibility: 'public',
   },
   {
     id: 'foundation-human-to-policy',
@@ -406,6 +395,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     relation: 'informed',
     evidence: 'Human control and accountability recur in later agent-policy work.',
     confidence: 'interpretive',
+    evidenceVisibility: 'public',
   },
   {
     id: 'career-data-to-analytics',
@@ -414,6 +404,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     relation: 'led to',
     evidence: 'Career chronology moved from operational data work into analytics products.',
     confidence: 'direct',
+    evidenceVisibility: 'private-employer',
   },
   {
     id: 'career-analytics-to-ai',
@@ -423,6 +414,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     evidence:
       'Cloud data and product analytics became the foundation for applied AI platform work.',
     confidence: 'direct',
+    evidenceVisibility: 'private-employer',
   },
   {
     id: 'career-ai-to-enterprise',
@@ -431,6 +423,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     relation: 'built during',
     evidence: 'Enterprise automation is part of Dessi’s paid AI-platform scope.',
     confidence: 'supported',
+    evidenceVisibility: 'private-employer',
   },
   {
     id: 'career-ai-to-gateplane',
@@ -439,6 +432,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     relation: 'built during',
     evidence: 'Gateplane grew from enterprise multi-tenant identity requirements.',
     confidence: 'supported',
+    evidenceVisibility: 'mixed',
   },
   {
     id: 'career-ai-to-intent',
@@ -448,6 +442,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     evidence:
       'The public prototype represents applied intent work developed in an innovation context.',
     confidence: 'supported',
+    evidenceVisibility: 'mixed',
   },
   {
     id: 'career-ai-to-commerce',
@@ -456,6 +451,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     relation: 'built during',
     evidence: 'The public prototype expands an applied agentic-commerce question.',
     confidence: 'supported',
+    evidenceVisibility: 'mixed',
   },
   {
     id: 'career-ai-to-infrastructure',
@@ -464,6 +460,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     relation: 'built during',
     evidence: 'The infrastructure work belongs to Dessi’s current professional platform scope.',
     confidence: 'supported',
+    evidenceVisibility: 'private-employer',
   },
   {
     id: 'identity-to-gateplane',
@@ -472,6 +469,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     relation: 'applied in',
     evidence: 'Gateplane explicitly models tenant, role, and capability boundaries.',
     confidence: 'direct',
+    evidenceVisibility: 'mixed',
   },
   {
     id: 'identity-to-enterprise',
@@ -481,6 +479,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     evidence:
       'Enterprise platforms require tenant isolation, authentication, and controlled execution.',
     confidence: 'supported',
+    evidenceVisibility: 'private-employer',
   },
   {
     id: 'identity-to-learning-foundry',
@@ -489,6 +488,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     relation: 'applied in',
     evidence: 'Learning Foundry separates preparation from consent-gated activation.',
     confidence: 'direct',
+    evidenceVisibility: 'public',
   },
   {
     id: 'learning-to-commerce',
@@ -497,6 +497,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     relation: 'applied in',
     evidence: 'Belief updates, validation, and memory reuse are implemented in the prototype.',
     confidence: 'direct',
+    evidenceVisibility: 'public',
   },
   {
     id: 'evaluation-to-commerce',
@@ -506,6 +507,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     evidence:
       'Tests and receipts distinguish simulation, observation, replay, recovery, and policy.',
     confidence: 'direct',
+    evidenceVisibility: 'public',
   },
   {
     id: 'evaluation-to-learning-foundry',
@@ -514,6 +516,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     relation: 'applied in',
     evidence: 'The prototype uses append-only evidence and deterministic projections.',
     confidence: 'direct',
+    evidenceVisibility: 'public',
   },
   {
     id: 'infrastructure-to-onesuite',
@@ -522,6 +525,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     relation: 'applied in',
     evidence: 'Ephemeral stacks, drift checks, and lifecycle control define the system.',
     confidence: 'direct',
+    evidenceVisibility: 'private-employer',
   },
   {
     id: 'infrastructure-to-enterprise',
@@ -530,6 +534,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     relation: 'supports',
     evidence: 'AWS delivery and data workflows depend on reproducible operational boundaries.',
     confidence: 'supported',
+    evidenceVisibility: 'private-employer',
   },
   {
     id: 'skills-to-intent',
@@ -538,6 +543,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     relation: 'shares pattern with',
     evidence: 'Both expose bounded capabilities to agent runtimes through explicit interfaces.',
     confidence: 'supported',
+    evidenceVisibility: 'public',
   },
   {
     id: 'skills-to-dgos',
@@ -547,6 +553,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     evidence:
       'DG-OS is intended to invoke reusable Codex capabilities as its automation layer evolves.',
     confidence: 'interpretive',
+    evidenceVisibility: 'public',
   },
   {
     id: 'commerce-to-writing',
@@ -556,6 +563,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     evidence:
       'Selected articles explain the prototype, readiness stack, and learning-loop boundaries.',
     confidence: 'direct',
+    evidenceVisibility: 'public',
   },
   {
     id: 'identity-to-writing',
@@ -565,6 +573,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     evidence:
       'The secure-marketing-agents reference architecture documents identity and policy boundaries.',
     confidence: 'supported',
+    evidenceVisibility: 'public',
   },
   {
     id: 'evaluation-to-writing',
@@ -574,6 +583,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     evidence:
       'Selected implementation guides explain deterministic and evidence-oriented agent patterns.',
     confidence: 'supported',
+    evidenceVisibility: 'public',
   },
   {
     id: 'learning-foundry-to-dgos',
@@ -583,6 +593,7 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     evidence:
       'Its separation of evidence, memory, and capability informs the planned private learning plane.',
     confidence: 'interpretive',
+    evidenceVisibility: 'public',
   },
   {
     id: 'writing-to-dgos',
@@ -592,10 +603,11 @@ export const networkIdeaEdges: readonly NetworkIdeaEdge[] = [
     evidence:
       'DG-OS curates the strongest technical pieces and states their provenance and limitations.',
     confidence: 'direct',
+    evidenceVisibility: 'public',
   },
 ] as const;
 
-export const networkPaths: readonly NetworkPath[] = [
+const networkPaths: readonly NetworkPath[] = [
   {
     id: 'data-to-agents',
     question: 'How did Dessi move from data work to agent systems?',
@@ -608,7 +620,7 @@ export const networkPaths: readonly NetworkPath[] = [
       'system-enterprise-automation',
       'system-agentic-commerce',
     ],
-    edgeIds: [
+    relationshipIds: [
       'career-data-to-analytics',
       'career-analytics-to-ai',
       'career-ai-to-enterprise',
@@ -628,7 +640,7 @@ export const networkPaths: readonly NetworkPath[] = [
       'system-agentic-commerce',
       'evidence-technical-writing',
     ],
-    edgeIds: [
+    relationshipIds: [
       'career-ai-to-commerce',
       'learning-to-commerce',
       'evaluation-to-commerce',
@@ -650,7 +662,7 @@ export const networkPaths: readonly NetworkPath[] = [
       'evidence-technical-writing',
       'system-dg-os',
     ],
-    edgeIds: [
+    relationshipIds: [
       'career-ai-to-enterprise',
       'career-ai-to-gateplane',
       'career-ai-to-infrastructure',
@@ -661,17 +673,25 @@ export const networkPaths: readonly NetworkPath[] = [
   },
 ] as const;
 
-export const networkConfig = {
+export const dessiNetworkModule = definePublicNetworkModule({
+  schemaVersion: PUBLIC_NETWORK_SCHEMA_VERSION,
+  profileId: dessiProfileProjection.profileId,
+  handle: dessiProfileProjection.handle,
+  projectionVersion: dessiProfileProjection.projectionVersion,
+  networkVersion: 1,
+  status: 'published',
+  title: 'System Map',
+  description:
+    'Reviewed relationships between career experience, engineering practices, systems, and public evidence.',
   nodes: networkNodes,
-  ideas: networkIdeaEdges,
+  relationships: networkRelationships,
   paths: networkPaths,
-} as const;
-
-export const networkLinks = {
-  githubOrg: 'https://github.com/orgs/ai-knowledge-hub/repositories',
-  githubPersonal: 'https://github.com/DG-creative-lab?tab=repositories',
-  newsHub: 'https://ai-news-hub.performics-labs.com/analysis',
-  skillsHub: 'https://skills.ai-knowledge-hub.org/',
-} as const;
-
-export default networkConfig;
+  publication: {
+    approvedBy: 'owner',
+    reviewedAt: '2026-08-02T00:00:00Z',
+    publishedAt: '2026-08-02T00:00:00Z',
+    privateSourcesExcluded: true,
+    sourcePolicy:
+      'Only owner-reviewed relationships, bounded claims, and public descriptions may enter this module. Raw private evidence remains excluded.',
+  },
+});

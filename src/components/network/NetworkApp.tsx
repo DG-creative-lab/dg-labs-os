@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { NetworkIdeaEdge, NetworkKind, NetworkNode, NetworkPath } from '../../config/network';
+import type {
+  NetworkKind,
+  NetworkNode,
+  NetworkPath,
+  NetworkRelationship,
+} from '../../profiles/network';
 import {
   handleNetworkMenuAction,
   type NetworkMenuEventDetail,
@@ -13,7 +18,7 @@ type CategoryFilter = 'ALL' | NetworkKind;
 
 type Props = {
   nodes: readonly NetworkNode[];
-  ideas?: readonly NetworkIdeaEdge[];
+  ideas?: readonly NetworkRelationship[];
   paths?: readonly NetworkPath[];
   initialView?: ViewMode;
   compact?: boolean;
@@ -37,10 +42,22 @@ const categoryLabel: Record<CategoryFilter, string> = {
   Evidence: 'Evidence',
 };
 
-const confidenceLabel: Record<NetworkIdeaEdge['confidence'], string> = {
+const confidenceLabel: Record<NetworkRelationship['confidence'], string> = {
   direct: 'Direct',
   supported: 'Supported',
   interpretive: 'Interpretive',
+};
+
+const nodeConfidenceLabel: Record<NetworkNode['evidenceConfidence'], string> = {
+  verified: 'Verified',
+  'self-reported': 'Self-reported',
+  inferred: 'Inferred',
+};
+
+const evidenceVisibilityLabel: Record<NetworkRelationship['evidenceVisibility'], string> = {
+  public: 'Public evidence',
+  'private-employer': 'Private evidence boundary',
+  mixed: 'Mixed evidence',
 };
 
 export default function NetworkApp({
@@ -70,7 +87,7 @@ export default function NetworkApp({
     return new Set<string>();
   }, [activePath, filter, filtered, query]);
 
-  const activeEdgeIds = useMemo(() => new Set(activePath?.edgeIds ?? []), [activePath]);
+  const activeEdgeIds = useMemo(() => new Set(activePath?.relationshipIds ?? []), [activePath]);
 
   const indexNodes = useMemo(() => {
     const pathNodeIds = activePath ? new Set(activePath.nodeIds) : null;
@@ -282,7 +299,7 @@ function Inspector({
   activePath,
 }: {
   node: NetworkNode | null;
-  relationships: readonly NetworkIdeaEdge[];
+  relationships: readonly NetworkRelationship[];
   model: ReturnType<typeof buildNetworkModel>;
   activePath: NetworkPath | null;
 }) {
@@ -321,7 +338,13 @@ function Inspector({
       ) : null}
 
       <div className="mt-5 border-t border-white/12 pt-4">
-        <p className="text-[9px] uppercase tracking-[0.14em] text-white/35">Provenance</p>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-[9px] uppercase tracking-[0.14em] text-white/35">Provenance</p>
+          <p className="font-mono text-[9px] uppercase tracking-[0.1em] text-white/32">
+            {nodeConfidenceLabel[node.evidenceConfidence]} /{' '}
+            {evidenceVisibilityLabel[node.evidenceVisibility]}
+          </p>
+        </div>
         <p className="mt-2 text-xs leading-5 text-white/65">{node.provenance}</p>
       </div>
 
@@ -345,7 +368,8 @@ function Inspector({
                 </p>
                 <p className="mt-1 text-[10px] leading-4 text-white/38">{relationship.evidence}</p>
                 <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.1em] text-white/28">
-                  {confidenceLabel[relationship.confidence]}
+                  {confidenceLabel[relationship.confidence]} /{' '}
+                  {evidenceVisibilityLabel[relationship.evidenceVisibility]}
                 </p>
               </div>
             );
@@ -421,7 +445,7 @@ function CompactIndex({
   model,
 }: {
   nodes: readonly NetworkNode[];
-  ideas: readonly NetworkIdeaEdge[];
+  ideas: readonly NetworkRelationship[];
   model: ReturnType<typeof buildNetworkModel>;
 }) {
   return (
@@ -453,7 +477,10 @@ function CompactIndex({
               </summary>
               <div className="grid grid-cols-4 gap-3 pb-5 pl-8">
                 <div className="col-span-4">
-                  <p className="text-[9px] uppercase tracking-[0.12em] text-white/32">Provenance</p>
+                  <p className="text-[9px] uppercase tracking-[0.12em] text-white/32">
+                    Provenance / {nodeConfidenceLabel[node.evidenceConfidence]} /{' '}
+                    {evidenceVisibilityLabel[node.evidenceVisibility]}
+                  </p>
                   <p className="mt-1 text-xs leading-5 text-white/62">{node.provenance}</p>
                 </div>
                 <div className="col-span-4 border-t border-white/8 pt-3">
@@ -468,10 +495,19 @@ function CompactIndex({
                     {relationships.slice(0, 5).map((relationship) => {
                       const related = getRelatedNode(model, relationship, node.id);
                       return (
-                        <p key={relationship.id} className="mt-2 text-xs leading-5 text-white/58">
-                          <span className="text-sky-200">{relationship.relation}</span>{' '}
-                          {related?.title}
-                        </p>
+                        <div key={relationship.id} className="mt-3 border-t border-white/8 pt-3">
+                          <p className="text-xs leading-5 text-white/68">
+                            <span className="text-sky-200">{relationship.relation}</span>{' '}
+                            {related?.title}
+                          </p>
+                          <p className="mt-1 text-[10px] leading-4 text-white/42">
+                            {relationship.evidence}
+                          </p>
+                          <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.1em] text-white/28">
+                            {confidenceLabel[relationship.confidence]} /{' '}
+                            {evidenceVisibilityLabel[relationship.evidenceVisibility]}
+                          </p>
+                        </div>
                       );
                     })}
                   </div>

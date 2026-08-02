@@ -1,10 +1,9 @@
 import type { PublicWritingEntry } from '../profiles/writing/contracts';
 import type { PublicLink } from './links';
-import type { NetworkIdeaEdge, NetworkNode } from './network';
 import type { WorkbenchItem } from '../profiles/modules/contracts';
 
 type ValidationIssue = {
-  scope: 'workbench' | 'writing' | 'links' | 'network';
+  scope: 'workbench' | 'writing' | 'links';
   id: string;
   message: string;
 };
@@ -176,128 +175,18 @@ const validateLinks = (
   return issues;
 };
 
-const validateNetwork = (
-  nodes: readonly NetworkNode[],
-  edges: readonly NetworkIdeaEdge[],
-  networkLinks: Record<string, string>
-): ValidationIssue[] => {
-  const issues: ValidationIssue[] = [];
-  const ids = new Set<string>();
-  const edgeIds = new Set<string>();
-
-  for (const node of nodes) {
-    if (!node.id.trim()) {
-      issues.push({ scope: 'network', id: node.id || '(missing-id)', message: 'Missing node id.' });
-      continue;
-    }
-    if (ids.has(node.id)) {
-      issues.push({ scope: 'network', id: node.id, message: 'Duplicate node id.' });
-    }
-    ids.add(node.id);
-
-    if (!node.title.trim()) {
-      issues.push({ scope: 'network', id: node.id, message: 'Missing node title.' });
-    }
-    if (!node.subtitle.trim()) {
-      issues.push({ scope: 'network', id: node.id, message: 'Missing node subtitle.' });
-    }
-    if (!hasNonEmptyStrings(node.tags)) {
-      issues.push({
-        scope: 'network',
-        id: node.id,
-        message: 'Node tags must contain non-empty entries.',
-      });
-    }
-    if (!hasNonEmptyStrings(node.bullets)) {
-      issues.push({
-        scope: 'network',
-        id: node.id,
-        message: 'Node bullets must contain non-empty entries.',
-      });
-    }
-    if (!node.provenance.trim()) {
-      issues.push({ scope: 'network', id: node.id, message: 'Missing node provenance.' });
-    }
-    if (!node.boundary.trim()) {
-      issues.push({ scope: 'network', id: node.id, message: 'Missing node boundary.' });
-    }
-    if (node.map.column < 0 || node.map.column > 3 || node.map.row < 0) {
-      issues.push({ scope: 'network', id: node.id, message: 'Invalid map position.' });
-    }
-
-    for (const [key, value] of Object.entries(node.links ?? {})) {
-      if (!value) continue;
-      if (!isHttpUrl(value)) {
-        issues.push({
-          scope: 'network',
-          id: node.id,
-          message: `Node link "${key}" must be an absolute http(s) URL.`,
-        });
-      }
-    }
-  }
-
-  for (const edge of edges) {
-    const edgeId = edge.id || `${edge.from}->${edge.to}`;
-    if (!edge.id.trim()) {
-      issues.push({ scope: 'network', id: edgeId, message: 'Missing edge id.' });
-    } else if (edgeIds.has(edge.id)) {
-      issues.push({ scope: 'network', id: edge.id, message: 'Duplicate edge id.' });
-    }
-    edgeIds.add(edge.id);
-    if (!ids.has(edge.from)) {
-      issues.push({
-        scope: 'network',
-        id: edgeId,
-        message: `Edge source "${edge.from}" does not exist.`,
-      });
-    }
-    if (!ids.has(edge.to)) {
-      issues.push({
-        scope: 'network',
-        id: edgeId,
-        message: `Edge target "${edge.to}" does not exist.`,
-      });
-    }
-    if (!edge.relation.trim()) {
-      issues.push({ scope: 'network', id: edgeId, message: 'Edge relation must be non-empty.' });
-    }
-    if (!edge.evidence.trim()) {
-      issues.push({ scope: 'network', id: edgeId, message: 'Edge evidence must be non-empty.' });
-    }
-  }
-
-  for (const [key, value] of Object.entries(networkLinks)) {
-    if (!isHttpUrl(value)) {
-      issues.push({
-        scope: 'network',
-        id: key,
-        message: `networkLinks "${key}" must be an absolute http(s) URL.`,
-      });
-    }
-  }
-
-  return issues;
-};
-
 export const validateContentConfigs = ({
   workbench,
   writing,
   publicLinks,
   dockLinks,
   verificationLinks,
-  networkNodes,
-  networkIdeaEdges,
-  networkLinks,
 }: {
   workbench: readonly WorkbenchItem[];
   writing: readonly PublicWritingEntry[];
   publicLinks: readonly PublicLink[];
   dockLinks: readonly PublicLink[];
   verificationLinks: readonly PublicLink[];
-  networkNodes: readonly NetworkNode[];
-  networkIdeaEdges: readonly NetworkIdeaEdge[];
-  networkLinks: Record<string, string>;
 }): ValidationIssue[] => [
   ...validateWorkbench(workbench),
   ...validateWriting(writing),
@@ -306,7 +195,6 @@ export const validateContentConfigs = ({
     dockLinks.map((link) => link.id),
     verificationLinks.map((link) => link.id)
   ),
-  ...validateNetwork(networkNodes, networkIdeaEdges, networkLinks),
 ];
 
 export const formatContentValidationIssues = (issues: readonly ValidationIssue[]) =>
