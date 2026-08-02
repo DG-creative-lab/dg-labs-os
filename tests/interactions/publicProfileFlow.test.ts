@@ -1,16 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import projectionFixtureJson from '../fixtures/contracts/profile-projection-v1.json';
-import modulesFixtureJson from '../fixtures/contracts/profile-modules-v1.json';
+import { profileModulesV1Fixture as modulesFixture } from '../fixtures/contracts/profileModulesV1';
+import { profileProjectionV1Fixture as projectionFixture } from '../fixtures/contracts/profileProjectionV1';
 import { searchKnowledgeEntries } from '../../src/knowledge';
 import { buildProfileModuleKnowledgeEntries } from '../../src/profiles/agentEvidence';
-import { createPublicProfileRegistry, type ProfileProjection } from '../../src/profiles';
-import {
-  createPublicProfileModuleRegistry,
-  type PublicProfileModules,
-} from '../../src/profiles/modules';
-
-const projectionFixture = projectionFixtureJson as unknown as ProfileProjection;
-const modulesFixture = modulesFixtureJson as unknown as PublicProfileModules;
+import { createPublicProfileRegistry } from '../../src/profiles';
+import { createPublicProfileModuleRegistry } from '../../src/profiles/modules';
 
 describe('public profile interaction boundary', () => {
   it('preserves identity from profile resolution through agent retrieval', () => {

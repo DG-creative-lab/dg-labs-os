@@ -112,6 +112,7 @@ pnpm test:device
 pnpm test:schemas
 pnpm test:api
 pnpm architecture:check
+pnpm test:architecture
 pnpm test:contracts
 pnpm test:machines
 pnpm test:interactions

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import projectionFixtureJson from '../fixtures/contracts/profile-projection-v1.json';
-import modulesFixtureJson from '../fixtures/contracts/profile-modules-v1.json';
+import { profileModulesV1Fixture as modulesFixture } from '../fixtures/contracts/profileModulesV1';
+import { profileProjectionV1Fixture as projectionFixture } from '../fixtures/contracts/profileProjectionV1';
 import {
   createActiveProfileRuntime,
   createPublicProfileRegistry,
@@ -14,9 +14,6 @@ import {
   type PublicProfileModules,
   validatePublicProfileModules,
 } from '../../src/profiles/modules';
-
-const projectionFixture = projectionFixtureJson as unknown as ProfileProjection;
-const modulesFixture = modulesFixtureJson as unknown as PublicProfileModules;
 
 describe('public contract compatibility', () => {
   it('keeps committed v1 projection and module fixtures valid and serialisable', () => {
@@ -45,7 +42,7 @@ describe('public contract compatibility', () => {
     const invalidModules = {
       ...modulesFixture,
       projectionVersion: 2,
-    } as PublicProfileModules;
+    } satisfies PublicProfileModules;
     const profiles = createPublicProfileRegistry([projectionFixture]);
 
     expect(validateProfileProjection(invalidProjection)).toContainEqual({

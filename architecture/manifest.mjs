@@ -62,7 +62,7 @@ export const architectureManifest = {
       matches: [
         /^src\/components\//,
         /^src\/layouts\//,
-        /^src\/pages\//,
+        /^src\/pages\/(?!api\/)/,
         /^src\/assets\//,
         /^src\/styles\//,
       ],

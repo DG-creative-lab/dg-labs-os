@@ -26,6 +26,7 @@
 
 ```bash
 pnpm architecture:check
+pnpm test:architecture
 pnpm test:contracts
 pnpm test:machines
 pnpm test:interactions

@@ -1,13 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { architectureManifest } from '../../architecture/manifest.mjs';
+import { parseModuleSpecifiers } from './import-parser.mjs';
 
 const root = process.cwd();
 const baselinePath = path.join(root, 'architecture', 'dependency-baseline.json');
 const sourceRoot = path.join(root, architectureManifest.sourceRoot);
 const extensions = new Set(architectureManifest.sourceExtensions);
-const importPattern =
-  /(?:import|export)\s+(?:type\s+)?(?:[\s\S]*?\s+from\s+)?["']([^"']+)["']|import\(\s*["']([^"']+)["']\s*\)/g;
 
 const toPosix = (value) => value.split(path.sep).join('/');
 const relativeToRoot = (value) => toPosix(path.relative(root, value));
@@ -37,20 +36,31 @@ const resolveRelativeImport = (sourceFile, specifier) => {
   );
 };
 
-const zoneFor = (file) =>
-  architectureManifest.zones.find((zone) => zone.matches.some((pattern) => pattern.test(file)));
+const zonesFor = (file) =>
+  architectureManifest.zones.filter((zone) => zone.matches.some((pattern) => pattern.test(file)));
+const zoneFor = (file) => {
+  const zones = zonesFor(file);
+  return zones.length === 1 ? zones[0] : undefined;
+};
 
 const sourceFiles = walk(sourceRoot).sort();
 const graph = new Map();
 const externalImports = new Map();
+const parserFailures = [];
 
 for (const absoluteFile of sourceFiles) {
   const sourceFile = relativeToRoot(absoluteFile);
   const content = fs.readFileSync(absoluteFile, 'utf8');
   const dependencies = new Set();
   const externals = new Set();
-  for (const match of content.matchAll(importPattern)) {
-    const specifier = match[1] ?? match[2];
+  const parsed = parseModuleSpecifiers(sourceFile, content);
+  for (const diagnostic of parsed.diagnostics) {
+    parserFailures.push({
+      file: sourceFile,
+      message: `Import parser could not safely analyse the file: ${diagnostic}`,
+    });
+  }
+  for (const specifier of parsed.specifiers) {
     const resolved = resolveRelativeImport(absoluteFile, specifier);
     if (resolved && resolved.startsWith(sourceRoot)) dependencies.add(relativeToRoot(resolved));
     else if (!specifier.startsWith('.')) externals.add(specifier);
@@ -59,10 +69,22 @@ for (const absoluteFile of sourceFiles) {
   externalImports.set(sourceFile, externals);
 }
 
-const unassigned = sourceFiles
-  .map(relativeToRoot)
-  .filter((file) => !zoneFor(file))
-  .map((file) => ({ file, message: 'Source file is not assigned to an architecture zone.' }));
+const zoneAssignments = sourceFiles.map(relativeToRoot).map((file) => ({
+  file,
+  zones: zonesFor(file),
+}));
+const unassigned = zoneAssignments
+  .filter(({ zones }) => zones.length === 0)
+  .map(({ file }) => ({ file, message: 'Source file is not assigned to an architecture zone.' }));
+const ambiguousAssignments = zoneAssignments
+  .filter(({ zones }) => zones.length > 1)
+  .map(({ file, zones }) => ({
+    file,
+    zones: zones.map((zone) => zone.id),
+    message: `Source file matches multiple architecture zones: ${zones
+      .map((zone) => zone.id)
+      .join(', ')}.`,
+  }));
 
 const forbiddenEdges = [];
 for (const [source, dependencies] of graph) {
@@ -173,12 +195,16 @@ const report = {
   cycles: cycles.map((cycle) => cycle.path),
   forbiddenEdges,
   unassigned,
+  ambiguousAssignments,
+  parserFailures,
   criticalFanOutViolations,
   budgetViolations,
 };
 
 const failures = [
   ...unassigned,
+  ...ambiguousAssignments,
+  ...parserFailures,
   ...forbiddenEdges,
   ...cycles.map((cycle) => ({ message: `Dependency cycle: ${cycle.path.join(' -> ')}` })),
   ...criticalFanOutViolations,
@@ -199,6 +225,8 @@ if (process.argv.includes('--json')) {
       `Cycles: ${report.cycles.length}`,
       `Forbidden edges: ${report.forbiddenEdges.length}`,
       `Unassigned files: ${report.unassigned.length}`,
+      `Ambiguous assignments: ${report.ambiguousAssignments.length}`,
+      `Parser failures: ${report.parserFailures.length}`,
       baseline ? 'Baseline: enforced' : 'Baseline: not configured',
     ].join('\n') + '\n'
   );
