@@ -69,10 +69,47 @@ describe('public Network modules', () => {
     const entries = buildNetworkModuleKnowledgeEntries(networkModuleV1Fixture);
     const hits = searchKnowledgeEntries(entries, 'portable starting node', 5);
 
-    expect(entries).toHaveLength(2);
+    expect(entries).toHaveLength(3);
     expect(hits[0]?.id).toBe('network-fixture-foundation');
     expect(entries[0].content).toContain('Evidence visibility: public.');
     expect(JSON.stringify(entries)).not.toContain('Dessi');
+  });
+
+  it('keeps directed relationships canonical from both endpoint entries', () => {
+    const entries = buildNetworkModuleKnowledgeEntries(networkModuleV1Fixture);
+    const source = entries.find((entry) => entry.id === 'network-fixture-foundation');
+    const target = entries.find((entry) => entry.id === 'network-fixture-system');
+    const relationship = entries.find(
+      (entry) => entry.id === 'network-relationship-fixture-foundation-to-system'
+    );
+
+    expect(source?.related).toContain(relationship?.id);
+    expect(target?.related).toContain(relationship?.id);
+    expect(relationship?.content).toContain(
+      'Fixture Foundation (fixture-foundation) informed Fixture Network System (fixture-system).'
+    );
+    expect(relationship?.content).not.toContain(
+      'Fixture Network System (fixture-system) informed Fixture Foundation (fixture-foundation).'
+    );
+  });
+
+  it('keeps relationship confidence separate from endpoint confidence', () => {
+    const entries = buildNetworkModuleKnowledgeEntries(dessiNetworkModule);
+    const verifiedNode = entries.find((entry) => entry.id === 'network-system-ai-skills');
+    const privateDirectRelationship = entries.find(
+      (entry) => entry.id === 'network-relationship-career-data-to-analytics'
+    );
+    const interpretiveRelationship = entries.find(
+      (entry) => entry.id === 'network-relationship-skills-to-dgos'
+    );
+
+    expect(verifiedNode?.confidence).toBe('verified');
+    expect(verifiedNode?.content).not.toContain('DG-OS is intended to invoke');
+    expect(privateDirectRelationship?.confidence).toBe('self-reported');
+    expect(interpretiveRelationship?.confidence).toBe('inferred');
+    expect(interpretiveRelationship?.content).toContain(
+      'AI Skills Platform (system-ai-skills) supports DG-OS (system-dg-os).'
+    );
   });
 
   it('rejects identity mismatches, embedded paths, dangling relationships, and unsafe paths', () => {

@@ -149,15 +149,21 @@ export function buildWritingModuleKnowledgeEntries(
   });
 }
 
+const mapNetworkRelationshipConfidence = (
+  relationship: PublicNetworkModule['relationships'][number]
+): KnowledgeEntry['confidence'] => {
+  if (relationship.confidence === 'interpretive') return 'inferred';
+  if (relationship.confidence === 'supported') return 'self-reported';
+  return relationship.evidenceVisibility === 'public' ? 'verified' : 'self-reported';
+};
+
 export function buildNetworkModuleKnowledgeEntries(
   network: PublicNetworkModule
 ): readonly KnowledgeEntry[] {
-  return network.nodes.map((node) => {
+  const nodeById = new Map(network.nodes.map((node) => [node.id, node] as const));
+  const nodeEntries = network.nodes.map((node) => {
     const relationships = network.relationships.filter(
       (relationship) => relationship.from === node.id || relationship.to === node.id
-    );
-    const relatedNodeIds = relationships.map((relationship) =>
-      relationship.from === node.id ? relationship.to : relationship.from
     );
     const content = [
       node.subtitle,
@@ -166,10 +172,6 @@ export function buildNetworkModuleKnowledgeEntries(
       `Evidence confidence: ${node.evidenceConfidence}.`,
       `Evidence visibility: ${node.evidenceVisibility}.`,
       `Boundary: ${node.boundary}`,
-      ...relationships.map(
-        (relationship) =>
-          `Relationship ${relationship.relation} ${relationship.from === node.id ? relationship.to : relationship.from}: ${relationship.evidence} Confidence: ${relationship.confidence}. Evidence visibility: ${relationship.evidenceVisibility}.`
-      ),
     ].join(' ');
 
     return {
@@ -180,12 +182,51 @@ export function buildNetworkModuleKnowledgeEntries(
       confidence: node.evidenceConfidence,
       sources: Object.values(node.links ?? {}).filter((value): value is string => Boolean(value)),
       lastVerified: network.publication.reviewedAt.slice(0, 10),
-      related: relatedNodeIds.map((id) => `network-${id}`),
+      related: relationships.flatMap((relationship) => [
+        `network-relationship-${relationship.id}`,
+        `network-${relationship.from === node.id ? relationship.to : relationship.from}`,
+      ]),
       content,
       tokenEstimate: estimateTokens(content),
       file: 'profile-module:network',
     };
   });
+
+  const relationshipEntries = network.relationships.flatMap((relationship) => {
+    const fromNode = nodeById.get(relationship.from);
+    const toNode = nodeById.get(relationship.to);
+    if (!fromNode || !toNode) return [];
+
+    const content = [
+      `${fromNode.title} (${fromNode.id}) ${relationship.relation} ${toNode.title} (${toNode.id}).`,
+      `Evidence: ${relationship.evidence}`,
+      `Relationship confidence: ${relationship.confidence}.`,
+      `Evidence visibility: ${relationship.evidenceVisibility}.`,
+    ].join(' ');
+
+    return [
+      {
+        id: `network-relationship-${relationship.id}`,
+        type: 'meta' as const,
+        title: `${fromNode.title} ${relationship.relation} ${toNode.title}`,
+        tags: [
+          'network relationship',
+          relationship.relation,
+          relationship.confidence,
+          relationship.evidenceVisibility,
+        ],
+        confidence: mapNetworkRelationshipConfidence(relationship),
+        sources: [],
+        lastVerified: network.publication.reviewedAt.slice(0, 10),
+        related: [`network-${relationship.from}`, `network-${relationship.to}`],
+        content,
+        tokenEstimate: estimateTokens(content),
+        file: 'profile-module:network',
+      },
+    ];
+  });
+
+  return [...nodeEntries, ...relationshipEntries];
 }
 
 export type ProfileAgentContext = {

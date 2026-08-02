@@ -2,8 +2,7 @@
 import DesktopLayout from '../../layouts/DesktopLayout.astro';
 import DraggableAppWindow from '../../components/global/DraggableAppWindow';
 import TechnicalWritingApp from '../../components/global/TechnicalWritingApp';
-import { activeProfile } from '../../profiles';
-import { activeWritingModule } from '../../profiles/writing';
+import { activeProfile, activeWritingModule } from '../../profiles';
 ---
 
 <DesktopLayout profile={activeProfile} activeAppId="notes">
