@@ -292,7 +292,7 @@ export default function MacToolbar({
         isOpen={showAbout}
         onClose={() => setShowAbout(false)}
         onMoreInfo={() => {
-          window.location.href = '/apps/notes';
+          window.location.href = `/@${profile.handle}/writing`;
         }}
       />
       <HelpGuideWindow

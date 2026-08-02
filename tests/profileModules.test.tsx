@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { ProjectsPanel } from '../src/components/global/DesktopWorkspace';
+import WorkbenchApp from '../src/components/global/WorkbenchApp';
 import EvolutionApp from '../src/components/global/EvolutionApp';
 import { searchKnowledgeEntries } from '../src/knowledge';
 import { buildProfileModuleKnowledgeEntries } from '../src/profiles/agentEvidence';
@@ -143,7 +143,7 @@ describe('public profile modules', () => {
   it('renders shared Workbench and Evolution components from the fixture modules', () => {
     const profile = createActiveProfileRuntime(fixtureProjection);
     const workbenchHtml = renderToStaticMarkup(
-      <ProjectsPanel profile={profile} workbench={fixtureModules.workbench} />
+      <WorkbenchApp profile={profile} workbench={fixtureModules.workbench} />
     );
     const evolutionHtml = renderToStaticMarkup(
       <EvolutionApp profile={profile} evidenceEvolution={fixtureModules.evidenceEvolution} />

@@ -79,9 +79,15 @@ The projection owns published CV asset references, while filenames and resume-ge
 
 ### 6. Routes and page metadata
 
-`/@dessi` is now the canonical registry-backed profile address, with an explicit 404 for unknown or unpublished handles. `/systems`, project routes, and application routes remain shared single-profile paths. `/apply/openai-codex` is intentionally specific to one application.
+`/@dessi` is the canonical registry-backed profile address. Workbench, Writing, Evolution, and
+Network now resolve at `/@{handle}/{module}`-style profile routes, with an explicit 404 for unknown
+profiles, unsupported modules, or missing registered module data. The legacy `/apps/*` routes remain
+available as Dessi-only compatibility paths. `/systems` and application routes remain shared
+single-profile paths. `/apply/openai-codex` is intentionally specific to one application.
 
-**Disposition:** extend profile-aware routing to the shared modules before registering a second real user. Authentication and database-backed workspaces remain gated on that real second-user requirement.
+**Disposition:** completed for the four shared profile modules. Migrate Resume and the generated CV
+surface next. Authentication and database-backed workspaces remain gated on a real second-user
+requirement.
 
 ### 7. Tests
 
@@ -100,11 +106,11 @@ Existing terminal, API, and end-to-end suites contain fixture-specific Dessi ass
 
 ## Completed implementation slice
 
-Workbench, Evidence/Evolution, and Writing are now versioned public modules. Their registries reject
-invalid, unpublished, mismatched, private-path-bearing, and cross-profile bundles. The UI and
-Profile Agent consume the selected modules explicitly.
+Workbench, Evidence/Evolution, Writing, and Network are versioned public modules. Their registries
+reject invalid, unpublished, mismatched, private-path-bearing, and cross-profile bundles. The UI,
+Profile Agent, and profile-aware module routes consume the selected modules explicitly.
 
 ## Next implementation slice
 
-Extend profile-aware routing to the shared module pages. Keep authentication, hosted workspaces,
-and database storage behind the second-real-user gate.
+Make the standard CV builder accept a profile handle and explicit variant. Keep authentication,
+hosted workspaces, and database storage behind the second-real-user gate.

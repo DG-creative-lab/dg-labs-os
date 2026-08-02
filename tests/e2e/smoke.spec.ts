@@ -111,6 +111,37 @@ test.describe('desktop smoke', () => {
     ).toBeVisible();
   });
 
+  test('profile-owned modules resolve with profile identity and fail closed', async ({ page }) => {
+    const modules = [
+      ['workbench', 'Workbench'],
+      ['writing', 'Technical Writing'],
+      ['evolution', 'Evidence & Evolution'],
+      ['network', 'System Map'],
+    ] as const;
+
+    for (const [moduleId, heading] of modules) {
+      await page.goto(`/@dessi/${moduleId}`);
+      await expect(page).toHaveURL(new RegExp(`/@dessi/${moduleId}$`));
+      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+        'href',
+        `https://dg-os.com/@dessi/${moduleId}`
+      );
+      await expect(page.getByRole('heading', { name: heading, exact: true }).first()).toBeVisible();
+    }
+
+    const missingProfile = await page.request.get('/@missing-profile/network', {
+      maxRedirects: 0,
+    });
+    expect(missingProfile.status()).toBe(404);
+    expect(missingProfile.headers()['x-robots-tag']).toBe('noindex, nofollow');
+
+    const missingModule = await page.request.get('/@dessi/unknown-module', {
+      maxRedirects: 0,
+    });
+    expect(missingModule.status()).toBe(404);
+    expect(missingModule.headers()['x-robots-tag']).toBe('noindex, nofollow');
+  });
+
   test('home browser refits when the desktop viewport moves between displays', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto('/');
@@ -472,6 +503,20 @@ test.describe('mobile smoke', () => {
     expect(profileHtml).toContain('Explore the profile');
     expect(profileHtml).toContain('https://dg-os.com/@dessi');
     expect(profileHtml).toContain('href="/"');
+    expect(profileHtml).toContain('href="/@dessi/workbench"');
+    expect(profileHtml).toContain('href="/@dessi/writing"');
+    expect(profileHtml).toContain('href="/@dessi/evolution"');
+    expect(profileHtml).toContain('href="/@dessi/network"');
+
+    const profileNetwork = await request.get('/@dessi/network', {
+      headers: { 'user-agent': ua },
+      maxRedirects: 0,
+    });
+    expect(profileNetwork.status()).toBe(200);
+    const profileNetworkHtml = await profileNetwork.text();
+    expect(profileNetworkHtml).toContain('System Map');
+    expect(profileNetworkHtml).toContain('href="/@dessi"');
+    expect(profileNetworkHtml).toContain('https://dg-os.com/@dessi/network');
 
     const missingProfile = await request.get('/@missing-profile', {
       headers: { 'user-agent': ua },

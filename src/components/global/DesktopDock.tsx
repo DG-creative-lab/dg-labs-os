@@ -55,6 +55,11 @@ const DesktopDock = ({ profile, platformMode = false, activeApps }: DesktopDockP
 
   const isDesktopShell = normalizedPath === '/desktop';
   const profilePath = `/@${profile.handle}`;
+  const workbenchPath = `${profilePath}/workbench`;
+  const writingPath = `${profilePath}/writing`;
+  const evolutionPath = `${profilePath}/evolution`;
+  const networkPath = `${profilePath}/network`;
+  const profileModulePaths = [workbenchPath, writingPath, evolutionPath, networkPath];
   const isPathActive = (...paths: string[]) =>
     paths.some((path) => {
       const normalized = path.replace(/\/+$/, '') || '/';
@@ -206,6 +211,10 @@ const DesktopDock = ({ profile, platformMode = false, activeApps }: DesktopDockP
           dispatchHomeBrowserToggle(window);
           return;
         }
+        if (profileModulePaths.includes(normalizedPath)) {
+          window.location.href = profilePath;
+          return;
+        }
         window.location.href = '/';
       },
       glyph: 'browser',
@@ -220,12 +229,12 @@ const DesktopDock = ({ profile, platformMode = false, activeApps }: DesktopDockP
           toggleDesktopWindow('projects');
           return;
         }
-        window.location.href = '/apps/projects';
+        window.location.href = workbenchPath;
       },
       glyph: 'workbench',
       active: isDesktopShell
         ? desktopOpen.projects
-        : activeApps.github || isPathActive('/apps/projects'),
+        : activeApps.github || isPathActive('/apps/projects', workbenchPath),
     },
     {
       id: 'writing',
@@ -236,10 +245,12 @@ const DesktopDock = ({ profile, platformMode = false, activeApps }: DesktopDockP
           toggleDesktopWindow('notes');
           return;
         }
-        window.location.href = '/apps/notes';
+        window.location.href = writingPath;
       },
       glyph: 'notes',
-      active: isDesktopShell ? desktopOpen.notes : activeApps.notes || isPathActive('/apps/notes'),
+      active: isDesktopShell
+        ? desktopOpen.notes
+        : activeApps.notes || isPathActive('/apps/notes', writingPath),
     },
     {
       id: 'evolution',
@@ -250,12 +261,12 @@ const DesktopDock = ({ profile, platformMode = false, activeApps }: DesktopDockP
           toggleDesktopWindow('evolution');
           return;
         }
-        window.location.href = '/apps/evolution';
+        window.location.href = evolutionPath;
       },
       glyph: 'evolution',
       active: isDesktopShell
         ? desktopOpen.evolution
-        : isPathActive('/apps/evolution', '/systems', '/apply/openai-codex'),
+        : isPathActive('/apps/evolution', evolutionPath, '/systems', '/apply/openai-codex'),
     },
     {
       id: 'timeline',
@@ -282,11 +293,10 @@ const DesktopDock = ({ profile, platformMode = false, activeApps }: DesktopDockP
           toggleDesktopWindow('network');
           return;
         }
-        window.location.href =
-          window.location.pathname === '/apps/network' ? '/desktop' : '/apps/network';
+        window.location.href = normalizedPath === networkPath ? profilePath : networkPath;
       },
       glyph: 'network',
-      active: isDesktopShell ? desktopOpen.network : isPathActive('/apps/network'),
+      active: isDesktopShell ? desktopOpen.network : isPathActive('/apps/network', networkPath),
     },
     {
       id: 'links',

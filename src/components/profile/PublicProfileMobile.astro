@@ -23,19 +23,25 @@ const modules = [
     index: '02',
     label: 'Evidence',
     description: 'Reviewed claims, boundaries, questions, and revisions.',
-    href: '/mobile/apps/evolution',
+    href: `/@${profile.handle}/evolution`,
   },
   {
     index: '03',
     label: 'Workbench',
     description: 'Selected public systems and bounded professional work.',
-    href: '/mobile/apps/projects',
+    href: `/@${profile.handle}/workbench`,
   },
   {
     index: '04',
+    label: 'Writing',
+    description: 'Reviewed technical analysis with authorship and evidence boundaries.',
+    href: `/@${profile.handle}/writing`,
+  },
+  {
+    index: '05',
     label: 'System Map',
     description: 'Connections across experience, systems, and ideas.',
-    href: '/mobile/apps/network',
+    href: `/@${profile.handle}/network`,
   },
 ] as const;
 ---
@@ -67,7 +73,7 @@ const modules = [
       <h2 id="profile-modules-title" class="text-xs font-semibold uppercase tracking-[0.15em]">
         Explore the profile
       </h2>
-      <span class="font-mono text-[10px] text-white/35">04 modules</span>
+      <span class="font-mono text-[10px] text-white/35">05 modules</span>
     </div>
     <ol>
       {

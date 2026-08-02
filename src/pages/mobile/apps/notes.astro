@@ -1,11 +1,3 @@
 ---
-import IPhoneAppLayout from '../../../layouts/iPhoneAppLayout.astro';
-import TechnicalWritingApp from '../../../components/global/TechnicalWritingApp';
-import { activeProfile, activeWritingModule } from '../../../profiles';
+return Astro.redirect('/@dessi/writing', 302);
 ---
-
-<IPhoneAppLayout profile={activeProfile} appLabel="Writing">
-  <main class="min-h-screen px-4 pb-24 pt-24 text-white sm:px-6">
-    <TechnicalWritingApp client:load profile={activeProfile} writing={activeWritingModule} />
-  </main>
-</IPhoneAppLayout>

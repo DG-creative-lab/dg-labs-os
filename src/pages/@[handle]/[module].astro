@@ -1,0 +1,162 @@
+---
+import DraggableAppWindow from '../../components/global/DraggableAppWindow';
+import ProfileModuleContent from '../../components/profile/ProfileModuleContent.astro';
+import DesktopLayout from '../../layouts/DesktopLayout.astro';
+import IPhoneAppLayout from '../../layouts/iPhoneAppLayout.astro';
+import {
+  findActiveProfile,
+  findPublicNetworkModule,
+  findPublicProfileModules,
+  findPublicWritingModule,
+  type ActiveProfileRuntime,
+} from '../../profiles';
+import { isMobileUserAgent } from '../../utils/deviceDetection';
+import {
+  getPublicProfileModuleCanonicalUrl,
+  isPublicProfileModuleId,
+  type PublicProfileModuleId,
+} from '../../utils/profileRoutes';
+
+const handle = Astro.params.handle ?? '';
+const requestedModule = Astro.params.module ?? '';
+const profile = findActiveProfile(handle);
+
+if (!profile || !isPublicProfileModuleId(requestedModule)) {
+  return new Response('Public profile module not found.', {
+    status: 404,
+    headers: {
+      'content-type': 'text/plain; charset=utf-8',
+      'x-robots-tag': 'noindex, nofollow',
+    },
+  });
+}
+
+const moduleId: PublicProfileModuleId = requestedModule;
+const modules =
+  moduleId === 'workbench' || moduleId === 'evolution'
+    ? findPublicProfileModules(handle)
+    : undefined;
+const network = moduleId === 'network' ? findPublicNetworkModule(handle) : undefined;
+const writing = moduleId === 'writing' ? findPublicWritingModule(handle) : undefined;
+const hasSelectedModule =
+  (moduleId === 'workbench' && Boolean(modules)) ||
+  (moduleId === 'evolution' && Boolean(modules)) ||
+  (moduleId === 'network' && Boolean(network)) ||
+  (moduleId === 'writing' && Boolean(writing));
+
+if (!hasSelectedModule) {
+  return new Response('Public profile module not found.', {
+    status: 404,
+    headers: {
+      'content-type': 'text/plain; charset=utf-8',
+      'x-robots-tag': 'noindex, nofollow',
+    },
+  });
+}
+
+const resolvedProfile: ActiveProfileRuntime = profile;
+const canonical = getPublicProfileModuleCanonicalUrl(resolvedProfile, moduleId);
+const isMobile = isMobileUserAgent(Astro.request.headers.get('user-agent'));
+const profilePath = `/@${resolvedProfile.handle}`;
+
+const presentation = {
+  workbench: {
+    appId: 'projects',
+    label: 'Workbench',
+    description: `Selected systems ${resolvedProfile.identity.preferredName} can show, explain, and bound with evidence.`,
+    width: 980,
+    height: 680,
+    x: 80,
+    y: 80,
+  },
+  writing: {
+    appId: 'notes',
+    label: 'Technical Writing',
+    description: `Reviewed technical writing connected to ${resolvedProfile.identity.possessiveName} public systems.`,
+    width: 920,
+    height: 680,
+    x: 110,
+    y: 80,
+  },
+  evolution: {
+    appId: 'evolution',
+    label: 'Evidence & Evolution',
+    description: `A reviewed record of how ${resolvedProfile.identity.possessiveName} systems, questions, and evidence change.`,
+    width: 980,
+    height: 700,
+    x: 105,
+    y: 90,
+  },
+  network: {
+    appId: 'network',
+    label: 'System Map',
+    description: `Reviewed relationships across ${resolvedProfile.identity.possessiveName} experience, practices, systems, and evidence.`,
+    width: 1080,
+    height: 700,
+    x: 70,
+    y: 70,
+  },
+} as const;
+
+const selectedPresentation = presentation[moduleId];
+const title = `${selectedPresentation.label} - ${resolvedProfile.identity.displayName}`;
+const openGraph = {
+  url: canonical,
+  title,
+  description: selectedPresentation.description,
+  site_name: resolvedProfile.identity.displayName,
+};
+---
+
+{
+  isMobile ? (
+    <IPhoneAppLayout
+      profile={resolvedProfile}
+      title={title}
+      description={selectedPresentation.description}
+      canonical={canonical}
+      openGraph={openGraph}
+      appLabel={selectedPresentation.label}
+      backHref={profilePath}
+    >
+      <main class="min-h-screen px-4 pb-24 pt-24 text-white sm:px-6">
+        <ProfileModuleContent
+          profile={resolvedProfile}
+          moduleId={moduleId}
+          modules={modules}
+          network={network}
+          writing={writing}
+          compact
+        />
+      </main>
+    </IPhoneAppLayout>
+  ) : (
+    <DesktopLayout
+      profile={resolvedProfile}
+      title={title}
+      description={selectedPresentation.description}
+      canonical={canonical}
+      openGraph={openGraph}
+      activeAppId={selectedPresentation.appId}
+    >
+      <main class="relative min-h-[calc(100vh-4rem)] px-6 pt-12 text-white">
+        <DraggableAppWindow
+          client:load
+          appId={selectedPresentation.appId}
+          title={selectedPresentation.label}
+          closeHref={profilePath}
+          initialSize={{ width: selectedPresentation.width, height: selectedPresentation.height }}
+          initialPosition={{ x: selectedPresentation.x, y: selectedPresentation.y }}
+        >
+          <ProfileModuleContent
+            profile={resolvedProfile}
+            moduleId={moduleId}
+            modules={modules}
+            network={network}
+            writing={writing}
+          />
+        </DraggableAppWindow>
+      </main>
+    </DesktopLayout>
+  )
+}

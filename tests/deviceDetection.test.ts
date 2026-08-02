@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { isMobileUserAgent } from '../src/utils/deviceDetection';
-import { isPublicProfilePath } from '../src/utils/profileRoutes';
+import {
+  getPublicProfileModuleCanonicalUrl,
+  getPublicProfileModulePath,
+  isPublicProfileModuleId,
+  isPublicProfilePath,
+} from '../src/utils/profileRoutes';
 
 describe('isMobileUserAgent', () => {
   it('returns true for mobile user agents', () => {
@@ -25,11 +30,28 @@ describe('isPublicProfilePath', () => {
     expect(isPublicProfilePath('/@dessi')).toBe(true);
     expect(isPublicProfilePath('/@dessi/')).toBe(true);
     expect(isPublicProfilePath('/@fixture-person')).toBe(true);
+    expect(isPublicProfilePath('/@dessi/workbench')).toBe(true);
+    expect(isPublicProfilePath('/@dessi/writing/')).toBe(true);
+    expect(isPublicProfilePath('/@dessi/evolution')).toBe(true);
+    expect(isPublicProfilePath('/@dessi/network')).toBe(true);
   });
 
-  it('does not treat nested or malformed paths as canonical profiles', () => {
+  it('does not treat unknown or malformed paths as canonical profiles', () => {
     expect(isPublicProfilePath('/mobile/@dessi')).toBe(false);
     expect(isPublicProfilePath('/@Dessi')).toBe(false);
     expect(isPublicProfilePath('/@dessi/apps')).toBe(false);
+    expect(isPublicProfilePath('/@dessi/network/extra')).toBe(false);
+  });
+
+  it('builds canonical paths only for supported public modules', () => {
+    expect(isPublicProfileModuleId('network')).toBe(true);
+    expect(isPublicProfileModuleId('resume')).toBe(false);
+    expect(getPublicProfileModulePath('dessi', 'writing')).toBe('/@dessi/writing');
+    expect(
+      getPublicProfileModuleCanonicalUrl(
+        { handle: 'dessi', contact: { website: 'https://dg-os.com/' } },
+        'network'
+      )
+    ).toBe('https://dg-os.com/@dessi/network');
   });
 });

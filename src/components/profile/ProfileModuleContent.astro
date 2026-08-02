@@ -1,0 +1,64 @@
+---
+import EvolutionApp from '../global/EvolutionApp';
+import TechnicalWritingApp from '../global/TechnicalWritingApp';
+import WorkbenchApp from '../global/WorkbenchApp';
+import NetworkApp from '../network/NetworkApp';
+import type {
+  ActiveProfileRuntime,
+  PublicNetworkModule,
+  PublicProfileModules,
+  PublicWritingModule,
+} from '../../profiles';
+import type { PublicProfileModuleId } from '../../utils/profileRoutes';
+
+interface Props {
+  profile: ActiveProfileRuntime;
+  moduleId: PublicProfileModuleId;
+  modules?: PublicProfileModules;
+  network?: PublicNetworkModule;
+  writing?: PublicWritingModule;
+  compact?: boolean;
+}
+
+const { profile, moduleId, modules, network, writing, compact = false } = Astro.props;
+---
+
+{
+  moduleId === 'workbench' && modules ? (
+    <WorkbenchApp client:load profile={profile} workbench={modules.workbench} />
+  ) : null
+}
+
+{
+  moduleId === 'writing' && writing ? (
+    <TechnicalWritingApp client:load profile={profile} writing={writing} />
+  ) : null
+}
+
+{
+  moduleId === 'evolution' && modules ? (
+    <EvolutionApp client:load profile={profile} evidenceEvolution={modules.evidenceEvolution} />
+  ) : null
+}
+
+{
+  moduleId === 'network' && network ? (
+    <section class="text-white">
+      <p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-200">
+        Connections / Curated projection
+      </p>
+      <h1 class="mt-2 text-2xl font-semibold">System Map</h1>
+      <p class="mt-2 text-sm leading-6 text-white/65">
+        Follow the relationships between experience, engineering practices, systems, and evidence.
+      </p>
+      <NetworkApp
+        client:load
+        nodes={network.nodes}
+        ideas={network.relationships}
+        paths={network.paths}
+        initialView={compact ? 'INDEX' : 'MAP'}
+        compact={compact}
+      />
+    </section>
+  ) : null
+}

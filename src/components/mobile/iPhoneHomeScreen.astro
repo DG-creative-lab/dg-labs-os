@@ -3,6 +3,9 @@ import IPhoneStatusBar from './iPhoneStatusBar.astro';
 import IPhoneHomeIndicator from './iPhoneHomeIndicator.astro';
 import IPhoneAppIcon from './iPhoneAppIcon.astro';
 import { userConfig } from '../../config/index';
+import { activeProfile } from '../../profiles';
+
+const profilePath = `/@${activeProfile.handle}`;
 ---
 
 <div
@@ -11,14 +14,14 @@ import { userConfig } from '../../config/index';
   <div>
     <IPhoneStatusBar />
     <div class="mt-8 grid grid-cols-4 gap-5 px-6">
-      <IPhoneAppIcon label="Writing" href="/mobile/apps/notes" className="text-sky-100">
+      <IPhoneAppIcon label="Writing" href={`${profilePath}/writing`} className="text-sky-100">
         <div
           class="h-10 w-10 rounded-xl bg-gradient-to-br from-sky-500 to-slate-800 flex items-center justify-center text-white font-semibold"
         >
           W
         </div>
       </IPhoneAppIcon>
-      <IPhoneAppIcon label="Projects" href="/mobile/apps/projects">
+      <IPhoneAppIcon label="Projects" href={`${profilePath}/workbench`}>
         <div
           class="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white font-semibold"
         >
@@ -32,14 +35,14 @@ import { userConfig } from '../../config/index';
           CV
         </div>
       </IPhoneAppIcon>
-      <IPhoneAppIcon label="System Map" href="/mobile/apps/network">
+      <IPhoneAppIcon label="System Map" href={`${profilePath}/network`}>
         <div
           class="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-600 to-fuchsia-700 flex items-center justify-center text-white font-semibold"
         >
           NW
         </div>
       </IPhoneAppIcon>
-      <IPhoneAppIcon label="Evidence" href="/mobile/apps/evolution" className="text-sky-100">
+      <IPhoneAppIcon label="Evidence" href={`${profilePath}/evolution`} className="text-sky-100">
         <div
           class="h-10 w-10 rounded-xl bg-gradient-to-br from-sky-500 to-slate-800 flex items-center justify-center text-white font-semibold"
         >
@@ -104,7 +107,7 @@ import { userConfig } from '../../config/index';
             $
           </div>
         </a>
-        <a href="/mobile/apps/notes" class="flex flex-col items-center text-white/80">
+        <a href={`${profilePath}/writing`} class="flex flex-col items-center text-white/80">
           <div
             class="h-12 w-12 rounded-2xl bg-gradient-to-br from-sky-500 to-slate-800 flex items-center justify-center text-white font-semibold"
           >

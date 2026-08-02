@@ -412,7 +412,7 @@ export default function CreativeMachineMonitor({
             <a className="monitor-link" href="/systems">
               Inspect evidence <span aria-hidden="true">→</span>
             </a>
-            <a className="monitor-link" href="/apps/evolution">
+            <a className="monitor-link" href={`/@${profile.handle}/evolution`}>
               Follow evolution <span aria-hidden="true">→</span>
             </a>
           </nav>
