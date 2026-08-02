@@ -20,6 +20,10 @@
     "test:unit:watch": "vitest tests",
     "test:e2e": "playwright test",
     "test:e2e:smoke": "playwright test tests/e2e/smoke.spec.ts",
+    "test:contracts": "vitest run tests/contracts",
+    "test:machines": "vitest run tests/machines",
+    "test:interactions": "vitest run tests/interactions",
+    "test:harness": "pnpm architecture:check && pnpm test:contracts && pnpm test:machines && pnpm test:interactions",
     "test:network": "vitest run tests/networkGraph.test.ts tests/networkSearch.test.ts",
     "test:terminal": "vitest run tests/terminalCommands.test.ts",
     "test:terminal:llm": "vitest run tests/terminalLlm.test.ts",
@@ -28,11 +32,13 @@
     "test:device": "vitest run tests/deviceDetection.test.ts",
     "test:schemas": "vitest run tests/requestSchemas.test.ts",
     "test:api": "vitest run tests/apiResponse.test.ts tests/apiContracts.test.ts tests/apiRoutes.contract.test.ts tests/apiRoutes.success.contract.test.ts",
+    "architecture:check": "node scripts/architecture/check-dependencies.mjs",
+    "architecture:report": "node scripts/architecture/check-dependencies.mjs --json",
     "lint": "eslint src tests --ext .ts,.tsx,.astro",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,cjs,astro,md,json,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,cjs,astro,md,json,yml,yaml}\"",
     "typecheck": "astro check",
-    "check": "pnpm lint && pnpm format:check && pnpm test && pnpm typecheck"
+    "check": "pnpm architecture:check && pnpm lint && pnpm format:check && pnpm test && pnpm typecheck"
   },
   "dependencies": {
     "@astrojs/node": "^9.0.0",

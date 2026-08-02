@@ -1,4 +1,4 @@
-.PHONY: install dev build preview test test-unit test-network test-terminal test-terminal-llm test-terminal-settings test-content test-device test-schemas test-api lint format format-check typecheck check ci qa
+.PHONY: install dev build preview test test-unit test-network test-terminal test-terminal-llm test-terminal-settings test-content test-device test-schemas test-api test-contracts test-machines test-interactions test-harness architecture-check architecture-report lint format format-check typecheck check ci qa
 
 install:
 	pnpm install
@@ -41,6 +41,24 @@ test-schemas:
 
 test-api:
 	pnpm test:api
+
+test-contracts:
+	pnpm test:contracts
+
+test-machines:
+	pnpm test:machines
+
+test-interactions:
+	pnpm test:interactions
+
+test-harness:
+	pnpm test:harness
+
+architecture-check:
+	pnpm architecture:check
+
+architecture-report:
+	pnpm architecture:report
 
 lint:
 	pnpm lint

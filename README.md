@@ -7,6 +7,10 @@ DG-OS is an evidence-led public profile system presented through an operating-sy
 - Product direction, architecture, and decision record: `docs/DG_OS_PRODUCT_ROADMAP.md`
 - Gateplane/Aion authentication and workspace reuse decision: `docs/AION_REUSE_ASSESSMENT.md`
 - Dessi-to-profile migration inventory: `docs/DESSI_PROFILE_DEPENDENCY_INVENTORY.md`
+- Architecture rules and dependency fitness functions: `docs/engineering/ARCHITECTURE_RULES.md`
+- State machines and invariants: `docs/engineering/STATE_MACHINES.md`
+- Engineering test strategy: `docs/engineering/TESTING_STRATEGY.md`
+- Definition of Done: `docs/engineering/DEFINITION_OF_DONE.md`
 - Detailed application implementation backlog: `docs/APP_ROADMAP.md`
 - React + TypeScript event/state guide: `docs/REACT_TYPESCRIPT_EVENT_STATE_GUIDE.md`
 - Archived stabilization completion log: `docs/archive/CODEBASE_STABILIZATION_PLAN.md`
@@ -37,6 +41,8 @@ DG-OS is an evidence-led public profile system presented through an operating-sy
 - Modular config in `src/config/`
 - API routes for chat + contact
 - Distributed Profile Agent rate limiting through a required Vercel Firewall rule
+- Engineering Harness v1 for dependency direction, contract compatibility, state invariants, and
+  cross-module interactions
 
 ## Current Priority
 
@@ -87,6 +93,7 @@ Run locally with `pnpm` scripts:
 ```bash
 pnpm lint
 pnpm format:check
+pnpm test:harness
 pnpm test:unit
 pnpm typecheck
 pnpm check
@@ -104,6 +111,10 @@ pnpm test:content
 pnpm test:device
 pnpm test:schemas
 pnpm test:api
+pnpm architecture:check
+pnpm test:contracts
+pnpm test:machines
+pnpm test:interactions
 ```
 
 `test:api` includes API helper tests, response contract tests, and route contract tests (failure and success paths).
