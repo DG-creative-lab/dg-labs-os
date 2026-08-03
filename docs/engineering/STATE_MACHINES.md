@@ -58,6 +58,8 @@ rewriting previous public evidence.
 
 The CV build boundary follows the same fail-closed principle: profile metadata is selected before
 rendering, and the public Markdown, DOCX, and PDF set is replaced only after a fresh PDF is verified.
-The general CV is a deterministic view of the selected published profile, its Resume module, and
-its referenced Workbench and Evidence records. Missing references or committed Markdown drift are
-rejected before document rendering.
+The general CV is a deterministic view of the selected published profile, its independently
+approved Resume module, and its referenced Workbench and Evidence records. A versioned artifact
+manifest binds every committed Markdown, DOCX, and PDF to its profile, variant, source fingerprint,
+approval version, and SHA-256 digest. Missing references, source drift, missing artifact records, or
+binary drift are rejected before release.

@@ -20,6 +20,14 @@ describe('public Resume modules', () => {
     expect(validatePublicResumeModule(dessiResumeModule)).toEqual([]);
     expect(validatePublicResumeModule(resumeModuleV1Fixture)).toEqual([]);
     expect(JSON.parse(JSON.stringify(resumeModuleV1Fixture))).toEqual(resumeModuleV1Fixture);
+    expect(dessiResumeModule.publication).toEqual({
+      approvedBy: 'owner',
+      reviewedAt: '2026-08-03T22:07:34Z',
+      publishedAt: '2026-08-03T22:07:34Z',
+      privateSourcesExcluded: true,
+      sourcePolicy:
+        'Resume v1 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
+    });
   });
 
   it('resolves and renders a second profile without inheriting Dessi content', () => {
@@ -70,6 +78,23 @@ describe('public Resume modules', () => {
     ).toBe(true);
     expect(() => createPublicResumeModuleRegistry([unsafe], profiles, modules)).toThrow(
       /Unknown profile link|Unknown Workbench item|Unknown evidence claim/
+    );
+  });
+
+  it('rejects unknown contact discriminators before a Resume can be registered', () => {
+    const profiles = createPublicProfileRegistry([profileProjectionV1Fixture]);
+    const modules = createPublicProfileModuleRegistry([profileModulesV1Fixture], profiles);
+    const unknownContact = {
+      ...resumeModuleV1Fixture,
+      contact: [{ kind: 'telephone', value: '+44 0000 000000' }],
+    } as unknown as PublicResumeModule;
+
+    expect(validatePublicResumeModule(unknownContact)).toContainEqual({
+      path: 'contact[0].kind',
+      message: 'Unsupported Resume contact kind.',
+    });
+    expect(() => createPublicResumeModuleRegistry([unknownContact], profiles, modules)).toThrow(
+      'contact[0].kind: Unsupported Resume contact kind.'
     );
   });
 

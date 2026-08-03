@@ -158,14 +158,31 @@ export function validatePublicResumeModule(module: PublicResumeModule): PublicRe
     issues.push({ path: 'contact', message: 'At least one public contact reference is required.' });
   }
   module.contact.forEach((item, index) => {
-    if (item.kind === 'website' && !isNonEmpty(item.label)) {
-      issues.push({ path: `contact[${index}].label`, message: 'Website labels cannot be empty.' });
-    }
-    if (item.kind === 'profile-link' && !ID_PATTERN.test(item.linkId)) {
-      issues.push({
-        path: `contact[${index}].linkId`,
-        message: 'Profile link IDs must be stable.',
-      });
+    const contact = item as { kind?: unknown; label?: unknown; linkId?: unknown };
+    switch (contact.kind) {
+      case 'public-email':
+        break;
+      case 'website':
+        if (typeof contact.label !== 'string' || !isNonEmpty(contact.label)) {
+          issues.push({
+            path: `contact[${index}].label`,
+            message: 'Website labels cannot be empty.',
+          });
+        }
+        break;
+      case 'profile-link':
+        if (typeof contact.linkId !== 'string' || !ID_PATTERN.test(contact.linkId)) {
+          issues.push({
+            path: `contact[${index}].linkId`,
+            message: 'Profile link IDs must be stable.',
+          });
+        }
+        break;
+      default:
+        issues.push({
+          path: `contact[${index}].kind`,
+          message: 'Unsupported Resume contact kind.',
+        });
     }
   });
   if (!module.focusAreas.length) {

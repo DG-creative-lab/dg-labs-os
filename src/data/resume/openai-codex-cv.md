@@ -52,7 +52,7 @@ AI systems engineer focused on the layer where model capability becomes accounta
 
 ### Engineer
 
-**Performics Innovations Lab · Publicis Media** · London · Nov 2023 – Present
+**Performics Innovations Lab · Publicis Media** · London · Nov 2023 - Present
 
 - Design and build AI and data systems across FastAPI services, AWS workflows, multi-tenant platform controls, behavioural modelling, and marketing-intelligence interfaces.
 - Delivered backend services and AWS data workflows for an award-recognised ecommerce optimisation platform using FastAPI, Glue, Lambda, and PostgreSQL.
@@ -60,19 +60,19 @@ AI systems engineer focused on the layer where model capability becomes accounta
 
 ### Senior Business Intelligence Analyst
 
-**Publicis Media** · London · Mar 2023 – Nov 2023
+**Publicis Media** · London · Mar 2023 - Nov 2023
 
 - Bridged analytics and decision systems, turning recurring analysis into reusable services and platformised workflows.
 
 ### Business Intelligence Manager
 
-**Jellyfish** · London · Jan 2021 – Mar 2023
+**Jellyfish** · London · Jan 2021 - Mar 2023
 
 - Built analytics applications and data workflows spanning Shiny, AWS ETL, and data-lake patterns.
 
 ### Data Consultant / SQL Developer / Data Analyst
 
-**Selected contracts** · London · 2017 – 2020
+**Selected contracts** · London · 2017 - 2020
 
 - Delivered CRM, analytics, segmentation, automation, and experimentation systems across agencies, startups, and media organisations.
 
@@ -84,5 +84,5 @@ AI systems engineer focused on the layer where model capability becomes accounta
 
 ## Education
 
-**MA Applied Human Rights**, University of York · 2009 – 2011
-**BA Philosophy (Philosophy of Science)**, Sofia University · 2003 – 2007
+**MA Applied Human Rights**, University of York · 2009 - 2011
+**BA Philosophy (Philosophy of Science)**, Sofia University · 2003 - 2007

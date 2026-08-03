@@ -131,10 +131,11 @@ export const dessiResumeModule = definePublicResumeModule({
     },
   ],
   publication: {
-    approvedBy: dessiProfileProjection.publication.approvedBy,
-    reviewedAt: dessiProfileProjection.publication.reviewedAt,
-    publishedAt: dessiProfileProjection.publication.publishedAt,
-    privateSourcesExcluded: dessiProfileProjection.publication.privateSourcesExcluded,
-    sourcePolicy: dessiProfileProjection.publication.sourcePolicy,
+    approvedBy: 'owner',
+    reviewedAt: '2026-08-03T22:07:34Z',
+    publishedAt: '2026-08-03T22:07:34Z',
+    privateSourcesExcluded: true,
+    sourcePolicy:
+      'Resume v1 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
   },
 } as const);

@@ -248,7 +248,9 @@ Requirements for `resume:build`:
 - LibreOffice (`soffice`) for mandatory PDF conversion.
 
 The CI build installs both requirements explicitly before regenerating the public resume assets.
-The main quality gate also runs `resume:check`, so approved-data drift fails before release.
+The main quality gate also runs `resume:check`. It verifies the expected Markdown for every CV
+variant and checks the committed Markdown, DOCX, and PDF SHA-256 digests against
+`scripts/resume/cv-artifact-manifest.json`, so source or binary drift fails before release.
 
 Each variant is rendered in an isolated staging directory. Markdown, DOCX, and PDF replace the
 public assets only after all three fresh files have been produced. Missing or failed PDF conversion

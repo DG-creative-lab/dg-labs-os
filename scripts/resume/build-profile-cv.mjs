@@ -1,4 +1,15 @@
-import { access, copyFile, mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import {
+  access,
+  copyFile,
+  mkdir,
+  mkdtemp,
+  readFile,
+  rename,
+  rm,
+  stat,
+  writeFile,
+} from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -13,12 +24,20 @@ const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDirectory, '..', '..');
 const manifestPath = path.resolve(scriptDirectory, 'cv-build-manifest.json');
 const rendererPath = path.resolve(scriptDirectory, 'build-application-cvs.py');
+const defaultPublicOutputDirectory = path.resolve(repoRoot, 'public', 'cv');
 const publicOutputDirectory = process.env.CV_BUILD_OUTPUT_DIR
   ? path.resolve(process.env.CV_BUILD_OUTPUT_DIR)
-  : path.resolve(repoRoot, 'public', 'cv');
+  : defaultPublicOutputDirectory;
+const artifactManifestPath = process.env.CV_ARTIFACT_MANIFEST_PATH
+  ? path.resolve(process.env.CV_ARTIFACT_MANIFEST_PATH)
+  : publicOutputDirectory === defaultPublicOutputDirectory
+    ? path.resolve(scriptDirectory, 'cv-artifact-manifest.json')
+    : path.resolve(publicOutputDirectory, 'cv-artifact-manifest.json');
 const ID_PATTERN = /^[a-z0-9][a-z0-9_-]*$/;
 const HANDLE_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
 const PUBLIC_STEM_PATTERN = /^[A-Za-z0-9_-]+$/;
+const ARTIFACT_MANIFEST_VERSION = 'dg-os.cv-artifacts/v1';
+const ARTIFACT_EXTENSIONS = ['md', 'docx', 'pdf'];
 
 export async function loadCvBuildManifest() {
   return JSON.parse(await readFile(manifestPath, 'utf8'));
@@ -121,21 +140,162 @@ export function parseCvTargetArgs(args) {
   };
 }
 
-function renderApprovedProfileResume(profileHandle) {
+function resolveApprovedProfileResume(profileHandle) {
   const profile = resolveActiveProfile(profileHandle);
   const modules = resolvePublicProfileModules(profileHandle);
   const resume = resolvePublicResumeModule(profileHandle);
-  return renderResumeMarkdown(buildResumeViewModel(profile, modules, resume));
+  return {
+    markdown: renderResumeMarkdown(buildResumeViewModel(profile, modules, resume)),
+    approval: {
+      projectionVersion: profile.projectionVersion,
+      resumeVersion: resume.resumeVersion,
+      approvedBy: resume.publication.approvedBy,
+      reviewedAt: resume.publication.reviewedAt,
+      publishedAt: resume.publication.publishedAt,
+      privateSourcesExcluded: resume.publication.privateSourcesExcluded,
+      sourcePolicy: resume.publication.sourcePolicy,
+    },
+  };
 }
 
-async function resolveTargetSource(target, stagingDirectory) {
+async function resolveTargetProvenance(target) {
   if (target.source.kind === 'markdown') {
     await access(target.sourcePath);
-    return target.sourcePath;
+    return { markdown: await readFile(target.sourcePath, 'utf8'), approval: null };
   }
+  return resolveApprovedProfileResume(target.profileHandle);
+}
+
+async function resolveTargetSource(target, stagingDirectory, provenance) {
+  if (target.source.kind === 'markdown') return target.sourcePath;
   const generatedSource = path.resolve(stagingDirectory, `${target.publicStem}.source.md`);
-  await writeFile(generatedSource, renderApprovedProfileResume(target.profileHandle), 'utf8');
+  await writeFile(generatedSource, provenance.markdown, 'utf8');
   return generatedSource;
+}
+
+function sha256(value) {
+  return createHash('sha256').update(value).digest('hex');
+}
+
+async function sha256File(filePath) {
+  return sha256(await readFile(filePath));
+}
+
+async function loadCvArtifactManifest({ required }) {
+  const raw = await readFile(artifactManifestPath, 'utf8').catch((error) => {
+    if (!required && error?.code === 'ENOENT') return null;
+    throw new Error(`CV artifact manifest is missing: ${artifactManifestPath}`);
+  });
+  if (raw === null) return { schemaVersion: ARTIFACT_MANIFEST_VERSION, artifacts: [] };
+
+  let artifactManifest;
+  try {
+    artifactManifest = JSON.parse(raw);
+  } catch {
+    throw new Error(`CV artifact manifest is not valid JSON: ${artifactManifestPath}`);
+  }
+  if (
+    artifactManifest.schemaVersion !== ARTIFACT_MANIFEST_VERSION ||
+    !Array.isArray(artifactManifest.artifacts)
+  ) {
+    throw new Error(
+      `Unsupported CV artifact manifest: ${artifactManifest.schemaVersion ?? 'missing'}`
+    );
+  }
+
+  const keys = new Set();
+  for (const artifact of artifactManifest.artifacts) {
+    const key = `${artifact.profileHandle}/${artifact.variantId}`;
+    if (keys.has(key)) throw new Error(`Duplicate CV artifact manifest record: ${key}`);
+    keys.add(key);
+  }
+  return artifactManifest;
+}
+
+async function createArtifactRecord(target, provenance) {
+  return {
+    profileHandle: target.profileHandle,
+    variantId: target.id,
+    publicStem: target.publicStem,
+    sourceKind: target.source.kind,
+    sourceSha256: sha256(provenance.markdown),
+    approval: provenance.approval,
+    files: {
+      markdown: await sha256File(path.resolve(publicOutputDirectory, `${target.publicStem}.md`)),
+      docx: await sha256File(path.resolve(publicOutputDirectory, `${target.publicStem}.docx`)),
+      pdf: await sha256File(path.resolve(publicOutputDirectory, `${target.publicStem}.pdf`)),
+    },
+  };
+}
+
+async function writeCvArtifactManifest(records) {
+  const artifactManifest = await loadCvArtifactManifest({ required: false });
+  const merged = new Map(
+    artifactManifest.artifacts.map((artifact) => [
+      `${artifact.profileHandle}/${artifact.variantId}`,
+      artifact,
+    ])
+  );
+  for (const record of records) {
+    merged.set(`${record.profileHandle}/${record.variantId}`, record);
+  }
+  const nextManifest = {
+    schemaVersion: ARTIFACT_MANIFEST_VERSION,
+    artifacts: [...merged.values()].sort((left, right) =>
+      `${left.profileHandle}/${left.variantId}`.localeCompare(
+        `${right.profileHandle}/${right.variantId}`
+      )
+    ),
+  };
+  await mkdir(path.dirname(artifactManifestPath), { recursive: true });
+  const temporaryManifest = `${artifactManifestPath}.tmp-${process.pid}`;
+  await writeFile(temporaryManifest, `${JSON.stringify(nextManifest, null, 2)}\n`, 'utf8');
+  await rename(temporaryManifest, artifactManifestPath);
+}
+
+async function verifyCvArtifact(target, provenance, artifactManifest) {
+  const publicMarkdown = path.resolve(publicOutputDirectory, `${target.publicStem}.md`);
+  const actualMarkdown = await readFile(publicMarkdown, 'utf8').catch(() => '');
+  if (actualMarkdown !== provenance.markdown) {
+    throw new Error(
+      `Generated CV Markdown is out of date for @${target.profileHandle}/${target.id}. Run pnpm cv:build --profile ${target.profileHandle} --variant ${target.id}.`
+    );
+  }
+
+  const record = artifactManifest.artifacts.find(
+    (artifact) =>
+      artifact.profileHandle === target.profileHandle && artifact.variantId === target.id
+  );
+  if (!record) {
+    throw new Error(
+      `CV artifact manifest record is missing for @${target.profileHandle}/${target.id}.`
+    );
+  }
+
+  const expectedIdentity = {
+    profileHandle: target.profileHandle,
+    variantId: target.id,
+    publicStem: target.publicStem,
+    sourceKind: target.source.kind,
+    sourceSha256: sha256(provenance.markdown),
+    approval: provenance.approval,
+  };
+  for (const [field, expected] of Object.entries(expectedIdentity)) {
+    if (JSON.stringify(record[field]) !== JSON.stringify(expected)) {
+      throw new Error(
+        `CV artifact manifest ${field} is out of date for @${target.profileHandle}/${target.id}.`
+      );
+    }
+  }
+
+  const current = await createArtifactRecord(target, provenance);
+  for (const [format, digest] of Object.entries(current.files)) {
+    if (record.files?.[format] !== digest) {
+      throw new Error(
+        `CV artifact integrity check failed for @${target.profileHandle}/${target.id} ${format.toUpperCase()}.`
+      );
+    }
+  }
 }
 
 export async function runCvBuild(args = process.argv.slice(2)) {
@@ -155,27 +315,21 @@ export async function runCvBuild(args = process.argv.slice(2)) {
   }
 
   if (check) {
+    const artifactManifest = await loadCvArtifactManifest({ required: true });
     for (const target of targets) {
-      if (target.source.kind !== 'profile-resume') {
-        throw new Error(`CV drift checks require a profile-resume source: ${target.id}`);
-      }
-      const expected = renderApprovedProfileResume(profileHandle);
-      const publicMarkdown = path.resolve(publicOutputDirectory, `${target.publicStem}.md`);
-      const actual = await readFile(publicMarkdown, 'utf8').catch(() => '');
-      if (actual !== expected) {
-        throw new Error(
-          `Generated CV Markdown is out of date for @${profileHandle}/${target.id}. Run pnpm cv:build --profile ${profileHandle} --variant ${target.id}.`
-        );
-      }
+      const provenance = await resolveTargetProvenance(target);
+      await verifyCvArtifact(target, provenance, artifactManifest);
     }
     return;
   }
 
   await mkdir(publicOutputDirectory, { recursive: true });
+  const artifactRecords = [];
   for (const target of targets) {
     const stagingDirectory = await mkdtemp(path.join(tmpdir(), 'dg-os-cv-'));
     try {
-      const sourcePath = await resolveTargetSource(target, stagingDirectory);
+      const provenance = await resolveTargetProvenance(target);
+      const sourcePath = await resolveTargetSource(target, stagingDirectory, provenance);
       const result = spawnSync(
         process.env.CV_RENDERER_COMMAND || 'python3',
         [
@@ -202,7 +356,7 @@ export async function runCvBuild(args = process.argv.slice(2)) {
         throw new Error(`CV renderer failed for @${profileHandle}/${target.id}`);
       }
 
-      for (const extension of ['md', 'docx', 'pdf']) {
+      for (const extension of ARTIFACT_EXTENSIONS) {
         const stagedArtifact = path.resolve(stagingDirectory, `${target.publicStem}.${extension}`);
         const artifactStats = await stat(stagedArtifact).catch(() => null);
         if (!artifactStats?.isFile() || artifactStats.size === 0) {
@@ -212,16 +366,27 @@ export async function runCvBuild(args = process.argv.slice(2)) {
         }
       }
 
-      for (const extension of ['md', 'docx', 'pdf']) {
+      for (const extension of ARTIFACT_EXTENSIONS) {
         await copyFile(
           path.resolve(stagingDirectory, `${target.publicStem}.${extension}`),
           path.resolve(publicOutputDirectory, `${target.publicStem}.${extension}`)
         );
       }
+      const publishedMarkdown = await readFile(
+        path.resolve(publicOutputDirectory, `${target.publicStem}.md`),
+        'utf8'
+      );
+      if (publishedMarkdown !== provenance.markdown) {
+        throw new Error(
+          `CV renderer changed the selected Markdown source for @${profileHandle}/${target.id}`
+        );
+      }
+      artifactRecords.push(await createArtifactRecord(target, provenance));
     } finally {
       await rm(stagingDirectory, { recursive: true, force: true });
     }
   }
+  await writeCvArtifactManifest(artifactRecords);
 }
 
 const invokedUrl = process.argv[1] ? pathToFileURL(path.resolve(process.argv[1])).href : '';

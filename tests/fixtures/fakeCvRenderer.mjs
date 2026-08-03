@@ -13,12 +13,12 @@ const valuesFor = (flag) =>
 const outputDirectory = valueFor('--output-dir');
 const stem = valueFor('--stem');
 const source = valueFor('--source');
-if (!outputDirectory || !stem) {
-  throw new Error('Fake CV renderer requires --output-dir and --stem.');
+if (!outputDirectory || !stem || !source) {
+  throw new Error('Fake CV renderer requires --output-dir, --stem, and --source.');
 }
 
 await mkdir(outputDirectory, { recursive: true });
-await writeFile(path.join(outputDirectory, `${stem}.md`), 'fresh markdown');
+await writeFile(path.join(outputDirectory, `${stem}.md`), await readFile(source, 'utf8'));
 await writeFile(path.join(outputDirectory, `${stem}.docx`), 'fresh docx');
 if (process.env.CV_FAKE_RENDERER_MODE !== 'missing-pdf') {
   await writeFile(path.join(outputDirectory, `${stem}.pdf`), 'fresh pdf');
