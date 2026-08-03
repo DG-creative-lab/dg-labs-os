@@ -231,8 +231,11 @@ Markdown independently.
 
 Requirements for `resume:build`:
 
-- Python with `python-docx` installed for DOCX generation.
+- Python with the pinned dependencies from `scripts/resume/requirements.txt` installed for DOCX
+  generation.
 - LibreOffice (`soffice`) for mandatory PDF conversion.
+
+The CI build installs both requirements explicitly before regenerating the public resume assets.
 
 Each variant is rendered in an isolated staging directory. Markdown, DOCX, and PDF replace the
 public assets only after all three fresh files have been produced. Missing or failed PDF conversion

@@ -35,11 +35,29 @@ const repoRoot = fileURLToPath(new URL('../../', import.meta.url));
 const buildScript = path.join(repoRoot, 'scripts/resume/build-profile-cv.mjs');
 const rendererScript = path.join(repoRoot, 'scripts/resume/build-application-cvs.py');
 const fakeRenderer = path.join(repoRoot, 'tests/fixtures/fakeCvRenderer.mjs');
+const ciWorkflow = readFileSync(path.join(repoRoot, '.github/workflows/ci.yml'), 'utf8');
+const resumeRequirements = readFileSync(
+  path.join(repoRoot, 'scripts/resume/requirements.txt'),
+  'utf8'
+);
 const manifest = JSON.parse(
   readFileSync(path.join(repoRoot, 'scripts/resume/cv-build-manifest.json'), 'utf8')
 ) as CvBuildManifest;
 
 describe('profile CV boundary', () => {
+  it('installs the complete fail-closed renderer toolchain in CI', () => {
+    expect(resumeRequirements).toMatch(/^python-docx==\d+\.\d+\.\d+$/m);
+    expect(ciWorkflow).toContain('cache-dependency-path: scripts/resume/requirements.txt');
+    expect(ciWorkflow).toContain(
+      'python -m pip install --requirement scripts/resume/requirements.txt'
+    );
+    expect(ciWorkflow).toContain(
+      'sudo apt-get install --yes --no-install-recommends libreoffice-writer'
+    );
+    expect(ciWorkflow).toContain('run: pnpm resume:build');
+    expect(ciWorkflow).not.toContain('command -v pandoc');
+  });
+
   it('keeps build-only sources aligned with approved public CV assets', () => {
     expect(manifest.schemaVersion).toBe('dg-os.cv-build-manifest/v1');
     const dessiBuildProfile = manifest.profiles.find((profile) => profile.handle === 'dessi');

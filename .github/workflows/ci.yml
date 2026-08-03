@@ -67,23 +67,24 @@ jobs:
           node-version: 20
           cache: pnpm
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: scripts/resume/requirements.txt
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build resume assets (Pandoc optional)
+      - name: Install resume build dependencies
         run: |
-          if command -v pandoc >/dev/null 2>&1; then
-            if command -v xelatex >/dev/null 2>&1 || command -v pdflatex >/dev/null 2>&1 || command -v lualatex >/dev/null 2>&1 || command -v tectonic >/dev/null 2>&1 || command -v wkhtmltopdf >/dev/null 2>&1 || command -v weasyprint >/dev/null 2>&1; then
-              echo "Pandoc + PDF engine detected. Running resume:build..."
-              pnpm resume:build
-            else
-              echo "Pandoc detected but no supported PDF engine found. Running resume:sync only."
-              pnpm resume:sync
-            fi
-          else
-            echo "Pandoc not detected. Running resume:sync only."
-            pnpm resume:sync
-          fi
+          python -m pip install --requirement scripts/resume/requirements.txt
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends libreoffice-writer
+
+      - name: Build resume assets
+        run: pnpm resume:build
 
       - name: Build
         run: pnpm build
