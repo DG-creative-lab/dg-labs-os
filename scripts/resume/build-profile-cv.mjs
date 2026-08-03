@@ -1,5 +1,6 @@
-import { access, readFile } from 'node:fs/promises';
+import { access, copyFile, mkdir, mkdtemp, readFile, rm, stat } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -7,6 +8,9 @@ const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDirectory, '..', '..');
 const manifestPath = path.resolve(scriptDirectory, 'cv-build-manifest.json');
 const rendererPath = path.resolve(scriptDirectory, 'build-application-cvs.py');
+const publicOutputDirectory = process.env.CV_BUILD_OUTPUT_DIR
+  ? path.resolve(process.env.CV_BUILD_OUTPUT_DIR)
+  : path.resolve(repoRoot, 'public', 'cv');
 const ID_PATTERN = /^[a-z0-9][a-z0-9_-]*$/;
 const HANDLE_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
 const PUBLIC_STEM_PATTERN = /^[A-Za-z0-9_-]+$/;
@@ -28,6 +32,22 @@ export function resolveCvBuildTargets(manifest, profileHandle, variantId) {
 
   const profile = manifest.profiles.find((candidate) => candidate.handle === profileHandle);
   if (!profile) throw new Error(`CV build profile not found: ${profileHandle}`);
+
+  const metadata = profile.documentMetadata;
+  if (
+    !metadata ||
+    typeof metadata.displayName !== 'string' ||
+    !metadata.displayName.trim() ||
+    typeof metadata.subject !== 'string' ||
+    !metadata.subject.trim() ||
+    !Array.isArray(metadata.keywords) ||
+    !metadata.keywords.length ||
+    metadata.keywords.some((keyword) => typeof keyword !== 'string' || !keyword.trim()) ||
+    typeof metadata.language !== 'string' ||
+    !/^[a-z]{2}(?:-[A-Z]{2})?$/.test(metadata.language)
+  ) {
+    throw new Error(`Invalid document metadata for CV build profile: ${profileHandle}`);
+  }
 
   const targets =
     variantId === 'all'
@@ -51,6 +71,7 @@ export function resolveCvBuildTargets(manifest, profileHandle, variantId) {
     return {
       ...target,
       profileHandle,
+      documentMetadata: metadata,
       sourcePath,
       publicFiles: {
         pdf: `/cv/${target.publicStem}.pdf`,
@@ -90,23 +111,55 @@ export async function runCvBuild(args = process.argv.slice(2)) {
     return;
   }
 
+  await mkdir(publicOutputDirectory, { recursive: true });
   for (const target of targets) {
-    await access(target.sourcePath);
-    const result = spawnSync(
-      'python3',
-      [
-        rendererPath,
-        '--source',
-        target.sourcePath,
-        '--stem',
-        target.publicStem,
-        '--label',
-        target.label,
-      ],
-      { cwd: repoRoot, stdio: 'inherit' }
-    );
-    if (result.status !== 0) {
-      throw new Error(`CV renderer failed for @${profileHandle}/${target.id}`);
+    const stagingDirectory = await mkdtemp(path.join(tmpdir(), 'dg-os-cv-'));
+    try {
+      await access(target.sourcePath);
+      const result = spawnSync(
+        process.env.CV_RENDERER_COMMAND || 'python3',
+        [
+          process.env.CV_RENDERER_PATH || rendererPath,
+          '--source',
+          target.sourcePath,
+          '--stem',
+          target.publicStem,
+          '--label',
+          target.label,
+          '--display-name',
+          target.documentMetadata.displayName,
+          '--subject',
+          target.documentMetadata.subject,
+          '--language',
+          target.documentMetadata.language,
+          '--output-dir',
+          stagingDirectory,
+          ...target.documentMetadata.keywords.flatMap((keyword) => ['--keyword', keyword]),
+        ],
+        { cwd: repoRoot, stdio: 'inherit' }
+      );
+      if (result.status !== 0) {
+        throw new Error(`CV renderer failed for @${profileHandle}/${target.id}`);
+      }
+
+      for (const extension of ['md', 'docx', 'pdf']) {
+        const stagedArtifact = path.resolve(stagingDirectory, `${target.publicStem}.${extension}`);
+        const artifactStats = await stat(stagedArtifact).catch(() => null);
+        if (!artifactStats?.isFile() || artifactStats.size === 0) {
+          throw new Error(
+            `CV renderer did not produce a fresh ${extension.toUpperCase()} for @${profileHandle}/${target.id}`
+          );
+        }
+      }
+
+      for (const extension of ['md', 'docx', 'pdf']) {
+        await copyFile(
+          path.resolve(stagingDirectory, `${target.publicStem}.${extension}`),
+          path.resolve(publicOutputDirectory, `${target.publicStem}.${extension}`)
+        );
+      }
+    } finally {
+      await rm(stagingDirectory, { recursive: true, force: true });
     }
   }
 }

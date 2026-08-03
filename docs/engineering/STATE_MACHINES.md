@@ -55,3 +55,6 @@ published -> rolled-back
 
 Publication must be idempotent, versioned, attributable to an actor, and recoverable without
 rewriting previous public evidence.
+
+The CV build boundary follows the same fail-closed principle: profile metadata is selected before
+rendering, and the public Markdown, DOCX, and PDF set is replaced only after a fresh PDF is verified.

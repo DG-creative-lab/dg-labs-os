@@ -94,6 +94,8 @@ export const stateMachineCatalog = [
       'Unknown profiles and variants never fall back to Dessi or another profile.',
       'A resolved CV belongs to the selected published profile.',
       'Local CV source paths remain build-only and never enter the public profile runtime.',
+      'Document metadata comes from the selected build profile rather than renderer defaults.',
+      'A build verifies fresh Markdown, DOCX, and PDF artifacts before replacing public assets.',
     ],
     nonDeterministicEffects: ['Document renderer availability'],
   },

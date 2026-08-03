@@ -3,6 +3,12 @@
   "profiles": [
     {
       "handle": "dessi",
+      "documentMetadata": {
+        "displayName": "Dessi Georgieva",
+        "subject": "AI systems engineering resume",
+        "keywords": ["AI systems", "agents", "evaluation", "Python", "FastAPI", "TypeScript"],
+        "language": "en-GB"
+      },
       "variants": [
         {
           "id": "general",

@@ -10,7 +10,7 @@
     "build:vercel": "DEPLOY_TARGET=vercel astro build",
     "deploy:preflight": "node scripts/deploy/preflight.mjs",
     "cv:build": "node scripts/resume/build-profile-cv.mjs",
-    "resume:sync": "node scripts/resume/sync-resume-assets.mjs --profile dessi --variant all",
+    "resume:sync": "pnpm resume:build",
     "resume:build": "pnpm cv:build --profile dessi --variant all",
     "resume:refresh": "pnpm resume:build",
     "preview": "astro preview",

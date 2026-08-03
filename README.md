@@ -219,20 +219,24 @@ Preview the resolved build target without generating files:
 pnpm cv:build --profile dessi --variant general --dry-run
 ```
 
-Regenerate or sync all currently registered Dessi variants:
+Regenerate all currently registered Dessi variants:
 
 ```bash
 pnpm resume:build
 pnpm resume:sync
 ```
 
+`resume:sync` is retained as a compatibility alias for the same complete build. It does not publish
+Markdown independently.
+
 Requirements for `resume:build`:
 
 - Python with `python-docx` installed for DOCX generation.
-- LibreOffice (`soffice`) for optional PDF conversion. Without it, Markdown and DOCX are still
-  generated and the existing PDF remains unchanged.
+- LibreOffice (`soffice`) for mandatory PDF conversion.
 
-If only markdown sync is needed (no PDF/DOCX regeneration), use `pnpm resume:sync`.
+Each variant is rendered in an isolated staging directory. Markdown, DOCX, and PDF replace the
+public assets only after all three fresh files have been produced. Missing or failed PDF conversion
+fails the build and preserves the previously reviewed public set.
 
 ## Deployment
 

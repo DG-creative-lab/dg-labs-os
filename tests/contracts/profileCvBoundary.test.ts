@@ -1,5 +1,6 @@
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -21,11 +22,19 @@ type CvBuildManifest = {
       source: string;
       publicStem: string;
     }>;
+    documentMetadata: {
+      displayName: string;
+      subject: string;
+      keywords: string[];
+      language: string;
+    };
   }>;
 };
 
 const repoRoot = fileURLToPath(new URL('../../', import.meta.url));
 const buildScript = path.join(repoRoot, 'scripts/resume/build-profile-cv.mjs');
+const rendererScript = path.join(repoRoot, 'scripts/resume/build-application-cvs.py');
+const fakeRenderer = path.join(repoRoot, 'tests/fixtures/fakeCvRenderer.mjs');
 const manifest = JSON.parse(
   readFileSync(path.join(repoRoot, 'scripts/resume/cv-build-manifest.json'), 'utf8')
 ) as CvBuildManifest;
@@ -35,9 +44,16 @@ describe('profile CV boundary', () => {
     expect(manifest.schemaVersion).toBe('dg-os.cv-build-manifest/v1');
     const dessiBuildProfile = manifest.profiles.find((profile) => profile.handle === 'dessi');
     expect(dessiBuildProfile).toBeDefined();
+    expect(dessiBuildProfile?.documentMetadata).toMatchObject({
+      displayName: 'Dessi Georgieva',
+      language: 'en-GB',
+    });
 
     for (const target of dessiBuildProfile?.variants ?? []) {
       const resolved = resolvePublicProfileCv('dessi', target.id);
+      expect(dessiBuildProfile?.documentMetadata.displayName).toBe(
+        resolved.profile.identity.displayName
+      );
       expect(resolved.cv.files).toEqual({
         pdf: `/cv/${target.publicStem}.pdf`,
         docx: `/cv/${target.publicStem}.docx`,
@@ -50,6 +66,7 @@ describe('profile CV boundary', () => {
     expect(JSON.stringify(resolvePublicProfileCv('dessi', 'general'))).not.toContain(
       'src/data/resume'
     );
+    expect(readFileSync(rendererScript, 'utf8')).not.toContain('Dessi Georgieva');
   });
 
   it('resolves CVs within one profile and never falls back across identities', () => {
@@ -97,6 +114,7 @@ describe('profile CV boundary', () => {
     expect(JSON.parse(valid.stdout)[0]).toMatchObject({
       profileHandle: 'dessi',
       id: 'general',
+      documentMetadata: { displayName: 'Dessi Georgieva', language: 'en-GB' },
       publicFiles: { pdf: '/cv/Dessi_Georgieva_CV.pdf' },
     });
 
@@ -114,5 +132,69 @@ describe('profile CV boundary', () => {
     );
     expect(unknownProfile.status).toBe(1);
     expect(unknownProfile.stderr).toContain('CV build profile not found: unknown');
+  });
+
+  it('publishes all formats only after a fresh PDF is staged', () => {
+    const temporaryRoot = mkdtempSync(path.join(tmpdir(), 'dg-os-cv-test-'));
+    const outputDirectory = path.join(temporaryRoot, 'public-cv');
+    const metadataPath = path.join(temporaryRoot, 'metadata.json');
+    mkdirSync(outputDirectory, { recursive: true });
+    const existingPdf = path.join(outputDirectory, 'Dessi_Georgieva_CV.pdf');
+    const existingDocx = path.join(outputDirectory, 'Dessi_Georgieva_CV.docx');
+    const existingMarkdown = path.join(outputDirectory, 'Dessi_Georgieva_CV.md');
+    writeFileSync(existingPdf, 'existing reviewed pdf');
+    writeFileSync(existingDocx, 'existing reviewed docx');
+    writeFileSync(existingMarkdown, 'existing reviewed markdown');
+
+    try {
+      const missingPdf = spawnSync(
+        process.execPath,
+        [buildScript, '--profile', 'dessi', '--variant', 'general'],
+        {
+          cwd: repoRoot,
+          encoding: 'utf8',
+          env: {
+            ...process.env,
+            CV_BUILD_OUTPUT_DIR: outputDirectory,
+            CV_RENDERER_COMMAND: process.execPath,
+            CV_RENDERER_PATH: fakeRenderer,
+            CV_FAKE_RENDERER_MODE: 'missing-pdf',
+          },
+        }
+      );
+      expect(missingPdf.status).toBe(1);
+      expect(missingPdf.stderr).toContain('did not produce a fresh PDF');
+      expect(readFileSync(existingPdf, 'utf8')).toBe('existing reviewed pdf');
+      expect(readFileSync(existingDocx, 'utf8')).toBe('existing reviewed docx');
+      expect(readFileSync(existingMarkdown, 'utf8')).toBe('existing reviewed markdown');
+
+      const completeBuild = spawnSync(
+        process.execPath,
+        [buildScript, '--profile', 'dessi', '--variant', 'general'],
+        {
+          cwd: repoRoot,
+          encoding: 'utf8',
+          env: {
+            ...process.env,
+            CV_BUILD_OUTPUT_DIR: outputDirectory,
+            CV_RENDERER_COMMAND: process.execPath,
+            CV_RENDERER_PATH: fakeRenderer,
+            CV_FAKE_METADATA_PATH: metadataPath,
+          },
+        }
+      );
+      expect(completeBuild.status).toBe(0);
+      expect(readFileSync(existingPdf, 'utf8')).toBe('fresh pdf');
+      expect(readFileSync(existingDocx, 'utf8')).toBe('fresh docx');
+      expect(readFileSync(existingMarkdown, 'utf8')).toBe('fresh markdown');
+      expect(JSON.parse(readFileSync(metadataPath, 'utf8'))).toEqual({
+        displayName: 'Dessi Georgieva',
+        subject: 'AI systems engineering resume',
+        language: 'en-GB',
+        keywords: ['AI systems', 'agents', 'evaluation', 'Python', 'FastAPI', 'TypeScript'],
+      });
+    } finally {
+      rmSync(temporaryRoot, { recursive: true, force: true });
+    }
   });
 });
