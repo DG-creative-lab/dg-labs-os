@@ -30,7 +30,7 @@ export const architectureManifest = {
       id: 'profile-runtime',
       description: 'Public profile and module registries and their public exports.',
       matches: [
-        /^src\/profiles\/(?:index|runtime)\.ts$/,
+        /^src\/profiles\/(?:index|runtime|cvRuntime)\.ts$/,
         /^src\/profiles\/modules\/(?:index|runtime)\.ts$/,
         /^src\/profiles\/network\/(?:index|runtime)\.ts$/,
         /^src\/profiles\/writing\/(?:index|runtime)\.ts$/,

@@ -1,22 +1,17 @@
-import { copyFile, mkdir, access } from 'node:fs/promises';
+import { access, copyFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  loadCvBuildManifest,
+  parseCvTargetArgs,
+  resolveCvBuildTargets,
+} from './build-profile-cv.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '..', '..');
 
 const publicDir = path.resolve(repoRoot, 'public/cv');
-const resumes = [
-  {
-    source: path.resolve(repoRoot, 'src/data/resume/cv.md'),
-    stem: 'Dessi_Georgieva_CV',
-  },
-  {
-    source: path.resolve(repoRoot, 'src/data/resume/openai-codex-cv.md'),
-    stem: 'Dessi_Georgieva_OpenAI_Codex_CV',
-  },
-];
 
 const ensureExists = async (filePath) => {
   try {
@@ -28,14 +23,17 @@ const ensureExists = async (filePath) => {
 };
 
 const run = async () => {
+  const { profileHandle, variantId } = parseCvTargetArgs(process.argv.slice(2));
+  const manifest = await loadCvBuildManifest();
+  const resumes = resolveCvBuildTargets(manifest, profileHandle, variantId);
   await mkdir(publicDir, { recursive: true });
   for (const resume of resumes) {
-    const targetMarkdown = path.resolve(publicDir, `${resume.stem}.md`);
-    await copyFile(resume.source, targetMarkdown);
+    const targetMarkdown = path.resolve(publicDir, `${resume.publicStem}.md`);
+    await copyFile(resume.sourcePath, targetMarkdown);
     console.log(`Synced markdown: ${targetMarkdown}`);
 
     for (const extension of ['pdf', 'docx']) {
-      const artifact = path.resolve(publicDir, `${resume.stem}.${extension}`);
+      const artifact = path.resolve(publicDir, `${resume.publicStem}.${extension}`);
       const exists = await ensureExists(artifact);
       if (!exists) {
         console.warn(`Missing artifact: ${artifact}`);

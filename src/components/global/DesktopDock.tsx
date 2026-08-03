@@ -59,7 +59,8 @@ const DesktopDock = ({ profile, platformMode = false, activeApps }: DesktopDockP
   const writingPath = `${profilePath}/writing`;
   const evolutionPath = `${profilePath}/evolution`;
   const networkPath = `${profilePath}/network`;
-  const profileModulePaths = [workbenchPath, writingPath, evolutionPath, networkPath];
+  const resumePath = `${profilePath}/resume`;
+  const profileModulePaths = [workbenchPath, writingPath, evolutionPath, networkPath, resumePath];
   const isPathActive = (...paths: string[]) =>
     paths.some((path) => {
       const normalized = path.replace(/\/+$/, '') || '/';
@@ -277,12 +278,12 @@ const DesktopDock = ({ profile, platformMode = false, activeApps }: DesktopDockP
           toggleDesktopWindow('resume');
           return;
         }
-        window.location.href = '/apps/resume';
+        window.location.href = resumePath;
       },
       glyph: 'timeline',
       active: isDesktopShell
         ? desktopOpen.resume
-        : activeApps.resume || isPathActive('/apps/resume'),
+        : activeApps.resume || isPathActive('/apps/resume', resumePath),
     },
     {
       id: 'network',

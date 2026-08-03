@@ -1,4 +1,4 @@
-import { dessiProfileProjection } from '../profiles';
+import { dessiProfileProjection, resolvePublicProfileCv } from '../profiles';
 import { dessiProfileModules } from '../profiles/modules';
 
 export type {
@@ -14,6 +14,7 @@ export const applicationClaims = dessiProfileModules.evidenceEvolution.claims;
 export const applicationCaseStudies = dessiProfileModules.evidenceEvolution.caseStudies;
 export const currentBoundaries = dessiProfileModules.evidenceEvolution.boundaries;
 export const evolutionEntries = dessiProfileModules.evidenceEvolution.entries;
+const openAiCodexCv = resolvePublicProfileCv('dessi', 'openai-codex').cv;
 
 export const systemsEvidenceProfile = {
   role: dessiProfileProjection.identity.role,
@@ -31,9 +32,7 @@ export const openAiCodexApplication = {
   role: 'Applied AI Engineer, Codex Core Agent',
   location: systemsEvidenceProfile.location,
   roleUrl: 'https://openai.com/careers/applied-ai-engineer-codex-core-agent-san-francisco/',
-  applicationCv: {
-    pdf: '/cv/Dessi_Georgieva_OpenAI_Codex_CV.pdf',
-    docx: '/cv/Dessi_Georgieva_OpenAI_Codex_CV.docx',
-    markdown: '/cv/Dessi_Georgieva_OpenAI_Codex_CV.md',
-  },
+  profileHandle: 'dessi',
+  cvVariantId: openAiCodexCv.id,
+  applicationCv: openAiCodexCv.files,
 } as const;

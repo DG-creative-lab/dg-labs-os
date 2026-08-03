@@ -117,6 +117,7 @@ test.describe('desktop smoke', () => {
       ['writing', 'Technical Writing'],
       ['evolution', 'Evidence & Evolution'],
       ['network', 'System Map'],
+      ['resume', 'Resume'],
     ] as const;
 
     for (const [moduleId, heading] of modules) {
@@ -195,6 +196,10 @@ test.describe('desktop smoke', () => {
       'noindex, nofollow'
     );
     await expect(page.getByText('Target role')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'CV · PDF', exact: true })).toHaveAttribute(
+      'href',
+      '/cv/Dessi_Georgieva_OpenAI_Codex_CV.pdf'
+    );
   });
 
   test('dock opens and closes Workbench window', async ({ page }) => {
@@ -484,6 +489,13 @@ test.describe('mobile smoke', () => {
     expect(resumeHtml).toContain('experience, technical focus, and selected systems.');
     expect(resumeHtml).toContain('Download PDF');
 
+    const legacyResume = await request.get('/mobile/apps/resume', {
+      headers: { 'user-agent': ua },
+      maxRedirects: 0,
+    });
+    expect(legacyResume.status()).toBe(302);
+    expect(legacyResume.headers().location).toBe('/@dessi/resume');
+
     const systems = await request.get('/systems', {
       headers: { 'user-agent': ua },
     });
@@ -507,6 +519,7 @@ test.describe('mobile smoke', () => {
     expect(profileHtml).toContain('href="/@dessi/writing"');
     expect(profileHtml).toContain('href="/@dessi/evolution"');
     expect(profileHtml).toContain('href="/@dessi/network"');
+    expect(profileHtml).toContain('href="/@dessi/resume"');
 
     const profileNetwork = await request.get('/@dessi/network', {
       headers: { 'user-agent': ua },
@@ -517,6 +530,16 @@ test.describe('mobile smoke', () => {
     expect(profileNetworkHtml).toContain('System Map');
     expect(profileNetworkHtml).toContain('href="/@dessi"');
     expect(profileNetworkHtml).toContain('https://dg-os.com/@dessi/network');
+
+    const profileResume = await request.get('/@dessi/resume', {
+      headers: { 'user-agent': ua },
+      maxRedirects: 0,
+    });
+    expect(profileResume.status()).toBe(200);
+    const profileResumeHtml = await profileResume.text();
+    expect(profileResumeHtml).toContain('Resume');
+    expect(profileResumeHtml).toContain('/cv/Dessi_Georgieva_CV.pdf');
+    expect(profileResumeHtml).toContain('https://dg-os.com/@dessi/resume');
 
     const missingProfile = await request.get('/@missing-profile', {
       headers: { 'user-agent': ua },

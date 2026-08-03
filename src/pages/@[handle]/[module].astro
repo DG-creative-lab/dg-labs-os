@@ -5,6 +5,7 @@ import DesktopLayout from '../../layouts/DesktopLayout.astro';
 import IPhoneAppLayout from '../../layouts/iPhoneAppLayout.astro';
 import {
   findActiveProfile,
+  findPublicProfileCv,
   findPublicNetworkModule,
   findPublicProfileModules,
   findPublicWritingModule,
@@ -38,11 +39,14 @@ const modules =
     : undefined;
 const network = moduleId === 'network' ? findPublicNetworkModule(handle) : undefined;
 const writing = moduleId === 'writing' ? findPublicWritingModule(handle) : undefined;
+const cv =
+  moduleId === 'resume' ? findPublicProfileCv(handle, profile.cv.primary.id)?.cv : undefined;
 const hasSelectedModule =
   (moduleId === 'workbench' && Boolean(modules)) ||
   (moduleId === 'evolution' && Boolean(modules)) ||
   (moduleId === 'network' && Boolean(network)) ||
-  (moduleId === 'writing' && Boolean(writing));
+  (moduleId === 'writing' && Boolean(writing)) ||
+  (moduleId === 'resume' && Boolean(cv));
 
 if (!hasSelectedModule) {
   return new Response('Public profile module not found.', {
@@ -96,6 +100,15 @@ const presentation = {
     x: 70,
     y: 70,
   },
+  resume: {
+    appId: 'resume',
+    label: 'Resume',
+    description: `${resolvedProfile.identity.possessiveName} approved CV, experience, technical focus, and selected systems.`,
+    width: 920,
+    height: 660,
+    x: 130,
+    y: 110,
+  },
 } as const;
 
 const selectedPresentation = presentation[moduleId];
@@ -126,6 +139,7 @@ const openGraph = {
           modules={modules}
           network={network}
           writing={writing}
+          cv={cv}
           compact
         />
       </main>
@@ -154,6 +168,7 @@ const openGraph = {
             modules={modules}
             network={network}
             writing={writing}
+            cv={cv}
           />
         </DraggableAppWindow>
       </main>

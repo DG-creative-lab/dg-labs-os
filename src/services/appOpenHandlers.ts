@@ -12,9 +12,18 @@ import {
   getPublicProfileModulePath,
   isPublicProfileModuleId,
   matchPublicProfilePathShape,
+  type PublicProfileModuleId,
 } from '../utils/profileRoutes';
 
 export const APP_ROUTE_MAP: Record<DesktopAppId, string> = DESKTOP_APP_ROUTES;
+
+const PROFILE_APP_MODULE_MAP: Partial<Record<DesktopAppId, PublicProfileModuleId>> = {
+  projects: 'workbench',
+  notes: 'writing',
+  evolution: 'evolution',
+  network: 'network',
+  resume: 'resume',
+};
 
 export type AppOpenAdapter = {
   location: { pathname: string; href: string };
@@ -31,6 +40,13 @@ export const openAppFromMenu = (
   appId: DesktopAppId,
   adapter: AppOpenAdapter = defaultAdapter()
 ) => {
+  const profileRoute = matchPublicProfilePathShape(normalizePath(adapter.location.pathname));
+  const profileModule = PROFILE_APP_MODULE_MAP[appId];
+  if (profileRoute && profileModule) {
+    adapter.location.href = getPublicProfileModulePath(profileRoute.handle, profileModule);
+    return;
+  }
+
   openDesktopOrNavigate(appId, APP_ROUTE_MAP[appId], adapter);
 };
 

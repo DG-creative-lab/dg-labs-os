@@ -7,6 +7,7 @@ import os
 import re
 import shutil
 import subprocess
+import argparse
 from pathlib import Path
 
 from docx import Document
@@ -18,17 +19,7 @@ from docx.shared import Inches, Pt, RGBColor
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SOURCE_DIR = REPO_ROOT / "src" / "data" / "resume"
 OUTPUT_DIR = REPO_ROOT / "public" / "cv"
-
-ARTIFACTS = (
-    ("cv.md", "Dessi_Georgieva_CV", "General evidence-led CV"),
-    (
-        "openai-codex-cv.md",
-        "Dessi_Georgieva_OpenAI_Codex_CV",
-        "OpenAI Codex application CV",
-    ),
-)
 
 LINK_PATTERN = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 TOKEN_PATTERN = re.compile(r"(\*\*[^*]+\*\*|_[^_]+_|\[[^\]]+\]\([^)]+\))")
@@ -310,19 +301,34 @@ def convert_to_pdf(docx_paths: list[Path]) -> None:
             )
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Render one explicitly selected profile CV.")
+    parser.add_argument("--source", required=True, help="Repository-local Markdown source")
+    parser.add_argument("--stem", required=True, help="Safe public output filename stem")
+    parser.add_argument("--label", required=True, help="Document metadata label")
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = parse_args()
+    source = Path(args.source).resolve()
+    try:
+        source.relative_to(REPO_ROOT)
+    except ValueError as error:
+        raise ValueError("CV source must remain inside the repository.") from error
+    if source.suffix.lower() != ".md" or not source.is_file():
+        raise ValueError("CV source must be an existing Markdown file.")
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", args.stem):
+        raise ValueError("CV output stem contains unsupported characters.")
+
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    generated_docx: list[Path] = []
-    for source_name, stem, label in ARTIFACTS:
-        source = SOURCE_DIR / source_name
-        markdown_target = OUTPUT_DIR / f"{stem}.md"
-        docx_target = OUTPUT_DIR / f"{stem}.docx"
-        shutil.copyfile(source, markdown_target)
-        build_docx(source, docx_target, label)
-        generated_docx.append(docx_target)
-        print(f"Generated {docx_target.relative_to(REPO_ROOT)}")
-        print(f"Synced {markdown_target.relative_to(REPO_ROOT)}")
-    convert_to_pdf(generated_docx)
+    markdown_target = OUTPUT_DIR / f"{args.stem}.md"
+    docx_target = OUTPUT_DIR / f"{args.stem}.docx"
+    shutil.copyfile(source, markdown_target)
+    build_docx(source, docx_target, args.label)
+    print(f"Generated {docx_target.relative_to(REPO_ROOT)}")
+    print(f"Synced {markdown_target.relative_to(REPO_ROOT)}")
+    convert_to_pdf([docx_target])
 
 
 if __name__ == "__main__":

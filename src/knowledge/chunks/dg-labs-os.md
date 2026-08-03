@@ -49,7 +49,7 @@ iPhone-inspired lock/home UX for mobile visitors. Tap-to-unlock gesture, app gri
 - **Systems & Evidence** (`/systems`): a public dossier separating Dessi's contribution, evaluation, result, and limitation across selected systems
 - **System Map** (`/apps/network`): React Flow projection of a curated Graphology model with typed, evidence-bearing relationships and guided paths
 - **Terminal** (`/apps/terminal`): hybrid runtime with deterministic CLI and LLM-grounded responses
-- **Resume** (`/apps/resume`): career trajectory and milestones
+- **Resume** (`/@dessi/resume`): profile-owned career trajectory and approved CV assets
 
 ### Agent Runtime (Terminal)
 

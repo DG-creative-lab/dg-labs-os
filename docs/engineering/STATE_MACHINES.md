@@ -14,6 +14,7 @@ The executable catalogue is `architecture/state-machines/catalog.ts`.
 | Desktop shell               | Explicit reducer  | Open windows and focused application                        |
 | Profile activation          | Boundary-enforced | Published projection, handle-preserving route, or rejection |
 | Profile module registration | Boundary-enforced | Matching profile, Network, and Writing modules or rejection |
+| Profile CV resolution       | Boundary-enforced | Matching approved CV variant or rejection                   |
 | Profile Agent request       | Implicit          | Validation, evidence scope, provider and SSE sequencing     |
 
 `implicit` means behaviour is tested across services but is not yet represented by one transition

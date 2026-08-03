@@ -53,6 +53,13 @@ describe('appOpenHandlers', () => {
     expect(adapter.location.href).toBe('/apps/projects');
   });
 
+  it('opens profile-owned apps without losing the selected handle', () => {
+    const { adapter, events } = createAdapter('/@fixture-person/network');
+    openAppFromMenu('resume', adapter);
+    expect(events).toHaveLength(0);
+    expect(adapter.location.href).toBe('/@fixture-person/resume');
+  });
+
   it('opens contact callback when provided', () => {
     const { adapter } = createAdapter('/desktop');
     const onOpenContact = vi.fn();

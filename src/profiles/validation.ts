@@ -12,7 +12,11 @@ export type ProfileProjectionIssue = {
 const HANDLE_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
 const ID_PATTERN = /^[a-z0-9][a-z0-9_-]*$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PRIVATE_PATH_PATTERN = /(?:^file:\/\/|^\/(?:Users|home|src|scripts)\/|^[A-Za-z]:\\Users\\)/i;
+const PRIVATE_PATH_PATTERNS = [
+  /file:\/\/[^\s"'<>]+/i,
+  /(?:^|[\s([{"'=,:;])\/(?:Users|home|src|scripts)\//i,
+  /(?:^|[\s([{"'=,:;])[A-Za-z]:\\/i,
+] as const;
 const SECRET_KEY_PATTERN =
   /(?:password|secret|private[_-]?key|access[_-]?token|refresh[_-]?token)/i;
 const INTERNAL_SOURCE_KEY_PATTERN =
@@ -77,7 +81,7 @@ function inspectForPrivateMaterial(
   issues: ProfileProjectionIssue[]
 ): void {
   if (typeof value === 'string') {
-    if (PRIVATE_PATH_PATTERN.test(value)) {
+    if (PRIVATE_PATH_PATTERNS.some((pattern) => pattern.test(value))) {
       issues.push({ path, message: 'Public projections cannot contain local filesystem paths.' });
     }
     return;

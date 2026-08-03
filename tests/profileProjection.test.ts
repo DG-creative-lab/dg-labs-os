@@ -121,7 +121,12 @@ describe('profile projection', () => {
 
   it('keeps the OpenAI application as an explicit profile variant', () => {
     expect(openAiCodexApplication.role).toBe('Applied AI Engineer, Codex Core Agent');
+    expect(openAiCodexApplication.profileHandle).toBe('dessi');
+    expect(openAiCodexApplication.cvVariantId).toBe('openai-codex');
     expect(openAiCodexApplication.applicationCv.pdf).toContain('OpenAI_Codex');
+    expect(dessiProfileProjection.cv.variants).toContainEqual(
+      expect.objectContaining({ id: 'openai-codex' })
+    );
     expect(dessiProfileProjection.cv.primary.files.pdf).not.toContain('OpenAI_Codex');
   });
 
@@ -146,5 +151,24 @@ describe('profile projection', () => {
     expect(issues.some((issue) => issue.path === 'metadata.accessToken')).toBe(true);
     expect(issues.some((issue) => issue.path === 'metadata.internalSource')).toBe(true);
     expect(issues.some((issue) => issue.message === 'Link IDs must be unique.')).toBe(true);
+  });
+
+  it('rejects local paths embedded inside public profile prose', () => {
+    const privateIntroductions = [
+      'Draft stored at /Users/name/private.md before review.',
+      'Prepared from file:///home/name/private.md before publication.',
+      'Draft stored at C:\\Users\\name\\private.md before publication.',
+    ];
+
+    for (const introduction of privateIntroductions) {
+      const issues = validateProfileProjection({
+        ...dessiProfileProjection,
+        identity: { ...dessiProfileProjection.identity, introduction },
+      });
+      expect(issues).toContainEqual({
+        path: 'identity.introduction',
+        message: 'Public projections cannot contain local filesystem paths.',
+      });
+    }
   });
 });

@@ -1,6 +1,7 @@
 export * from './contracts';
 export * from './validation';
 export * from './runtime';
+export * from './cvRuntime';
 export { dessiProfileProjection } from './dessi';
 export { activeProfileModules, findPublicProfileModules } from './modules/runtime';
 export { activeNetworkModule, findPublicNetworkModule } from './network/runtime';

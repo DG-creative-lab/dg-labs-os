@@ -10,11 +10,13 @@ import {
   buildWritingModuleKnowledgeEntries,
 } from '../../src/profiles/agentEvidence';
 import { createPublicProfileRegistry } from '../../src/profiles';
+import { resolvePublicProfileCv } from '../../src/profiles';
 import { createPublicProfileModuleRegistry } from '../../src/profiles/modules';
 import { createPublicNetworkModuleRegistry } from '../../src/profiles/network';
 import { createPublicWritingModuleRegistry } from '../../src/profiles/writing';
 import {
   getAppCloseDestination,
+  openAppFromMenu,
   openWorkbenchSectionFromMenu,
 } from '../../src/services/appOpenHandlers';
 
@@ -83,5 +85,28 @@ describe('public profile interaction boundary', () => {
     expect(adapter.location.href).toBe('/@contract-fixture/workbench#workbench-selected-systems');
     expect(getAppCloseDestination('/@contract-fixture/network')).toBe('/@contract-fixture');
     expect(adapter.location.href).not.toContain('@dessi');
+  });
+
+  it('keeps Resume navigation and CV resolution inside the selected profile', () => {
+    const profiles = createPublicProfileRegistry([projectionFixture]);
+    const selectedCv = resolvePublicProfileCv('contract-fixture', 'general', profiles);
+    const events: Event[] = [];
+    const adapter = {
+      location: { pathname: '/@contract-fixture', href: '/@contract-fixture' },
+      dispatchEvent: (event: Event) => {
+        events.push(event);
+        return true;
+      },
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+    } as unknown as Window;
+
+    openAppFromMenu('resume', adapter);
+
+    expect(selectedCv.profile.handle).toBe('contract-fixture');
+    expect(selectedCv.cv.files.pdf).toBe('/cv/Contract_Fixture_CV.pdf');
+    expect(adapter.location.href).toBe('/@contract-fixture/resume');
+    expect(adapter.location.href).not.toContain('@dessi');
+    expect(events).toHaveLength(0);
   });
 });
