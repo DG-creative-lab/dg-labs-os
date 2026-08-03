@@ -56,7 +56,8 @@ Primary metaphor:
 - Workbench (`/apps/projects`) mapped from `src/config/workbench.ts`
 - Technical Writing (`/apps/notes`) mapped from the reviewed module in `src/profiles/writing/`
 - Network (`/apps/network`) backed by the reviewed profile module in `src/profiles/network/`
-- Resume and Terminal pages currently minimal
+- Resume resolves the selected profile's approved CV and supports PDF, DOCX, and Markdown downloads
+- Terminal provides deterministic and evidence-grounded Profile Agent interactions
 - News app route exists (`/apps/news`)
 
 ### 2.5 Network Graph
@@ -220,6 +221,8 @@ Goal: make current modules feel intentionally connected.
   - milestones
   - downloadable PDF action
   - link-outs to Workbench/Network nodes
+  - status: completed for the profile-aware CV and download surface; richer milestone generation
+    remains part of the approved-data generation slice
 
 6. About DG-Labs Pro alignment
 

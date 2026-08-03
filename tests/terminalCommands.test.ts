@@ -17,8 +17,15 @@ describe('executeTerminalCommand', () => {
     const result = executeTerminalCommand('open network', ctx);
     expect(result.action.type).toBe('navigate');
     if (result.action.type === 'navigate') {
-      expect(result.action.href).toBe('/apps/network');
+      expect(result.action.href).toBe('/@dessi/network');
     }
+  });
+
+  it('opens Resume inside the selected profile boundary', () => {
+    const result = executeTerminalCommand('open resume', {
+      profile: { ...activeProfile, handle: 'fixture-person' },
+    });
+    expect(result.action).toEqual({ type: 'navigate', href: '/@fixture-person/resume' });
   });
 
   it('returns unknown command guidance', () => {

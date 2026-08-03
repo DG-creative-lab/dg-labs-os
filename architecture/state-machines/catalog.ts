@@ -78,6 +78,28 @@ export const stateMachineCatalog = [
     nonDeterministicEffects: [],
   },
   {
+    id: 'profile-cv-resolution',
+    purpose: 'Resolve one approved CV variant without crossing profile or privacy boundaries.',
+    maturity: 'boundary-enforced',
+    implementation: [
+      'src/profiles/cvRuntime.ts',
+      'scripts/resume/build-profile-cv.mjs',
+      'scripts/resume/cv-build-manifest.json',
+    ],
+    states: ['unresolved', 'resolved', 'rejected'],
+    inputs: ['SELECT_PROFILE', 'SELECT_VARIANT', 'BUILD'],
+    outputs: ['ResolvedProfileCv', 'public CV assets', 'typed rejection'],
+    invariants: [
+      'Profile handle and CV variant are always selected explicitly.',
+      'Unknown profiles and variants never fall back to Dessi or another profile.',
+      'A resolved CV belongs to the selected published profile.',
+      'Local CV source paths remain build-only and never enter the public profile runtime.',
+      'Document metadata comes from the selected build profile rather than renderer defaults.',
+      'A build verifies fresh Markdown, DOCX, and PDF artifacts before replacing public assets.',
+    ],
+    nonDeterministicEffects: ['Document renderer availability'],
+  },
+  {
     id: 'profile-agent-request',
     purpose: 'Keep request validation, evidence scope, provider execution, and streaming ordered.',
     maturity: 'implicit',

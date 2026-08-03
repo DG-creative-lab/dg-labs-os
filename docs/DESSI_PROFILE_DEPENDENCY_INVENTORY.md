@@ -85,8 +85,9 @@ profiles, unsupported modules, or missing registered module data. The legacy `/a
 available as Dessi-only compatibility paths. `/systems` and application routes remain shared
 single-profile paths. `/apply/openai-codex` is intentionally specific to one application.
 
-**Disposition:** completed for the four shared profile modules. Migrate Resume and the generated CV
-surface next. Authentication and database-backed workspaces remain gated on a real second-user
+**Disposition:** completed for Workbench, Writing, Evolution, Network, and Resume. Resume resolves
+an explicit profile-owned CV record, while local Markdown source locations remain in a build-only
+manifest. Authentication and database-backed workspaces remain gated on a real second-user
 requirement.
 
 ### 7. Tests
@@ -106,11 +107,13 @@ Existing terminal, API, and end-to-end suites contain fixture-specific Dessi ass
 
 ## Completed implementation slice
 
-Workbench, Evidence/Evolution, Writing, and Network are versioned public modules. Their registries
+Workbench, Evidence/Evolution, Writing, and Network are versioned public modules. Resume resolves
+the selected profile's approved CV through the existing projection contract. Their registries
 reject invalid, unpublished, mismatched, private-path-bearing, and cross-profile bundles. The UI,
 Profile Agent, and profile-aware module routes consume the selected modules explicitly.
 
 ## Next implementation slice
 
-Make the standard CV builder accept a profile handle and explicit variant. Keep authentication,
-hosted workspaces, and database storage behind the second-real-user gate.
+Generate the general CV content from the same approved profile and module data, then specify the
+signed local publication bundle. Keep authentication, hosted workspaces, and database storage behind
+the second-real-user gate.

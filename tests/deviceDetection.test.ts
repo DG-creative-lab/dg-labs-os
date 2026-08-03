@@ -36,6 +36,7 @@ describe('isPublicProfilePath', () => {
     expect(isPublicProfilePath('/@dessi/writing/')).toBe(true);
     expect(isPublicProfilePath('/@dessi/evolution')).toBe(true);
     expect(isPublicProfilePath('/@dessi/network')).toBe(true);
+    expect(isPublicProfilePath('/@dessi/resume')).toBe(true);
   });
 
   it('does not treat unknown or malformed paths as canonical profiles', () => {
@@ -58,7 +59,7 @@ describe('isPublicProfilePath', () => {
 
   it('builds canonical paths only for supported public modules', () => {
     expect(isPublicProfileModuleId('network')).toBe(true);
-    expect(isPublicProfileModuleId('resume')).toBe(false);
+    expect(isPublicProfileModuleId('resume')).toBe(true);
     expect(getPublicProfileModulePath('dessi', 'writing')).toBe('/@dessi/writing');
     expect(
       getPublicProfileModuleCanonicalUrl(

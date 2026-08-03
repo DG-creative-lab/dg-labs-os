@@ -1,10 +1,12 @@
 ---
 import EvolutionApp from '../global/EvolutionApp';
+import ResumeApp from '../global/ResumeApp';
 import TechnicalWritingApp from '../global/TechnicalWritingApp';
 import WorkbenchApp from '../global/WorkbenchApp';
 import NetworkApp from '../network/NetworkApp';
 import type {
   ActiveProfileRuntime,
+  ProfileCv,
   PublicNetworkModule,
   PublicProfileModules,
   PublicWritingModule,
@@ -17,10 +19,11 @@ interface Props {
   modules?: PublicProfileModules;
   network?: PublicNetworkModule;
   writing?: PublicWritingModule;
+  cv?: ProfileCv;
   compact?: boolean;
 }
 
-const { profile, moduleId, modules, network, writing, compact = false } = Astro.props;
+const { profile, moduleId, modules, network, writing, cv, compact = false } = Astro.props;
 ---
 
 {
@@ -62,3 +65,5 @@ const { profile, moduleId, modules, network, writing, compact = false } = Astro.
     </section>
   ) : null
 }
+
+{moduleId === 'resume' && cv ? <ResumeApp client:load profile={profile} cv={cv} /> : null}

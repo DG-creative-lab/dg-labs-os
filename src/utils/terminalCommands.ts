@@ -1,4 +1,5 @@
 import type { ActiveProfileRuntime } from '../profiles';
+import { getPublicProfileModulePath, type PublicProfileModuleId } from './profileRoutes';
 import type { TerminalBrainMode } from './terminalSettings';
 
 export type TerminalAction =
@@ -34,18 +35,21 @@ export type TerminalContext = {
 };
 
 const APP_TARGETS: Record<string, string> = {
-  projects: '/apps/projects',
-  workbench: '/apps/projects',
-  writing: '/apps/notes',
-  analysis: '/apps/notes',
-  notes: '/apps/notes',
-  resume: '/apps/resume',
   news: '/apps/notes',
-  network: '/apps/network',
-  map: '/apps/network',
-  connections: '/apps/network',
   terminal: '/apps/terminal',
   desktop: '/desktop',
+};
+
+const PROFILE_APP_TARGETS: Record<string, PublicProfileModuleId> = {
+  projects: 'workbench',
+  workbench: 'workbench',
+  writing: 'writing',
+  analysis: 'writing',
+  notes: 'writing',
+  resume: 'resume',
+  network: 'network',
+  map: 'network',
+  connections: 'network',
 };
 
 const DETERMINISTIC_COMMANDS = new Set([
@@ -137,7 +141,10 @@ export const executeTerminalCommand = (
 
   if (command === 'open') {
     const target = normalize(args);
-    const href = APP_TARGETS[target];
+    const profileModule = PROFILE_APP_TARGETS[target];
+    const href = profileModule
+      ? getPublicProfileModulePath(ctx.profile.handle, profileModule)
+      : APP_TARGETS[target];
     if (!href) {
       return {
         lines: [`Unknown target "${args}". Try: projects, writing, resume, network, desktop.`],

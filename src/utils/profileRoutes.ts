@@ -1,4 +1,10 @@
-export const PUBLIC_PROFILE_MODULE_IDS = ['workbench', 'writing', 'evolution', 'network'] as const;
+export const PUBLIC_PROFILE_MODULE_IDS = [
+  'workbench',
+  'writing',
+  'evolution',
+  'network',
+  'resume',
+] as const;
 
 export type PublicProfileModuleId = (typeof PUBLIC_PROFILE_MODULE_IDS)[number];
 

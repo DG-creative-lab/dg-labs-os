@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "dg-os.cv-build-manifest/v1",
+  "profiles": [
+    {
+      "handle": "dessi",
+      "documentMetadata": {
+        "displayName": "Dessi Georgieva",
+        "subject": "AI systems engineering resume",
+        "keywords": ["AI systems", "agents", "evaluation", "Python", "FastAPI", "TypeScript"],
+        "language": "en-GB"
+      },
+      "variants": [
+        {
+          "id": "general",
+          "label": "General evidence-led CV",
+          "source": "src/data/resume/cv.md",
+          "publicStem": "Dessi_Georgieva_CV"
+        },
+        {
+          "id": "openai-codex",
+          "label": "OpenAI Codex application CV",
+          "source": "src/data/resume/openai-codex-cv.md",
+          "publicStem": "Dessi_Georgieva_OpenAI_Codex_CV"
+        }
+      ]
+    }
+  ]
+}

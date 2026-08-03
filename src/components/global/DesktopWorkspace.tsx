@@ -151,7 +151,7 @@ export default function DesktopWorkspace({
           initialPosition={{ x: resumeWindow.x, y: resumeWindow.y }}
           isFocused={focusedAppId === 'resume'}
         >
-          <ResumeApp profile={profile} />
+          <ResumeApp profile={profile} cv={profile.cv.primary} />
         </DraggableAppWindow>
       ) : null}
 

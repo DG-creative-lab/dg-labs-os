@@ -20,7 +20,8 @@ DG-OS is an evidence-led public profile system presented through an operating-sy
 - Product entrance and public profile registry at `/`
 - Canonical, responsive public profile at `/@dessi`
 - Owner-reviewed profile projection contract with private-source boundaries
-- Versioned Workbench, Evidence/Evolution, and Writing modules shared by the UI and Profile Agent
+- Versioned Workbench, Evidence/Evolution, Writing, and Network modules shared by the UI and Profile Agent
+- Profile-aware Resume resolution with explicit general and application CV variants
 - Desktop OS UI with a Mac-style toolbar and dock
 - Focus-aware desktop menubar (menu sets update by active/focused app)
 - Mobile iPhone-inspired lock + home screens (`/mobile`)
@@ -196,37 +197,49 @@ Edit the remaining content config files in `src/config/`:
 
 ## Resume Module
 
-Resume is now served from local static assets instead of Google Drive:
+Resume is resolved from the selected public profile and served from local static assets:
 
 - `/cv/Dessi_Georgieva_CV.pdf`
 - `/cv/Dessi_Georgieva_CV.docx`
 - `/cv/Dessi_Georgieva_CV.md`
 
-Canonical source markdown lives at:
+Build-only source mappings live in `scripts/resume/cv-build-manifest.json`. Local source paths are
+never included in the public profile projection or client runtime.
 
-- `src/data/resume/cv.md`
-
-Sync canonical markdown into downloadable public assets:
+Build one explicit profile CV variant:
 
 ```bash
-pnpm resume:sync
+pnpm cv:build --profile dessi --variant general
+pnpm cv:build --profile dessi --variant openai-codex
 ```
 
-Generate PDF + DOCX + Markdown from the canonical source using Pandoc:
+Preview the resolved build target without generating files:
+
+```bash
+pnpm cv:build --profile dessi --variant general --dry-run
+```
+
+Regenerate all currently registered Dessi variants:
 
 ```bash
 pnpm resume:build
+pnpm resume:sync
 ```
+
+`resume:sync` is retained as a compatibility alias for the same complete build. It does not publish
+Markdown independently.
 
 Requirements for `resume:build`:
 
-- `pandoc` installed
-- one PDF engine installed:
-  - `xelatex` or `pdflatex` or `lualatex` or `tectonic`
-  - or `wkhtmltopdf`
-  - or `weasyprint`
+- Python with the pinned dependencies from `scripts/resume/requirements.txt` installed for DOCX
+  generation.
+- LibreOffice (`soffice`) for mandatory PDF conversion.
 
-If only markdown sync is needed (no PDF/DOCX regeneration), use `pnpm resume:sync`.
+The CI build installs both requirements explicitly before regenerating the public resume assets.
+
+Each variant is rendered in an isolated staging directory. Markdown, DOCX, and PDF replace the
+public assets only after all three fresh files have been produced. Missing or failed PDF conversion
+fails the build and preserves the previously reviewed public set.
 
 ## Deployment
 

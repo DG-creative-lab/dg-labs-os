@@ -90,7 +90,17 @@ export const dessiProfileProjection = defineProfileProjection({
         markdown: '/cv/Dessi_Georgieva_CV.md',
       },
     },
-    variants: [],
+    variants: [
+      {
+        id: 'openai-codex',
+        label: 'OpenAI Codex application CV',
+        files: {
+          pdf: '/cv/Dessi_Georgieva_OpenAI_Codex_CV.pdf',
+          docx: '/cv/Dessi_Georgieva_OpenAI_Codex_CV.docx',
+          markdown: '/cv/Dessi_Georgieva_OpenAI_Codex_CV.md',
+        },
+      },
+    ],
   },
   seo: {
     title: 'DG-OS - Dessi Georgieva',

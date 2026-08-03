@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Build the canonical general and OpenAI-targeted CV artifacts."""
+"""Render one explicitly selected profile CV into a coherent artifact set."""
 
 from __future__ import annotations
 
+import argparse
 import os
 import re
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 
 from docx import Document
@@ -18,17 +20,6 @@ from docx.shared import Inches, Pt, RGBColor
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SOURCE_DIR = REPO_ROOT / "src" / "data" / "resume"
-OUTPUT_DIR = REPO_ROOT / "public" / "cv"
-
-ARTIFACTS = (
-    ("cv.md", "Dessi_Georgieva_CV", "General evidence-led CV"),
-    (
-        "openai-codex-cv.md",
-        "Dessi_Georgieva_OpenAI_Codex_CV",
-        "OpenAI Codex application CV",
-    ),
-)
 
 LINK_PATTERN = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 TOKEN_PATTERN = re.compile(r"(\*\*[^*]+\*\*|_[^_]+_|\[[^\]]+\]\([^)]+\))")
@@ -119,12 +110,19 @@ def set_repeatable_styles(document: Document) -> None:
     bullet.paragraph_format.line_spacing = 1.01
 
 
-def set_document_metadata(document: Document, label: str) -> None:
+def set_document_metadata(
+    document: Document,
+    label: str,
+    display_name: str,
+    subject: str,
+    keywords: list[str],
+    language_code: str,
+) -> None:
     properties = document.core_properties
-    properties.title = f"Dessi Georgieva - {label}"
-    properties.subject = "AI systems engineering resume"
-    properties.keywords = "AI systems, agents, evaluation, Python, FastAPI, TypeScript"
-    properties.author = ""
+    properties.title = f"{display_name} - {label}"
+    properties.subject = subject
+    properties.keywords = ", ".join(keywords)
+    properties.author = display_name
     properties.last_modified_by = ""
 
     settings = document.settings.element
@@ -132,7 +130,7 @@ def set_document_metadata(document: Document, label: str) -> None:
     if language is None:
         language = OxmlElement("w:themeFontLang")
         settings.append(language)
-    language.set(qn("w:val"), "en-GB")
+    language.set(qn("w:val"), language_code)
 
 
 def add_bottom_rule(paragraph) -> None:
@@ -217,11 +215,21 @@ def add_page_number(paragraph) -> None:
     run.font.color.rgb = RGBColor(120, 124, 128)
 
 
-def build_docx(source: Path, target: Path, label: str) -> None:
+def build_docx(
+    source: Path,
+    target: Path,
+    label: str,
+    display_name: str,
+    subject: str,
+    keywords: list[str],
+    language_code: str,
+) -> None:
     document = Document()
     set_cell_free_page_geometry(document)
     set_repeatable_styles(document)
-    set_document_metadata(document, label)
+    set_document_metadata(
+        document, label, display_name, subject, keywords, language_code
+    )
     add_page_number(document.sections[0].footer.paragraphs[0])
 
     lines = source.read_text(encoding="utf-8").splitlines()
@@ -281,48 +289,98 @@ def build_docx(source: Path, target: Path, label: str) -> None:
     document.save(target)
 
 
-def convert_to_pdf(docx_paths: list[Path]) -> None:
+def convert_to_pdf(docx_path: Path, output_directory: Path) -> Path:
     configured = os.environ.get("SOFFICE_BIN")
     soffice = configured or shutil.which("soffice")
     if not soffice:
-        print("DOCX and Markdown generated; PDF conversion skipped because soffice is unavailable.")
-        return
-    for docx_path in docx_paths:
-        try:
-            subprocess.run(
-                [
-                    soffice,
-                    "--headless",
-                    "--convert-to",
-                    "pdf",
-                    "--outdir",
-                    str(OUTPUT_DIR),
-                    str(docx_path),
-                ],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-        except subprocess.CalledProcessError:
-            print(
-                f"PDF conversion skipped for {docx_path.name}; "
-                "use the document render workflow to emit the verified PDF."
-            )
+        raise RuntimeError("PDF conversion requires LibreOffice (soffice).")
+
+    pdf_target = output_directory / f"{docx_path.stem}.pdf"
+    if pdf_target.exists():
+        pdf_target.unlink()
+    try:
+        subprocess.run(
+            [
+                soffice,
+                "--headless",
+                "--convert-to",
+                "pdf",
+                "--outdir",
+                str(output_directory),
+                str(docx_path),
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except subprocess.CalledProcessError as error:
+        detail = (error.stderr or error.stdout or "unknown conversion error").strip()
+        raise RuntimeError(f"PDF conversion failed: {detail}") from error
+
+    if not pdf_target.is_file() or pdf_target.stat().st_size == 0:
+        raise RuntimeError("PDF conversion completed without producing a fresh PDF.")
+    return pdf_target
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Render one explicitly selected profile CV.")
+    parser.add_argument("--source", required=True, help="Repository-local Markdown source")
+    parser.add_argument("--stem", required=True, help="Safe public output filename stem")
+    parser.add_argument("--label", required=True, help="Document metadata label")
+    parser.add_argument("--display-name", required=True, help="Profile display name")
+    parser.add_argument("--subject", required=True, help="Document subject")
+    parser.add_argument("--keyword", action="append", required=True, help="Document keyword")
+    parser.add_argument("--language", required=True, help="BCP 47 language code")
+    parser.add_argument("--output-dir", required=True, help="Staging output directory")
+    return parser.parse_args()
 
 
 def main() -> None:
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    generated_docx: list[Path] = []
-    for source_name, stem, label in ARTIFACTS:
-        source = SOURCE_DIR / source_name
-        markdown_target = OUTPUT_DIR / f"{stem}.md"
-        docx_target = OUTPUT_DIR / f"{stem}.docx"
-        shutil.copyfile(source, markdown_target)
-        build_docx(source, docx_target, label)
-        generated_docx.append(docx_target)
-        print(f"Generated {docx_target.relative_to(REPO_ROOT)}")
-        print(f"Synced {markdown_target.relative_to(REPO_ROOT)}")
-    convert_to_pdf(generated_docx)
+    args = parse_args()
+    source = Path(args.source).resolve()
+    try:
+        source.relative_to(REPO_ROOT)
+    except ValueError as error:
+        raise ValueError("CV source must remain inside the repository.") from error
+    if source.suffix.lower() != ".md" or not source.is_file():
+        raise ValueError("CV source must be an existing Markdown file.")
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", args.stem):
+        raise ValueError("CV output stem contains unsupported characters.")
+    if not args.display_name.strip() or not args.subject.strip():
+        raise ValueError("CV display name and subject cannot be empty.")
+    if any(not keyword.strip() for keyword in args.keyword):
+        raise ValueError("CV keywords cannot be empty.")
+    if not re.fullmatch(r"[a-z]{2}(?:-[A-Z]{2})?", args.language):
+        raise ValueError("CV language must use a supported BCP 47 code.")
+
+    output_directory = Path(args.output_dir).resolve()
+    output_directory.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="dg-os-render-", dir=output_directory) as temporary:
+        staging_directory = Path(temporary)
+        staged_markdown = staging_directory / f"{args.stem}.md"
+        staged_docx = staging_directory / f"{args.stem}.docx"
+        shutil.copyfile(source, staged_markdown)
+        build_docx(
+            source,
+            staged_docx,
+            args.label,
+            args.display_name,
+            args.subject,
+            args.keyword,
+            args.language,
+        )
+        staged_pdf = convert_to_pdf(staged_docx, staging_directory)
+
+        markdown_target = output_directory / staged_markdown.name
+        docx_target = output_directory / staged_docx.name
+        pdf_target = output_directory / staged_pdf.name
+        shutil.copyfile(staged_markdown, markdown_target)
+        shutil.copyfile(staged_docx, docx_target)
+        shutil.copyfile(staged_pdf, pdf_target)
+
+    print(f"Generated DOCX: {docx_target}")
+    print(f"Generated PDF: {pdf_target}")
+    print(f"Synced Markdown: {markdown_target}")
 
 
 if __name__ == "__main__":

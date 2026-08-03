@@ -4,14 +4,15 @@ import {
   handleResumeMenuAction,
   type ResumeMenuEventDetail,
 } from '../../services/menuActionHandlers';
-import type { ActiveProfileRuntime } from '../../profiles';
+import type { ActiveProfileRuntime, ProfileCv } from '../../profiles';
 
 type ResumeAppProps = {
   profile: ActiveProfileRuntime;
+  cv: ProfileCv;
 };
 
-export default function ResumeApp({ profile }: ResumeAppProps) {
-  const resume = profile.cv.primary.files;
+export default function ResumeApp({ profile, cv }: ResumeAppProps) {
+  const resume = cv.files;
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -84,6 +85,7 @@ export default function ResumeApp({ profile }: ResumeAppProps) {
         <div className="hidden text-right text-xs text-white/50 md:block">
           <p>DG-OS</p>
           <p>Module: Resume</p>
+          <p>Variant: {cv.label}</p>
         </div>
       </div>
 
