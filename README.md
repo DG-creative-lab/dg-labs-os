@@ -174,9 +174,9 @@ git rm --cached .env.local .env.production .env
 
 Public profile identity, links, CV references, SEO, and publication approval enter through the
 versioned contract in `src/profiles/`. Workbench and Evidence/Evolution records enter through the
-versioned module bundle in `src/profiles/modules/`. Writing is independently versioned in
-`src/profiles/writing/`, which allows its contract to evolve without changing the frozen profile
-modules v1 schema. The remaining single-profile surfaces continue to migrate incrementally.
+versioned module bundle in `src/profiles/modules/`. Writing, Network, and Resume use independent
+versioned contracts so each surface can evolve without changing the frozen profile-modules v1
+schema. The remaining single-profile surfaces continue to migrate incrementally.
 
 Platform identity and root-route SEO live in `src/config/platform.ts`.
 
@@ -203,6 +203,11 @@ Resume is resolved from the selected public profile and served from local static
 - `/cv/Dessi_Georgieva_CV.docx`
 - `/cv/Dessi_Georgieva_CV.md`
 
+The general CV is rendered deterministically from the approved Profile, Resume, Workbench, and
+Evidence/Evolution modules. Its canonical Resume data lives in `src/profiles/resume/`; the committed
+Markdown, DOCX, and PDF are generated views rather than editable sources. Application-specific CVs
+remain explicit Markdown variants.
+
 Build-only source mappings live in `scripts/resume/cv-build-manifest.json`. Local source paths are
 never included in the public profile projection or client runtime.
 
@@ -217,6 +222,13 @@ Preview the resolved build target without generating files:
 
 ```bash
 pnpm cv:build --profile dessi --variant general --dry-run
+```
+
+Verify that the committed general CV Markdown matches the approved modules without replacing any
+files:
+
+```bash
+pnpm resume:check
 ```
 
 Regenerate all currently registered Dessi variants:
@@ -236,6 +248,9 @@ Requirements for `resume:build`:
 - LibreOffice (`soffice`) for mandatory PDF conversion.
 
 The CI build installs both requirements explicitly before regenerating the public resume assets.
+The main quality gate also runs `resume:check`. It verifies the expected Markdown for every CV
+variant and checks the committed Markdown, DOCX, and PDF SHA-256 digests against
+`scripts/resume/cv-artifact-manifest.json`, so source or binary drift fails before release.
 
 Each variant is rendered in an isolated staging directory. Markdown, DOCX, and PDF replace the
 public assets only after all three fresh files have been produced. Missing or failed PDF conversion

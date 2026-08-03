@@ -29,6 +29,8 @@ Deploy DG-Labs OS safely to Vercel with reproducible env configuration, runtime 
   - `pnpm check`
   - `pnpm build`
   - E2E smoke (`pnpm test:e2e:smoke`) in CI
+- Both production build commands run `resume:check` before Astro compiles, so Vercel cannot deploy
+  CV files that do not match their committed artifact manifest.
 
 ## 3) Pre-deploy Checklist
 

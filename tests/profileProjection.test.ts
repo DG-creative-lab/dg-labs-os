@@ -90,7 +90,7 @@ describe('profile projection', () => {
     expect(getPublicProfileCanonicalUrl(activeProfile)).toBe('https://dg-os.com/@dessi');
   });
 
-  it('is the canonical source for identity, links, general CV, SEO, and systems evidence', () => {
+  it('is the canonical source for identity, links, CV assets, SEO, and systems evidence', () => {
     expect(personal).toMatchObject({
       name: dessiProfileProjection.identity.displayName,
       ownerName: dessiProfileProjection.identity.ownerName,

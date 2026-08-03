@@ -5,6 +5,7 @@ import type {
   PublicProfileModules,
   PublicWritingModule,
 } from '../../profiles';
+import type { ResumeViewModel } from '../../profiles/resume/viewModel';
 import {
   dispatchDesktopAppFocus,
   dispatchDesktopState,
@@ -32,11 +33,13 @@ export default function DesktopWorkspace({
   modules,
   network,
   writing,
+  resume,
 }: {
   profile: ActiveProfileRuntime;
   modules: PublicProfileModules;
   network: PublicNetworkModule;
   writing: PublicWritingModule;
+  resume: ResumeViewModel;
 }) {
   const [state, dispatch] = useReducer(desktopShellReducer, INITIAL_DESKTOP_SHELL_STATE);
   const { open, focusedAppId } = state;
@@ -151,7 +154,7 @@ export default function DesktopWorkspace({
           initialPosition={{ x: resumeWindow.x, y: resumeWindow.y }}
           isFocused={focusedAppId === 'resume'}
         >
-          <ResumeApp profile={profile} cv={profile.cv.primary} />
+          <ResumeApp profile={profile} cv={profile.cv.primary} resume={resume} />
         </DraggableAppWindow>
       ) : null}
 

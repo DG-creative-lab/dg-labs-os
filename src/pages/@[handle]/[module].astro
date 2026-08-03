@@ -11,6 +11,8 @@ import {
   findPublicWritingModule,
   type ActiveProfileRuntime,
 } from '../../profiles';
+import { findPublicResumeModule } from '../../profiles/resume/runtime';
+import { buildResumeViewModel } from '../../profiles/resume/viewModel';
 import { isMobileUserAgent } from '../../utils/deviceDetection';
 import {
   getPublicProfileModuleCanonicalUrl,
@@ -34,19 +36,24 @@ if (!profile || !isPublicProfileModuleId(requestedModule)) {
 
 const moduleId: PublicProfileModuleId = requestedModule;
 const modules =
-  moduleId === 'workbench' || moduleId === 'evolution'
+  moduleId === 'workbench' || moduleId === 'evolution' || moduleId === 'resume'
     ? findPublicProfileModules(handle)
     : undefined;
 const network = moduleId === 'network' ? findPublicNetworkModule(handle) : undefined;
 const writing = moduleId === 'writing' ? findPublicWritingModule(handle) : undefined;
 const cv =
   moduleId === 'resume' ? findPublicProfileCv(handle, profile.cv.primary.id)?.cv : undefined;
+const resumeModule = moduleId === 'resume' ? findPublicResumeModule(handle) : undefined;
+const resume =
+  moduleId === 'resume' && modules && resumeModule
+    ? buildResumeViewModel(profile, modules, resumeModule)
+    : undefined;
 const hasSelectedModule =
   (moduleId === 'workbench' && Boolean(modules)) ||
   (moduleId === 'evolution' && Boolean(modules)) ||
   (moduleId === 'network' && Boolean(network)) ||
   (moduleId === 'writing' && Boolean(writing)) ||
-  (moduleId === 'resume' && Boolean(cv));
+  (moduleId === 'resume' && Boolean(cv) && Boolean(resume));
 
 if (!hasSelectedModule) {
   return new Response('Public profile module not found.', {
@@ -140,6 +147,7 @@ const openGraph = {
           network={network}
           writing={writing}
           cv={cv}
+          resume={resume}
           compact
         />
       </main>
@@ -169,6 +177,7 @@ const openGraph = {
             network={network}
             writing={writing}
             cv={cv}
+            resume={resume}
           />
         </DraggableAppWindow>
       </main>

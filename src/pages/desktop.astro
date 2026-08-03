@@ -7,6 +7,10 @@ import {
   activeProfileModules,
   activeWritingModule,
 } from '../profiles';
+import { activeResumeModule } from '../profiles/resume/runtime';
+import { buildResumeViewModel } from '../profiles/resume/viewModel';
+
+const activeResume = buildResumeViewModel(activeProfile, activeProfileModules, activeResumeModule);
 ---
 
 <DesktopLayout
@@ -27,5 +31,6 @@ import {
     modules={activeProfileModules}
     network={activeNetworkModule}
     writing={activeWritingModule}
+    resume={activeResume}
   />
 </DesktopLayout>

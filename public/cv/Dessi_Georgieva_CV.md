@@ -2,7 +2,7 @@
 
 **AI Systems Engineer**
 
-London, UK · [dessi.georgieva8@gmail.com](mailto:dessi.georgieva8@gmail.com) · [LinkedIn](https://www.linkedin.com/in/dessi-georgieva/) · [GitHub](https://github.com/DG-creative-lab) · [Portfolio](https://dg-os.com/) · [AI Knowledge Hub](https://github.com/ai-knowledge-hub)
+London, UK · [dessi.georgieva8@gmail.com](mailto:dessi.georgieva8@gmail.com) · [LinkedIn](https://www.linkedin.com/in/dessi-georgieva/) · [GitHub](https://github.com/DG-creative-lab) · [Portfolio](https://dg-os.com/) · [ai-knowledge-hub](https://github.com/ai-knowledge-hub)
 
 ---
 
@@ -19,52 +19,52 @@ AI systems engineer building the layer between models and dependable products: t
 
 ## Selected Systems
 
-### Agentic Commerce Control Plane
+### Agentic Commerce Learning Loop
 
-_Collaborative public engineering project · Active development · [Repository](https://github.com/ai-knowledge-hub/deep-dive-analysis-agentic-commerce-augmentation)_
+_Collaborative public system · Active · [Repository](https://github.com/ai-knowledge-hub/deep-dive-analysis-agentic-commerce-augmentation)_
 
-- Designed supervised agent execution with registry-pinned tools, principal-aware policy checks, immutable receipts, and explicit approve, pause, retry, and recovery transitions.
-- Built a governed feedback loop with more than 280 Python test functions across policy, replay, recovery, validation, and receipt integrity.
+- Designed a supervised agent runtime with registry-pinned tools, policy preflight, immutable events, recovery paths, and external-agent job receipts.
+- Built a governed feedback loop that separates synthetic validation, observed outcomes, belief revision, and human approval.
 
 ### Learning Foundry
 
-_OpenAI Build Week submission · Submitted state frozen during judging · [Repository at submitted commit](https://github.com/DG-creative-lab/codex-hack-learning-foundry/tree/0547da02518f432fdd85e79d317e1fedaa51c4c1)_
+_Submitted public system · Judging state preserved · [Repository at submitted commit](https://github.com/DG-creative-lab/codex-hack-learning-foundry/tree/0547da02518f432fdd85e79d317e1fedaa51c4c1)_
 
-- Built an append-only evidence ledger and deterministic projections that separate sources, human understanding, shared theory, agent memory, and capability state.
-- Implemented and evaluated a consent-gated Codex capability with reviewable activation, provenance, IPC, accessibility, and fallback tests.
+- Built an evaluated, approval-gated Codex capability backed by append-only evidence and deterministic projections.
+- Append-only evidence and deterministic projections preserve provenance.
 
-### DG-OS Agent Runtime
+### DG-OS
 
-_Personal public system · Active · [Portfolio](https://dg-os.com/) · [Repository](https://github.com/DG-creative-lab/dg-labs-os)_
+_Personal public system · Active · [Portfolio](https://dg-os.com/)_
 
-- Built a retrieval-backed agent interface with deterministic commands, provider adapters, streaming contracts, health checks, and explicit fallbacks.
-- Added source-aware diagnostics and more than 180 TypeScript test declarations covering routing, context, streaming, provider health, and desktop state.
+- Built a retrieval-backed agent interface with multiple provider adapters, streaming contracts, health checks, and explicit fallback controls.
+- Represents claims with provenance, confidence, visibility, and boundaries.
 
 ## Experience
 
 ### Engineer
 
-**Performics Innovations Lab · Publicis Media** · London · Nov 2023 – Present
+**Performics Innovations Lab · Publicis Media** · London · Nov 2023 - Present
 
 - Design and build AI and data systems spanning FastAPI services, AWS workflows, multi-tenant platform controls, behavioural modelling, and marketing-intelligence interfaces.
-- Delivered backend services and data workflows for an award-recognised ecommerce optimisation platform using FastAPI, AWS Glue, Lambda, and PostgreSQL.
+- Delivered FastAPI services and AWS data workflows for an award-recognised ecommerce optimisation platform.
 - Employer code, client information, operational measurements, and infrastructure remain confidential; public descriptions are intentionally limited to responsibilities and outcomes.
 
 ### Senior Business Intelligence Analyst
 
-**Publicis Media** · London · Mar 2023 – Nov 2023
+**Publicis Media** · London · Mar 2023 - Nov 2023
 
 - Bridged marketing analytics and decision systems, moving reporting workflows toward reusable intelligence services and platformised decision support.
 
 ### Business Intelligence Manager
 
-**Jellyfish** · London · Jan 2021 – Mar 2023
+**Jellyfish** · London · Jan 2021 - Mar 2023
 
 - Built enterprise analytics applications and data workflows, including Shiny applications, AWS ETL, and data-lake patterns.
 
 ### Data Consultant / SQL Developer / Data Analyst
 
-**Selected contracts** · London · 2017 – 2020
+**Selected contracts** · London · 2017 - 2020
 
 - Delivered CRM, analytics, segmentation, automation, and experimentation systems for agencies, startups, and media organisations.
 
@@ -72,8 +72,8 @@ _Personal public system · Active · [Portfolio](https://dg-os.com/) · [Reposit
 
 ### MA Applied Human Rights
 
-**University of York** · 2009 – 2011
+**University of York** · 2009 - 2011
 
 ### BA Philosophy, specialising in Philosophy of Science
 
-**Sofia University** · 2003 – 2007
+**Sofia University** · 2003 - 2007

@@ -1,7 +1,7 @@
 # Dessi Profile Dependency Inventory
 
 > Status: active migration map
-> Last reviewed: 2026-08-02
+> Last reviewed: 2026-08-03
 > Related: [`DG_OS_PRODUCT_ROADMAP.md`](./DG_OS_PRODUCT_ROADMAP.md)
 
 ## Purpose
@@ -12,24 +12,25 @@ DG-OS currently renders one person, but much of its content is embedded directly
 
 ## Completed in the first contract slice
 
-| Area                                        | Canonical source                        | State                          |
-| ------------------------------------------- | --------------------------------------- | ------------------------------ |
-| Identity, role, location, positioning       | `dessiProfileProjection.identity`       | Migrated                       |
-| Public contact details                      | `dessiProfileProjection.contact`        | Migrated                       |
-| Public links and their allowed surfaces     | `dessiProfileProjection.links`          | Migrated                       |
-| General CV asset references                 | `dessiProfileProjection.cv.primary`     | Migrated                       |
-| SEO title, description, and keywords        | `dessiProfileProjection.seo`            | Migrated                       |
-| Active profile resolution and runtime       | `src/profiles/runtime.ts`               | Migrated                       |
-| Shared shell, apps, and Evidence identity   | `activeProfile` runtime                 | Migrated                       |
-| Owner approval and private-source exclusion | `dessiProfileProjection.publication`    | Enforced                       |
-| Application-specific OpenAI CV and role     | `openAiCodexApplication`                | Intentionally separate variant |
-| Workbench projects and categories           | `dessiProfileModules.workbench`         | Migrated                       |
-| Claims, case studies, boundaries, evolution | `dessiProfileModules.evidenceEvolution` | Migrated                       |
-| Shared Workbench and Evolution components   | Explicit profile-module props           | Migrated                       |
-| Profile Agent module evidence               | Selected profile module registry        | Migrated                       |
-| Selected professional writing               | `dessiWritingModule.entries`            | Migrated                       |
-| Writing authorship and evidence boundaries  | `dg-os.profile-writing/v1`              | Enforced                       |
-| Shared Writing component and agent evidence | Selected Writing registry               | Migrated                       |
+| Area                                        | Canonical source                         | State                          |
+| ------------------------------------------- | ---------------------------------------- | ------------------------------ |
+| Identity, role, location, positioning       | `dessiProfileProjection.identity`        | Migrated                       |
+| Public contact details                      | `dessiProfileProjection.contact`         | Migrated                       |
+| Public links and their allowed surfaces     | `dessiProfileProjection.links`           | Migrated                       |
+| General CV asset references                 | `dessiProfileProjection.cv.primary`      | Migrated                       |
+| SEO title, description, and keywords        | `dessiProfileProjection.seo`             | Migrated                       |
+| Active profile resolution and runtime       | `src/profiles/runtime.ts`                | Migrated                       |
+| Shared shell, apps, and Evidence identity   | `activeProfile` runtime                  | Migrated                       |
+| Owner approval and private-source exclusion | `dessiProfileProjection.publication`     | Enforced                       |
+| Application-specific OpenAI CV and role     | `openAiCodexApplication`                 | Intentionally separate variant |
+| Workbench projects and categories           | `dessiProfileModules.workbench`          | Migrated                       |
+| Claims, case studies, boundaries, evolution | `dessiProfileModules.evidenceEvolution`  | Migrated                       |
+| Shared Workbench and Evolution components   | Explicit profile-module props            | Migrated                       |
+| Profile Agent module evidence               | Selected profile module registry         | Migrated                       |
+| Selected professional writing               | `dessiWritingModule.entries`             | Migrated                       |
+| Writing authorship and evidence boundaries  | `dg-os.profile-writing/v1`               | Enforced                       |
+| Shared Writing component and agent evidence | Selected Writing registry                | Migrated                       |
+| General CV content and exported documents   | `dessiResumeModule` and approved modules | Migrated                       |
 
 The validator rejects malformed identifiers and URLs, duplicate links and CV IDs, local filesystem paths, secret-bearing fields, and publication without the explicit privacy boundary. A JSON round-trip test protects the portability requirement.
 
@@ -73,9 +74,14 @@ flattening its records into a generic graph.
 
 ### 5. CV sources and build scripts
 
-The projection owns published CV asset references, while filenames and resume-generation scripts still assume Dessi.
+The projection owns published CV asset references. The general CV content is derived from the
+registered Profile, Resume, Workbench, and Evidence/Evolution modules. Build metadata and filenames
+remain outside the public contract, and application-specific CVs remain explicit source variants.
 
-**Disposition:** make the resume builder accept a profile handle and an explicit CV variant. Keep the OpenAI application as a deliberate variant; it should not redefine the general profile.
+**Disposition:** completed. The builder requires a registered profile handle and explicit variant,
+validates the approved module bundle, generates the general Markdown deterministically, and fails
+its drift check when committed output is stale. The OpenAI application remains a deliberate variant
+and does not redefine the general profile.
 
 ### 6. Routes and page metadata
 
@@ -107,13 +113,13 @@ Existing terminal, API, and end-to-end suites contain fixture-specific Dessi ass
 
 ## Completed implementation slice
 
-Workbench, Evidence/Evolution, Writing, and Network are versioned public modules. Resume resolves
-the selected profile's approved CV through the existing projection contract. Their registries
-reject invalid, unpublished, mismatched, private-path-bearing, and cross-profile bundles. The UI,
-Profile Agent, and profile-aware module routes consume the selected modules explicitly.
+Workbench, Evidence/Evolution, Writing, Network, and Resume are versioned public modules. Resume
+resolves the selected profile's approved CV through the existing projection contract, and the
+general CV documents are generated from the same reviewed records. Their registries reject invalid,
+unpublished, mismatched, private-path-bearing, and cross-profile bundles. The UI, Profile Agent, and
+profile-aware module routes consume the selected modules explicitly.
 
 ## Next implementation slice
 
-Generate the general CV content from the same approved profile and module data, then specify the
-signed local publication bundle. Keep authentication, hosted workspaces, and database storage behind
-the second-real-user gate.
+Specify the signed local publication bundle and narrow publication API. Keep authentication, hosted
+workspaces, and database storage behind the second-real-user gate.
