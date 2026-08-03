@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "dg-os.cv-build-manifest/v1",
+  "schemaVersion": "dg-os.cv-build-manifest/v2",
   "profiles": [
     {
       "handle": "dessi",
@@ -13,13 +13,18 @@
         {
           "id": "general",
           "label": "General evidence-led CV",
-          "source": "src/data/resume/cv.md",
+          "source": {
+            "kind": "profile-resume"
+          },
           "publicStem": "Dessi_Georgieva_CV"
         },
         {
           "id": "openai-codex",
           "label": "OpenAI Codex application CV",
-          "source": "src/data/resume/openai-codex-cv.md",
+          "source": {
+            "kind": "markdown",
+            "path": "src/data/resume/openai-codex-cv.md"
+          },
           "publicStem": "Dessi_Georgieva_OpenAI_Codex_CV"
         }
       ]

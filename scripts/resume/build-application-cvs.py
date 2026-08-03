@@ -299,20 +299,24 @@ def convert_to_pdf(docx_path: Path, output_directory: Path) -> Path:
     if pdf_target.exists():
         pdf_target.unlink()
     try:
-        subprocess.run(
-            [
-                soffice,
-                "--headless",
-                "--convert-to",
-                "pdf",
-                "--outdir",
-                str(output_directory),
-                str(docx_path),
-            ],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
+        with tempfile.TemporaryDirectory(
+            prefix="dg-os-libreoffice-", dir=output_directory
+        ) as office_profile:
+            subprocess.run(
+                [
+                    soffice,
+                    f"-env:UserInstallation={Path(office_profile).as_uri()}",
+                    "--headless",
+                    "--convert-to",
+                    "pdf",
+                    "--outdir",
+                    str(output_directory),
+                    str(docx_path),
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
     except subprocess.CalledProcessError as error:
         detail = (error.stderr or error.stdout or "unknown conversion error").strip()
         raise RuntimeError(f"PDF conversion failed: {detail}") from error
@@ -338,10 +342,14 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     source = Path(args.source).resolve()
-    try:
-        source.relative_to(REPO_ROOT)
-    except ValueError as error:
-        raise ValueError("CV source must remain inside the repository.") from error
+    output_directory = Path(args.output_dir).resolve()
+    source_is_approved = any(
+        source.is_relative_to(root) for root in (REPO_ROOT, output_directory)
+    )
+    if not source_is_approved:
+        raise ValueError(
+            "CV source must remain inside the repository or renderer staging directory."
+        )
     if source.suffix.lower() != ".md" or not source.is_file():
         raise ValueError("CV source must be an existing Markdown file.")
     if not re.fullmatch(r"[A-Za-z0-9_-]+", args.stem):
@@ -353,7 +361,6 @@ def main() -> None:
     if not re.fullmatch(r"[a-z]{2}(?:-[A-Z]{2})?", args.language):
         raise ValueError("CV language must use a supported BCP 47 code.")
 
-    output_directory = Path(args.output_dir).resolve()
     output_directory.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="dg-os-render-", dir=output_directory) as temporary:
         staging_directory = Path(temporary)

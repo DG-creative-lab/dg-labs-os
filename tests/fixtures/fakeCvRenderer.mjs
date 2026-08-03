@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 
@@ -12,6 +12,7 @@ const valuesFor = (flag) =>
 
 const outputDirectory = valueFor('--output-dir');
 const stem = valueFor('--stem');
+const source = valueFor('--source');
 if (!outputDirectory || !stem) {
   throw new Error('Fake CV renderer requires --output-dir and --stem.');
 }
@@ -33,4 +34,8 @@ if (process.env.CV_FAKE_METADATA_PATH) {
       keywords: valuesFor('--keyword'),
     })
   );
+}
+
+if (process.env.CV_FAKE_SOURCE_CAPTURE_PATH && source) {
+  await writeFile(process.env.CV_FAKE_SOURCE_CAPTURE_PATH, await readFile(source, 'utf8'));
 }

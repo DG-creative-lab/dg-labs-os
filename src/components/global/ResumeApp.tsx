@@ -1,45 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import {
   handleResumeMenuAction,
   type ResumeMenuEventDetail,
 } from '../../services/menuActionHandlers';
 import type { ActiveProfileRuntime, ProfileCv } from '../../profiles';
+import { renderResumeMarkdown } from '../../profiles/resume/markdown';
+import type { ResumeViewModel } from '../../profiles/resume/viewModel';
 
 type ResumeAppProps = {
   profile: ActiveProfileRuntime;
   cv: ProfileCv;
+  resume: ResumeViewModel;
 };
 
-export default function ResumeApp({ profile, cv }: ResumeAppProps) {
-  const resume = cv.files;
-  const [content, setContent] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(resume.markdown);
-        if (!response.ok) {
-          throw new Error(`Failed to load resume markdown (${response.status})`);
-        }
-        const markdown = await response.text();
-        if (!cancelled) setContent(markdown);
-      } catch {
-        if (!cancelled) setError('Resume markdown could not be loaded.');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-    void load();
-    return () => {
-      cancelled = true;
-    };
-  }, [resume.markdown]);
+export default function ResumeApp({ profile, cv, resume }: ResumeAppProps) {
+  const files = cv.files;
+  const content = renderResumeMarkdown(resume);
 
   useEffect(() => {
     const onResumeMenuAction = (event: Event) => {
@@ -93,7 +70,7 @@ export default function ResumeApp({ profile, cv }: ResumeAppProps) {
         <a
           id="resume-download-pdf"
           className="rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-2 text-center text-sm text-sky-100 transition hover:bg-sky-400/20"
-          href={resume.pdf}
+          href={files.pdf}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -102,7 +79,7 @@ export default function ResumeApp({ profile, cv }: ResumeAppProps) {
         <a
           id="resume-download-docx"
           className="rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-2 text-center text-sm text-sky-100 transition hover:bg-sky-400/20"
-          href={resume.docx}
+          href={files.docx}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -111,7 +88,7 @@ export default function ResumeApp({ profile, cv }: ResumeAppProps) {
         <a
           id="resume-download-markdown"
           className="rounded-md border border-sky-300/35 bg-sky-400/10 px-3 py-2 text-center text-sm text-sky-100 transition hover:bg-sky-400/20"
-          href={resume.markdown}
+          href={files.markdown}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -121,11 +98,15 @@ export default function ResumeApp({ profile, cv }: ResumeAppProps) {
 
       <aside className="mt-4 rounded-xl border border-sky-300/25 bg-sky-400/8 p-4">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-200/75">
-          Systems &amp; Evidence
+          Approved profile projection
+        </p>
+        <p className="mt-2 text-sm leading-6 text-white/65">
+          This view and its downloadable formats are generated from the same reviewed Resume,
+          Workbench, and Evidence records.
         </p>
         <a
           className="mt-2 inline-flex text-sm font-medium text-sky-100 underline decoration-sky-300/40 underline-offset-4"
-          href="/systems"
+          href={`/@${profile.handle}/evolution`}
         >
           Inspect selected systems, claims, and boundaries →
         </a>
@@ -135,13 +116,9 @@ export default function ResumeApp({ profile, cv }: ResumeAppProps) {
         id="resume-body"
         className="mt-5 rounded-xl border border-white/10 bg-white/5 p-4 sm:p-5"
       >
-        {loading ? <p className="text-white/60">Loading resume...</p> : null}
-        {!loading && error ? <p className="text-red-300/90">{error}</p> : null}
-        {!loading && !error ? (
-          <article className="prose prose-invert prose-sm sm:prose-base max-w-none prose-headings:mb-2 prose-headings:mt-5 prose-p:my-2 prose-li:my-1 break-words">
-            <ReactMarkdown>{content}</ReactMarkdown>
-          </article>
-        ) : null}
+        <article className="prose prose-invert prose-sm sm:prose-base max-w-none prose-headings:mb-2 prose-headings:mt-5 prose-p:my-2 prose-li:my-1 break-words">
+          <ReactMarkdown>{content}</ReactMarkdown>
+        </article>
       </div>
     </section>
   );

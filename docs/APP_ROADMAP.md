@@ -56,7 +56,8 @@ Primary metaphor:
 - Workbench (`/apps/projects`) mapped from `src/config/workbench.ts`
 - Technical Writing (`/apps/notes`) mapped from the reviewed module in `src/profiles/writing/`
 - Network (`/apps/network`) backed by the reviewed profile module in `src/profiles/network/`
-- Resume resolves the selected profile's approved CV and supports PDF, DOCX, and Markdown downloads
+- Resume resolves a validated profile-owned module, renders the general CV from approved profile
+  records, and supports PDF, DOCX, and Markdown downloads
 - Terminal provides deterministic and evidence-grounded Profile Agent interactions
 - News app route exists (`/apps/news`)
 
@@ -115,7 +116,8 @@ This means roadmap execution can be incremental without redesigning the whole in
 
 ### 4.1 Product/UX Gaps
 
-- Resume is too thin relative to your actual depth.
+- Resume now has an approved-data foundation; future depth should be added to the reviewed modules
+  rather than directly to the generated document.
 - News app needs a stronger in-app experience (embedded curated view vs plain external jump).
 - Toolbar actions are useful but not yet fully aligned to the cognitive-OS story.
 
@@ -130,8 +132,7 @@ This means roadmap execution can be incremental without redesigning the whole in
 
 ### 4.2 Content Architecture Gaps
 
-- Some CV depth is in network config but not yet reflected in:
-  - Timeline/Resume app
+- Some profile depth is not yet reflected consistently in:
   - About DG-Labs Pro window details
   - app-level cross-links ("open in Network", "open in Workbench")
 
@@ -221,8 +222,7 @@ Goal: make current modules feel intentionally connected.
   - milestones
   - downloadable PDF action
   - link-outs to Workbench/Network nodes
-  - status: completed for the profile-aware CV and download surface; richer milestone generation
-    remains part of the approved-data generation slice
+  - status: completed for the profile-aware CV, approved-data generation, and download surface
 
 6. About DG-Labs Pro alignment
 

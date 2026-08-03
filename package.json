@@ -9,7 +9,8 @@
     "build": "astro build",
     "build:vercel": "DEPLOY_TARGET=vercel astro build",
     "deploy:preflight": "node scripts/deploy/preflight.mjs",
-    "cv:build": "node scripts/resume/build-profile-cv.mjs",
+    "cv:build": "node --import tsx scripts/resume/build-profile-cv.mjs",
+    "resume:check": "pnpm cv:build --profile dessi --variant general --check",
     "resume:sync": "pnpm resume:build",
     "resume:build": "pnpm cv:build --profile dessi --variant all",
     "resume:refresh": "pnpm resume:build",
@@ -22,7 +23,7 @@
     "test:e2e": "playwright test",
     "test:e2e:smoke": "playwright test tests/e2e/smoke.spec.ts",
     "test:architecture": "pnpm architecture:check && vitest run tests/architecture",
-    "test:contracts": "vitest run tests/contracts tests/networkModules.test.tsx tests/writingModules.test.tsx",
+    "test:contracts": "vitest run tests/contracts tests/networkModules.test.tsx tests/writingModules.test.tsx tests/resumeModules.test.tsx",
     "test:machines": "vitest run tests/machines",
     "test:interactions": "vitest run tests/interactions",
     "test:harness": "pnpm test:architecture && pnpm test:contracts && pnpm test:machines && pnpm test:interactions",
@@ -40,7 +41,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,cjs,astro,md,json,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,cjs,astro,md,json,yml,yaml}\"",
     "typecheck": "astro check",
-    "check": "pnpm architecture:check && pnpm lint && pnpm format:check && pnpm test && pnpm typecheck"
+    "check": "pnpm architecture:check && pnpm lint && pnpm format:check && pnpm resume:check && pnpm test && pnpm typecheck"
   },
   "dependencies": {
     "@astrojs/node": "^9.0.0",
@@ -78,6 +79,7 @@
     "globals": "^15.10.0",
     "prettier": "^3.3.3",
     "prettier-plugin-astro": "^0.14.0",
+    "tsx": "^4.23.5",
     "typescript": "^5.6.2",
     "typescript-eslint": "^8.43.0",
     "vitest": "^2.1.1"

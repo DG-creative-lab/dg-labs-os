@@ -9,13 +9,13 @@ The executable catalogue is `architecture/state-machines/catalog.ts`.
 
 ## Current machines
 
-| Machine                     | Current maturity  | Deterministic boundary                                      |
-| --------------------------- | ----------------- | ----------------------------------------------------------- |
-| Desktop shell               | Explicit reducer  | Open windows and focused application                        |
-| Profile activation          | Boundary-enforced | Published projection, handle-preserving route, or rejection |
-| Profile module registration | Boundary-enforced | Matching profile, Network, and Writing modules or rejection |
-| Profile CV resolution       | Boundary-enforced | Matching approved CV variant or rejection                   |
-| Profile Agent request       | Implicit          | Validation, evidence scope, provider and SSE sequencing     |
+| Machine                     | Current maturity  | Deterministic boundary                                              |
+| --------------------------- | ----------------- | ------------------------------------------------------------------- |
+| Desktop shell               | Explicit reducer  | Open windows and focused application                                |
+| Profile activation          | Boundary-enforced | Published projection, handle-preserving route, or rejection         |
+| Profile module registration | Boundary-enforced | Matching profile, Network, Writing, and Resume modules or rejection |
+| Profile CV resolution       | Boundary-enforced | Approved Resume view, matching CV variant, or rejection             |
+| Profile Agent request       | Implicit          | Validation, evidence scope, provider and SSE sequencing             |
 
 `implicit` means behaviour is tested across services but is not yet represented by one transition
 function. New complex workflows should prefer an explicit transition model.
@@ -58,3 +58,6 @@ rewriting previous public evidence.
 
 The CV build boundary follows the same fail-closed principle: profile metadata is selected before
 rendering, and the public Markdown, DOCX, and PDF set is replaced only after a fresh PDF is verified.
+The general CV is a deterministic view of the selected published profile, its Resume module, and
+its referenced Workbench and Evidence records. Missing references or committed Markdown drift are
+rejected before document rendering.

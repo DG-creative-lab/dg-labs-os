@@ -1,8 +1,13 @@
-import { access, copyFile, mkdir, mkdtemp, readFile, rm, stat } from 'node:fs/promises';
+import { access, copyFile, mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { resolveActiveProfile } from '../../src/profiles/runtime.ts';
+import { resolvePublicProfileModules } from '../../src/profiles/modules/runtime.ts';
+import { renderResumeMarkdown } from '../../src/profiles/resume/markdown.ts';
+import { resolvePublicResumeModule } from '../../src/profiles/resume/runtime.ts';
+import { buildResumeViewModel } from '../../src/profiles/resume/viewModel.ts';
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDirectory, '..', '..');
@@ -20,7 +25,9 @@ export async function loadCvBuildManifest() {
 }
 
 export function resolveCvBuildTargets(manifest, profileHandle, variantId) {
-  if (manifest.schemaVersion !== 'dg-os.cv-build-manifest/v1') {
+  if (
+    !['dg-os.cv-build-manifest/v1', 'dg-os.cv-build-manifest/v2'].includes(manifest.schemaVersion)
+  ) {
     throw new Error(`Unsupported CV build manifest: ${manifest.schemaVersion ?? 'missing'}`);
   }
   if (!HANDLE_PATTERN.test(profileHandle)) {
@@ -62,14 +69,28 @@ export function resolveCvBuildTargets(manifest, profileHandle, variantId) {
     if (!PUBLIC_STEM_PATTERN.test(target.publicStem)) {
       throw new Error(`Invalid public CV stem: ${target.publicStem}`);
     }
-    const sourcePath = path.resolve(repoRoot, target.source);
-    const relativeSource = path.relative(repoRoot, sourcePath);
-    if (relativeSource.startsWith('..') || path.isAbsolute(relativeSource)) {
-      throw new Error(`CV source escapes the repository: ${target.source}`);
+    const source =
+      manifest.schemaVersion === 'dg-os.cv-build-manifest/v1'
+        ? { kind: 'markdown', path: target.source }
+        : target.source;
+    if (
+      !source ||
+      (source.kind !== 'profile-resume' && source.kind !== 'markdown') ||
+      (source.kind === 'markdown' && typeof source.path !== 'string')
+    ) {
+      throw new Error(`Invalid CV source for @${profileHandle}/${target.id}`);
+    }
+    const sourcePath = source.kind === 'markdown' ? path.resolve(repoRoot, source.path) : undefined;
+    if (sourcePath) {
+      const relativeSource = path.relative(repoRoot, sourcePath);
+      if (relativeSource.startsWith('..') || path.isAbsolute(relativeSource)) {
+        throw new Error(`CV source escapes the repository: ${source.path}`);
+      }
     }
 
     return {
       ...target,
+      source,
       profileHandle,
       documentMetadata: metadata,
       sourcePath,
@@ -92,11 +113,33 @@ export function parseCvTargetArgs(args) {
   if (!profileHandle || !variantId) {
     throw new Error('Usage: pnpm cv:build --profile <handle> --variant <id|all> [--dry-run]');
   }
-  return { profileHandle, variantId, dryRun: args.includes('--dry-run') };
+  return {
+    profileHandle,
+    variantId,
+    dryRun: args.includes('--dry-run'),
+    check: args.includes('--check'),
+  };
+}
+
+function renderApprovedProfileResume(profileHandle) {
+  const profile = resolveActiveProfile(profileHandle);
+  const modules = resolvePublicProfileModules(profileHandle);
+  const resume = resolvePublicResumeModule(profileHandle);
+  return renderResumeMarkdown(buildResumeViewModel(profile, modules, resume));
+}
+
+async function resolveTargetSource(target, stagingDirectory) {
+  if (target.source.kind === 'markdown') {
+    await access(target.sourcePath);
+    return target.sourcePath;
+  }
+  const generatedSource = path.resolve(stagingDirectory, `${target.publicStem}.source.md`);
+  await writeFile(generatedSource, renderApprovedProfileResume(target.profileHandle), 'utf8');
+  return generatedSource;
 }
 
 export async function runCvBuild(args = process.argv.slice(2)) {
-  const { profileHandle, variantId, dryRun } = parseCvTargetArgs(args);
+  const { profileHandle, variantId, dryRun, check } = parseCvTargetArgs(args);
   const manifest = await loadCvBuildManifest();
   const targets = resolveCvBuildTargets(manifest, profileHandle, variantId);
 
@@ -111,17 +154,34 @@ export async function runCvBuild(args = process.argv.slice(2)) {
     return;
   }
 
+  if (check) {
+    for (const target of targets) {
+      if (target.source.kind !== 'profile-resume') {
+        throw new Error(`CV drift checks require a profile-resume source: ${target.id}`);
+      }
+      const expected = renderApprovedProfileResume(profileHandle);
+      const publicMarkdown = path.resolve(publicOutputDirectory, `${target.publicStem}.md`);
+      const actual = await readFile(publicMarkdown, 'utf8').catch(() => '');
+      if (actual !== expected) {
+        throw new Error(
+          `Generated CV Markdown is out of date for @${profileHandle}/${target.id}. Run pnpm cv:build --profile ${profileHandle} --variant ${target.id}.`
+        );
+      }
+    }
+    return;
+  }
+
   await mkdir(publicOutputDirectory, { recursive: true });
   for (const target of targets) {
     const stagingDirectory = await mkdtemp(path.join(tmpdir(), 'dg-os-cv-'));
     try {
-      await access(target.sourcePath);
+      const sourcePath = await resolveTargetSource(target, stagingDirectory);
       const result = spawnSync(
         process.env.CV_RENDERER_COMMAND || 'python3',
         [
           process.env.CV_RENDERER_PATH || rendererPath,
           '--source',
-          target.sourcePath,
+          sourcePath,
           '--stem',
           target.publicStem,
           '--label',

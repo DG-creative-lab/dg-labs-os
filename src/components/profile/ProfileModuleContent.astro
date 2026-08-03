@@ -11,6 +11,7 @@ import type {
   PublicProfileModules,
   PublicWritingModule,
 } from '../../profiles';
+import type { ResumeViewModel } from '../../profiles/resume/viewModel';
 import type { PublicProfileModuleId } from '../../utils/profileRoutes';
 
 interface Props {
@@ -20,10 +21,11 @@ interface Props {
   network?: PublicNetworkModule;
   writing?: PublicWritingModule;
   cv?: ProfileCv;
+  resume?: ResumeViewModel;
   compact?: boolean;
 }
 
-const { profile, moduleId, modules, network, writing, cv, compact = false } = Astro.props;
+const { profile, moduleId, modules, network, writing, cv, resume, compact = false } = Astro.props;
 ---
 
 {
@@ -66,4 +68,8 @@ const { profile, moduleId, modules, network, writing, cv, compact = false } = As
   ) : null
 }
 
-{moduleId === 'resume' && cv ? <ResumeApp client:load profile={profile} cv={cv} /> : null}
+{
+  moduleId === 'resume' && cv && resume ? (
+    <ResumeApp client:load profile={profile} cv={cv} resume={resume} />
+  ) : null
+}

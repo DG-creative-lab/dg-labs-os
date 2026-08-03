@@ -19,7 +19,7 @@ type CvBuildManifest = {
     handle: string;
     variants: Array<{
       id: string;
-      source: string;
+      source: { kind: 'profile-resume' } | { kind: 'markdown'; path: string };
       publicStem: string;
     }>;
     documentMetadata: {
@@ -43,6 +43,7 @@ const resumeRequirements = readFileSync(
 const manifest = JSON.parse(
   readFileSync(path.join(repoRoot, 'scripts/resume/cv-build-manifest.json'), 'utf8')
 ) as CvBuildManifest;
+const buildArgs = (...args: string[]) => ['--import', 'tsx', buildScript, ...args];
 
 describe('profile CV boundary', () => {
   it('installs the complete fail-closed renderer toolchain in CI', () => {
@@ -59,7 +60,7 @@ describe('profile CV boundary', () => {
   });
 
   it('keeps build-only sources aligned with approved public CV assets', () => {
-    expect(manifest.schemaVersion).toBe('dg-os.cv-build-manifest/v1');
+    expect(manifest.schemaVersion).toBe('dg-os.cv-build-manifest/v2');
     const dessiBuildProfile = manifest.profiles.find((profile) => profile.handle === 'dessi');
     expect(dessiBuildProfile).toBeDefined();
     expect(dessiBuildProfile?.documentMetadata).toMatchObject({
@@ -77,9 +78,17 @@ describe('profile CV boundary', () => {
         docx: `/cv/${target.publicStem}.docx`,
         markdown: `/cv/${target.publicStem}.md`,
       });
-      expect(path.isAbsolute(target.source)).toBe(false);
-      expect(target.source.startsWith('src/data/resume/')).toBe(true);
     }
+
+    expect(dessiBuildProfile?.variants.find((target) => target.id === 'general')?.source).toEqual({
+      kind: 'profile-resume',
+    });
+    expect(
+      dessiBuildProfile?.variants.find((target) => target.id === 'openai-codex')?.source
+    ).toEqual({
+      kind: 'markdown',
+      path: 'src/data/resume/openai-codex-cv.md',
+    });
 
     expect(JSON.stringify(resolvePublicProfileCv('dessi', 'general'))).not.toContain(
       'src/data/resume'
@@ -125,7 +134,7 @@ describe('profile CV boundary', () => {
   it('requires an explicit build profile and variant and rejects unknown selections', () => {
     const valid = spawnSync(
       process.execPath,
-      [buildScript, '--profile', 'dessi', '--variant', 'general', '--dry-run'],
+      buildArgs('--profile', 'dessi', '--variant', 'general', '--dry-run'),
       { cwd: repoRoot, encoding: 'utf8' }
     );
     expect(valid.status).toBe(0);
@@ -133,10 +142,11 @@ describe('profile CV boundary', () => {
       profileHandle: 'dessi',
       id: 'general',
       documentMetadata: { displayName: 'Dessi Georgieva', language: 'en-GB' },
+      source: { kind: 'profile-resume' },
       publicFiles: { pdf: '/cv/Dessi_Georgieva_CV.pdf' },
     });
 
-    const missingSelection = spawnSync(process.execPath, [buildScript, '--dry-run'], {
+    const missingSelection = spawnSync(process.execPath, buildArgs('--dry-run'), {
       cwd: repoRoot,
       encoding: 'utf8',
     });
@@ -145,7 +155,7 @@ describe('profile CV boundary', () => {
 
     const unknownProfile = spawnSync(
       process.execPath,
-      [buildScript, '--profile', 'unknown', '--variant', 'general', '--dry-run'],
+      buildArgs('--profile', 'unknown', '--variant', 'general', '--dry-run'),
       { cwd: repoRoot, encoding: 'utf8' }
     );
     expect(unknownProfile.status).toBe(1);
@@ -156,6 +166,7 @@ describe('profile CV boundary', () => {
     const temporaryRoot = mkdtempSync(path.join(tmpdir(), 'dg-os-cv-test-'));
     const outputDirectory = path.join(temporaryRoot, 'public-cv');
     const metadataPath = path.join(temporaryRoot, 'metadata.json');
+    const sourceCapturePath = path.join(temporaryRoot, 'source.md');
     mkdirSync(outputDirectory, { recursive: true });
     const existingPdf = path.join(outputDirectory, 'Dessi_Georgieva_CV.pdf');
     const existingDocx = path.join(outputDirectory, 'Dessi_Georgieva_CV.docx');
@@ -167,7 +178,7 @@ describe('profile CV boundary', () => {
     try {
       const missingPdf = spawnSync(
         process.execPath,
-        [buildScript, '--profile', 'dessi', '--variant', 'general'],
+        buildArgs('--profile', 'dessi', '--variant', 'general'),
         {
           cwd: repoRoot,
           encoding: 'utf8',
@@ -188,7 +199,7 @@ describe('profile CV boundary', () => {
 
       const completeBuild = spawnSync(
         process.execPath,
-        [buildScript, '--profile', 'dessi', '--variant', 'general'],
+        buildArgs('--profile', 'dessi', '--variant', 'general'),
         {
           cwd: repoRoot,
           encoding: 'utf8',
@@ -198,6 +209,7 @@ describe('profile CV boundary', () => {
             CV_RENDERER_COMMAND: process.execPath,
             CV_RENDERER_PATH: fakeRenderer,
             CV_FAKE_METADATA_PATH: metadataPath,
+            CV_FAKE_SOURCE_CAPTURE_PATH: sourceCapturePath,
           },
         }
       );
@@ -211,6 +223,31 @@ describe('profile CV boundary', () => {
         language: 'en-GB',
         keywords: ['AI systems', 'agents', 'evaluation', 'Python', 'FastAPI', 'TypeScript'],
       });
+      expect(readFileSync(sourceCapturePath, 'utf8')).toContain('# Dessi Georgieva');
+      expect(readFileSync(sourceCapturePath, 'utf8')).toContain('Agentic Commerce Learning Loop');
+    } finally {
+      rmSync(temporaryRoot, { recursive: true, force: true });
+    }
+  });
+
+  it('fails the drift check when committed general Markdown differs from approved profile data', () => {
+    const temporaryRoot = mkdtempSync(path.join(tmpdir(), 'dg-os-cv-drift-'));
+    const outputDirectory = path.join(temporaryRoot, 'public-cv');
+    mkdirSync(outputDirectory, { recursive: true });
+    writeFileSync(path.join(outputDirectory, 'Dessi_Georgieva_CV.md'), 'stale resume');
+
+    try {
+      const stale = spawnSync(
+        process.execPath,
+        buildArgs('--profile', 'dessi', '--variant', 'general', '--check'),
+        {
+          cwd: repoRoot,
+          encoding: 'utf8',
+          env: { ...process.env, CV_BUILD_OUTPUT_DIR: outputDirectory },
+        }
+      );
+      expect(stale.status).toBe(1);
+      expect(stale.stderr).toContain('Generated CV Markdown is out of date');
     } finally {
       rmSync(temporaryRoot, { recursive: true, force: true });
     }
