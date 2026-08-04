@@ -1,4 +1,9 @@
-# DG-Labs OS Codebase Stabilization Plan
+# Archived DG-Labs OS Codebase Stabilization Plan
+
+- Status: archived 4 August 2026
+- Superseded by: [`../engineering/ARCHITECTURE_RULES.md`](../engineering/ARCHITECTURE_RULES.md),
+  [`../engineering/TESTING_STRATEGY.md`](../engineering/TESTING_STRATEGY.md), and
+  [`../engineering/DEFINITION_OF_DONE.md`](../engineering/DEFINITION_OF_DONE.md)
 
 ## Purpose
 
@@ -60,4 +65,4 @@ Current state: all conditions satisfied.
 
 ## Notes
 
-- Active roadmap tracking now lives in `docs/APP_ROADMAP.md`.
+- The active product sequence now lives in `docs/DG_OS_PRODUCT_ROADMAP.md`.

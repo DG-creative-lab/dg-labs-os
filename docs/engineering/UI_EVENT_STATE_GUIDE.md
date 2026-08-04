@@ -1,6 +1,11 @@
-# React + TypeScript Event & State Management Guide
+# DG-OS UI Event and State Guide
 
-This guide is for learning. It explains the _why_ behind state and event management, then shows how those principles are applied in DG-Labs OS.
+- Status: supporting engineering guide
+- Last reviewed: 4 August 2026
+
+This guide explains the reasoning behind UI state and event management, then shows how those
+principles are applied in DG-OS. The executable state-machine catalogue and architecture manifest
+remain authoritative when this guide and the code differ.
 
 ## 1) First Principles
 
@@ -73,12 +78,12 @@ Think of it as:
 
 ---
 
-## 3) Where Each Layer Lives in DG-Labs OS
+## 3) Where Each Layer Lives in DG-OS
 
 ## 3.1 Core Desktop State (Reducer)
 
-- [`src/services/desktopShellReducer.ts`](/Users/dessigeorgieva/Desktop/testing_websites/my-stuff/portfolio/src/services/desktopShellReducer.ts)
-- [`src/services/desktopWindowService.ts`](/Users/dessigeorgieva/Desktop/testing_websites/my-stuff/portfolio/src/services/desktopWindowService.ts)
+- [`src/services/desktopShellReducer.ts`](../../src/services/desktopShellReducer.ts)
+- [`src/services/desktopWindowService.ts`](../../src/services/desktopWindowService.ts)
 
 What this does:
 
@@ -93,7 +98,7 @@ Why it matters:
 
 ## 3.2 Event Bus (Custom Events)
 
-- [`src/services/desktopEvents.ts`](/Users/dessigeorgieva/Desktop/testing_websites/my-stuff/portfolio/src/services/desktopEvents.ts)
+- [`src/services/desktopEvents.ts`](../../src/services/desktopEvents.ts)
 
 What this does:
 
@@ -108,9 +113,9 @@ Why it matters:
 
 ## 3.3 Navigation + Open Behavior Services
 
-- [`src/services/navigationService.ts`](/Users/dessigeorgieva/Desktop/testing_websites/my-stuff/portfolio/src/services/navigationService.ts)
-- [`src/services/appOpenHandlers.ts`](/Users/dessigeorgieva/Desktop/testing_websites/my-stuff/portfolio/src/services/appOpenHandlers.ts)
-- [`src/services/terminalGuideService.ts`](/Users/dessigeorgieva/Desktop/testing_websites/my-stuff/portfolio/src/services/terminalGuideService.ts)
+- [`src/services/navigationService.ts`](../../src/services/navigationService.ts)
+- [`src/services/appOpenHandlers.ts`](../../src/services/appOpenHandlers.ts)
+- [`src/services/terminalGuideService.ts`](../../src/services/terminalGuideService.ts)
 
 What this does:
 
@@ -125,8 +130,8 @@ Why it matters:
 
 ## 3.4 Menubar Intent & Reaction Split
 
-- Intent emitters: [`src/services/menubarActions.ts`](/Users/dessigeorgieva/Desktop/testing_websites/my-stuff/portfolio/src/services/menubarActions.ts)
-- Reaction handlers: [`src/services/menuActionHandlers.ts`](/Users/dessigeorgieva/Desktop/testing_websites/my-stuff/portfolio/src/services/menuActionHandlers.ts)
+- Intent emitters: [`src/services/menubarActions.ts`](../../src/services/menubarActions.ts)
+- Reaction handlers: [`src/services/menuActionHandlers.ts`](../../src/services/menuActionHandlers.ts)
 
 What this does:
 
@@ -140,9 +145,9 @@ Why it matters:
 
 ## 3.5 UI Components as Thin Orchestrators
 
-- Toolbar: [`src/components/global/MacToolbar.tsx`](/Users/dessigeorgieva/Desktop/testing_websites/my-stuff/portfolio/src/components/global/MacToolbar.tsx)
-- Desktop shell: [`src/components/global/DesktopWorkspace.tsx`](/Users/dessigeorgieva/Desktop/testing_websites/my-stuff/portfolio/src/components/global/DesktopWorkspace.tsx)
-- Window surface: [`src/components/global/DraggableWindow.tsx`](/Users/dessigeorgieva/Desktop/testing_websites/my-stuff/portfolio/src/components/global/DraggableWindow.tsx)
+- Toolbar: [`src/components/global/MacToolbar.tsx`](../../src/components/global/MacToolbar.tsx)
+- Desktop shell: [`src/components/global/DesktopWorkspace.tsx`](../../src/components/global/DesktopWorkspace.tsx)
+- Window surface: [`src/components/global/DraggableWindow.tsx`](../../src/components/global/DraggableWindow.tsx)
 - App modules: `NetworkApp`, `ResumeApp`, `AgentsTerminal`
 
 Best practice applied:
@@ -208,21 +213,21 @@ With this architecture:
 Representative test files:
 
 - Reducer transitions:
-  - [`tests/desktopShellReducer.test.ts`](/Users/dessigeorgieva/Desktop/testing_websites/my-stuff/portfolio/tests/desktopShellReducer.test.ts)
+  - [`tests/desktopShellReducer.test.ts`](../../tests/desktopShellReducer.test.ts)
 - Event bus contracts:
-  - [`tests/desktopEvents.test.ts`](/Users/dessigeorgieva/Desktop/testing_websites/my-stuff/portfolio/tests/desktopEvents.test.ts)
+  - [`tests/desktopEvents.test.ts`](../../tests/desktopEvents.test.ts)
 - Menubar intent emitters:
-  - [`tests/menubarActions.test.ts`](/Users/dessigeorgieva/Desktop/testing_websites/my-stuff/portfolio/tests/menubarActions.test.ts)
+  - [`tests/menubarActions.test.ts`](../../tests/menubarActions.test.ts)
 - Reaction handlers:
-  - [`tests/menuActionHandlers.test.ts`](/Users/dessigeorgieva/Desktop/testing_websites/my-stuff/portfolio/tests/menuActionHandlers.test.ts)
+  - [`tests/menuActionHandlers.test.ts`](../../tests/menuActionHandlers.test.ts)
 - Intent->reaction integration:
-  - [`tests/menuActionIntegration.test.ts`](/Users/dessigeorgieva/Desktop/testing_websites/my-stuff/portfolio/tests/menuActionIntegration.test.ts)
+  - [`tests/menuActionIntegration.test.ts`](../../tests/menuActionIntegration.test.ts)
 - Open/navigate routing logic:
-  - [`tests/appOpenHandlers.test.ts`](/Users/dessigeorgieva/Desktop/testing_websites/my-stuff/portfolio/tests/appOpenHandlers.test.ts)
+  - [`tests/appOpenHandlers.test.ts`](../../tests/appOpenHandlers.test.ts)
 - Terminal help open behavior:
-  - [`tests/terminalGuideService.test.ts`](/Users/dessigeorgieva/Desktop/testing_websites/my-stuff/portfolio/tests/terminalGuideService.test.ts)
+  - [`tests/terminalGuideService.test.ts`](../../tests/terminalGuideService.test.ts)
 - Clipboard fallback behavior:
-  - [`tests/clipboardService.test.ts`](/Users/dessigeorgieva/Desktop/testing_websites/my-stuff/portfolio/tests/clipboardService.test.ts)
+  - [`tests/clipboardService.test.ts`](../../tests/clipboardService.test.ts)
 
 ---
 

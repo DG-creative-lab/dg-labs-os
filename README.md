@@ -1,274 +1,224 @@
 # DG-OS
 
-DG-OS is an evidence-led public profile system presented through an operating-system interface. The root route introduces the platform and its private-to-public publication boundary; `/@dessi` is the first live profile instance. Familiar OS metaphors become a navigable model of memory, experiments, evidence, and evolving ideas.
+DG-OS is a public profile system for work, learning and professional evolution. It turns a small,
+owner-reviewed record into an explorable web profile, generated CV and evidence-grounded Profile
+Agent.
+
+The operating-system interface is part of the information model. Workbench holds built systems.
+Evidence and Evolution shows what changed and what supports it. Writing and Network expose selected
+ideas and relationships. The Profile Agent provides another way to inspect the same approved
+record.
+
+Dessi Georgieva is the first live instance. The root route introduces the platform; `/@dessi` opens
+the canonical profile.
+
+## Current product boundary
+
+DG-OS is the public projection, not a mirror of a private workspace.
+
+```text
+private sources -> owner review -> versioned public projection -> web, CV and Profile Agent
+```
+
+The current repository contains one public profile and no hosted user login or private workspace.
+The next product slice defines a signed local publication bundle. Accounts, isolated workspaces and
+authenticated Codex or Claude Code connections follow the gates in the product roadmap.
+
+Core rules:
+
+- private source material remains local by default;
+- public records are explicit, versioned and owner reviewed;
+- generated CVs and agent evidence use the same approved profile data;
+- unknown profiles, modules and evidence registries fail closed;
+- model output cannot select private evidence, grant authority or publish data;
+- DG-OS identity remains independent of an AI provider.
+
+## Live surfaces
+
+| Route                 | Purpose                                                   |
+| --------------------- | --------------------------------------------------------- |
+| `/`                   | DG-OS product entrance and public profile directory       |
+| `/@dessi`             | Canonical Dessi profile and OS entrance                   |
+| `/@dessi/workbench`   | Reviewed projects and systems                             |
+| `/@dessi/evolution`   | Claims, case studies, boundaries and evolution            |
+| `/@dessi/writing`     | Selected writing with authorship and evidence disclosures |
+| `/@dessi/network`     | Profile-owned nodes and evidenced relationships           |
+| `/@dessi/resume`      | Approved Resume view and generated CV downloads           |
+| `/apps/terminal`      | Current Dessi Profile Agent compatibility route           |
+| `/systems`            | Public systems overview                                   |
+| `/apply/openai-codex` | Deliberate application-specific profile variant           |
+
+Legacy `/apps/*` routes remain as Dessi-only compatibility paths while the final single-profile
+dependencies are migrated.
+
+## Implemented foundation
+
+- Astro and React public renderer with desktop and responsive profile surfaces
+- Versioned Profile, Workbench, Evidence and Evolution, Writing, Network and Resume contracts
+- Registries that validate publication, identity, privacy and cross-profile boundaries
+- React Flow network view backed by a validated Graphology model
+- Profile Agent with deterministic commands, approved evidence retrieval and SSE responses
+- OpenRouter, OpenAI, Anthropic and Gemini gateway adapters
+- Vercel Firewall rate limiting for provider-backed chat routes
+- Deterministic general CV generation from approved profile modules
+- Markdown, DOCX and PDF artifact drift verification
+- Engineering harness for dependency direction, contracts, state machines and interactions
+- Playwright smoke coverage for critical desktop and mobile flows
 
 ## Documentation
 
-- Product direction, architecture, and decision record: `docs/DG_OS_PRODUCT_ROADMAP.md`
-- Gateplane/Aion authentication and workspace reuse decision: `docs/AION_REUSE_ASSESSMENT.md`
-- Dessi-to-profile migration inventory: `docs/DESSI_PROFILE_DEPENDENCY_INVENTORY.md`
-- Architecture rules and dependency fitness functions: `docs/engineering/ARCHITECTURE_RULES.md`
-- State machines and invariants: `docs/engineering/STATE_MACHINES.md`
-- Engineering test strategy: `docs/engineering/TESTING_STRATEGY.md`
-- Definition of Done: `docs/engineering/DEFINITION_OF_DONE.md`
-- Detailed application implementation backlog: `docs/APP_ROADMAP.md`
-- React + TypeScript event/state guide: `docs/REACT_TYPESCRIPT_EVENT_STATE_GUIDE.md`
-- Archived stabilization completion log: `docs/archive/CODEBASE_STABILIZATION_PLAN.md`
+Start with [`docs/README.md`](./docs/README.md). It identifies the current sources of truth and the
+historical archive.
 
-## Features
+- [Product roadmap](./docs/DG_OS_PRODUCT_ROADMAP.md)
+- [Workspace and publication architecture](./docs/engineering/WORKSPACE_PUBLICATION_ARCHITECTURE.md)
+- [Architecture rules](./docs/engineering/ARCHITECTURE_RULES.md)
+- [State machines and invariants](./docs/engineering/STATE_MACHINES.md)
+- [Testing strategy](./docs/engineering/TESTING_STRATEGY.md)
+- [Definition of Done](./docs/engineering/DEFINITION_OF_DONE.md)
+- [Vercel deployment runbook](./docs/VERCEL_DEPLOYMENT_RUNBOOK.md)
 
-- Product entrance and public profile registry at `/`
-- Canonical, responsive public profile at `/@dessi`
-- Owner-reviewed profile projection contract with private-source boundaries
-- Versioned Workbench, Evidence/Evolution, Writing, and Network modules shared by the UI and Profile Agent
-- Profile-aware Resume resolution with explicit general and application CV variants
-- Desktop OS UI with a Mac-style toolbar and dock
-- Focus-aware desktop menubar (menu sets update by active/focused app)
-- Mobile iPhone-inspired lock + home screens (`/mobile`)
-- RippleGrid live background with mouse interaction
-- Page-based apps (`/apps/notes`, `/apps/projects`, `/apps/resume`, `/apps/terminal`)
-- Terminal v3 hybrid runtime:
-  - deterministic commands (`help`, `open`, `search`, `context`, `sources`, etc.)
-  - natural-language command router (high-confidence phrase -> deterministic command)
-  - retrieval-grounded LLM mode (`ask ...`) using local knowledge index
-  - answer modes (`ask`, `brief`, `cv`, `projects`)
-  - provider selector (`openrouter`, `openai`, `anthropic`, `gemini`)
-  - BYOK support (session-only or optional browser-local persistence)
-  - provider health diagnostics via `/api/llm/health`
-  - capability-aware provider fallback (opt-in, only when alternate keys exist)
-  - runtime toggles for `LLM fallback`, `provider fallback`, `router debug`, and `LLM source footer`
-- Apple menu "About DG-Labs Pro" window
-- `Window -> Contact...` opens dock Links panel on desktop (email fallback on page routes)
-- Modular config in `src/config/`
-- API routes for chat + contact
-- Distributed Profile Agent rate limiting through a required Vercel Firewall rule
-- Engineering Harness v1 for dependency direction, contract compatibility, state invariants, and
-  cross-module interactions
+The executable architecture sources are [`architecture/manifest.mjs`](./architecture/manifest.mjs)
+and [`architecture/state-machines/catalog.ts`](./architecture/state-machines/catalog.ts).
 
-## Current Priority
+## Technology
 
-- Complete the Dessi proof as one versioned public projection.
-- Migrate remaining profile content behind the shared profile boundary.
-- Prepare the private review-and-publication contract before adding hosted accounts or storage.
+- Astro 5 with React 19 and TypeScript
+- Tailwind CSS
+- React Flow and Graphology
+- Vitest and Playwright
+- Vercel serverless deployment and Firewall rate limiting
+- Supabase for the optional Contact API store
+- pnpm 10 and Node.js 20 to 24
 
-## Tech Stack
+## Local development
 
-- [Astro](https://astro.build/)
-- [React](https://reactjs.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Supabase](https://supabase.com/) (contact storage)
+Requirements:
 
-## Getting Started
+- Node.js `>=20 <25`
+- pnpm `>=10 <11`
 
-0. Use the same runtime versions (recommended for reproducibility)
+Install and run:
 
 ```bash
 nvm use
-pnpm -v
-node -v
-```
-
-1. Install dependencies from lockfile
-
-```bash
 pnpm install --frozen-lockfile
+pnpm dev
 ```
 
-If `pnpm` prints `Ignored build scripts` (for example `esbuild`), run:
+If pnpm reports ignored package build scripts, review them before running:
 
 ```bash
 pnpm approve-builds
 ```
 
-2. Run the dev server
+## Environment
 
-```bash
-pnpm dev
+Copy `.env.example` to `.env`. At least one server-side provider key is required for model-backed
+Profile Agent answers:
+
+```text
+OPENROUTER_API_KEY=
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+GEMINI_API_KEY=
+
+PUBLIC_SITE_URL=
+PUBLIC_SITE_NAME=
+
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
 ```
 
-## Quality Checks
+Provider and Supabase credentials are server-only. Never expose them through a `PUBLIC_*` variable.
+The terminal also supports explicitly supplied browser-session keys. Do not use persistent browser
+storage on a shared device.
 
-Run locally with `pnpm` scripts:
+All `.env*` files are ignored except `.env.example`. If a secret was ever committed, rotate it and
+remove it from repository history before deployment.
+
+## Quality gates
+
+Use the focused harness while developing architecture, contracts, state or interactions:
 
 ```bash
-pnpm lint
-pnpm format:check
 pnpm test:harness
-pnpm test:unit
-pnpm typecheck
+```
+
+Run the complete handoff gate before a pull request:
+
+```bash
 pnpm check
 ```
 
-Focused unit test suites:
+Relevant commands:
 
 ```bash
-pnpm test:network
-pnpm test:terminal
-pnpm test:terminal:llm
-pnpm test:terminal:settings
-pnpm test tests/terminalKnowledge.test.ts tests/terminalRouter.test.ts
-pnpm test:content
-pnpm test:device
-pnpm test:schemas
-pnpm test:api
 pnpm architecture:check
-pnpm test:architecture
 pnpm test:contracts
 pnpm test:machines
 pnpm test:interactions
+pnpm test:e2e:smoke
+pnpm build:vercel
 ```
 
-`test:api` includes API helper tests, response contract tests, and route contract tests (failure and success paths).
+Do not update `architecture/dependency-baseline.json` merely to make CI pass. A budget increase
+requires an architecture decision that records its reason, risk and reduction plan.
 
-Or use `make` shortcuts:
+## Profile data
 
-```bash
-make lint
-make test-unit
-make test-network
-make test-terminal
-make test-terminal-llm
-make test-terminal-settings
-make test-content
-make test-device
-make test-schemas
-make test-api
-make typecheck
-make check
+Canonical public identity and publication approval live under `src/profiles/`. Each public module
+owns an independent versioned contract so it can evolve without silently changing another schema.
+
+Current Dessi sources:
+
+```text
+src/profiles/dessi.ts
+src/profiles/modules/dessiWorkbench.ts
+src/profiles/modules/dessiEvidenceEvolution.ts
+src/profiles/writing/dessi.ts
+src/profiles/network/dessi.ts
+src/profiles/resume/dessi.ts
 ```
 
-3. Environment variables
+Compatibility configuration under `src/config/` may read canonical profile data. Canonical profile
+contracts must not import compatibility configuration, UI code, provider adapters or private
+workspace services.
 
-Copy `.env.example` to `.env` and fill in:
+## Resume generation
 
-```
-# AI Terminal (server-owned defaults)
-OPENROUTER_API_KEY=your_openrouter_api_key_here
-OPENAI_API_KEY=your_openai_api_key_here
-ANTHROPIC_API_KEY=your_anthropic_api_key_here
-GEMINI_API_KEY=your_gemini_api_key_here
-# Optional (used for request headers / OpenRouter rankings)
-# PUBLIC_SITE_URL=https://your-domain.tld
-# PUBLIC_SITE_NAME=DG-Labs OS
+The general CV is a deterministic view of approved Profile, Resume, Workbench, and Evidence and
+Evolution records. Application CVs remain explicit variants.
 
-# Site
-# PUBLIC_SITE_URL=https://your-domain.tld
-
-# Supabase (server-only; do NOT expose in PUBLIC_ vars)
-SUPABASE_URL=https://YOUR-PROJECT.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-
-```
-
-Security notes:
-
-- `.env*` files are gitignored (except `.env.example`).
-- If an env file was committed in the past, remove it from git tracking before push:
-
-```bash
-git rm --cached .env.local .env.production .env
-```
-
-## Configuration
-
-Public profile identity, links, CV references, SEO, and publication approval enter through the
-versioned contract in `src/profiles/`. Workbench and Evidence/Evolution records enter through the
-versioned module bundle in `src/profiles/modules/`. Writing, Network, and Resume use independent
-versioned contracts so each surface can evolve without changing the frozen profile-modules v1
-schema. The remaining single-profile surfaces continue to migrate incrementally.
-
-Platform identity and root-route SEO live in `src/config/platform.ts`.
-
-Edit profile-owned public Workbench and Evidence/Evolution content in
-`src/profiles/modules/dessiWorkbench.ts` and `src/profiles/modules/dessiEvidenceEvolution.ts`.
-
-Edit profile-owned public Writing content in `src/profiles/writing/dessi.ts`.
-
-Edit the remaining content config files in `src/config/`:
-
-- `personal.ts` - name, role, focus
-- `social.ts` - GitHub, LinkedIn
-- `contact.ts` - email, phone, Calendly
-- `education.ts`, `experience.ts`, `skills.ts`
-- `projects.ts` + `src/config/projects/*.json`
-- `apps.ts` - resume asset links (`pdf`, `docx`, `markdown`)
-- `site.ts` - SEO + theme colors
-
-## Resume Module
-
-Resume is resolved from the selected public profile and served from local static assets:
-
-- `/cv/Dessi_Georgieva_CV.pdf`
-- `/cv/Dessi_Georgieva_CV.docx`
-- `/cv/Dessi_Georgieva_CV.md`
-
-The general CV is rendered deterministically from the approved Profile, Resume, Workbench, and
-Evidence/Evolution modules. Its canonical Resume data lives in `src/profiles/resume/`; the committed
-Markdown, DOCX, and PDF are generated views rather than editable sources. Application-specific CVs
-remain explicit Markdown variants.
-
-Build-only source mappings live in `scripts/resume/cv-build-manifest.json`. Local source paths are
-never included in the public profile projection or client runtime.
-
-Build one explicit profile CV variant:
+Build or inspect one target:
 
 ```bash
 pnpm cv:build --profile dessi --variant general
 pnpm cv:build --profile dessi --variant openai-codex
-```
-
-Preview the resolved build target without generating files:
-
-```bash
 pnpm cv:build --profile dessi --variant general --dry-run
 ```
 
-Verify that the committed general CV Markdown matches the approved modules without replacing any
-files:
+Verify committed assets without replacing them:
 
 ```bash
 pnpm resume:check
 ```
 
-Regenerate all currently registered Dessi variants:
+Regenerate every registered Dessi variant:
 
 ```bash
 pnpm resume:build
-pnpm resume:sync
 ```
 
-`resume:sync` is retained as a compatibility alias for the same complete build. It does not publish
-Markdown independently.
-
-Requirements for `resume:build`:
-
-- Python with the pinned dependencies from `scripts/resume/requirements.txt` installed for DOCX
-  generation.
-- LibreOffice (`soffice`) for mandatory PDF conversion.
-
-The CI build installs both requirements explicitly before regenerating the public resume assets.
-The main quality gate also runs `resume:check`. It verifies the expected Markdown for every CV
-variant and checks the committed Markdown, DOCX, and PDF SHA-256 digests against
-`scripts/resume/cv-artifact-manifest.json`, so source or binary drift fails before release.
-
-Each variant is rendered in an isolated staging directory. Markdown, DOCX, and PDF replace the
-public assets only after all three fresh files have been produced. Missing or failed PDF conversion
-fails the build and preserves the previously reviewed public set.
+Generation requires the pinned Python packages in `scripts/resume/requirements.txt` and
+LibreOffice `soffice`. Every variant is built in an isolated staging directory. Markdown, DOCX and
+PDF assets replace the public set only after fresh files are produced and verified. The artifact
+manifest binds each file to its profile, variant, source fingerprint, approval version and SHA-256
+digest.
 
 ## Deployment
 
-This project runs with Astro SSR (API routes). Deploy anywhere that supports a Node runtime.
-
-For Vercel deployment specifics, use:
-
-- `docs/VERCEL_DEPLOYMENT_RUNBOOK.md`
-
-## Release Checklist
-
-Use this quick path before and after each merge to `main`.
-
-1. Pre-merge local checks
+Production uses Astro SSR on Vercel. Before a pull request or deployment:
 
 ```bash
 pnpm install --frozen-lockfile
@@ -277,32 +227,30 @@ pnpm deploy:preflight
 pnpm build:vercel
 ```
 
-2. Secret hygiene
+Production Profile Agent routes require the published Vercel Firewall rule
+`profile-agent-chat`. The API fails closed with `503 RATE_LIMIT_UNAVAILABLE` when the distributed
+rate limiter is unavailable on Vercel.
 
-```bash
-git ls-files | rg -n "^\\.env"
-```
+Follow the complete [Vercel deployment runbook](./docs/VERCEL_DEPLOYMENT_RUNBOOK.md) for environment
+configuration, smoke checks and rollback.
 
-Expected: only `.env.example`.
+## Contribution policy
 
-Before Production deployment, publish the Vercel Firewall rule with ID `profile-agent-chat` as described in `docs/VERCEL_DEPLOYMENT_RUNBOOK.md`. The Profile Agent API fails closed with `503 RATE_LIMIT_UNAVAILABLE` if the rule is missing on Vercel.
+Before changing architecture, contracts, stateful behaviour or interactions, read `AGENTS.md`, the
+relevant documents under `docs/engineering/`, and the executable architecture manifest.
 
-3. Post-deploy smoke checks
+Published schema versions are immutable. Breaking semantics require a new schema version,
+migration, fixture and consumer tests. Models may propose text, but validated code controls
+evidence, permissions, tools, transitions and publication.
 
-- Open `/desktop`
-- Open `/apps/network` and toggle List/Graph
-- Open `/apps/terminal`, run `help` and one `ask ...`
-- Confirm the Profile Agent request succeeds without `RATE_LIMIT_UNAVAILABLE`
-- Check provider status endpoint: `/api/llm/health?probe=0`
-
-4. Full operational guide
-
-- `docs/VERCEL_DEPLOYMENT_RUNBOOK.md`
-
-## License
+## Licence
 
 Copyright (C) 2026 Dessi Georgieva.
 
-DG-OS software is licensed under the [GNU Affero General Public License version 3 only](./LICENSE) (`AGPL-3.0-only`). Modified versions offered over a network must provide their corresponding source to their users under the same licence.
+DG-OS software is licensed under the [GNU Affero General Public License version 3 only](./LICENSE)
+(`AGPL-3.0-only`). Modified versions offered over a network must provide corresponding source to
+their users under the same licence.
 
-The DG-OS name, visual identity, personal profile content, CV content, original writing, and personal media are excluded from the software licence unless explicitly stated otherwise. See [`NOTICE`](./NOTICE).
+The DG-OS name, visual identity, personal profile content, CV content, original writing and personal
+media are excluded from the software licence unless explicitly stated otherwise. See
+[`NOTICE`](./NOTICE).
