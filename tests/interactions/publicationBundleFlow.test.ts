@@ -155,4 +155,42 @@ describe('signed publication bundle flow', () => {
       ],
     });
   });
+
+  it('rejects unsigned custom array data and non-canonical signature encodings', () => {
+    const assetsWithHiddenSource = [...publicationBundleV1Fixture.assets] as unknown[] & {
+      internalSource?: string;
+    };
+    assetsWithHiddenSource.internalSource = '/Users/name/private.json';
+    const unsignedHiddenData = { ...publicationBundleV1Fixture, assets: assetsWithHiddenSource };
+    const nonCanonicalSignature = {
+      ...publicationBundleV1Fixture,
+      integrity: {
+        ...publicationBundleV1Fixture.integrity,
+        signature: publicationBundleV1Fixture.integrity.signature.replace(/Cg==$/, 'Ch=='),
+      },
+    };
+    const verificationKey = {
+      keyId: 'key_contract_fixture',
+      publicKey: publicationBundleV1FixturePublicKey,
+    };
+
+    expect(verifyPublicationBundle(unsignedHiddenData, verificationKey)).toEqual({
+      valid: false,
+      issues: expect.arrayContaining([
+        {
+          path: 'assets.internalSource',
+          message: 'Publication bundle arrays may contain canonical numeric indices only.',
+        },
+      ]),
+    });
+    expect(verifyPublicationBundle(nonCanonicalSignature, verificationKey)).toEqual({
+      valid: false,
+      issues: [
+        {
+          path: 'integrity.signature',
+          message: 'Ed25519 signature must be 64-byte base64.',
+        },
+      ],
+    });
+  });
 });

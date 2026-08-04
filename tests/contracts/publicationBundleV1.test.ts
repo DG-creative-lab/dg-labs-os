@@ -151,6 +151,84 @@ describe('Publication Bundle v1 contract', () => {
     });
   });
 
+  it('rejects sparse arrays and custom array properties omitted by canonical JSON', () => {
+    const assetsWithHiddenSource = [...fixture.assets] as unknown[] & {
+      internalSource?: string;
+    };
+    assetsWithHiddenSource.internalSource = '/Users/name/private.json';
+    const sparseRecords = Array(fixture.records.length + 1);
+    fixture.records.forEach((record, index) => {
+      sparseRecords[index] = record;
+    });
+
+    expect(
+      validatePublicationBundlePayload({ ...fixture, assets: assetsWithHiddenSource })
+    ).toEqual(
+      expect.arrayContaining([
+        {
+          path: 'assets.internalSource',
+          message: 'Publication bundle arrays may contain canonical numeric indices only.',
+        },
+        {
+          path: 'assets.internalSource',
+          message: 'Internal source metadata is forbidden.',
+        },
+        {
+          path: 'assets.internalSource',
+          message: 'Publication bundles cannot contain local filesystem paths.',
+        },
+      ])
+    );
+    expect(validatePublicationBundlePayload({ ...fixture, records: sparseRecords })).toContainEqual(
+      {
+        path: 'records',
+        message: 'Publication bundle arrays must be dense.',
+      }
+    );
+  });
+
+  it('rejects non-enumerable object data omitted by canonical JSON', () => {
+    const targetWithHiddenSource = { ...fixture.target } as Record<PropertyKey, unknown>;
+    Object.defineProperty(targetWithHiddenSource, 'internalSource', {
+      value: '/Users/name/private.json',
+      enumerable: false,
+    });
+
+    expect(
+      validatePublicationBundlePayload({ ...fixture, target: targetWithHiddenSource })
+    ).toEqual(
+      expect.arrayContaining([
+        {
+          path: 'target.internalSource',
+          message: 'Publication bundle object properties must be enumerable.',
+        },
+        {
+          path: 'target.internalSource',
+          message: 'Internal source metadata is forbidden.',
+        },
+        {
+          path: 'target.internalSource',
+          message: 'Publication bundles cannot contain local filesystem paths.',
+        },
+      ])
+    );
+  });
+
+  it('rejects base64 signatures with non-canonical padding bits', () => {
+    const nonCanonicalSignature = {
+      ...signedFixture,
+      integrity: {
+        ...signedFixture.integrity,
+        signature: signedFixture.integrity.signature.replace(/Cg==$/, 'Ch=='),
+      },
+    };
+
+    expect(validatePublicationBundle(nonCanonicalSignature)).toContainEqual({
+      path: 'integrity.signature',
+      message: 'Ed25519 signature must be 64-byte base64.',
+    });
+  });
+
   it('keeps compile-time compatibility tied to the complete v1 payload shape', () => {
     const typedFixture: PublicationBundlePayloadV1 = fixture;
     expect(typedFixture.target.handle).toBe('contract-fixture');

@@ -18,6 +18,7 @@ const HANDLE_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
 const UUID_V4_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const SHA256_PATTERN = /^[a-f0-9]{64}$/;
 const BASE64_PATTERN = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+const ARRAY_INDEX_PATTERN = /^(?:0|[1-9]\d*)$/;
 const MEDIA_TYPE_PATTERN = /^[a-z0-9][a-z0-9!#$&^_.+-]*\/[a-z0-9][a-z0-9!#$&^_.+-]*$/i;
 const PRIVATE_PATH_PATTERNS = [
   /file:\/\/[^\s"'<>]+/i,
@@ -104,6 +105,113 @@ function validateObjectKeys(
   }
 }
 
+function arrayPropertyPath(path: string, key: PropertyKey): string {
+  if (typeof key !== 'string') return `${path}[${String(key)}]`;
+  return ARRAY_INDEX_PATTERN.test(key) ? `${path}[${key}]` : `${path}.${key}`;
+}
+
+function inspectArraySafety(
+  value: unknown[],
+  path: string,
+  issues: PublicationBundleIssue[],
+  ancestors: Set<object>
+): void {
+  if (Object.getPrototypeOf(value) !== Array.prototype) {
+    issues.push({
+      path,
+      message: 'Publication bundle arrays must use the native array prototype.',
+    });
+  }
+
+  let indexCount = 0;
+  for (const key of Reflect.ownKeys(value)) {
+    if (key === 'length') continue;
+
+    const childPath = arrayPropertyPath(path, key);
+    const isCanonicalIndex =
+      typeof key === 'string' &&
+      ARRAY_INDEX_PATTERN.test(key) &&
+      Number(key) < value.length &&
+      Number(key) < 4_294_967_295;
+    if (!isCanonicalIndex) {
+      issues.push({
+        path: childPath,
+        message: 'Publication bundle arrays may contain canonical numeric indices only.',
+      });
+    } else {
+      indexCount += 1;
+    }
+
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    if (!descriptor || !Object.hasOwn(descriptor, 'value')) {
+      issues.push({ path: childPath, message: 'Publication bundle arrays cannot use accessors.' });
+      continue;
+    }
+
+    if (typeof key === 'string') {
+      if (SECRET_KEY_PATTERN.test(key) && descriptor.value !== null && descriptor.value !== '') {
+        issues.push({ path: childPath, message: 'Secret-bearing fields are forbidden.' });
+      }
+      if (
+        INTERNAL_SOURCE_KEY_PATTERN.test(key) &&
+        descriptor.value !== null &&
+        descriptor.value !== ''
+      ) {
+        issues.push({ path: childPath, message: 'Internal source metadata is forbidden.' });
+      }
+    }
+    inspectJsonSafety(descriptor.value, childPath, issues, ancestors);
+  }
+
+  if (indexCount !== value.length) {
+    issues.push({ path, message: 'Publication bundle arrays must be dense.' });
+  }
+}
+
+function inspectObjectSafety(
+  value: JsonRecord,
+  path: string,
+  issues: PublicationBundleIssue[],
+  ancestors: Set<object>
+): void {
+  for (const key of Reflect.ownKeys(value)) {
+    const childPath =
+      typeof key === 'symbol' ? `${path}[${String(key)}]` : path ? `${path}.${key}` : key;
+    if (typeof key !== 'string') {
+      issues.push({
+        path: childPath,
+        message: 'Publication bundle objects may contain string properties only.',
+      });
+    }
+
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    if (!descriptor || !Object.hasOwn(descriptor, 'value')) {
+      issues.push({ path: childPath, message: 'Publication bundle objects cannot use accessors.' });
+      continue;
+    }
+    if (!descriptor.enumerable) {
+      issues.push({
+        path: childPath,
+        message: 'Publication bundle object properties must be enumerable.',
+      });
+    }
+
+    if (typeof key === 'string') {
+      if (SECRET_KEY_PATTERN.test(key) && descriptor.value !== null && descriptor.value !== '') {
+        issues.push({ path: childPath, message: 'Secret-bearing fields are forbidden.' });
+      }
+      if (
+        INTERNAL_SOURCE_KEY_PATTERN.test(key) &&
+        descriptor.value !== null &&
+        descriptor.value !== ''
+      ) {
+        issues.push({ path: childPath, message: 'Internal source metadata is forbidden.' });
+      }
+    }
+    inspectJsonSafety(descriptor.value, childPath, issues, ancestors);
+  }
+}
+
 function inspectJsonSafety(
   value: unknown,
   path: string,
@@ -143,20 +251,9 @@ function inspectJsonSafety(
 
   ancestors.add(value);
   if (Array.isArray(value)) {
-    value.forEach((child, index) =>
-      inspectJsonSafety(child, `${path}[${index}]`, issues, ancestors)
-    );
+    inspectArraySafety(value, path, issues, ancestors);
   } else {
-    for (const [key, child] of Object.entries(value)) {
-      const childPath = path ? `${path}.${key}` : key;
-      if (SECRET_KEY_PATTERN.test(key) && child !== null && child !== '') {
-        issues.push({ path: childPath, message: 'Secret-bearing fields are forbidden.' });
-      }
-      if (INTERNAL_SOURCE_KEY_PATTERN.test(key) && child !== null && child !== '') {
-        issues.push({ path: childPath, message: 'Internal source metadata is forbidden.' });
-      }
-      inspectJsonSafety(child, childPath, issues, ancestors);
-    }
+    inspectObjectSafety(value as JsonRecord, path, issues, ancestors);
   }
   ancestors.delete(value);
 }
@@ -475,7 +572,8 @@ function validateIntegrity(value: unknown, issues: PublicationBundleIssue[]): vo
     typeof value.signature !== 'string' ||
     !BASE64_PATTERN.test(value.signature) ||
     value.signature.length !== 88 ||
-    !value.signature.endsWith('==')
+    !value.signature.endsWith('==') ||
+    Buffer.from(value.signature, 'base64').toString('base64') !== value.signature
   ) {
     issues.push({
       path: 'integrity.signature',
