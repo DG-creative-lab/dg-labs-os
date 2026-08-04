@@ -1,8 +1,12 @@
 # Vercel Deployment Runbook
 
+- Status: operational
+- Last reviewed: 4 August 2026
+
 ## Goal
 
-Deploy DG-Labs OS safely to Vercel with reproducible env configuration, runtime health checks, and a rollback path.
+Deploy DG-OS safely to Vercel with reproducible environment configuration, runtime health checks
+and a rollback path.
 
 ## 1) Environment Matrix
 
@@ -22,8 +26,9 @@ Deploy DG-Labs OS safely to Vercel with reproducible env configuration, runtime 
 
 ## 2) Branch and Deploy Policy
 
-- `main` branch deploys to Production.
-- Feature branches deploy to Preview.
+- `main` deploys to Production.
+- `dev` is the integration branch and deploys to Preview.
+- Pull requests from `dev` to `main` run quality, build and E2E smoke checks once.
 - Use Node.js `24` locally for closest parity with Vercel Serverless Functions.
 - Required checks before merge:
   - `pnpm check`
@@ -72,15 +77,16 @@ References:
 
 After Preview/Production deployment:
 
-1. `GET /desktop` loads shell and dock.
-2. `GET /apps/network` loads graph (list/graph toggle works).
-3. `GET /apps/terminal` loads Agents Runtime.
-4. Terminal chat:
+1. `GET /` loads the product entrance and profile directory.
+2. `GET /@dessi` loads the canonical public profile.
+3. `GET /@dessi/network` loads the profile-owned map and its List/Graph toggle.
+4. `GET /apps/terminal` loads the current Dessi Profile Agent compatibility route.
+5. Profile Agent chat:
    - run one deterministic command (`help`)
    - run one LLM command (`ask what is dg-labs os`)
    - confirm a normal request does not return `RATE_LIMIT_UNAVAILABLE`
    - confirm the published `profile-agent-chat` rule records requests in Vercel Firewall
-5. Provider diagnostics:
+6. Provider diagnostics:
    - `GET /api/llm/health?probe=0` returns provider status array
    - optional `POST /api/llm/health` probe for selected provider
 

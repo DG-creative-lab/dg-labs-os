@@ -1,125 +1,102 @@
 # Dessi Profile Dependency Inventory
 
-> Status: active migration map
-> Last reviewed: 2026-08-03
-> Related: [`DG_OS_PRODUCT_ROADMAP.md`](./DG_OS_PRODUCT_ROADMAP.md)
+- Status: temporary migration map
+- Last reviewed: 4 August 2026
+- Archive condition: a second fixture can use every shared public module without Dessi-owned
+  compatibility data.
 
 ## Purpose
 
-DG-OS currently renders one person, but much of its content is embedded directly in UI, knowledge, scripts, and routes. The first multi-profile step is therefore not authentication. It is a trustworthy boundary between a person's private workspace and the public profile that DG-OS is allowed to render.
+Dessi is the first real profile, but she must remain data passed into the product rather than an
+identity assumed by shared code. This document tracks the remaining assumptions after the public
+profile refactoring. It is not the product backlog. The next product build is Publication Bundle v1
+in [`DG_OS_PRODUCT_ROADMAP.md`](./DG_OS_PRODUCT_ROADMAP.md).
 
-`src/profiles/` now defines that boundary as a versioned, provider-neutral `ProfileProjection`. Dessi is its first real instance. Existing screens continue to work through compatibility configuration derived from the projection, so the migration can remain incremental.
+## Completed boundary
 
-## Completed in the first contract slice
+| Area                                     | Canonical source               | State    |
+| ---------------------------------------- | ------------------------------ | -------- |
+| Identity, positioning and public contact | `src/profiles/dessi.ts`        | Migrated |
+| Public links and CV references           | Profile projection             | Migrated |
+| Workbench and Evidence and Evolution     | `src/profiles/modules/`        | Migrated |
+| Selected writing and authorship boundary | `src/profiles/writing/`        | Migrated |
+| Network nodes and typed relationships    | `src/profiles/network/`        | Migrated |
+| Resume data and generated general CV     | `src/profiles/resume/`         | Migrated |
+| Profile-aware module routes              | `/@{handle}/{module}`          | Migrated |
+| Profile Agent evidence selection         | Profile-owned registries       | Migrated |
+| Deterministic terminal retrieval         | Selected profile evidence      | Migrated |
+| Unknown profile and module behaviour     | Explicit rejection or 404      | Enforced |
+| Public privacy boundary                  | Contract validation            | Enforced |
+| CV source and artifact drift             | Build-only manifest and hashes | Enforced |
 
-| Area                                        | Canonical source                         | State                          |
-| ------------------------------------------- | ---------------------------------------- | ------------------------------ |
-| Identity, role, location, positioning       | `dessiProfileProjection.identity`        | Migrated                       |
-| Public contact details                      | `dessiProfileProjection.contact`         | Migrated                       |
-| Public links and their allowed surfaces     | `dessiProfileProjection.links`           | Migrated                       |
-| General CV asset references                 | `dessiProfileProjection.cv.primary`      | Migrated                       |
-| SEO title, description, and keywords        | `dessiProfileProjection.seo`             | Migrated                       |
-| Active profile resolution and runtime       | `src/profiles/runtime.ts`                | Migrated                       |
-| Shared shell, apps, and Evidence identity   | `activeProfile` runtime                  | Migrated                       |
-| Owner approval and private-source exclusion | `dessiProfileProjection.publication`     | Enforced                       |
-| Application-specific OpenAI CV and role     | `openAiCodexApplication`                 | Intentionally separate variant |
-| Workbench projects and categories           | `dessiProfileModules.workbench`          | Migrated                       |
-| Claims, case studies, boundaries, evolution | `dessiProfileModules.evidenceEvolution`  | Migrated                       |
-| Shared Workbench and Evolution components   | Explicit profile-module props            | Migrated                       |
-| Profile Agent module evidence               | Selected profile module registry         | Migrated                       |
-| Selected professional writing               | `dessiWritingModule.entries`             | Migrated                       |
-| Writing authorship and evidence boundaries  | `dg-os.profile-writing/v1`               | Enforced                       |
-| Shared Writing component and agent evidence | Selected Writing registry                | Migrated                       |
-| General CV content and exported documents   | `dessiResumeModule` and approved modules | Migrated                       |
+The validators reject malformed identifiers and URLs, cross-profile module registration, missing
+publication approval, local filesystem paths in public fields and unsupported CV references.
+Contract fixtures protect the published v1 schemas.
 
-The validator rejects malformed identifiers and URLs, duplicate links and CV IDs, local filesystem paths, secret-bearing fields, and publication without the explicit privacy boundary. A JSON round-trip test protects the portability requirement.
+## Remaining dependencies
 
-## Remaining Dessi-specific dependencies
+### Shared interface copy
 
-### 1. Shared interface copy
+`CreativeMachineMonitor` and `HelpGuideWindow` still contain Dessi-specific narrative or labels.
+They are currently used only inside Dessi's profile experience, but they are not portable shared
+surfaces.
 
-The desktop shell, Resume, Evolution, Technical Writing, Workbench introduction, and Evidence surface now receive an active profile runtime. Direct references remain in `CreativeMachineMonitor`, `HelpGuideWindow`, and lower-priority profile-specific modules.
+**Required change:** pass serialisable profile copy or explicitly mark the component as a
+Dessi-owned presentation. Do not introduce a browser-global mutable profile store.
 
-**Disposition:** continue passing the serialisable runtime across Astro and React island boundaries. Migrate remaining shared copy one surface at a time; do not introduce a browser-global mutable profile store.
+### Legacy Profile Agent knowledge
 
-### 2. Terminal and agent behaviour
+The Markdown corpus under `src/knowledge/chunks/` mixes platform explanation with Dessi biography,
+work and instructions. `webVerify.ts` also retains Dessi-specific verification terms. The registry
+prevents another profile from receiving this corpus, but the content classification remains
+single-profile.
 
-Profile Agent requests and deterministic terminal retrieval now require a registered profile and
-use that profile's approved Workbench, Evidence/Evolution, and Writing records. `webVerify.ts` still
-contains Dessi-specific verification terms, and the legacy Markdown knowledge corpus remains
-registered only for Dessi.
+**Required change:** classify knowledge as `platform`, `profile` or `application`; attach a profile
+owner and publication state to profile chunks; generate prompts only from the selected approved
+registry.
 
-**Disposition:** derive a public agent context from the active projection and a separately approved knowledge registry. Keep provider credentials, private memories, and local source access outside the projection.
+### Compatibility configuration
 
-### 3. Knowledge corpus
+Files under `src/config/` still assemble older application shapes from Dessi's projection and
+profile-owned modules. This direction is permitted while legacy surfaces remain, but it should not
+become an input to new public contracts.
 
-The Markdown chunks under `src/knowledge/chunks/` mix reusable DG-OS concepts with Dessi-specific biography, work, links, and instructions.
+**Required change:** new profile-aware work reads the registries directly. Remove compatibility
+config only when its consumers have migrated and their behaviour is covered by tests.
 
-**Disposition:** classify each chunk as `platform`, `profile`, or `application`; attach an owner profile ID and publication state to profile material; generate the profile system context only from approved chunks. The current corpus remains the Dessi fixture until this classification exists.
+### Compatibility and application routes
 
-### 4. Writing and network data
+`/apps/*` routes remain Dessi-only compatibility paths. `/systems` is a shared product surface.
+`/apply/openai-codex` is an intentional Dessi application variant and should not be generalised into
+canonical profile identity.
 
-Workbench and Evidence/Evolution use the versioned `dg-os.profile-modules/v1` bundle. Writing uses
-the independent `dg-os.profile-writing/v1` contract. The Writing registry verifies profile identity,
-projection version, owner review, publication status, public evidence links, authorship boundaries,
-and private-source exclusion. Synthetic second-profile fixtures verify that the shared Writing UI
-and agent evidence builder do not inherit Dessi's records.
+**Required change:** keep profile identity when compatibility actions enter a canonical profile
+route. Retire an `/apps/*` path only after links, mobile behaviour and E2E coverage use its canonical
+replacement.
 
-`network.ts`, education, experience, and related configuration remain single-profile content
-stores.
+### Portable second fixture
 
-**Disposition:** migrated into `dg-os.profile-network/v1`. The registered module preserves evidence
-confidence, visibility, source boundaries, owner review, and relationship provenance rather than
-flattening its records into a generic graph.
+Tests contain valid Dessi assertions and synthetic cross-profile fixtures, but there is no complete
+second profile with every module and CV view.
 
-### 5. CV sources and build scripts
-
-The projection owns published CV asset references. The general CV content is derived from the
-registered Profile, Resume, Workbench, and Evidence/Evolution modules. Build metadata and filenames
-remain outside the public contract, and application-specific CVs remain explicit source variants.
-
-**Disposition:** completed. The builder requires a registered profile handle and explicit variant,
-validates the approved module bundle, generates the general Markdown deterministically, and fails
-its drift check when committed output is stale. The OpenAI application remains a deliberate variant
-and does not redefine the general profile.
-
-### 6. Routes and page metadata
-
-`/@dessi` is the canonical registry-backed profile address. Workbench, Writing, Evolution, and
-Network now resolve at `/@{handle}/{module}`-style profile routes, with an explicit 404 for unknown
-profiles, unsupported modules, or missing registered module data. The legacy `/apps/*` routes remain
-available as Dessi-only compatibility paths. `/systems` and application routes remain shared
-single-profile paths. `/apply/openai-codex` is intentionally specific to one application.
-
-**Disposition:** completed for Workbench, Writing, Evolution, Network, and Resume. Resume resolves
-an explicit profile-owned CV record, while local Markdown source locations remain in a build-only
-manifest. Authentication and database-backed workspaces remain gated on a real second-user
-requirement.
-
-### 7. Tests
-
-Existing terminal, API, and end-to-end suites contain fixture-specific Dessi assertions.
-
-**Disposition:** retain Dessi assertions where they verify the Dessi fixture, move portable contract behaviour into `profileProjection.test.ts`, and generalise shared-shell tests when the runtime context lands.
+**Required change:** before public multi-profile onboarding, register a complete isolated fixture
+and verify the platform entrance, module routes, Profile Agent, CV resolution and mobile 404 paths
+without editing shared UI.
 
 ## Migration rules
 
-1. Data flows in one direction: public projection and modules → compatibility config → UI.
-2. `src/profiles/` must not import UI code, terminal providers, private workspace services, or legacy config.
-3. A projection must remain serialisable JSON with a declared schema and projection version.
-4. No secrets, local paths, private repository identifiers, raw activity, or unreviewed claims may enter a public projection.
-5. Each migrated module keeps its current behaviour covered by tests before the legacy value is removed.
-6. Application campaigns are profile variants, not the canonical identity.
+1. Data flows from public contracts and modules into registries, adapters and UI.
+2. `src/profiles/` does not import UI, provider, API route or private workspace code.
+3. Every public record is serialisable, versioned and validated before activation.
+4. Secrets, local paths, raw activity, private repository identifiers and unreviewed claims do not
+   enter the public projection.
+5. An application campaign is a deliberate profile variant, never the canonical identity.
+6. A shared surface receives the selected profile explicitly and never falls back silently.
+7. Dessi fixture assertions remain where they verify her content. Portable behaviour belongs in
+   contract, interaction and second-fixture tests.
 
-## Completed implementation slice
+## Relation to the expansion build
 
-Workbench, Evidence/Evolution, Writing, Network, and Resume are versioned public modules. Resume
-resolves the selected profile's approved CV through the existing projection contract, and the
-general CV documents are generated from the same reviewed records. Their registries reject invalid,
-unpublished, mismatched, private-path-bearing, and cross-profile bundles. The UI, Profile Agent, and
-profile-aware module routes consume the selected modules explicitly.
-
-## Next implementation slice
-
-Specify the signed local publication bundle and narrow publication API. Keep authentication, hosted
-workspaces, and database storage behind the second-real-user gate.
+Publication Bundle v1 may use Dessi as its first valid fixture while the remaining compatibility
+work continues. It must reference profile and module contracts by version and cannot package legacy
+configuration or the unclassified knowledge corpus as public authority.

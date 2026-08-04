@@ -1,6 +1,11 @@
-# DG-Labs OS App Roadmap
+# Archived Portfolio Application Roadmap
 
-> Scope: detailed implementation history and backlog for the existing application. The current product direction, two-project architecture, privacy boundary, and delivery sequence live in [`DG_OS_PRODUCT_ROADMAP.md`](./DG_OS_PRODUCT_ROADMAP.md).
+- Status: archived 4 August 2026
+- Superseded by: [`../DG_OS_PRODUCT_ROADMAP.md`](../DG_OS_PRODUCT_ROADMAP.md)
+
+This document preserves the implementation plan used while DG-OS was primarily a personal
+portfolio. Its routes, module names, priorities, and completion states are historical and must not
+be used as the current product backlog.
 
 ## 1. Product Intent (Consolidated)
 

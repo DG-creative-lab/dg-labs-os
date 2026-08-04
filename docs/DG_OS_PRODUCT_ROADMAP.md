@@ -1,300 +1,305 @@
 # DG-OS Product Roadmap
 
-Status: living product document
-Last updated: 3 August 2026
-Current proof: Dessi Georgieva is the first profile instance.
+- Status: living product document
+- Last reviewed: 4 August 2026
+- Current phase: Publication Bundle v1
+- Current proof: Dessi Georgieva is the first public profile instance
 
-This document records the product direction, boundaries, sequencing, and decisions that should survive individual builds. `APP_ROADMAP.md` remains the detailed implementation backlog for the existing portfolio application.
+This is the canonical product sequence. It records what DG-OS is becoming, which boundaries must
+survive the build, and what must be true before the next capability enters the system. Detailed
+engineering rules live under [`engineering/`](./engineering/). Historical portfolio plans live
+under [`archive/`](./archive/).
 
-Related decision: [`AION_REUSE_ASSESSMENT.md`](./AION_REUSE_ASSESSMENT.md) records which Gateplane authentication, workspace, project, and agent-governance capabilities can support DG-OS.
+## Product purpose
 
-## 1. Product purpose
+DG-OS gives a person a controlled way to turn private learning, work, questions and decisions into
+a public professional record.
 
-DG-OS gives a person a controlled way to turn private learning, work, questions, and decisions into a public professional record.
+The private system remembers broadly. The public system says less. What appears publicly has been
+reviewed, bounded and connected to evidence. A visitor can inspect the record without accepting a
+generated claim on trust. The owner can revisit the same record to understand change, prepare new
+work and decide what should remain private.
 
-The private system remembers broadly. The public system says less. What appears publicly has been reviewed, bounded, and connected to evidence.
+Dessi is the first proof because she is building and using the system. The proof succeeds when it
+helps another person understand:
 
-The first proof uses Dessi's own work. A successful proof should help a visitor understand:
-
-- what Dessi can do;
+- what she has built and can do;
 - how that competence developed;
 - what supports each material claim;
-- where uncertainty or confidentiality remains;
-- how her projects, ideas, and experience connect over time.
+- where evidence is limited or confidential;
+- how projects, ideas and experience connect over time.
 
-The larger product can later support many people, employers, collaborators, and investors. That later network must grow from a credible personal system rather than a directory of generated profiles.
+The longer product direction includes personal workspaces, AI-client connections, invited profiles
+and employer or collaborator surfaces. Those capabilities follow the evidence and control model.
+They do not precede it.
 
-## 2. The two active projects
+## Product surfaces
 
 ### DG-OS
 
-The public projection and discovery layer.
+The public projection and discovery surface.
 
-Responsibilities:
+It:
 
-- render an approved human profile as an explorable operating system;
-- expose systems, evidence, evolution, writing, CVs, and public links;
-- provide a platform entrance for discovering profile instances;
-- serve approved profile data to web visitors and authorised AI clients;
-- preserve provenance, limitations, and version history.
+- renders an approved profile as an explorable operating system;
+- exposes Workbench, Evidence and Evolution, Writing, Network, Resume and Profile Agent views;
+- presents the platform before a visitor enters an individual profile;
+- generates CVs from the same approved record;
+- preserves version, provenance, confidence and limitation boundaries;
+- later serves approved data to authenticated AI clients.
 
 ### Personal System
 
-The future unified desktop application containing the Learning Foundry and Personal Space.
+The planned local application formed from the Learning Foundry and Personal Space.
 
-Responsibilities:
+It will:
 
-- observe approved local projects and learning sources;
-- support learning, reflection, association, and experimentation;
+- observe sources explicitly selected by the owner;
+- support learning, reflection, association and experimentation;
 - retain private evidence locally by default;
-- prepare possible public claims and profile changes;
-- require human review before anything reaches DG-OS.
+- prepare candidate claims and public changes;
+- show the exact publication diff;
+- require human approval before data reaches DG-OS.
 
-Learning Foundry remains unchanged on GitHub while its hackathon submission is under review through 12 August 2026. Shared contracts can be designed outside that repository during this period.
+The Learning Foundry hackathon repository remains unchanged on GitHub until its review period ends
+on 12 August 2026. Integration contracts can be designed here without changing that repository.
 
-## 3. Invariants
+## Completed foundation
 
-These rules should survive changes in framework, cloud provider, or model provider.
+The portfolio refactoring is complete enough to begin the expansion build:
 
-1. Private material is canonical locally.
-2. DG-OS receives an explicit public projection, never an unrestricted mirror of local activity.
-3. AI may collect, organise, compare, and propose. A human approves publication.
-4. Every material public claim carries provenance, scope, confidence, and a limitation when one exists.
-5. A generated CV is a view of the same profile projection, not a separate source of truth.
-6. The data contract remains provider-neutral. OpenAI is the first interface, not the owner of the record.
-7. Public visitors can understand the profile without using AI or learning the OS metaphor first.
-8. No competence score, cultural-fit score, or candidate ranking enters the proof of concept.
+- `/` introduces DG-OS as a product and profile directory;
+- `/@dessi` is the canonical responsive profile route;
+- profile identity and public metadata use a validated projection contract;
+- Workbench, Evidence and Evolution, Writing, Network and Resume are versioned profile modules;
+- the Profile Agent retrieves evidence from the selected profile boundary;
+- deterministic terminal commands fail closed for unknown profiles;
+- the general CV is generated from approved profile records;
+- committed Markdown, DOCX and PDF assets are protected by an artifact manifest;
+- architecture, contract, state-machine and interaction checks run in CI;
+- Vercel Firewall protects provider-backed Profile Agent requests.
 
-## 4. Product architecture
+Some compatibility routes and Dessi-owned knowledge remain. They are tracked in
+[`DESSI_PROFILE_DEPENDENCY_INVENTORY.md`](./DESSI_PROFILE_DEPENDENCY_INVENTORY.md) and do not block
+the publication contract.
+
+## Invariants
+
+These rules survive changes in framework, cloud provider and model provider.
+
+1. Raw personal material is canonical locally.
+2. DG-OS receives an explicit public projection, never an unrestricted mirror of private activity.
+3. AI may collect, organise, compare and propose. A human approves publication.
+4. Every material public claim carries provenance, scope, confidence and a limitation when one
+   exists.
+5. Generated CVs and agent evidence are views of the approved profile, not separate truths.
+6. User and workspace identity remain independent of OpenAI, Anthropic or another AI provider.
+7. Codex and Claude Code are clients acting under DG-OS scopes. Their provider sessions do not own
+   the workspace.
+8. Public visitors can understand a profile without using AI or learning the OS metaphor first.
+9. Unknown profiles, modules, workspaces, versions and permissions fail closed.
+10. Competence scores, cultural-fit scores and candidate ranking remain outside the proof.
+
+## Target architecture
 
 ```mermaid
 flowchart LR
-    F["Learning Foundry"] --> P["Private Personal System"]
-    S["Personal Space"] --> P
-    P --> R["Human review"]
-    R --> X["Versioned public projection"]
-    X --> W["DG-OS web profile"]
-    X --> C["Generated CV"]
-    X --> M["DG-OS MCP app"]
-    M --> O["ChatGPT and Codex plugin"]
+    F["Learning Foundry"] --> S["Local Personal System"]
+    D["Personal Space"] --> S
+    S --> R["Owner review"]
+    R --> B["Signed publication bundle"]
+    B --> P["Versioned DG-OS projection"]
+    P --> W["Public web profile"]
+    P --> C["Generated CV"]
+    P --> A["Profile Agent"]
+    X["Codex or Claude Code"] --> M["Authenticated DG-OS MCP server"]
+    M --> S
 ```
 
-The first shared contract is `ProfileProjection`. It should eventually contain:
+The detailed ownership, persistence, publication and OAuth boundaries are defined in
+[`engineering/WORKSPACE_PUBLICATION_ARCHITECTURE.md`](./engineering/WORKSPACE_PUBLICATION_ARCHITECTURE.md).
 
-- identity and public contact details;
-- current direction and availability;
-- capabilities expressed as bounded claims;
-- projects, roles, contributions, outcomes, and limitations;
-- evidence references and visibility levels;
-- learning and evolution entries approved for publication;
-- public relationships between systems, ideas, and experiences;
-- CV views and assets;
-- projection version, publication time, and review metadata.
+## Delivery roadmap
 
-## 5. Delivery roadmap
+### Phase 0 - Establish the Dessi public proof
 
-### Phase 0 - Complete the Dessi proof
+Status: completed baseline.
 
-Status: in progress.
+The product entrance, canonical profile, shared public modules, Profile Agent boundary,
+deterministic CV generation and engineering harness are live.
 
-- finish the current narrative and interface review;
-- retain the OS shell and Creative Machine entrance;
-- make Systems & Evidence, Evolution, Workbench, Writing, Timeline, Map, Connect, and Agents read as parts of one system;
-- finish responsive window behaviour and core accessibility checks;
-- keep claims conservative where public evidence is limited.
+Remaining interface refinements are normal product work. They no longer define the architectural
+critical path.
 
-Exit condition: a new visitor can explain DG-OS, Dessi's current professional direction, and the relationship between evidence and evolution after one visit.
+### Phase 1 - Define Publication Bundle v1
 
-### Phase 1 - Make Dessi an instance of a profile contract
+Status: next.
 
-Status: in progress. The public contract, registry, canonical route, and first projection are live.
-Workbench and Evidence/Evolution now use a validated, versioned module bundle shared by the public
-UI and Profile Agent. Writing, Network, and Resume use independent validated v1 modules so they can
-evolve without changing the frozen profile-modules v1 schema. The general CV is now a deterministic
-view of those approved profile records, while application-specific CVs remain deliberate variants.
-Those reviewed modules resolve beneath the selected public profile handle and fail closed when the
-profile, module, or CV variant is unavailable. Remaining profile content still needs to cross the
-boundary.
+- define a versioned provider-neutral bundle envelope;
+- reference only supported public record versions;
+- define canonical digest and signature verification;
+- record profile, workspace, base version and proposed version;
+- distinguish human preparation from Codex or Claude Code preparation;
+- bind approval to one immutable bundle digest;
+- reject secrets, local paths, private identifiers in public records and unsupported algorithms;
+- add contract fixtures, privacy tests and deterministic verification.
 
-- define and validate `ProfileProjection`;
-- move Dessi-specific content behind one profile boundary;
-- remove Dessi-specific assumptions from shared components, terminal commands, routes, and navigation;
-- generate the standard CV from the projection;
-- retain application-specific CVs as explicit, derived views;
-- add projection version and last-reviewed metadata.
+Exit condition: a local fixture can prepare, sign and verify an approved Dessi update without
+changing the active public profile.
 
-Exit condition: the renderer can load a second fixture profile without editing shared interface components.
+### Phase 2 - Build the Personal System review surface
 
-### Phase 2 - Add the DG-OS platform entrance
+- unify the Learning Foundry and Personal Space around shared local contracts;
+- import sources only with explicit owner selection;
+- create a private review queue and readable diff;
+- separate observations, model proposals and owner-approved statements;
+- export Publication Bundle v1 without exposing unrestricted workspace contents;
+- keep signing keys in the local operating-system keychain or equivalent secure store.
 
-Status: in progress. The root browser now introduces the product, publication method, and first live
-profile before a visitor enters Dessi's personal OS.
+Exit condition: Dessi can prepare and approve a publication bundle from the local application.
 
-- turn the simulated browser home into the DG-OS platform page;
-- introduce Dessi as `Instance 01`;
-- provide summary, evidence areas, CV access, and `Enter Dessi's OS`;
-- route the personal system to `/dessi` or `/@dessi`;
-- transition from the browser directory into the selected person's OS;
-- use a conventional list and search model as the accessible discovery surface;
-- reserve a relationship graph for real, evidence-supported connections.
+### Phase 3 - Add the narrow DG-OS publication receiver
 
-Exit condition: the root domain represents DG-OS as a product while Dessi's profile remains the complete live proof.
+- verify bundles without activating them;
+- add immutable version storage and an audit record;
+- enforce optimistic version checks and idempotency;
+- preview the resolved public projection and assets;
+- activate one approved version through a deterministic publication state machine;
+- support correction and rollback without deleting history.
 
-### Phase 3 - Connect the private Personal System
+Exit condition: a reviewed local change updates Dessi's profile without manually editing public
+content files, and the previous version can be restored.
 
-- define a signed, versioned projection bundle;
-- build a local review queue and publication preview;
-- export only approved public fields and assets;
-- receive the projection through a narrow DG-OS API;
-- preserve previous public versions and support rollback;
-- record publication consent and actor identity.
+### Phase 4 - Introduce accounts and isolated workspaces
 
-Exit condition: a reviewed change made locally updates Dessi's public profile without manually editing portfolio source files.
+Trigger: the first invited external user begins onboarding.
 
-### Phase 4 - Add the OpenAI interface
+- add stable users and provider-neutral identity connections;
+- allocate personal workspaces and explicit memberships;
+- connect the bounded Gateplane control-plane API described by ADR-0001;
+- enforce tenant and workspace isolation in the API and persistence layer;
+- add recovery, export, deletion and revocation;
+- keep optional cloud sync separate from public publication.
 
-- implement one MCP contract shared by ChatGPT and Codex;
-- package it as a DG-OS plugin with focused skills and an authenticated app;
-- begin with read-only tools for profile inspection and private reflection;
-- allow AI to prepare a projection change without publishing it;
-- keep final publication inside the Personal System approval surface;
-- preserve adapters for later model providers.
+Exit condition: an invited person can sign in, receive an isolated workspace and control its public
+projection without a developer editing code.
 
-Exit condition: Dessi can ask Codex or ChatGPT to inspect her workspace and prepare a bounded update while publication remains human-controlled.
+### Phase 5 - Connect AI clients through MCP
 
-### Phase 5 - Pilot a second person
+- implement one authenticated remote MCP contract;
+- connect Codex first with read and proposal scopes;
+- connect Claude Code through the same resources, tools and authorization semantics;
+- allow clients to inspect approved scope and prepare a bundle;
+- keep human approval and publication outside model authority;
+- audit allowed, denied and revoked tool use.
 
-- introduce accounts, workspaces, and memberships;
-- add an identity provider and OAuth for the DG-OS MCP app;
-- store account, projection, version, and permission metadata in Postgres;
-- enforce tenant boundaries in the API and database;
-- store approved cloud assets separately from private local material;
-- test onboarding, export, deletion, recovery, and consent with one invited user.
+Exit condition: an authorised client can prepare a bounded change for the selected workspace and
+cannot read another workspace or publish directly.
 
-Exit condition: a second person can create and maintain an isolated profile without Dessi or a developer editing code for them.
+### Phase 6 - Run the second-person pilot
 
-### Phase 6 - Build the network carefully
+- test onboarding with one invited participant;
+- test local-only operation and optional sync;
+- test source selection, correction, withdrawal, export and account deletion;
+- observe whether the public profile supports a useful opportunity or collaboration;
+- revise the product from actual use rather than hypothetical scale.
 
-- add profile discovery by evidenced capabilities, domains, questions, and availability;
-- introduce relationships only when both their meaning and provenance are clear;
-- add employer and collaborator views after the individual controls are stable;
-- design feedback, correction, appeal, and deletion before automated assessment;
-- test whether the system improves understanding and opportunity, not merely profile engagement.
+Exit condition: the second person can maintain an accurate public record without Dessi acting as
+their operator.
 
-Exit condition: the network creates useful introductions while profile owners retain control over interpretation and disclosure.
+### Phase 7 - Add discovery and organisation surfaces carefully
 
-## 6. Decision gates
+- introduce profile discovery by evidenced capabilities, domains, questions and availability;
+- add relationships only when their meaning, consent and provenance are clear;
+- design employer and collaborator views after individual controls are stable;
+- define correction, appeal and deletion before any automated assessment;
+- evaluate whether the system improves understanding and opportunity.
 
-Do not add infrastructure because the final architecture might need it. Add it when the proof crosses a boundary.
+Exit condition: discovery creates useful introductions while profile owners retain control over
+interpretation and disclosure.
 
-| Decision                                 | Trigger                                                            |
-| ---------------------------------------- | ------------------------------------------------------------------ |
-| Add authentication and a hosted database | A second real user begins onboarding                               |
-| Add private cloud storage                | A user explicitly chooses multi-device sync or backup              |
-| Add write-capable MCP tools              | Read-only use is stable, scoped, logged, and understood            |
-| Add a profile graph                      | Real profiles and meaningful relationships exist                   |
-| Add employer assessment                  | Consent, correction, evidence, and appeal rules are designed       |
-| Add another AI provider                  | A real user need or dependency risk justifies the adapter          |
-| Split services or databases per tenant   | Isolation, scale, or compliance needs exceed shared infrastructure |
+## Decision gates
 
-## 7. Information boundaries
+Infrastructure enters when a product boundary requires it.
 
-| Layer             | Examples                                                               | Default location                    | Publication rule                     |
-| ----------------- | ---------------------------------------------------------------------- | ----------------------------------- | ------------------------------------ |
-| Local private     | source code, notes, failures, raw activity, unpublished ideas          | user's device                       | never public by default              |
-| Cloud private     | encrypted backups, optional sync, private approved workspace data      | authenticated private storage       | explicit user choice                 |
-| Public projection | reviewed claims, selected evidence, projects, public evolution entries | DG-OS                               | explicit approval and version record |
-| Public assets     | generated CV, selected images, public documents                        | public or controlled object storage | generated from approved projection   |
+| Decision                                       | Trigger                                                                           |
+| ---------------------------------------------- | --------------------------------------------------------------------------------- |
+| Enable the publication receiver                | Local verification, idempotency, version conflict and rollback tests pass         |
+| Add hosted authentication and database storage | The first invited external user begins onboarding                                 |
+| Add private cloud storage                      | A user explicitly chooses backup or multi-device sync                             |
+| Enable MCP proposal tools                      | Workspace scopes, audit and revocation are enforced independently of model output |
+| Add an agent publication scope                 | No current plan; requires a new decision and threat model                         |
+| Add another public profile                     | The shared renderer and evidence registry pass with an isolated second fixture    |
+| Add profile relationships                      | Real profiles and consented, evidenced relationships exist                        |
+| Add employer assessment                        | Evidence, consent, correction, appeal and deletion policies are implemented       |
+| Split services or databases                    | Isolation, scale or compliance exceeds the safe shared design                     |
 
-Secrets, tokens, raw private evidence, local paths, employer-confidential material, and unreviewed model output must never enter the public repository.
+## Information boundaries
 
-## 8. Open-source position
+| Layer                | Examples                                                             | Default location                       | Publication rule              |
+| -------------------- | -------------------------------------------------------------------- | -------------------------------------- | ----------------------------- |
+| Local private        | Source code, notes, failures, raw activity, unpublished ideas        | Owner device                           | Never public by default       |
+| Cloud private        | Optional encrypted backup, membership and draft metadata             | Authenticated private services         | Explicit owner choice         |
+| Publication envelope | Reviewed diff, target version, asset digests, approval and signature | Local device plus private audit record | Valid bundle only             |
+| Public projection    | Approved claims, projects, evidence and evolution                    | DG-OS version store                    | Explicit activation           |
+| Public assets        | Generated CV and selected public documents                           | Public or controlled object storage    | Derived from approved version |
 
-The code can remain public during the proof. Openness fits the educational purpose and makes the architecture inspectable. The business should not depend on hiding the renderer.
+Secrets, provider tokens, signing private keys, raw private evidence, local paths,
+employer-confidential material and unreviewed model output never enter the public projection.
 
-The durable split should be:
+## Open-source position
 
-### Open permanently
+DG-OS remains `AGPL-3.0-only`. The public contracts, renderer, local formats, MCP safety conventions
+and self-hosting path can remain inspectable. A managed service may charge for identity, recovery,
+synchronisation, trusted publication, discovery, moderation and operational guarantees.
 
-- the `ProfileProjection` specification;
-- the public profile renderer;
-- local import and export formats;
-- self-hosting documentation;
-- MCP contracts and safety conventions;
-- core Personal System modules that let an individual retain control of their record.
+The software licence does not grant rights to the DG-OS name, personal profile content, CV content,
+original writing or personal media. Contributor and trademark terms require legal review before
+outside contributions or investment depend on them.
 
-### Possible commercial layer
+## Current build acceptance
 
-- managed hosting and synchronisation;
-- identity, recovery, administration, and support;
-- trusted publication and verification operations;
-- discovery and relationship infrastructure;
-- employer workflows and organisation controls;
-- abuse prevention, moderation, and operational tooling;
-- service-level guarantees and regulated deployments.
+Publication Bundle v1 is complete only when:
 
-Private user data is never part of the open-source asset. The defensible product grows from trust, operation, distribution, governance, and useful participation. Code secrecy alone would contribute little to that defence.
+- the schema and canonical representation are versioned;
+- a committed valid fixture verifies deterministically;
+- modified payloads and signatures fail;
+- unsupported record or algorithm versions fail;
+- private paths, secrets and internal identifiers cannot enter public records;
+- profile, workspace and base-version mismatches fail;
+- repeated verification produces the same result;
+- the publication state machine is documented but no activation endpoint is exposed;
+- `pnpm test:harness` and `pnpm check` pass without weakening architecture budgets.
 
-### Licence decision
-
-DG-OS software is licensed under `AGPL-3.0-only`. AGPL preserves commercial use while requiring operators of modified network versions to offer their corresponding source to users. It does not prevent another company from operating a competing service. A licence that forbids competitors or production use is source-available rather than open source.
-
-The repository should therefore:
-
-1. remain public during the Dessi proof;
-2. retain the full AGPL text and SPDX metadata in every distributed software package;
-3. expose a visible source and licence link from the deployed interface;
-4. manage contributor rights before accepting outside contributions if a separate commercial licence may later be offered;
-5. protect the DG-OS name, visual identity, and hosted trust service separately from the code licence;
-6. give profile content, personal data, and media explicit terms rather than assuming the software licence covers them.
-
-This is a product recommendation, not legal advice. A solicitor should review the licence structure before external contributors, customers, or investors rely on it.
-
-References:
-
-- [GitHub: licensing a repository](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository)
-- [Open Source Initiative: Open Source Definition](https://opensource.org/osd)
-- [Open Source Initiative: AGPL-3.0](https://opensource.org/license/agpl-3-0)
-- [Choose a License: MIT](https://choosealicense.com/licenses/mit/)
-- [MariaDB: Business Source License 1.1](https://mariadb.com/bsl11/)
-
-## 9. Immediate build sequence
-
-The next DG-OS work should proceed in this order:
-
-1. completed: migrate Writing into a reviewed public profile module;
-2. completed: model Network as profile-owned nodes and typed, evidenced relationships;
-3. completed: extend profile-aware routing to Workbench, Writing, Evolution, and Network;
-4. completed: make the standard CV builder accept a profile handle and explicit variant;
-5. completed: generate the general CV from the same approved profile data;
-6. next: specify the signed local publication bundle and narrow API boundary;
-7. keep authentication and hosted workspaces behind the second-real-user gate.
-
-Aion integration remains deferred until the second-user gate. Its stable identity, workspace, project, delegated-grant, approval, and audit patterns may shape the contracts without introducing an authentication dependency into the current proof.
-
-## 10. Product measures for the proof
-
-The proof should answer observable questions:
+## Measures for the proof
 
 - Can a visitor describe Dessi's actual work without relying on a job title?
-- Can they distinguish public evidence, self-reported material, and confidential boundaries?
+- Can they distinguish public evidence, owner-reported material and confidential boundaries?
 - Can Dessi update the profile through reviewed source material rather than duplicate editing?
-- Can the same approved record produce the OS, CV, and AI-readable profile?
-- Does the system create a useful conversation, interview, collaboration, or investment introduction?
-- Can Dessi remove or correct a public claim cleanly?
+- Can one approved version produce the OS, CV and AI-readable evidence?
+- Can she correct or withdraw a public claim without losing history?
+- Does the profile create a useful interview, collaboration or investment conversation?
+- Can an invited second person operate the same system without data crossing profiles?
 
-Traffic and time-on-site may help diagnose usability. They do not prove that the system understands a person.
+Traffic and time on site may diagnose usability. They do not prove that the system understands a
+person.
 
-## 11. Decision record
+## Decision record
+
+### 4 August 2026
+
+- Mark the public-profile refactoring and engineering harness as the completed foundation.
+- Start the expansion with Publication Bundle v1 rather than login or hosted storage.
+- Prepare provider-neutral provenance for Codex and Claude Code without implementing provider login.
+- Keep DG-OS account identity separate from AI-provider sessions.
+- Connect hosted identity and workspaces only when the first invited external user needs them.
+- Use one MCP authorization contract for Codex and Claude Code, with no initial publish scope.
+- Preserve old portfolio plans under `docs/archive/`.
 
 ### 1 August 2026
 
-- Treat DG-OS and the unified Personal System as the two active projects.
-- Complete DG-OS first, using Dessi as the live proof.
+- Treat DG-OS and the unified Personal System as the two active product surfaces.
+- Complete DG-OS first with Dessi as the live proof.
 - Keep raw personal material local by default.
 - Publish only reviewed profile projections.
-- Keep OpenAI as the first interface while retaining provider-neutral contracts.
-- Keep the code public during the proof.
-- Licence DG-OS software under `AGPL-3.0-only`.
-- Keep the DG-OS identity, profile content, personal data, and media outside the software licence unless explicitly stated.
-- Resolve contribution and trademark terms before wider participation.
+- Keep the code public during the proof under `AGPL-3.0-only`.

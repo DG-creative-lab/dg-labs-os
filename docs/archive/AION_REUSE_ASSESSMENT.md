@@ -1,8 +1,13 @@
-# Aion / Gateplane Reuse Assessment
+# Archived Aion / Gateplane Reuse Assessment
 
-Status: architecture decision  
-Last reviewed: 1 August 2026  
-Source reviewed: `/Users/dessigeorgieva/Desktop/testing_websites/my-stuff/aion`
+- Status: archived 4 August 2026
+- Decision extracted to:
+  [`../engineering/decisions/0001-gateplane-control-plane-boundary.md`](../engineering/decisions/0001-gateplane-control-plane-boundary.md)
+- Last assessment: 1 August 2026
+- Source reviewed: local Aion repository at its 1 August 2026 state
+
+This assessment records the repository investigation behind ADR-0001. Its implementation snapshot
+and test counts are historical. ADR-0001 is the durable architectural decision.
 
 ## Decision
 

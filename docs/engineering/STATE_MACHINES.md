@@ -45,16 +45,24 @@ Every new stateful workflow defines:
 
 ## Publication machine gate
 
-Before local-to-public publication is implemented, it must define at least:
+Before local-to-public publication is implemented, it must be added to the executable catalogue and
+define at least:
 
 ```text
-prepared -> reviewed -> approved -> published -> superseded
-                  \-> rejected
-published -> rolled-back
+draft -> prepared -> reviewed -> approved -> publishing -> published -> superseded
+                   \-> rejected            \-> failed
+published -> rollback-requested -> rolled-back
 ```
 
 Publication must be idempotent, versioned, attributable to an actor, and recoverable without
-rewriting previous public evidence.
+rewriting previous public evidence. Approval binds one immutable bundle digest, and a repeated
+publication request returns the existing result rather than creating another version. Profile,
+workspace, base-version, signature, permission, and privacy mismatches fail before activation.
+
+The target envelope, API boundary, persistence split, AI-client scopes, and full invariants are in
+[`WORKSPACE_PUBLICATION_ARCHITECTURE.md`](./WORKSPACE_PUBLICATION_ARCHITECTURE.md). That document is
+the design gate; `architecture/state-machines/catalog.ts` becomes executable authority when the
+workflow is implemented.
 
 The CV build boundary follows the same fail-closed principle: profile metadata is selected before
 rendering, and the public Markdown, DOCX, and PDF set is replaced only after a fresh PDF is verified.
