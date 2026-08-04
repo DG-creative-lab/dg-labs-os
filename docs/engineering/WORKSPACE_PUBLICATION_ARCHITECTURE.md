@@ -97,19 +97,37 @@ type PublicationBundleV1 = {
   target: {
     profileId: string;
     handle: string;
-    baseProjectionVersion: string;
-    proposedProjectionVersion: string;
+    baseProjectionVersion: number;
+    proposedProjectionVersion: number;
   };
   createdAt: string;
-  preparedBy: {
-    kind: 'human' | 'agent';
-    provider: 'openai' | 'anthropic' | 'local' | null;
-    client: 'codex' | 'claude-code' | 'manual' | null;
-    installationId?: string;
-  };
-  records: readonly unknown[];
+  preparedBy:
+    | {
+        kind: 'human';
+        actorId: string;
+        provider: null;
+        client: 'manual';
+      }
+    | {
+        kind: 'agent';
+        actorId: string;
+        provider: 'openai' | 'anthropic' | 'local';
+        client: 'codex' | 'claude-code' | 'manual';
+        installationId: string;
+      };
+  records: readonly {
+    kind: 'profile' | 'profile-modules' | 'network' | 'writing' | 'resume';
+    schemaVersion: string;
+    recordId: string;
+    profileId: string;
+    handle: string;
+    projectionVersion: number;
+    recordVersion: number;
+    sha256: string;
+    byteLength: number;
+  }[];
   assets: readonly {
-    id: string;
+    assetId: string;
     mediaType: string;
     sha256: string;
     byteLength: number;
@@ -120,7 +138,9 @@ type PublicationBundleV1 = {
     method: 'local-signature';
   };
   integrity: {
-    algorithm: string;
+    canonicalization: 'rfc8785';
+    digestAlgorithm: 'sha256';
+    signatureAlgorithm: 'ed25519';
     keyId: string;
     digest: string;
     signature: string;
@@ -128,12 +148,15 @@ type PublicationBundleV1 = {
 };
 ```
 
-The implemented contract must replace `unknown` with versioned public record references. This
-sketch fixes the envelope boundary, not the final record union or signature algorithm.
+The implemented v1 contract narrows each record kind to its existing public schema version and
+requires exactly one profile record. Other module kinds are optional but unique. Every record and
+asset reference pins canonical bytes by SHA-256 digest and byte length. The payload bytes are not
+embedded in the envelope and cannot be replaced without invalidating the signature.
 
 The signature covers a canonical representation of every field except the signature value itself.
-The implementation must use an established cryptographic library, declare the canonicalisation and
-algorithm versions, and reject unknown algorithms. No custom cryptography is permitted.
+The v1 implementation uses RFC 8785 canonical JSON, SHA-256 and Ed25519 through established
+libraries and the Node.js cryptography implementation. Unknown algorithms fail validation. No
+custom cryptography is permitted.
 
 Internal ownership identifiers may exist in the signed envelope and server-side version record.
 They must be removed from the public profile projection and all client-hydrated public surfaces.

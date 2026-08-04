@@ -5,6 +5,10 @@ import { profileProjectionV1Fixture as projectionFixture } from '../fixtures/con
 import { writingModuleV1Fixture as writingFixture } from '../fixtures/contracts/writingModuleV1';
 import { resumeModuleV1Fixture as resumeFixture } from '../fixtures/contracts/resumeModuleV1';
 import {
+  publicationBundlePayloadV1Fixture as publicationPayloadFixture,
+  publicationBundleV1Fixture as publicationFixture,
+} from '../fixtures/contracts/publicationBundleV1';
+import {
   createActiveProfileRuntime,
   createPublicProfileRegistry,
   PROFILE_PROJECTION_SCHEMA_VERSION,
@@ -32,6 +36,11 @@ import {
   PUBLIC_RESUME_SCHEMA_VERSION,
   validatePublicResumeModule,
 } from '../../src/profiles/resume';
+import {
+  PUBLICATION_BUNDLE_SCHEMA_VERSION,
+  validatePublicationBundle,
+  validatePublicationBundlePayload,
+} from '../../src/publication';
 
 describe('public contract compatibility', () => {
   it('keeps committed v1 projection and module fixtures valid and serialisable', () => {
@@ -40,16 +49,23 @@ describe('public contract compatibility', () => {
     expect(PUBLIC_NETWORK_SCHEMA_VERSION).toBe('dg-os.profile-network/v1');
     expect(PUBLIC_WRITING_SCHEMA_VERSION).toBe('dg-os.profile-writing/v1');
     expect(PUBLIC_RESUME_SCHEMA_VERSION).toBe('dg-os.profile-resume/v1');
+    expect(PUBLICATION_BUNDLE_SCHEMA_VERSION).toBe('dg-os.publication-bundle/v1');
     expect(validateProfileProjection(projectionFixture)).toEqual([]);
     expect(validatePublicProfileModules(modulesFixture)).toEqual([]);
     expect(validatePublicNetworkModule(networkFixture)).toEqual([]);
     expect(validatePublicWritingModule(writingFixture)).toEqual([]);
     expect(validatePublicResumeModule(resumeFixture)).toEqual([]);
+    expect(validatePublicationBundlePayload(publicationPayloadFixture)).toEqual([]);
+    expect(validatePublicationBundle(publicationFixture)).toEqual([]);
     expect(JSON.parse(JSON.stringify(projectionFixture))).toEqual(projectionFixture);
     expect(JSON.parse(JSON.stringify(modulesFixture))).toEqual(modulesFixture);
     expect(JSON.parse(JSON.stringify(networkFixture))).toEqual(networkFixture);
     expect(JSON.parse(JSON.stringify(writingFixture))).toEqual(writingFixture);
     expect(JSON.parse(JSON.stringify(resumeFixture))).toEqual(resumeFixture);
+    expect(JSON.parse(JSON.stringify(publicationPayloadFixture))).toEqual(
+      publicationPayloadFixture
+    );
+    expect(JSON.parse(JSON.stringify(publicationFixture))).toEqual(publicationFixture);
   });
 
   it('activates the fixture through the same registries used by public profiles', () => {

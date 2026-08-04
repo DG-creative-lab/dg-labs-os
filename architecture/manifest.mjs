@@ -4,6 +4,19 @@ export const architectureManifest = {
   sourceExtensions: ['.ts', '.tsx', '.astro', '.js', '.mjs'],
   zones: [
     {
+      id: 'publication-crypto',
+      description: 'Server or local-service signing and verification for publication bundles.',
+      matches: [/^src\/publication\/crypto\.ts$/],
+      mayImport: ['publication-contracts', 'publication-crypto'],
+    },
+    {
+      id: 'publication-contracts',
+      description:
+        'Provider-neutral publication bundle schemas, canonicalization, and pure validation.',
+      matches: [/^src\/publication\/(?:canonical|contracts|index|validation)\.ts$/],
+      mayImport: ['publication-contracts', 'profile-contracts'],
+    },
+    {
       id: 'profile-contracts',
       description: 'Provider-neutral profile and module schemas plus pure validation.',
       matches: [
@@ -114,6 +127,10 @@ export const architectureManifest = {
     },
   ],
   criticalFanOut: {
+    'src/publication/crypto.ts': 3,
+    'src/publication/contracts.ts': 5,
+    'src/publication/canonical.ts': 1,
+    'src/publication/validation.ts': 6,
     'src/profiles/contracts.ts': 0,
     'src/profiles/modules/contracts.ts': 0,
     'src/profiles/validation.ts': 1,
