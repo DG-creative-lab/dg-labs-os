@@ -10,17 +10,19 @@ The executable source of these rules is `architecture/manifest.mjs`.
 
 ## Zones
 
-| Zone                | Responsibility                                             |
-| ------------------- | ---------------------------------------------------------- |
-| `profile-contracts` | Provider-neutral schemas and pure validation               |
-| `profile-data`      | Reviewed public profile fixtures and module content        |
-| `profile-runtime`   | Profile and module registries                              |
-| `profile-agent`     | Explicit assembly of a profile and approved agent evidence |
-| `services`          | Use cases, reducers, gateways, and deterministic utilities |
-| `api`               | Request validation, platform controls, and delegation      |
-| `ui`                | Astro and React presentation surfaces                      |
-| `content`           | Compatibility config, knowledge, and non-contract content  |
-| `platform`          | Shared leaf types and framework declarations               |
+| Zone                    | Responsibility                                             |
+| ----------------------- | ---------------------------------------------------------- |
+| `publication-contracts` | Signed publication envelope, canonical form and validation |
+| `publication-crypto`    | Server or local signing and signature verification         |
+| `profile-contracts`     | Provider-neutral schemas and pure validation               |
+| `profile-data`          | Reviewed public profile fixtures and module content        |
+| `profile-runtime`       | Profile and module registries                              |
+| `profile-agent`         | Explicit assembly of a profile and approved agent evidence |
+| `services`              | Use cases, reducers, gateways, and deterministic utilities |
+| `api`                   | Request validation, platform controls, and delegation      |
+| `ui`                    | Astro and React presentation surfaces                      |
+| `content`               | Compatibility config, knowledge, and non-contract content  |
+| `platform`              | Shared leaf types and framework declarations               |
 
 Every source file must belong to exactly one zone. New top-level responsibilities require an
 explicit manifest update rather than silently inheriting broad permissions.
@@ -28,14 +30,18 @@ explicit manifest update rather than silently inheriting broad permissions.
 ## Direction rules
 
 1. Contracts do not import UI, services, providers, config, or private data.
-2. Public profile data depends on contracts, not on rendering or providers.
-3. Registries validate data before activation and fail closed for unknown identities.
-4. API routes validate and delegate. Domain or provider policy belongs in a service.
-5. UI code does not import API route implementations or server-only controls.
-6. Provider adapters do not choose profiles, evidence, permissions, or tools.
-7. Compatibility config may read canonical profile data; canonical profile contracts do not read
+2. Publication contracts may reference supported public profile contract versions. Public profile
+   contracts never import publication code.
+3. Public profile data depends on contracts, not on rendering or providers.
+4. Registries validate data before activation and fail closed for unknown identities.
+5. API routes validate and delegate. Domain or provider policy belongs in a service.
+6. UI code does not import API route implementations or server-only controls.
+7. Provider adapters do not choose profiles, evidence, permissions, or tools.
+8. Compatibility config may read canonical profile data; canonical profile contracts do not read
    compatibility config.
-8. Cycles are forbidden.
+9. Cryptographic signing and key access remain server or local-service concerns. Publication
+   contracts contain signatures and key identifiers, never private keys.
+10. Cycles are forbidden.
 
 ## Dependency budgets
 

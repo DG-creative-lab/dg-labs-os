@@ -60,6 +60,7 @@
     "@vercel/firewall": "^1.2.2",
     "@xyflow/react": "^12.11.2",
     "astro": "^5.15.3",
+    "canonicalize": "3.0.0",
     "fuse.js": "^7.1.0",
     "graphology": "^0.26.0",
     "ogl": "^1.0.11",
