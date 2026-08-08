@@ -72,6 +72,31 @@ describe('publication verification receiver boundary', () => {
     }
   });
 
+  it('never reflects an unknown secret-bearing property name in a rejected receipt', () => {
+    const secretPropertyName = 'accessToken_customer_987654';
+    const candidate = {
+      ...publicationBundleV1Fixture,
+      approval: {
+        ...publicationBundleV1Fixture.approval,
+        [secretPropertyName]: 'do-not-return-this-value',
+      },
+    };
+
+    const receipt = verifyPublicationForReceiver(candidate, createTrustStore());
+    expect(receipt).toMatchObject({
+      status: 'rejected',
+      code: 'INVALID_BUNDLE',
+    });
+    expect(JSON.stringify(receipt)).not.toContain(secretPropertyName);
+    expect(JSON.stringify(receipt)).not.toContain('do-not-return-this-value');
+    if (receipt.status === 'rejected') {
+      expect(receipt.issues).toContainEqual({
+        path: 'approval',
+        message: 'Secret-bearing fields are forbidden.',
+      });
+    }
+  });
+
   it('distinguishes cryptographic failure from an untrusted identity', () => {
     const signature = publicationBundleV1Fixture.integrity.signature;
     const tamperedSignature = `${signature[0] === 'A' ? 'B' : 'A'}${signature.slice(1)}`;

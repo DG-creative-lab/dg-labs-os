@@ -4,6 +4,8 @@ import {
   isPublicationVerificationApiEnvelopeV1,
   isPublicationVerificationReceiptV1,
   PUBLICATION_VERIFICATION_MAX_ISSUES,
+  PUBLICATION_VERIFICATION_MAX_MESSAGE_LENGTH,
+  PUBLICATION_VERIFICATION_MAX_PATH_LENGTH,
   PUBLICATION_VERIFICATION_SCHEMA_VERSION,
   type PublicationVerificationReceiptV1,
 } from '../../src/publication';
@@ -37,16 +39,29 @@ describe('Publication Verification v1 contract', () => {
     expect(isPublicationVerificationReceiptV1(incompleteChecks)).toBe(false);
   });
 
-  it('bounds rejected issues without reflecting submitted values', () => {
+  it('bounds rejected issues and replaces unapproved diagnostics', () => {
+    const sensitiveMarker = `customer-secret-${'x'.repeat(500)}`;
     const issues = Array.from({ length: PUBLICATION_VERIFICATION_MAX_ISSUES + 10 }, (_, index) => ({
-      path: `records[${index}]`,
-      message: 'Invalid record.',
+      path: index === 0 ? `approval.${sensitiveMarker}` : `records[${index}]`,
+      message: index === 0 ? sensitiveMarker : 'Invalid record.',
     }));
     const receipt = createRejectedPublicationReceipt('INVALID_BUNDLE', issues);
 
     expect(receipt.issues).toHaveLength(PUBLICATION_VERIFICATION_MAX_ISSUES);
     expect(receipt.truncated).toBe(true);
-    expect(JSON.stringify(receipt)).not.toContain('private');
+    expect(receipt.issues[0]).toEqual({
+      path: 'approval',
+      message: 'Publication data is invalid.',
+    });
+    expect(JSON.stringify(receipt)).not.toContain(sensitiveMarker);
+    expect(
+      receipt.issues.every((issue) => issue.path.length <= PUBLICATION_VERIFICATION_MAX_PATH_LENGTH)
+    ).toBe(true);
+    expect(
+      receipt.issues.every(
+        (issue) => issue.message.length <= PUBLICATION_VERIFICATION_MAX_MESSAGE_LENGTH
+      )
+    ).toBe(true);
   });
 
   it('keeps compile-time compatibility tied to the complete receipt union', () => {
