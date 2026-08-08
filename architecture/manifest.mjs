@@ -4,6 +4,12 @@ export const architectureManifest = {
   sourceExtensions: ['.ts', '.tsx', '.astro', '.js', '.mjs'],
   zones: [
     {
+      id: 'publication-receiver',
+      description: 'Stateless receiver verification and exact trusted-key resolution.',
+      matches: [/^src\/publication\/receiver\/(?:service|trustStore)\.ts$/],
+      mayImport: ['publication-contracts', 'publication-crypto', 'publication-receiver'],
+    },
+    {
       id: 'publication-crypto',
       description: 'Server or local-service signing and verification for publication bundles.',
       matches: [/^src\/publication\/crypto\.ts$/],
@@ -13,7 +19,7 @@ export const architectureManifest = {
       id: 'publication-contracts',
       description:
         'Provider-neutral publication bundle schemas, canonicalization, and pure validation.',
-      matches: [/^src\/publication\/(?:canonical|contracts|index|validation)\.ts$/],
+      matches: [/^src\/publication\/(?:canonical|contracts|index|validation|verification)\.ts$/],
       mayImport: ['publication-contracts', 'profile-contracts'],
     },
     {
@@ -75,6 +81,8 @@ export const architectureManifest = {
         'profile-contracts',
         'profile-runtime',
         'profile-agent',
+        'publication-contracts',
+        'publication-receiver',
         'content',
       ],
     },
@@ -127,6 +135,8 @@ export const architectureManifest = {
     },
   ],
   criticalFanOut: {
+    'src/publication/receiver/service.ts': 5,
+    'src/publication/receiver/trustStore.ts': 1,
     'src/publication/crypto.ts': 3,
     'src/publication/contracts.ts': 5,
     'src/publication/canonical.ts': 1,

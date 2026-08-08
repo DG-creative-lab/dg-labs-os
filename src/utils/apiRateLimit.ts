@@ -1,6 +1,7 @@
 import { checkRateLimit } from '@vercel/firewall';
 
 export const PROFILE_AGENT_RATE_LIMIT_ID = 'profile-agent-chat';
+export const PUBLICATION_VERIFICATION_RATE_LIMIT_ID = 'publication-bundle-verify';
 
 type FirewallChecker = typeof checkRateLimit;
 
@@ -14,15 +15,14 @@ export type ProfileAgentRateLimitDecision = {
   reason: 'allowed' | 'rate_limited' | 'unavailable';
 };
 
+export type PublicationVerificationRateLimitDecision = ProfileAgentRateLimitDecision;
+
 const isVercelRuntime = (runtime: RateLimitRuntime): boolean =>
   runtime.VERCEL === '1' || runtime.VERCEL === 'true';
 
-/**
- * Uses Vercel Firewall's distributed rate-limit service and its platform-owned
- * request identity. Local development bypasses the platform check. Production
- * fails closed if the matching Firewall rule is absent or unavailable.
- */
-export const checkProfileAgentRateLimit = async (
+const checkPlatformRateLimit = async (
+  ruleId: string,
+  logLabel: string,
   request: Request,
   options: {
     runtime?: RateLimitRuntime;
@@ -33,7 +33,7 @@ export const checkProfileAgentRateLimit = async (
   if (!isVercelRuntime(runtime)) return { allowed: true, reason: 'allowed' };
 
   try {
-    const result = await (options.checker ?? checkRateLimit)(PROFILE_AGENT_RATE_LIMIT_ID, {
+    const result = await (options.checker ?? checkRateLimit)(ruleId, {
       request,
     });
 
@@ -46,9 +46,37 @@ export const checkProfileAgentRateLimit = async (
     return { allowed: true, reason: 'allowed' };
   } catch (error) {
     console.error(
-      '[Profile Agent] Vercel Firewall rate-limit check failed:',
+      `[${logLabel}] Vercel Firewall rate-limit check failed:`,
       error instanceof Error ? error.message : 'unknown error'
     );
     return { allowed: false, reason: 'unavailable' };
   }
 };
+
+/**
+ * Uses Vercel Firewall's distributed rate-limit service and its platform-owned
+ * request identity. Local development bypasses the platform check. Production
+ * fails closed if the matching Firewall rule is absent or unavailable.
+ */
+export const checkProfileAgentRateLimit = async (
+  request: Request,
+  options: {
+    runtime?: RateLimitRuntime;
+    checker?: FirewallChecker;
+  } = {}
+): Promise<ProfileAgentRateLimitDecision> =>
+  checkPlatformRateLimit(PROFILE_AGENT_RATE_LIMIT_ID, 'Profile Agent', request, options);
+
+export const checkPublicationVerificationRateLimit = async (
+  request: Request,
+  options: {
+    runtime?: RateLimitRuntime;
+    checker?: FirewallChecker;
+  } = {}
+): Promise<PublicationVerificationRateLimitDecision> =>
+  checkPlatformRateLimit(
+    PUBLICATION_VERIFICATION_RATE_LIMIT_ID,
+    'Publication Verification',
+    request,
+    options
+  );
