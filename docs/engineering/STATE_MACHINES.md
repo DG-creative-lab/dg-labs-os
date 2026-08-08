@@ -20,6 +20,11 @@ The executable catalogue is `architecture/state-machines/catalog.ts`.
 `implicit` means behaviour is tested across services but is not yet represented by one transition
 function. New complex workflows should prefer an explicit transition model.
 
+Publication Bundle verification is a stateless, boundary-enforced operation rather than a state
+machine. It validates one request, resolves one pre-registered public key, returns one versioned
+receipt and performs no persistence or profile activation. It must not add a catalogue entry or
+claim a publication transition until persistence, idempotency and rollback are implemented.
+
 ## Required machine definition
 
 Every new stateful workflow defines:

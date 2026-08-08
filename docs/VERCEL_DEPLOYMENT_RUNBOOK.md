@@ -1,7 +1,7 @@
 # Vercel Deployment Runbook
 
 - Status: operational
-- Last reviewed: 4 August 2026
+- Last reviewed: 6 August 2026
 
 ## Goal
 
@@ -18,6 +18,15 @@ and a rollback path.
 - `GEMINI_API_KEY` (optional)
 - `SUPABASE_URL` (if Contact API is enabled)
 - `SUPABASE_SERVICE_ROLE_KEY` (if Contact API is enabled)
+
+### Trusted server configuration
+
+- `PUBLICATION_VERIFICATION_KEYS_JSON` (required only when Publication Bundle verification is enabled)
+
+This value contains public keys, not private signing keys. It remains server-only because it is the
+receiver trust policy. Every entry binds `workspaceId`, `profileId`, `handle`, `approvedByUserId`
+and `keyId` to one Ed25519 `publicKeyPem`. Never add a private signing key or accept this mapping
+from a request.
 
 ### Public variables
 
@@ -56,7 +65,7 @@ git ls-files | rg -n "^\\.env"
 
 Expected: only `.env.example`.
 
-### Required Profile Agent Firewall rule
+### Required Firewall rules
 
 The serverless functions use Vercel Firewall's shared rate-limit service. Before deploying a build that enables the Profile Agent:
 
@@ -66,6 +75,12 @@ The serverless functions use Vercel Firewall's shared rate-limit service. Before
 4. Publish the rule to Production. Configure the same rule for Preview when testing a Preview deployment.
 
 Both `/api/chat` and `/api/chat/stream` call this rule through `@vercel/firewall`. The application does not parse client-supplied forwarding headers. On Vercel, an absent or unavailable rule returns `503 RATE_LIMIT_UNAVAILABLE`, so provider budget is protected by default.
+
+Before enabling `POST /api/v1/publications/verify`, publish a second rate-limit rule whose
+`@vercel/firewall` identifier is `publication-bundle-verify`. Start with 30 requests per 60 seconds
+per Vercel-derived client identity. This rule is independent from Profile Agent traffic. The
+verification route fails closed with `503 RATE_LIMIT_UNAVAILABLE` if the rule is absent and with
+`503 VERIFICATION_UNAVAILABLE` if its trusted-key configuration is absent or invalid.
 
 References:
 
@@ -89,6 +104,10 @@ After Preview/Production deployment:
 6. Provider diagnostics:
    - `GET /api/llm/health?probe=0` returns provider status array
    - optional `POST /api/llm/health` probe for selected provider
+7. Publication verification, when enabled:
+   - `POST /api/v1/publications/verify` with `{"bundle":null}` returns a versioned rejected receipt
+   - confirm it does not change `/@dessi` or its projection version
+   - confirm the `publication-bundle-verify` rule records the request
 
 ## 5) Runtime Expectations
 

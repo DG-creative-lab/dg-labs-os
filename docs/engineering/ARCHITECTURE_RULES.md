@@ -12,8 +12,9 @@ The executable source of these rules is `architecture/manifest.mjs`.
 
 | Zone                    | Responsibility                                             |
 | ----------------------- | ---------------------------------------------------------- |
-| `publication-contracts` | Signed publication envelope, canonical form and validation |
+| `publication-contracts` | Signed envelope, verification receipt and pure validation  |
 | `publication-crypto`    | Server or local signing and signature verification         |
+| `publication-receiver`  | Stateless receiver verification and trusted-key resolution |
 | `profile-contracts`     | Provider-neutral schemas and pure validation               |
 | `profile-data`          | Reviewed public profile fixtures and module content        |
 | `profile-runtime`       | Profile and module registries                              |
@@ -41,7 +42,10 @@ explicit manifest update rather than silently inheriting broad permissions.
    compatibility config.
 9. Cryptographic signing and key access remain server or local-service concerns. Publication
    contracts contain signatures and key identifiers, never private keys.
-10. Cycles are forbidden.
+10. Receiver verification resolves keys from an exact trusted workspace, profile, handle,
+    approving-user and key-ID binding. A submitted bundle never supplies its own trust root.
+11. General services and UI cannot import the publication receiver or cryptographic boundary.
+12. Cycles are forbidden.
 
 ## Dependency budgets
 

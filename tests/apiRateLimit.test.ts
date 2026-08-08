@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import { checkProfileAgentRateLimit, PROFILE_AGENT_RATE_LIMIT_ID } from '../src/utils/apiRateLimit';
+import {
+  checkProfileAgentRateLimit,
+  checkPublicationVerificationRateLimit,
+  PROFILE_AGENT_RATE_LIMIT_ID,
+  PUBLICATION_VERIFICATION_RATE_LIMIT_ID,
+} from '../src/utils/apiRateLimit';
 
 const request = new Request('https://dg-os.com/api/chat', {
   headers: { 'x-real-ip': '203.0.113.10' },
@@ -39,5 +44,16 @@ describe('Profile Agent rate limiting', () => {
         checker: unavailable,
       })
     ).resolves.toEqual({ allowed: false, reason: 'unavailable' });
+  });
+
+  it('uses an independent Firewall rule for publication verification', async () => {
+    const checker = vi.fn().mockResolvedValue({ rateLimited: false });
+    await expect(
+      checkPublicationVerificationRateLimit(request, {
+        runtime: { VERCEL: '1' },
+        checker,
+      })
+    ).resolves.toEqual({ allowed: true, reason: 'allowed' });
+    expect(checker).toHaveBeenCalledWith(PUBLICATION_VERIFICATION_RATE_LIMIT_ID, { request });
   });
 });

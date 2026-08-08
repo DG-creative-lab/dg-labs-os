@@ -20,8 +20,9 @@ DG-OS is the public projection, not a mirror of a private workspace.
 private sources -> owner review -> versioned public projection -> web, CV and Profile Agent
 ```
 
-The current repository contains one public profile and no hosted user login or private workspace.
-The next product slice defines a signed local publication bundle. Accounts, isolated workspaces and
+The current repository contains one public profile, a signed Publication Bundle v1 contract and a
+stateless receiver verification boundary. It has no hosted user login or private workspace. The
+next product slice is the local Personal System review surface. Accounts, isolated workspaces and
 authenticated Codex or Claude Code connections follow the gates in the product roadmap.
 
 Core rules:
@@ -60,6 +61,7 @@ dependencies are migrated.
 - Profile Agent with deterministic commands, approved evidence retrieval and SSE responses
 - OpenRouter, OpenAI, Anthropic and Gemini gateway adapters
 - Vercel Firewall rate limiting for provider-backed chat routes
+- Signed Publication Bundle v1 and a read-only verification endpoint
 - Deterministic general CV generation from approved profile modules
 - Markdown, DOCX and PDF artifact drift verification
 - Engineering harness for dependency direction, contracts, state machines and interactions
@@ -128,9 +130,14 @@ PUBLIC_SITE_NAME=
 
 SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
+
+PUBLICATION_VERIFICATION_KEYS_JSON=
 ```
 
 Provider and Supabase credentials are server-only. Never expose them through a `PUBLIC_*` variable.
+`PUBLICATION_VERIFICATION_KEYS_JSON` is trusted server configuration rather than a secret. It is a
+JSON array binding an Ed25519 public key to one workspace, profile, handle, approving user and key
+ID. The endpoint remains unavailable when this configuration is absent or invalid.
 The terminal also supports explicitly supplied browser-session keys. Do not use persistent browser
 storage on a shared device.
 
@@ -230,6 +237,10 @@ pnpm build:vercel
 Production Profile Agent routes require the published Vercel Firewall rule
 `profile-agent-chat`. The API fails closed with `503 RATE_LIMIT_UNAVAILABLE` when the distributed
 rate limiter is unavailable on Vercel.
+
+`POST /api/v1/publications/verify` separately requires the `publication-bundle-verify` Firewall rule
+and valid `PUBLICATION_VERIFICATION_KEYS_JSON`. It verifies a bundle but never stores, activates or
+publishes it.
 
 Follow the complete [Vercel deployment runbook](./docs/VERCEL_DEPLOYMENT_RUNBOOK.md) for environment
 configuration, smoke checks and rollback.

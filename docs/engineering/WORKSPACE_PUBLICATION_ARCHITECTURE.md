@@ -184,18 +184,39 @@ The state machine must be added to the executable catalogue before the publicati
 
 ## Narrow publication API
 
-The first receiver should expose the smallest useful surface:
+The receiver surface is introduced in stages. The implemented read-only boundary exposes:
 
 ```text
-POST /api/publications/verify
-POST /api/publications
-GET  /api/publications/{bundleId}
+POST /api/v1/publications/verify
 ```
 
-`verify` performs schema, identity, signature, privacy and reference checks without changing the
-active profile. `POST /api/publications` is deferred until persistence and rollback exist. When it
-is introduced, it accepts one approved bundle and returns the existing result for a repeated
+Later stateful publication may add:
+
+```text
+POST /api/v1/publications
+GET  /api/v1/publications/{bundleId}
+```
+
+`verify` performs schema, identity, signature, privacy and reference-metadata checks without
+changing the active profile. It resolves the verification key from an exact trusted binding across
+workspace, profile, handle, approving user and key ID. A bundle cannot supply or register its own
+trust root. This stateless check proves the signed manifest is internally valid; it does not claim
+that referenced record or asset bytes are present. Those bytes must be resolved and matched before
+any later preview or activation. Rejected responses contain bounded issues and never reflect the
+submitted payload.
+
+The route requires a bounded JSON body, a separately published Vercel Firewall rule and trusted
+server configuration. It is stateless and does not enter `reviewed`, activate a projection or write
+an audit record. `POST /api/v1/publications` is deferred until persistence and rollback exist. When
+it is introduced, it accepts one approved bundle and returns the existing result for a repeated
 idempotency key.
+
+Externally integrated HTTP contracts begin under `/api/v1`. The URL version governs transport,
+authentication and resource semantics, while `dg-os.publication-bundle/v1` and
+`dg-os.publication-verification/v1` independently version the submitted and returned data. Additive,
+backward-compatible fields remain in `/api/v1`; a breaking HTTP contract requires a new major path.
+First-party implementation routes such as Profile Agent chat are not retroactively presented as
+public platform APIs.
 
 The API route validates and delegates. Canonicalisation, verification, state transitions,
 authorization and persistence belong in services or future bounded domains, never inside the route

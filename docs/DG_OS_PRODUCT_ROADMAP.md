@@ -1,8 +1,8 @@
 # DG-OS Product Roadmap
 
 - Status: living product document
-- Last reviewed: 4 August 2026
-- Current phase: Publication Bundle v1
+- Last reviewed: 6 August 2026
+- Current phase: Personal System review surface
 - Current proof: Dessi Georgieva is the first public profile instance
 
 This is the canonical product sequence. It records what DG-OS is becoming, which boundaries must
@@ -78,6 +78,7 @@ The portfolio refactoring is complete enough to begin the expansion build:
 - committed Markdown, DOCX and PDF assets are protected by an artifact manifest;
 - architecture, contract, state-machine and interaction checks run in CI;
 - Vercel Firewall protects provider-backed Profile Agent requests.
+- Publication Bundle v1 has canonical signing, privacy validation and a stateless receiver check.
 
 Some compatibility routes and Dessi-owned knowledge remain. They are tracked in
 [`DESSI_PROFILE_DEPENDENCY_INVENTORY.md`](./DESSI_PROFILE_DEPENDENCY_INVENTORY.md) and do not block
@@ -133,7 +134,7 @@ critical path.
 
 ### Phase 1 - Define Publication Bundle v1
 
-Status: next.
+Status: completed.
 
 - define a versioned provider-neutral bundle envelope;
 - reference only supported public record versions;
@@ -160,7 +161,11 @@ Exit condition: Dessi can prepare and approve a publication bundle from the loca
 
 ### Phase 3 - Add the narrow DG-OS publication receiver
 
-- verify bundles without activating them;
+Status: planned after Phase 2. The stateless verification endpoint was completed early because it
+does not persist or activate data; all remaining capabilities stay behind the publication
+state-machine gate.
+
+- verify bundles without activating them - completed boundary;
 - add immutable version storage and an audit record;
 - enforce optimistic version checks and idempotency;
 - preview the resolved public projection and assets;
@@ -285,6 +290,14 @@ Traffic and time on site may diagnose usability. They do not prove that the syst
 person.
 
 ## Decision record
+
+### 6 August 2026
+
+- Complete Publication Bundle v1 with canonical Ed25519 verification and immutable fixtures.
+- Add only the stateless `POST /api/v1/publications/verify` receiver before persistence exists.
+- Bind trusted keys to the complete workspace, profile, handle, approving-user and key identity.
+- Keep publication activation, version storage, idempotency and rollback behind the later state-machine gate.
+- Move the active product phase to the local Personal System review surface.
 
 ### 4 August 2026
 
