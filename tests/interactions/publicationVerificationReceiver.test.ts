@@ -13,7 +13,7 @@ import {
 import {
   createPublicationVerificationPostHandler,
   PUBLICATION_VERIFICATION_MAX_BODY_BYTES,
-} from '../../src/pages/api/publications/verify';
+} from '../../src/pages/api/v1/publications/verify';
 import { isApiErrorEnvelope } from '../../src/utils/apiContracts';
 import {
   publicationBundleV1Fixture,
@@ -33,7 +33,7 @@ const trustedKeyConfig = {
 const createTrustStore = () => createPublicationVerificationTrustStore([trustedKeyConfig]);
 
 const requestFor = (body: string, contentType = 'application/json') =>
-  new Request('http://localhost/api/publications/verify', {
+  new Request('http://localhost/api/v1/publications/verify', {
     method: 'POST',
     headers: { 'Content-Type': contentType },
     body,

@@ -1,13 +1,13 @@
 import type { APIRoute } from 'astro';
-import type { PublicationVerificationApiEnvelopeV1 } from '../../../publication';
-import { verifyPublicationForReceiver } from '../../../publication/receiver/service';
+import type { PublicationVerificationApiEnvelopeV1 } from '../../../../publication';
+import { verifyPublicationForReceiver } from '../../../../publication/receiver/service';
 import {
   createPublicationVerificationTrustStoreFromJson,
   type PublicationVerificationTrustStore,
-} from '../../../publication/receiver/trustStore';
-import { checkPublicationVerificationRateLimit } from '../../../utils/apiRateLimit';
-import { errorResponse, jsonResponse } from '../../../utils/apiResponse';
-import { getServerEnv } from '../../../utils/serverEnv';
+} from '../../../../publication/receiver/trustStore';
+import { checkPublicationVerificationRateLimit } from '../../../../utils/apiRateLimit';
+import { errorResponse, jsonResponse } from '../../../../utils/apiResponse';
+import { getServerEnv } from '../../../../utils/serverEnv';
 
 export const PUBLICATION_VERIFICATION_MAX_BODY_BYTES = 262_144;
 export const PUBLICATION_VERIFICATION_KEYS_ENV = 'PUBLICATION_VERIFICATION_KEYS_JSON';

@@ -294,7 +294,7 @@ person.
 ### 6 August 2026
 
 - Complete Publication Bundle v1 with canonical Ed25519 verification and immutable fixtures.
-- Add only the stateless `POST /api/publications/verify` receiver before persistence exists.
+- Add only the stateless `POST /api/v1/publications/verify` receiver before persistence exists.
 - Bind trusted keys to the complete workspace, profile, handle, approving-user and key identity.
 - Keep publication activation, version storage, idempotency and rollback behind the later state-machine gate.
 - Move the active product phase to the local Personal System review surface.

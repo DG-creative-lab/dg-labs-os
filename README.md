@@ -238,7 +238,7 @@ Production Profile Agent routes require the published Vercel Firewall rule
 `profile-agent-chat`. The API fails closed with `503 RATE_LIMIT_UNAVAILABLE` when the distributed
 rate limiter is unavailable on Vercel.
 
-`POST /api/publications/verify` separately requires the `publication-bundle-verify` Firewall rule
+`POST /api/v1/publications/verify` separately requires the `publication-bundle-verify` Firewall rule
 and valid `PUBLICATION_VERIFICATION_KEYS_JSON`. It verifies a bundle but never stores, activates or
 publishes it.
 

@@ -76,7 +76,7 @@ The serverless functions use Vercel Firewall's shared rate-limit service. Before
 
 Both `/api/chat` and `/api/chat/stream` call this rule through `@vercel/firewall`. The application does not parse client-supplied forwarding headers. On Vercel, an absent or unavailable rule returns `503 RATE_LIMIT_UNAVAILABLE`, so provider budget is protected by default.
 
-Before enabling `POST /api/publications/verify`, publish a second rate-limit rule whose
+Before enabling `POST /api/v1/publications/verify`, publish a second rate-limit rule whose
 `@vercel/firewall` identifier is `publication-bundle-verify`. Start with 30 requests per 60 seconds
 per Vercel-derived client identity. This rule is independent from Profile Agent traffic. The
 verification route fails closed with `503 RATE_LIMIT_UNAVAILABLE` if the rule is absent and with
@@ -105,7 +105,7 @@ After Preview/Production deployment:
    - `GET /api/llm/health?probe=0` returns provider status array
    - optional `POST /api/llm/health` probe for selected provider
 7. Publication verification, when enabled:
-   - `POST /api/publications/verify` with `{"bundle":null}` returns a versioned rejected receipt
+   - `POST /api/v1/publications/verify` with `{"bundle":null}` returns a versioned rejected receipt
    - confirm it does not change `/@dessi` or its projection version
    - confirm the `publication-bundle-verify` rule records the request
 
