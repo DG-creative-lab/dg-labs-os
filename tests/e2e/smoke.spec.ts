@@ -85,7 +85,7 @@ test.describe('desktop smoke', () => {
     await expect(page.getByText('PRIVATE WORKSPACE', { exact: true })).toBeVisible();
     await expect(page.getByText('OWNER REVIEW', { exact: true })).toBeVisible();
     await expect(page.getByText('No ranking · No inferred score')).toBeVisible();
-    await expect(page.getByText('Owner reviewed 01 Aug 2026')).toBeVisible();
+    await expect(page.getByText('Owner reviewed 23 Aug 2026')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Workbench', exact: true })).toHaveCount(0);
 
     const enterProfile = page.getByRole('link', { name: "Enter Dessi's OS" });
@@ -179,11 +179,16 @@ test.describe('desktop smoke', () => {
     await page.goto('/systems');
     await expect(
       page.getByRole('heading', {
-        name: 'I build the layer where agent capability becomes accountable behaviour.',
+        name: 'I design and build AI systems that use tools, learn from evidence, and recover when something goes wrong.',
       })
     ).toBeVisible();
     await expect(page.getByText('AI Systems Engineer · London, UK')).toBeVisible();
     await expect(page.getByText('Target role')).toHaveCount(0);
+    const founderClaim = page.locator('details').filter({
+      hasText: 'I am developing Human Systems Platform as a founder-led product',
+    });
+    await expect(founderClaim.getByText('Owner-reported')).toBeVisible();
+    await expect(page.getByText('Employer context')).toHaveCount(0);
     await expect(
       page.getByRole('heading', { name: 'What the evidence does not establish.' })
     ).toBeVisible();

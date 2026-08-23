@@ -1,3 +1,4 @@
+import { parse as parseYaml } from 'yaml';
 import type {
   ConfidenceLevel,
   KnowledgeEntry,
@@ -44,65 +45,42 @@ const uniqueTokens = (text: string): string[] => Array.from(new Set(tokenize(tex
 const estimateTokens = (text: string): number =>
   Math.max(1, Math.ceil(text.trim().split(/\s+/).length * 0.75));
 
-const parsePrimitive = (raw: string): string | string[] => {
-  const value = raw.trim();
-  if (value.startsWith('[') && value.endsWith(']')) {
-    try {
-      const parsed = JSON.parse(value) as unknown;
-      if (Array.isArray(parsed)) {
-        return parsed
-          .map((item) => (typeof item === 'string' ? item : String(item)))
-          .map((item) => item.trim())
-          .filter(Boolean);
-      }
-    } catch {
-      return [];
-    }
-  }
-  if (
-    (value.startsWith('"') && value.endsWith('"')) ||
-    (value.startsWith("'") && value.endsWith("'"))
-  ) {
-    return value.slice(1, -1);
-  }
-  return value;
+const readString = (value: unknown): string => (typeof value === 'string' ? value.trim() : '');
+
+const readStringArray = (value: unknown): string[] | null => {
+  if (!Array.isArray(value) || value.some((item) => typeof item !== 'string')) return null;
+  return value.map((item) => item.trim()).filter(Boolean);
 };
 
 const parseFrontmatter = (raw: string): { frontmatter: RawFrontmatter; content: string } | null => {
   const match = raw.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
   if (!match) return null;
   const [, block, content] = match;
-  const rowEntries = block
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => {
-      const separator = line.indexOf(':');
-      if (separator < 1) return null;
-      const key = line.slice(0, separator).trim();
-      const value = line.slice(separator + 1).trim();
-      return [key, parsePrimitive(value)] as const;
-    })
-    .filter((entry): entry is readonly [string, string | string[]] => entry !== null);
+  let parsedBlock: unknown;
+  try {
+    parsedBlock = parseYaml(block);
+  } catch {
+    return null;
+  }
+  if (!parsedBlock || typeof parsedBlock !== 'object' || Array.isArray(parsedBlock)) return null;
 
-  const record = Object.fromEntries(rowEntries) as Record<string, string | string[]>;
-  const id = typeof record.id === 'string' ? record.id : '';
-  const type = typeof record.type === 'string' ? record.type : '';
-  const title = typeof record.title === 'string' ? record.title : '';
-  const confidence = typeof record.confidence === 'string' ? record.confidence : '';
-  const tags = Array.isArray(record.tags) ? record.tags : [];
-  const sources = Array.isArray(record.sources) ? record.sources : [];
-  const related = Array.isArray(record.related) ? record.related : [];
-  const lastVerifiedRaw =
-    typeof record.last_verified === 'string'
-      ? record.last_verified
-      : typeof record.lastVerified === 'string'
-        ? record.lastVerified
-        : '';
+  const record = parsedBlock as Record<string, unknown>;
+  const id = readString(record.id);
+  const type = readString(record.type);
+  const title = readString(record.title);
+  const confidence = readString(record.confidence);
+  const tags = readStringArray(record.tags);
+  const sources = readStringArray(record.sources);
+  const related = readStringArray(record.related);
+  const lastVerifiedRaw = readString(record.last_verified ?? record.lastVerified);
 
   if (
     !id ||
     !title ||
+    !lastVerifiedRaw ||
+    tags === null ||
+    sources === null ||
+    related === null ||
     !REQUIRED_TYPES.includes(type as KnowledgeType) ||
     !['verified', 'self-reported', 'inferred'].includes(confidence)
   ) {
@@ -118,7 +96,7 @@ const parseFrontmatter = (raw: string): { frontmatter: RawFrontmatter; content: 
       confidence: confidence as ConfidenceLevel,
       sources,
       related,
-      lastVerified: lastVerifiedRaw || new Date().toISOString().slice(0, 10),
+      lastVerified: lastVerifiedRaw,
     },
     content: content.trim(),
   };
@@ -128,7 +106,7 @@ const buildEntries = (): KnowledgeEntry[] => {
   const entries: KnowledgeEntry[] = [];
   for (const [file, raw] of Object.entries(rawKnowledgeFiles)) {
     const parsed = parseFrontmatter(raw);
-    if (!parsed) continue;
+    if (!parsed) throw new Error(`Invalid knowledge frontmatter: ${file}`);
     const { frontmatter, content } = parsed;
     entries.push({
       ...frontmatter,

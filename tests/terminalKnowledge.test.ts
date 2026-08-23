@@ -55,4 +55,48 @@ describe('terminalKnowledge', () => {
     expect(platform?.content).toContain('commercial validation remain incomplete');
     expect(hits.some((hit) => hit.id === 'brain-project-human-systems-platform')).toBe(true);
   });
+
+  it('preserves inline and multiline frontmatter provenance metadata', () => {
+    const entries = getKnowledgeEntries();
+    const architecture = entries.find((entry) => entry.id === 'capability-agent-architecture');
+    const skills = entries.find((entry) => entry.id === 'project-ai-skills-framework');
+
+    expect(entries).toHaveLength(20);
+    expect(architecture).toMatchObject({
+      tags: ['capability', 'agents', 'orchestration', 'bayesian', 'multi-agent', 'architecture'],
+      sources: ['https://github.com/DG-creative-lab', 'https://github.com/ai-knowledge-hub'],
+      related: [
+        'project-intent-recognition',
+        'project-agentic-commerce',
+        'project-ai-skills-framework',
+        'research-themes',
+      ],
+    });
+    expect(skills).toMatchObject({
+      tags: [
+        'project',
+        'open-source',
+        'skills',
+        'agents',
+        'plugins',
+        'tools',
+        'go',
+        'nextjs',
+        'agent-operations',
+      ],
+      sources: [
+        'https://skills.ai-knowledge-hub.org/',
+        'https://github.com/ai-knowledge-hub/ai-skills-guide',
+        'https://ai-news-hub.performics-labs.com/news/agent-architect-playbook-building-ai-skills-marketing-adtech',
+      ],
+      related: [
+        'project-ai-news-hub',
+        'capability-agent-architecture',
+        'capability-technical-stack',
+        'research-themes',
+      ],
+    });
+    expect(entries.every((entry) => entry.tags.length > 0)).toBe(true);
+    expect(entries.every((entry) => /^\d{4}-\d{2}-\d{2}$/.test(entry.lastVerified))).toBe(true);
+  });
 });
