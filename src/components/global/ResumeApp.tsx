@@ -55,8 +55,8 @@ export default function ResumeApp({ profile, cv, resume }: ResumeAppProps) {
         <div>
           <h1 className="text-2xl font-semibold">Resume</h1>
           <p className="mt-2 text-white/70">
-            {profile.identity.possessiveName} experience, technical focus, and selected systems.
-            Available in PDF, DOCX, and Markdown.
+            {profile.identity.possessiveName} experience, AI systems capabilities, and selected
+            systems. Available in PDF, DOCX, and Markdown.
           </p>
         </div>
         <div className="hidden text-right text-xs text-white/50 md:block">

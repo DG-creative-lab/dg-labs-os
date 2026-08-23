@@ -62,7 +62,7 @@ export const parseLlmModeQuery = (rawInput: string): { mode: LlmAnswerMode; quer
 
 export const normalizeTerminalNarrativeAnswer = (value: string): string =>
   value
-    .replace(/[—–‑]/g, '-')
+    .replace(/[\u2014\u2013\u2011]/g, '-')
     .replace(/^#{1,6}\s+/gm, '')
     .replace(/\*\*(.*?)\*\*/g, '$1')
     .replace(/__(.*?)__/g, '$1')

@@ -7,7 +7,7 @@ export const experience: readonly Experience[] = [
     location: 'London, UK',
     period: 'November 2023 - Present',
     description:
-      'Builds AI and data systems across agent workflows, behavioural modelling, platform controls, and production services.',
+      'Builds AI and data systems across agent workflows, including a Programmatic plugin, typed tool contracts, tenant-bound execution policy, human approval, behavioural modelling, and production services.',
     technologies: [
       'Python',
       'FastAPI',

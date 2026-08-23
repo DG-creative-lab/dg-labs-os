@@ -43,4 +43,16 @@ describe('terminalKnowledge', () => {
     expect(hits.length).toBeGreaterThan(0);
     expect(hits[0].score).toBeGreaterThan(0);
   });
+
+  it('retrieves the founder platform and its bounded product roles', () => {
+    const hits = retrieveKnowledge('owner controlled evidence learning network founder', ctx, 20);
+    const platform = getKnowledgeEntries().find(
+      (entry) => entry.id === 'project-human-systems-platform'
+    );
+
+    expect(platform?.content).toContain('owner-approved evidence');
+    expect(platform?.content).toContain('Organization Foundry');
+    expect(platform?.content).toContain('commercial validation remain incomplete');
+    expect(hits.some((hit) => hit.id === 'brain-project-human-systems-platform')).toBe(true);
+  });
 });

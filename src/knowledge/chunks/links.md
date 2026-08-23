@@ -5,7 +5,7 @@ title: 'Public Profile & Project Links'
 tags: ['links', 'verification', 'profiles', 'github', 'publications']
 confidence: 'verified'
 sources: []
-last_verified: '2026-07-26'
+last_verified: '2026-08-23'
 related: ['identity-profile', 'meta-verification', 'meta-provenance']
 ---
 
@@ -29,19 +29,19 @@ This is the canonical registry of all verified public URLs associated with Dessi
 ## Deployed Projects
 
 - **AI News Hub**: https://ai-news-hub.performics-labs.com/
-  - Performics Labs technical writing and industry-analysis archive
-  - Published analysis and research-grade deep dives
-  - Built with Astro
-- **AI Skills Platform**: (deployed, URL to be confirmed)
-  - Next.js catalog website for the AI Agent Skills Framework
-  - Reusable agent skills and structured learning material
+  - Open-source applied AI research and publishing platform for marketing
+  - News, analysis, All-Hands build sessions, and public prototypes
+- **AI Skills Platform**: https://skills.ai-knowledge-hub.org/
+  - Public catalog for reusable skills, agents, plugins, and tool connectors
+  - Practical companion to several AI News Hub articles
 
 ## Key Repositories
 
-- **AI Agent Skills Framework**: https://github.com/ai-knowledge-hub (org-level, multiple repos)
-  - Go CLI tooling
-  - Skill catalog (Next.js)
-  - Educational guides
+- **AI News Hub**: https://github.com/ai-knowledge-hub/performics_labs_ai_news
+  - MIT-licensed Astro platform and editorial system
+- **AI Skills Platform**: https://github.com/ai-knowledge-hub/ai-skills-guide
+  - Go registry and installation tooling
+  - Next.js catalog, reusable packages, manifests, and QA workflows
 - **DG-Labs OS**: https://github.com/DG-creative-lab (portfolio repo)
 
 ## Verification Notes

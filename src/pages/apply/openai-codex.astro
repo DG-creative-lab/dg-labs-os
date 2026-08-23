@@ -8,7 +8,7 @@ import Layout from '../../layouts/Layout.astro';
 <Layout
   profile={activeProfile}
   title={`${activeProfile.identity.displayName} - ${openAiCodexApplication.role}`}
-  description="Evidence-led application for the Applied AI Engineer, Codex Core Agent role."
+  description="Evidence-led application for OpenAI engineering roles in London."
   canonical={`${activeProfile.contact.website}apply/openai-codex`}
   robots="noindex, nofollow"
 >
@@ -17,6 +17,9 @@ import Layout from '../../layouts/Layout.astro';
     modules={activeProfileModules}
     mode="application"
     cv={openAiCodexApplication.applicationCv}
+    headline={openAiCodexApplication.headline}
+    introduction={openAiCodexApplication.introduction}
+    targetRoles={openAiCodexApplication.targetRoles}
     targetRole={{
       label: openAiCodexApplication.role,
       url: openAiCodexApplication.roleUrl,

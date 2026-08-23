@@ -1,51 +1,77 @@
 ---
 id: 'project-ai-skills-framework'
 type: 'project'
-title: 'AI Agent Skills Framework'
-tags: ['project', 'open-source', 'skills', 'agents', 'go', 'nextjs', 'education', 'ecosystem']
+title: 'AI Skills Platform'
+tags:
+  [
+    'project',
+    'open-source',
+    'skills',
+    'agents',
+    'plugins',
+    'tools',
+    'go',
+    'nextjs',
+    'agent-operations',
+  ]
 confidence: 'verified'
-sources: ['https://github.com/ai-knowledge-hub']
-last_verified: '2026-07-26'
+sources:
+  [
+    'https://skills.ai-knowledge-hub.org/',
+    'https://github.com/ai-knowledge-hub/ai-skills-guide',
+    'https://ai-news-hub.performics-labs.com/news/agent-architect-playbook-building-ai-skills-marketing-adtech',
+  ]
+last_verified: '2026-08-23'
 related:
-  ['identity-philosophy', 'capability-technical-stack', 'project-ai-news-hub', 'research-themes']
+  [
+    'project-ai-news-hub',
+    'capability-agent-architecture',
+    'capability-technical-stack',
+    'research-themes',
+  ]
 ---
 
-# AI Agent Skills Framework
+# AI Skills Platform
 
-**Classification**: Open-source ecosystem project
-**Status**: Active / public
-**Organisation**: ai-knowledge-hub (GitHub org)
+**Classification**: Open-source public catalog and installation platform
 
-## What It Is
+**Status**: Active and public
 
-An open-source ecosystem designed to help marketing teams adopt AI agents through structured, progressive learning. It includes reusable skills, a Go CLI tool for skill management, a Next.js catalog website, and educational guides that build understanding from fundamentals to advanced orchestration.
+**Site**: https://skills.ai-knowledge-hub.org/
 
-## Architecture
+**Repository**: https://github.com/ai-knowledge-hub/ai-skills-guide
 
-### Skill Catalog
+## The Product
 
-Reusable skills documented with a consistent structure: what the skill does, when to use it, inputs/outputs, implementation guidance, and difficulty rating. Skills are organised by domain and complexity level.
+AI Skills Platform turns applied AI research into reusable working capabilities. Articles can explain how an agent workflow should operate. Practitioners still need packages they can inspect, install, test, and adapt. This platform supplies that practical layer.
 
-### Go CLI Tool
+Dessi developed it as a companion to several AI News Hub articles. The catalog began with marketing and adtech, then expanded into engineering maintenance, security, and agent operations.
 
-A command-line tool for discovering, installing, and managing AI agent skills. Built in Go for cross-platform compatibility and fast execution. It demonstrates infrastructure thinking. This isn't just content; it's tooling.
+## What It Publishes
 
-### Next.js Catalog Website
+The public catalog has four installable module types:
 
-A browseable, searchable interface for the skill catalog. Deployed and public. Provides a visual complement to the CLI for teams that prefer GUI interaction.
+- skills encode task-level expertise and operating instructions
+- agents coordinate roles, skills, tools, outputs, and approval boundaries
+- plugins bundle related capabilities into installable compositions
+- tools and MCP entries describe integrations, authentication, access, and trust boundaries
 
-### Educational Architecture
+Documentation-only packs combine existing entries into practical playbooks without presenting themselves as installable runtime modules.
 
-Progressive guides that build from "what is an AI agent" to "how to orchestrate multi-agent workflows." The educational design is deliberate. It is structured to build genuine understanding, not just provide recipes.
+At the reviewed state, generated registries contain 42 skills, seven agents, eight tool or MCP entries, and 11 plugins. The repository also contains 69 test-prompt suites.
 
-## Why This Matters
+## How It Is Built
 
-This project demonstrates ecosystem-level thinking. It combines a CLI, catalog, guides, and skills to help teams move from curiosity to deliberate experimentation. The educational architecture specifically reflects the empowerment thesis: give people understanding, not just tools.
+Each package follows a repeatable structure with a specification, manifest, examples, test prompts, dependencies, and runtime assumptions. Generated registries drive both the command-line installer and the public Next.js catalog.
 
-## Cross-Runtime Compatibility
+Usability metadata tells users whether an entry works immediately, needs setup, is a template, or is documentation only. Operational metadata also identifies connected systems, authentication, access level, permissions, trust boundaries, and approval requirements where relevant.
 
-Skills are designed to work across different agent runtimes and frameworks, avoiding vendor lock-in. This architectural decision gives teams the freedom to use the skills with whatever runtime they choose.
+The installer supports Codex, Claude, and generic runtime targets. Go provides the registry and installation tooling, while Next.js and TypeScript provide the public browsing interface.
 
-## Technical Stack
+## Product Role
 
-Go (CLI), Next.js/React (catalog website), Markdown (educational content), multi-runtime skill specifications
+The AI News Hub helps people understand a change. AI Skills Platform helps them try a governed implementation of it. Together they connect research, practical learning, reusable capability design, and public code.
+
+## Boundaries
+
+The public site and repository verify the catalog, packages, tooling, and declared usability. Registry inclusion does not prove adoption or production impact. Some entries require credentials or configuration, and template-only entries still require implementation before they can operate against real systems.

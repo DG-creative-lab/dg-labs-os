@@ -5,7 +5,7 @@ title: 'Agent Architecture & Multi-Agent Systems'
 tags: ['capability', 'agents', 'orchestration', 'bayesian', 'multi-agent', 'architecture']
 confidence: 'verified'
 sources: ['https://github.com/DG-creative-lab', 'https://github.com/ai-knowledge-hub']
-last_verified: '2026-07-26'
+last_verified: '2026-08-22'
 related:
   [
     'project-intent-recognition',
@@ -17,33 +17,33 @@ related:
 
 # Agent Architecture & Multi-Agent Systems
 
-## Depth of Expertise
+## Engineering Scope
 
-Dessi doesn't just use AI agents. She designs the architectures they run on. This spans three levels:
+Dessi designs the architecture around agents: the objects they can access, the authority they receive, the tools they can invoke, the evidence they must retain, and the conditions under which work can continue or leave the system.
 
 ### System Architecture
 
-Designing multi-agent systems with proper coordination, isolation, and learning mechanisms. The Agentic Commerce Learning Loop is the clearest example: agents with Bayesian beliefs, multi-tenant isolation, progressive learning, and closed feedback loops. This is genuine systems engineering, not prompt chaining.
+Agentic Commerce combines an evidence-learning engine with a governed execution control plane. Gateplane contributes identity, delegated grants, parameter-bound approvals, scoped workspaces, declared outputs, and publication gates. The wider Human Systems Platform separates private observation, shared learning, reviewed public projection, and planned organisational context into distinct authority planes.
 
 ### Skill & Capability Design
 
-The AI Agent Skills Framework demonstrates how to decompose agent capabilities into modular, composable skills with consistent interfaces, progressive complexity, and cross-runtime compatibility.
+The AI Agent Skills Framework explores modular capabilities across runtimes. Learning Foundry keeps evidence, interpretation, theory, memory, and activated capability distinct, with consent before activation.
 
 ### Orchestration Patterns
 
-Experience with coordinating multiple agents that need to share information, respect boundaries, and produce coherent outputs. This includes both the technical patterns (message passing, state management, conflict resolution) and the architectural decisions (when to decompose vs. centralise, how to handle cascading failures).
+The current public systems emphasise supervised and bounded sequential work. Parallel-agent and dynamic workflow tiers remain future capability because child authority, evidence propagation, budgets, completion, and rollback need deterministic contracts before orchestration can safely expand.
 
-## What Distinguishes This from "Uses AI Agents"
+## Deterministic Authority Boundary
 
-Many engineers have experience _calling_ LLM APIs or _using_ agent frameworks. Dessi's work is at the _architecture_ level, designing the systems that agents run inside. The difference is between someone who drives a car and someone who designs engines.
+Models interpret ambiguous requests, form hypotheses, recommend actions, and draft explanations. Validated systems retain authority over identity, tenant and resource scope, tool grammar, retries, approvals, external effects, evidence, publication, and rollback.
 
 Specific signals:
 
-- Multi-tenant architecture with proper isolation (not just API wrappers)
-- Bayesian learning mechanisms (not just prompt engineering)
-- Skill modularity and ecosystem design (not just individual tools)
-- 280+ Python tests across execution policy, replay, recovery, validation, and evidence receipts
+- Multi-tenant and workspace scope represented as explicit operational objects
+- Tools and effects admitted through policy, approvals, typed contracts, and state machines
+- Synthetic evidence, observations, beliefs, memory, and publication kept separate
+- Architecture, safety, security, regression, replay, recovery, and receipt checks
 
 ## Relevance to Current AI Landscape
 
-As LLM-powered agents become central to software architecture, the ability to design robust, inspectable agent systems is becoming a critical engineering skill. Dessi's public work shows that focus through tests, explicit state transitions, provenance, and human-control boundaries.
+The evidence is concrete but bounded. Public repositories show implementation, tests, state transitions, provenance, and human-control patterns. They do not establish production-scale agent traffic, automatic foundation-model learning, or unrestricted autonomous operation.

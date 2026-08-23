@@ -24,7 +24,10 @@ interface Props {
   modules?: PublicProfileModules;
   mode?: DossierMode;
   cv?: DossierCv;
+  headline?: string;
+  introduction?: string;
   targetRole?: TargetRole;
+  targetRoles?: readonly TargetRole[];
 }
 
 const {
@@ -32,7 +35,10 @@ const {
   modules = activeProfileModules,
   mode = 'general',
   cv = profile.cv.primary.files,
+  headline = profile.identity.headline,
+  introduction = profile.identity.introduction,
   targetRole,
+  targetRoles = [],
 } = Astro.props as Props;
 const isApplication = mode === 'application';
 const {
@@ -71,8 +77,8 @@ const confidenceLabel = {
       <p class="kicker">
         {isApplication ? 'Application' : profile.identity.role} · {profile.identity.location}
       </p>
-      <h1 id="application-title">{profile.identity.headline}</h1>
-      <p class="hero-intro">{profile.identity.introduction}</p>
+      <h1 id="application-title">{headline}</h1>
+      <p class="hero-intro">{introduction}</p>
       <div class="hero-actions">
         <a class="primary-action" href="#systems">Inspect the evidence</a>
         <a href={`mailto:${profile.contact.publicEmail}`}
@@ -81,21 +87,26 @@ const confidenceLabel = {
       </div>
     </div>
 
-    <div class="hero-trace" aria-label="Agent reliability trace">
-      <p>Agent reliability trace</p>
+    <div class="hero-trace" aria-label="AI workflow steps">
+      <p>How I build an AI workflow</p>
       <ol>
-        <li><span>01</span><strong>Task</strong><small>What outcome is required?</small></li>
+        <li><span>01</span><strong>Goal</strong><small>What should the system achieve?</small></li>
         <li>
-          <span>02</span><strong>Context</strong><small>What evidence may the agent use?</small>
+          <span>02</span><strong>Information</strong><small>What does the agent need to know?</small
+          >
         </li>
         <li>
-          <span>03</span><strong>Action</strong><small>Which tool, policy and side effect?</small>
+          <span>03</span><strong>Action</strong><small>Which tools and data may it use?</small>
         </li>
         <li>
-          <span>04</span><strong>Evaluation</strong><small>What failed, changed or improved?</small>
+          <span>04</span><strong>Check</strong><small
+            >Did the result work and can we prove it?</small
+          >
         </li>
         <li>
-          <span>05</span><strong>Feedback</strong><small>What should the next run inherit?</small>
+          <span>05</span><strong>Improve</strong><small
+            >What should change before the next run?</small
+          >
         </li>
       </ol>
     </div>
@@ -122,26 +133,67 @@ const confidenceLabel = {
   <section class="fit-section reveal" aria-labelledby="fit-title">
     <div class="section-index">00 / {isApplication ? 'POSITION' : 'PRACTICE'}</div>
     <div class="fit-copy">
-      <h2 id="fit-title">The recurring problem in my work is control.</h2>
+      <h2 id="fit-title">I turn unclear AI workflows into working products.</h2>
       <p>
-        Models can propose. Systems must decide what context is valid, which action is allowed, how
-        failure is recorded, and when a person must intervene. I build that surrounding machinery.
+        I define the job, give the agent the information and tools it needs, test the result, and
+        make failures easy to find and recover from. I also decide where a person needs to review or
+        approve the work.
       </p>
     </div>
-    <dl class="fit-signals">
-      <div><dt>Primary language</dt><dd>Python</dd></div>
-      <div><dt>Working layer</dt><dd>Models → tools → users</dd></div>
-      <div><dt>Evaluation posture</dt><dd>Evidence before confidence</dd></div>
-      <div><dt>Current focus</dt><dd>Reliable long-horizon agents</dd></div>
-    </dl>
+    {
+      isApplication && targetRoles.length ? (
+        <div class="fit-roles">
+          <p>Relevant London roles</p>
+          <ul>
+            {targetRoles.map((role) => (
+              <li>
+                <a href={role.url} target="_blank" rel="noreferrer">
+                  {role.label} ↗
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <dl class="fit-signals">
+          <div>
+            <>
+              <dt>Best fit</dt>
+              <dd>Applied AI and agent products</dd>
+            </>
+          </div>
+          <div>
+            <>
+              <dt>Experience</dt>
+              <dd>Enterprise, open source and adtech</dd>
+            </>
+          </div>
+          <div>
+            <>
+              <dt>Working style</dt>
+              <dd>Build, test, diagnose and improve</dd>
+            </>
+          </div>
+          <div>
+            <>
+              <dt>Location</dt>
+              <dd>London</dd>
+            </>
+          </div>
+        </dl>
+      )
+    }
   </section>
 
   <section id="systems" class="systems-section">
     <header class="section-heading reveal">
       <div class="section-index">01 / SYSTEMS</div>
       <div>
-        <h2>Three systems. Three reliability boundaries.</h2>
-        <p>Each dossier separates contribution, evaluation, result and limitation.</p>
+        <h2>Selected products and systems.</h2>
+        <p>
+          Each entry explains the problem, what I built, how I checked it, what it produced, and
+          where the evidence stops.
+        </p>
       </div>
     </header>
 
@@ -164,19 +216,19 @@ const confidenceLabel = {
               <dl>
                 <div>
                   <>
-                    <dt>Failure surface</dt>
+                    <dt>Problem</dt>
                     <dd>{study.problem}</dd>
                   </>
                 </div>
                 <div>
                   <>
-                    <dt>Intervention</dt>
+                    <dt>What I built</dt>
                     <dd>{study.intervention}</dd>
                   </>
                 </div>
                 <div>
                   <>
-                    <dt>Evaluation</dt>
+                    <dt>How I checked it</dt>
                     <dd>{study.evaluation}</dd>
                   </>
                 </div>
@@ -208,7 +260,7 @@ const confidenceLabel = {
   <section class="claims-section reveal" aria-labelledby="claims-title">
     <header>
       <div class="section-index">02 / CLAIMS</div>
-      <h2 id="claims-title">Claims carry their own constraints.</h2>
+      <h2 id="claims-title">What the evidence supports.</h2>
     </header>
     <div class="claims-list">
       {
@@ -248,11 +300,8 @@ const confidenceLabel = {
     <header class="section-heading reveal">
       <div class="section-index">03 / EVOLUTION</div>
       <div>
-        <h2>Learning should leave a revision trail.</h2>
-        <p>
-          The public plane records reviewed changes and open questions. It does not infer a
-          personality.
-        </p>
+        <h2>How the work changed.</h2>
+        <p>This record shows what changed, why it changed, and which questions are still open.</p>
       </div>
     </header>
     <ol class="evolution-list">
@@ -537,6 +586,33 @@ const confidenceLabel = {
   .fit-signals {
     margin: 0;
     border-top: 1px solid var(--line);
+  }
+  .fit-roles {
+    border-top: 1px solid var(--line);
+  }
+  .fit-roles > p {
+    margin: 0;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 10px;
+    text-transform: uppercase;
+  }
+  .fit-roles ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .fit-roles li {
+    border-bottom: 1px solid var(--line);
+  }
+  .fit-roles a {
+    display: block;
+    padding: 11px 0;
+    color: var(--paper);
+    font-size: 12px;
+    line-height: 1.4;
+    text-decoration: none;
   }
   .fit-signals div {
     display: grid;

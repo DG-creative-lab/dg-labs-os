@@ -110,6 +110,45 @@ describe('public Network modules', () => {
     expect(interpretiveRelationship?.content).toContain(
       'AI Skills Platform (system-ai-skills) supports DG-OS (system-dg-os).'
     );
+    expect(dessiNetworkModule.nodes.find((node) => node.id === 'system-ai-news-hub')).toMatchObject(
+      {
+        links: {
+          url: 'https://ai-news-hub.performics-labs.com/',
+          repo: 'https://github.com/ai-knowledge-hub/performics_labs_ai_news',
+        },
+      }
+    );
+    expect(dessiNetworkModule.nodes.find((node) => node.id === 'system-ai-skills')).toMatchObject({
+      links: {
+        url: 'https://skills.ai-knowledge-hub.org/',
+        repo: 'https://github.com/ai-knowledge-hub/ai-skills-guide',
+      },
+    });
+    expect(
+      dessiNetworkModule.nodes.find((node) => node.id === 'system-human-systems-platform')
+    ).toMatchObject({
+      kind: 'System',
+      title: 'Human Systems Platform',
+      evidenceConfidence: 'self-reported',
+    });
+    expect(
+      dessiNetworkModule.nodes.find((node) => node.id === 'system-learning-foundry')
+    ).toMatchObject({
+      kind: 'System',
+      title: 'Learning Foundry',
+    });
+    expect(
+      dessiNetworkModule.relationships.find(
+        (relationship) => relationship.id === 'learning-foundry-to-platform'
+      )
+    ).toMatchObject({
+      from: 'system-learning-foundry',
+      to: 'system-human-systems-platform',
+      relation: 'supports',
+    });
+    expect(
+      dessiNetworkModule.paths.find((path) => path.id === 'experience-to-opportunity')
+    ).toBeDefined();
   });
 
   it('rejects identity mismatches, embedded paths, dangling relationships, and unsafe paths', () => {

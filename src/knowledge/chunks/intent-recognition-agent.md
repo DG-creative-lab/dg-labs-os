@@ -56,9 +56,9 @@ LLM-powered synthesis of cluster characteristics into human-readable persona des
 
 The output layer makes intent intelligence actionable by connecting discovered intent patterns to campaign strategy, audience targeting, and content recommendations.
 
-## Why This Matters
+## System Consequence
 
-Most marketing intelligence systems treat intent as a classification problem: map a query to a bucket. This system treats intent as a _modeling_ problem: represent the full structure of intentional behavior and let patterns emerge. The difference is architectural, not cosmetic. It changes what questions you can ask and what insights are possible.
+Category classification answers which predefined bucket best fits an event. A geometric representation supports a different task: inspect relationships among contextual signals and discover patterns that the taxonomy did not define in advance. The prototype explores that distinction; production validity requires separate evaluation on representative data.
 
 ## Technical Stack
 

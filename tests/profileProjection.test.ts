@@ -120,7 +120,8 @@ describe('profile projection', () => {
   });
 
   it('keeps the OpenAI application as an explicit profile variant', () => {
-    expect(openAiCodexApplication.role).toBe('Applied AI Engineer, Codex Core Agent');
+    expect(openAiCodexApplication.role).toBe('OpenAI engineering roles in London');
+    expect(openAiCodexApplication.targetRoles).toHaveLength(6);
     expect(openAiCodexApplication.profileHandle).toBe('dessi');
     expect(openAiCodexApplication.cvVariantId).toBe('openai-codex');
     expect(openAiCodexApplication.applicationCv.pdf).toContain('OpenAI_Codex');

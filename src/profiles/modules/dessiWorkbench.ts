@@ -12,13 +12,82 @@ export const workbenchCategoryDescriptions = {
 
 export const workbench: readonly WorkbenchItem[] = [
   {
+    id: 'ai-news-hub',
+    category: 'Selected Systems',
+    classification: 'Open-source public platform · Active',
+    title: 'Performics Labs AI News Hub',
+    subtitle: 'A shared research platform for applied AI in marketing',
+    summary:
+      'An applied AI research and publishing platform that helps marketing teams understand what new models, interfaces, and agent systems change in practice.',
+    stack: ['Astro', 'React', 'TypeScript', 'MDX', 'Vercel', 'Editorial workflows'],
+    links: {
+      site: 'https://ai-news-hub.performics-labs.com/',
+      repo: 'https://github.com/ai-knowledge-hub/performics_labs_ai_news',
+    },
+    highlights: [
+      'Created as a shared home for an internal community of thinkers, builders, and innovators, with about 400 company members reported by the project owner.',
+      'Connects fast news, deeper analysis, All-Hands build sessions, and working prototypes so research can lead to implementation.',
+      'The public repository contains the MIT-licensed Astro application and the editorial system behind the live site.',
+      'The site and code are public. Internal membership and engagement figures are owner-reported, and public bylines may represent collaborative work.',
+    ],
+  },
+  {
+    id: 'ai-skills-platform',
+    category: 'Selected Systems',
+    classification: 'Open-source public platform · Active',
+    title: 'AI Skills Platform',
+    subtitle: 'From AI research to reusable working capabilities',
+    summary:
+      'An open catalog that turns AI research into reusable skills, agents, plugins, and tool connectors for marketing, engineering, security, and agent operations.',
+    stack: ['Go', 'Next.js', 'TypeScript', 'Markdown', 'JSON registries', 'Playwright'],
+    links: {
+      site: 'https://skills.ai-knowledge-hub.org/',
+      repo: 'https://github.com/ai-knowledge-hub/ai-skills-guide',
+      article:
+        'https://ai-news-hub.performics-labs.com/news/agent-architect-playbook-building-ai-skills-marketing-adtech',
+    },
+    highlights: [
+      'Developed as the practical companion to several AI News Hub articles, giving readers working packages they can inspect, install, test, and adapt.',
+      'Uses versioned registries and manifests to show readiness, usability, authentication, permissions, and approval boundaries before adoption.',
+      'The reviewed public registry contains 42 skills, 7 agents, 8 tool or MCP entries, and 11 plugins.',
+      'The catalog verifies package structure and usability. Adoption and production impact require separate evidence.',
+    ],
+  },
+  {
+    id: 'ai-harness-lab',
+    category: 'Selected Systems',
+    classification: 'Open-source public learning lab · Selective development',
+    title: 'AI Harness Lab',
+    subtitle: 'Interactive patterns for reliable AI in marketing systems',
+    summary:
+      'A practical learning environment that shows how context, deterministic structures, tools, permissions, orchestration, and feedback shape the behaviour of marketing AI systems.',
+    stack: [
+      'Interactive systems manual',
+      'Control patterns',
+      'Algorithm visualisation',
+      'Applied AI',
+    ],
+    links: {
+      site: 'https://harness.ai-knowledge-hub.org/',
+      repo: 'https://github.com/ai-knowledge-hub/ai-harness-lab',
+      article:
+        'https://ai-news-hub.performics-labs.com/analysis/deterministic-core-algorithms-data-structures-marketing-agents',
+    },
+    highlights: [
+      'Created to move readers from AI News analysis into practical examples they can inspect and explore.',
+      'Uses marketing workflows to explain the deterministic structures that support retrieval, routing, ordering, deduplication, memory, permissions, and control.',
+      'Includes an interactive algorithms module and an agent control-plane pattern for identity, policy, approval, and audit.',
+      'The public lab is functional, but its broader patterns and case-study library remain incomplete and development is selective.',
+    ],
+  },
+  {
     id: 'agentic-commerce-loop',
     category: 'Selected Systems',
     classification: 'Collaborative public system · Active',
     title: 'Agentic Commerce Learning Loop',
-    subtitle: 'A governed loop for testing, learning, and revising product intelligence',
+    subtitle: 'Learning which product messages deserve to move forward',
     summary:
-      'A multi-tenant agent system that separates simulation, observed validation, belief revision, memory, and human approval.',
+      'A supervised commerce product that helps brands improve product-message variants for paid placements and organic agent-led discovery, then carries stronger evidence into the next recommendation.',
     stack: [
       'Next.js',
       'TypeScript',
@@ -35,10 +104,35 @@ export const workbench: readonly WorkbenchItem[] = [
         'https://ai-news-hub.performics-labs.com/analysis/building-to-learn-agentic-marketing-optimization',
     },
     highlights: [
-      'Scopes beliefs and evidence across client, brand, and product boundaries.',
-      'Keeps synthetic judgements distinct from observed outcomes.',
-      'Uses confidence-gated memory with provenance and explicit revision paths.',
-      'Tests policy, replay, recovery, validation, and receipt integrity.',
+      'Uses Bayesian-style learning to update client-, brand-, and product-scoped beliefs as new synthetic or observed evidence arrives.',
+      'Turns each posterior update into a clear decision to promote, revise, or reject a product-message variant.',
+      'Reuses well-supported patterns in later query and copy generation instead of silently retraining a foundation model.',
+      'Keeps tools, evidence, memory, approvals, publication, and recovery under explicit control.',
+    ],
+  },
+  {
+    id: 'human-systems-platform',
+    category: 'Selected Systems',
+    classification: 'Founder product · Private development',
+    title: 'Human Systems Platform',
+    subtitle: 'Owner-controlled evidence and learning for human-AI work',
+    summary:
+      'A founder-led platform for people and organisations that need a more credible way to develop and assess capability in AI-mediated work. It turns selected experience into private learning, owner-approved evidence, and challengeable hypotheses about where that capability can create value.',
+    stack: [
+      'Federated product',
+      'Evidence contracts',
+      'Owner review',
+      'Protected publication',
+      'Outcome feedback',
+    ],
+    links: {
+      site: 'https://dg-os.com/',
+    },
+    highlights: [
+      'Responds to a growing trust problem: polished output is easy to generate, while CVs, interviews, and course completion reveal little about how someone worked with AI, detected failure, or transferred learning into practice.',
+      'Connects private experience, learning, approved evidence, opportunity, and later outcomes without turning a person into a score or making private activity available to employers.',
+      'I designed it to bring together Dessi Space for private continuity, Learning Foundry for human and agent development, DG-OS for public profiles and discovery, and a planned Organization Foundry for the context organisations need.',
+      'The first commercial hypothesis is evidence-backed talent discovery and capability development for AI-native technical work. The product remains under development, and customer demand, review burden, and willingness to pay still require pilots.',
     ],
   },
   {
@@ -46,18 +140,18 @@ export const workbench: readonly WorkbenchItem[] = [
     category: 'Selected Systems',
     classification: 'Submitted public system · Judging state preserved',
     title: 'Learning Foundry',
-    subtitle: 'Constructive learning with evidence, interpretation, and agency kept distinct',
+    subtitle: 'A learning product for people working with AI agents',
     summary:
-      'A learning environment where evidence, human understanding, shared theory, agent memory, and activated capabilities remain reviewable.',
+      'A learning product that helps a person turn source material and practical work into understanding they can explain, test, apply, and revise. It develops agent capabilities alongside human learning without treating them as the same achievement.',
     stack: ['TypeScript', 'React', 'Codex', 'Evidence ledger', 'Deterministic projections'],
     links: {
       repo: 'https://github.com/DG-creative-lab/codex-hack-learning-foundry/tree/0547da02518f432fdd85e79d317e1fedaa51c4c1',
     },
     highlights: [
-      'Append-only evidence and deterministic projections preserve provenance.',
-      'A consent-gated Codex adapter separates preparation from activation.',
-      'Corrections can revise interpretation without rewriting original evidence.',
-      'The linked commit preserves the submitted OpenAI Build Week state.',
+      'Creates independent value as a place to learn from approved sources, practise ideas, test transfer into a new situation, and revise understanding when evidence changes.',
+      'Keeps human understanding, agent memory, shared theory, and evaluated agent capabilities separate, so an agent succeeding cannot be presented as proof that the person understands the task.',
+      'Within Human Systems Platform, I use Learning Foundry to develop human understanding and separately governed agent capabilities while keeping the private learning ledger inside its own boundary.',
+      'The linked commit preserves the submitted OpenAI Build Week prototype. The broader product and platform integration remain under development.',
     ],
   },
   {
@@ -65,19 +159,19 @@ export const workbench: readonly WorkbenchItem[] = [
     category: 'Selected Systems',
     classification: 'Personal public system · Active',
     title: 'DG-OS',
-    subtitle: 'A portfolio evolving into an inspectable knowledge and agent interface',
+    subtitle: 'Owner-approved public evidence and professional discovery',
     summary:
-      'The system visitors are using now: an OS-shaped interface connecting projects, professional context, writing, evidence, and grounded agent interactions.',
+      'A living professional profile that helps people and agents understand how someone works, what evidence supports each claim, and where the limits remain. It is also the public expression and discovery product within Human Systems Platform.',
     stack: ['Astro', 'React', 'TypeScript', 'Retrieval', 'Provider gateway', 'Streaming'],
     links: {
       repo: 'https://github.com/DG-creative-lab/dg-labs-os',
       site: 'https://dg-os.com/',
     },
     highlights: [
-      'Combines deterministic navigation with retrieval-grounded agent responses.',
-      'Exposes source, provider health, fallback, and recovery behaviour.',
-      'Represents claims with provenance, confidence, visibility, and boundaries.',
-      'Uses the portfolio itself as an evolving systems-design experiment.',
+      'Creates independent value as a richer alternative to a static CV or portfolio, with navigable systems, evidence, writing, development history, and a source-grounded Profile Agent.',
+      'Receives only material the owner has chosen and approved for publication. Private experience and learning remain in their original products.',
+      'Within Human Systems Platform, I use DG-OS to publish owner-approved profiles for discovery. My profile is the first live public instance.',
+      'The public product is functional today. Automated ingestion, durable version activation, and the complete feedback path from later outcomes remain under development.',
     ],
   },
   {
@@ -107,17 +201,17 @@ export const workbench: readonly WorkbenchItem[] = [
     category: 'Selected Systems',
     classification: 'Personal deployed system · Private source',
     title: 'Gateplane Enterprise Auth Platform',
-    subtitle: 'Identity, tenant isolation, and policy boundaries for enterprise AI systems',
+    subtitle: 'Identity, authority, and execution control for enterprise agent systems',
     summary:
-      'A provider-independent control plane for hosted SSO, governed configuration, delegated agent authority, scoped workspace data, and sandbox-ready execution.',
+      'A provider-independent identity, authorisation, governance, and agent-execution control plane for hosted and embedded systems.',
     stack: ['Next.js', 'FastAPI', 'Microsoft Entra SSO', 'OIDC', 'Postgres', 'RBAC'],
     links: {
       site: 'https://gateplane-beta.vercel.app/overview',
     },
     highlights: [
-      'Separates tenant, organisation, workspace, and capability boundaries.',
-      'Binds delegated agent grants and approvals to explicit authority.',
-      'Scopes workspace materialisation to deterministic agent-run namespaces.',
+      'Separates identity and control-plane data from tenant-scoped workspace resources.',
+      'It ties access and approvals to the exact task, then checks tools and publication before work can leave an isolated workspace.',
+      'Uses isolated run workspaces, declared outputs, and deterministic gates around model-proposed work.',
       'The product overview is public; source code and provisioned access remain private.',
     ],
   },
@@ -128,7 +222,7 @@ export const workbench: readonly WorkbenchItem[] = [
     title: 'Multi-Tenant Marketing Automation',
     subtitle: 'Enterprise orchestration across clients, markets, data, and activation',
     summary:
-      'Professional production experience connecting tenant-aware data, authentication, AI orchestration, and campaign optimisation workflows.',
+      'Professional production experience connecting tenant-aware data, authenticated agent workflows, programmatic tools, and campaign optimisation.',
     stack: [
       'AWS',
       'Microsoft Entra',
@@ -141,7 +235,8 @@ export const workbench: readonly WorkbenchItem[] = [
     highlights: [
       'Supports enterprise hierarchies across clients, brands, and markets.',
       'Connects authenticated workflows to lakehouse and performance data.',
-      'Coordinates optimisation and activation across external platforms.',
+      'Builds a Programmatic plugin across agent skills, a typed CLI, backend tools, execution policy, human approval, and recovery.',
+      'Keeps provider authorisation and write gates deterministic while the model interprets requests and explains results.',
       'Only architectural scope is described; employer code and operational details remain private.',
     ],
   },

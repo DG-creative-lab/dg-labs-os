@@ -225,7 +225,14 @@ describe('profile CV boundary', () => {
         displayName: 'Dessi Georgieva',
         subject: 'AI systems engineering resume',
         language: 'en-GB',
-        keywords: ['AI systems', 'agents', 'evaluation', 'Python', 'FastAPI', 'TypeScript'],
+        keywords: [
+          'AI systems',
+          'agent harnesses',
+          'evaluation',
+          'human-agent interaction',
+          'reliability',
+          'system architecture',
+        ],
       });
       expect(readFileSync(sourceCapturePath, 'utf8')).toContain('# Dessi Georgieva');
       expect(readFileSync(sourceCapturePath, 'utf8')).toContain('Agentic Commerce Learning Loop');
@@ -242,14 +249,14 @@ describe('profile CV boundary', () => {
             publicStem: 'Dessi_Georgieva_CV',
             sourceKind: 'profile-resume',
             approval: {
-              projectionVersion: 1,
-              resumeVersion: 1,
+              projectionVersion: 3,
+              resumeVersion: 5,
               approvedBy: 'owner',
-              reviewedAt: '2026-08-03T22:07:34Z',
-              publishedAt: '2026-08-03T22:07:34Z',
+              reviewedAt: '2026-08-23T00:00:00Z',
+              publishedAt: '2026-08-23T00:00:00Z',
               privateSourcesExcluded: true,
               sourcePolicy:
-                'Resume v1 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
+                'Resume v5 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
             },
           },
         ],

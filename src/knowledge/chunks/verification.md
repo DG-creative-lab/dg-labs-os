@@ -5,7 +5,7 @@ title: 'Verification Guide'
 tags: ['meta', 'verification', 'evidence', 'provenance']
 confidence: 'verified'
 sources: []
-last_verified: '2026-07-26'
+last_verified: '2026-08-23'
 related: ['identity-links', 'meta-how-to-query', 'meta-provenance']
 ---
 
@@ -20,11 +20,11 @@ These claims can be confirmed by visiting public URLs:
 | Claim                                   | Verification Method                                                              |
 | --------------------------------------- | -------------------------------------------------------------------------------- |
 | GitHub activity and repositories        | Visit https://github.com/DG-creative-lab and https://github.com/ai-knowledge-hub |
-| Published articles                      | Visit https://ai-news-hub.performics-labs.com/                                   |
-| AI Skills Platform deployment           | Visit deployed URL (ai-knowledge-hub repos)                                      |
+| AI News Hub platform and publications   | Visit https://ai-news-hub.performics-labs.com/ and its public repository         |
+| AI Skills Platform and catalog          | Visit https://skills.ai-knowledge-hub.org/ and its public repository             |
 | LinkedIn professional history           | Visit https://www.linkedin.com/in/dessi-georgieva/                               |
 | Agentic Commerce architecture and tests | Inspect the public repository and test suite                                     |
-| Go CLI for Skills Framework             | ai-knowledge-hub org repos                                                       |
+| AI Skills registry and installation CLI | Inspect https://github.com/ai-knowledge-hub/ai-skills-guide                      |
 
 ## Tier 2: Verifiable with Context (Requires Interpretation)
 
@@ -43,6 +43,7 @@ These claims can be confirmed by visiting public URLs:
 | Multi-tenant employer deployment details            | Enterprise infrastructure, not public            |
 | BA Philosophy / MA Human Rights specifics           | Standard academic credentials; LinkedIn confirms |
 | Day-to-day role scope vs title                      | LinkedIn shows title; scope is self-reported     |
+| AI News Hub internal community size                 | Approximate membership is owner-reported         |
 
 ## How to Interpret Confidence Levels
 
