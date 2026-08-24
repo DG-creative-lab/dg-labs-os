@@ -6,7 +6,14 @@
       "documentMetadata": {
         "displayName": "Dessi Georgieva",
         "subject": "AI systems engineering resume",
-        "keywords": ["AI systems", "agents", "evaluation", "Python", "FastAPI", "TypeScript"],
+        "keywords": [
+          "AI systems",
+          "agent harnesses",
+          "evaluation",
+          "human-agent interaction",
+          "reliability",
+          "system architecture"
+        ],
         "language": "en-GB"
       },
       "variants": [
@@ -20,7 +27,7 @@
         },
         {
           "id": "openai-codex",
-          "label": "OpenAI Codex application CV",
+          "label": "OpenAI London application CV",
           "source": {
             "kind": "markdown",
             "path": "src/data/resume/openai-codex-cv.md"

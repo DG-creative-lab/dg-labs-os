@@ -7,11 +7,11 @@ export const dessiResumeModule = definePublicResumeModule({
   profileId: dessiProfileProjection.profileId,
   handle: dessiProfileProjection.handle,
   projectionVersion: dessiProfileProjection.projectionVersion,
-  resumeVersion: 1,
+  resumeVersion: 5,
   status: 'published',
   roleTitle: 'AI Systems Engineer',
   summary:
-    'AI systems engineer building the layer between models and dependable products: tool execution, context construction, evaluation, evidence, failure recovery, and human control. I work primarily in Python, FastAPI, TypeScript, React, and AWS. My public projects explore how agent systems can learn while keeping decisions and provenance inspectable; my employer work includes backend services, data workflows, and multi-tenant platform infrastructure.',
+    'I design and build AI systems that use tools, test their outputs against evidence, and recover when something goes wrong. My experience spans open source projects and enterprise backend, data, and multi-tenant platforms.',
   contact: [
     { kind: 'public-email' },
     { kind: 'profile-link', linkId: 'linkedin' },
@@ -21,36 +21,43 @@ export const dessiResumeModule = definePublicResumeModule({
   ],
   focusAreas: [
     {
-      label: 'Agent systems',
+      label: 'AI operating environments',
       detail:
-        'tool-use policy, execution state, approvals, idempotency, recovery, provider adapters, retrieval, streaming',
+        'Design the people, agents, tools, data, rules, and surrounding systems that must work together to produce a useful result.',
+    },
+    {
+      label: 'Context, memory, and capabilities',
+      detail:
+        'Give agents the right information and reusable procedures for each task, with clear sources, scope, and limits.',
+    },
+    {
+      label: 'Authority and human attention',
+      detail:
+        'Define what an agent may decide, when it must ask, and how identity, permissions, approvals, and consequential actions stay under human and system control.',
     },
     {
       label: 'Evaluation and learning',
       detail:
-        'regression suites, deterministic replay, synthetic and observed validation, evidence ledgers, belief revision',
+        'Test components, interactions, and end results, then turn failures, feedback, and observed outcomes into changes that can be reviewed and reversed.',
     },
     {
-      label: 'Backend and data',
-      detail: 'Python, FastAPI, Pydantic, pytest, SQL, PostgreSQL, embeddings, clustering',
-    },
-    {
-      label: 'Product and infrastructure',
-      detail: 'TypeScript, React, Next.js, Astro, Node.js, AWS, Terraform, Docker, CI/CD',
+      label: 'Reliability and recovery',
+      detail:
+        'Make long-running work observable and recoverable through explicit state, budgets, retries, receipts, fallback, cancellation, and rollback.',
     },
   ],
   selectedSystems: [
     {
-      workbenchItemId: 'agentic-commerce-loop',
-      evidenceClaimIds: ['agent-runtime', 'feedback-loop'],
-      workbenchHighlightIndexes: [],
-      primaryLink: 'repo',
-      linkLabel: 'Repository',
+      workbenchItemId: 'human-systems-platform',
+      evidenceClaimIds: ['human-systems-platform'],
+      workbenchHighlightIndexes: [2],
+      primaryLink: 'site',
+      linkLabel: 'First public product',
     },
     {
       workbenchItemId: 'learning-foundry',
       evidenceClaimIds: ['codex-capability'],
-      workbenchHighlightIndexes: [0],
+      workbenchHighlightIndexes: [2],
       primaryLink: 'repo',
       linkLabel: 'Repository at submitted commit',
     },
@@ -59,7 +66,14 @@ export const dessiResumeModule = definePublicResumeModule({
       evidenceClaimIds: ['provider-runtime'],
       workbenchHighlightIndexes: [2],
       primaryLink: 'site',
-      linkLabel: 'Portfolio',
+      linkLabel: 'First live profile',
+    },
+    {
+      workbenchItemId: 'agentic-commerce-loop',
+      evidenceClaimIds: ['agent-runtime', 'feedback-loop'],
+      workbenchHighlightIndexes: [],
+      primaryLink: 'repo',
+      linkLabel: 'Repository',
     },
   ],
   experience: [
@@ -71,11 +85,12 @@ export const dessiResumeModule = definePublicResumeModule({
       startedAt: '2023-11',
       endedAt: null,
       highlights: [
-        'Design and build AI and data systems spanning FastAPI services, AWS workflows, multi-tenant platform controls, behavioural modelling, and marketing-intelligence interfaces.',
+        'I design and build AI and data systems spanning backend services, cloud workflows, identity and policy controls, multi-tenant infrastructure, behavioural modelling, and marketing-intelligence interfaces.',
+        'I build the Programmatic plugin and its agent harness across skill selection, a typed interface and backend tools, tenant-bound execution policy, human approval, evidence handling, and recovery.',
       ],
       evidenceClaimIds: ['production-backend'],
       boundary:
-        'Employer code, client information, operational measurements, and infrastructure remain confidential; public descriptions are intentionally limited to responsibilities and outcomes.',
+        'I describe employer work only at responsibility and outcome level. Employer code, client information, operational measurements, and infrastructure remain confidential.',
     },
     {
       id: 'publicis-senior-bi',
@@ -85,7 +100,7 @@ export const dessiResumeModule = definePublicResumeModule({
       startedAt: '2023-03',
       endedAt: '2023-11',
       highlights: [
-        'Bridged marketing analytics and decision systems, moving reporting workflows toward reusable intelligence services and platformised decision support.',
+        'I bridged marketing analytics and decision systems, moving reporting workflows toward reusable intelligence services and platformised decision support.',
       ],
       evidenceClaimIds: [],
     },
@@ -97,7 +112,7 @@ export const dessiResumeModule = definePublicResumeModule({
       startedAt: '2021-01',
       endedAt: '2023-03',
       highlights: [
-        'Built enterprise analytics applications and data workflows, including Shiny applications, AWS ETL, and data-lake patterns.',
+        'I built enterprise analytics applications and data workflows, including interactive products, cloud ETL, and data-lake patterns.',
       ],
       evidenceClaimIds: [],
     },
@@ -109,7 +124,7 @@ export const dessiResumeModule = definePublicResumeModule({
       startedAt: '2017',
       endedAt: '2020',
       highlights: [
-        'Delivered CRM, analytics, segmentation, automation, and experimentation systems for agencies, startups, and media organisations.',
+        'I delivered CRM, analytics, segmentation, automation, and experimentation systems for agencies, startups, and media organisations.',
       ],
       evidenceClaimIds: [],
     },
@@ -132,10 +147,10 @@ export const dessiResumeModule = definePublicResumeModule({
   ],
   publication: {
     approvedBy: 'owner',
-    reviewedAt: '2026-08-03T22:07:34Z',
-    publishedAt: '2026-08-03T22:07:34Z',
+    reviewedAt: '2026-08-23T00:00:00Z',
+    publishedAt: '2026-08-23T00:00:00Z',
     privateSourcesExcluded: true,
     sourcePolicy:
-      'Resume v1 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
+      'Resume v5 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
   },
 } as const);

@@ -1,30 +1,39 @@
 ---
 id: 'project-dg-labs-os'
 type: 'project'
-title: 'DG-Labs OS - Portfolio as Operating System'
+title: 'DG-OS - Public Evidence and Professional Discovery'
 tags: ['project', 'portfolio', 'os-metaphor', 'astro', 'react', 'agent', 'terminal']
 confidence: 'verified'
-sources: ['https://github.com/DG-creative-lab']
-last_verified: '2025-06-01'
+sources: ['https://github.com/DG-creative-lab/dg-labs-os']
+last_verified: '2026-08-23'
 related:
-  ['identity-profile', 'identity-philosophy', 'capability-technical-stack', 'meta-how-to-query']
+  [
+    'project-human-systems-platform',
+    'project-learning-foundry',
+    'identity-profile',
+    'identity-philosophy',
+    'capability-technical-stack',
+    'meta-how-to-query',
+  ]
 ---
 
-# DG-Labs OS - Portfolio as Operating System
+# DG-OS - Public Evidence and Professional Discovery
 
-**Classification**: Portfolio / meta-system
+**Classification**: Public profile and discovery product
 **Status**: Active development
 **Built with**: Astro + React hybrid
 
 ## What It Is
 
-A personal portfolio presented as a cognitive operating system. Facts about Dessi's systems, professional writing, and evolving ideas are represented as apps, windows, nodes, and workflows. The UI metaphor is not decorative. It _is_ the information architecture.
+A living professional profile for work that needs more explanation than a static CV can provide. Visitors can inspect systems, professional context, writing, evidence, limitations, and change through direct navigation or a source-grounded Profile Agent.
+
+DG-OS creates value on its own as a public profile and discovery product. Within Human Systems Platform, it is the external expression layer. Dessi Space preserves private experience. Learning Foundry develops human understanding and separately governed agent capabilities. The shared platform carries reviewed evidence and publication authority across those boundaries. DG-OS receives only what the owner has approved for public use.
 
 ## Core Metaphor
 
-- **Desktop** = current cognitive state (what is active now)
+- **Desktop** = navigable public state
 - **Apps** = stable modules of work and thinking
-- **Terminal** = agent runtime and command surface (you are here)
+- **Terminal** = deterministic command surface plus retrieval-grounded model interaction
 - **System Map** = curated relationships between career experience, engineering practices, systems, and evidence
 
 ## Architecture
@@ -53,17 +62,19 @@ iPhone-inspired lock/home UX for mobile visitors. Tap-to-unlock gesture, app gri
 
 ### Agent Runtime (Terminal)
 
-The terminal is not just a UI gimmick. It is backed by a structured knowledge base (the system you are querying right now) and can:
+The terminal is backed by a structured knowledge base and can:
 
 - Execute deterministic commands (`help`, `open`, `search`, `projects`, `resume`)
 - Route natural language to appropriate commands
 - Answer open-ended questions using retrieval-grounded LLM responses
 - Cite sources and provide verification paths
 
-## Why This Matters
+## System Role
 
-Most developer portfolios are lists of projects with links. DG-Labs OS reframes the portfolio as an explorable system: visitors can navigate, query, compare, and verify work without being forced through a single linear narrative.
+DG-OS helps collaborators, employers, peers, investors, and agents understand Dessi's work without forcing every reader through one linear narrative. It provides the public surface where approved evidence can lead to a conversation, opportunity, collaboration, research question, or investment discussion.
+
+The product is functional today. Automated ingestion, durable receiver activation, rollback, and the complete feedback path from later outcomes remain under development through Human Systems Platform.
 
 ## Self-Referential Note
 
-This knowledge file is part of the system it describes. The agent answering your questions right now is drawing from this file and others like it. This is by design. The portfolio demonstrates its own capabilities by being built with them.
+This knowledge file is part of the system it describes. The Profile Agent retrieves it as approved context, but it cannot turn private workspace activity into a public claim. That boundary is part of the product, not a disclaimer added afterwards.

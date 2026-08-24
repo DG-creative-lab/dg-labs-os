@@ -97,10 +97,16 @@ const networkNodes: readonly NetworkNode[] = [
     provenance: 'Professional work in Publicis and Performics innovation environments.',
     boundary:
       'Paid-work claims are intentionally high level. Public projects elsewhere in the map provide supporting, but not equivalent, evidence.',
-    tags: ['agent systems', 'multi-tenant platforms', 'identity', 'infrastructure'],
+    tags: [
+      'agent systems',
+      'multi-tenant platforms',
+      'identity',
+      'programmatic tools',
+      'infrastructure',
+    ],
     bullets: [
-      'Builds agent systems, policy boundaries, multi-tenant platforms, and infrastructure controls.',
-      'Connects product experiments to production constraints and operator accountability.',
+      'Builds agent systems, typed tool contracts, policy boundaries, multi-tenant platforms, and infrastructure controls.',
+      'Develops a Programmatic plugin spanning agent skills, CLI and backend tools, tenant-bound execution, approval, and recovery.',
     ],
     map: { column: 0, row: 4.8 },
   },
@@ -178,33 +184,56 @@ const networkNodes: readonly NetworkNode[] = [
     map: { column: 1, row: 4.4 },
   },
   {
-    id: 'system-ai-skills',
+    id: 'system-ai-news-hub',
     kind: 'System',
-    title: 'AI Skills Platform',
-    subtitle: 'Reusable capabilities for agent runtimes',
+    title: 'Performics Labs AI News Hub',
+    subtitle: 'Applied AI research for marketing practice',
     period: '2024–Present',
     evidence: 'Public artifact',
     evidenceConfidence: 'verified',
     evidenceVisibility: 'public',
-    provenance: 'Public AI Knowledge Hub site and repository.',
+    provenance: 'Public live site and MIT-licensed repository.',
     boundary:
-      'The public catalog demonstrates reusable skill design; adoption and production impact require separate evidence.',
-    tags: ['skills', 'agent orchestration', 'guardrails', 'open source'],
+      'The platform is publicly verifiable. Its internal community purpose and approximate membership are owner-reported, and public bylines may represent collaborative work.',
+    tags: ['applied ai research', 'marketing', 'publishing platform', 'community', 'open source'],
     bullets: [
-      'Packages reusable marketing-agent capabilities with guardrails and tests.',
-      'Supports Codex, Claude, and runtime-agnostic use.',
+      'Gives marketing practitioners, strategists, and engineers a shared place to understand what fast-moving AI changes mean in practice.',
+      'Connects news, analysis, build sessions, and prototypes so research can lead to implementation.',
     ],
     map: { column: 2, row: 0 },
     links: {
+      url: 'https://ai-news-hub.performics-labs.com/',
+      repo: 'https://github.com/ai-knowledge-hub/performics_labs_ai_news',
+    },
+  },
+  {
+    id: 'system-ai-skills',
+    kind: 'System',
+    title: 'AI Skills Platform',
+    subtitle: 'Reusable implementations of applied AI research',
+    period: '2024–Present',
+    evidence: 'Public artifact',
+    evidenceConfidence: 'verified',
+    evidenceVisibility: 'public',
+    provenance: 'Public AI Knowledge Hub site, repository, and generated registries.',
+    boundary:
+      'The public catalog demonstrates reusable skill design; adoption and production impact require separate evidence.',
+    tags: ['skills', 'agents', 'plugins', 'tools', 'agent operations', 'open source'],
+    bullets: [
+      'Turns practical research into packages that teams can inspect, install, test, and adapt.',
+      'Publishes readiness, usability, permissions, and approval boundaries across skills, agents, plugins, and tools.',
+    ],
+    map: { column: 2, row: 1 },
+    links: {
       url: 'https://skills.ai-knowledge-hub.org/',
-      repo: 'https://github.com/ai-knowledge-hub/all-hands',
+      repo: 'https://github.com/ai-knowledge-hub/ai-skills-guide',
     },
   },
   {
     id: 'system-gateplane',
     kind: 'System',
     title: 'Gateplane',
-    subtitle: 'Multi-tenant identity and capability control',
+    subtitle: 'Identity, authority, and agent-execution control',
     period: '2025–Present',
     evidence: 'Professional context',
     evidenceConfidence: 'self-reported',
@@ -212,12 +241,12 @@ const networkNodes: readonly NetworkNode[] = [
     provenance: 'Private project developed from enterprise authentication requirements.',
     boundary:
       'The repository is private. Claims are limited to the architecture Dessi can describe without exposing employer or client material.',
-    tags: ['oidc', 'entra', 'rbac', 'multi-tenant auth', 'capability gating'],
+    tags: ['oidc', 'entra', 'rbac', 'multi-tenant auth', 'agent execution', 'capability gating'],
     bullets: [
-      'Models tenant, organisation, role, and product-tier boundaries.',
-      'Provides a route toward agent-native policy enforcement.',
+      'Models tenant, organisation, workspace, role, capability, grant, and approval boundaries.',
+      'Places deterministic execution, evidence, and publication gates around model-proposed work.',
     ],
-    map: { column: 2, row: 1 },
+    map: { column: 2, row: 2 },
   },
   {
     id: 'system-intent-recognition',
@@ -237,7 +266,7 @@ const networkNodes: readonly NetworkNode[] = [
       'Combines context capture, intent taxonomy, embeddings, clustering, and activation.',
       'Makes confidence and intermediate reasoning inspectable.',
     ],
-    map: { column: 2, row: 2 },
+    map: { column: 2, row: 3 },
     links: {
       repo: 'https://github.com/ai-knowledge-hub/deep-dive-analysis-intent-recognition-agent',
       url: 'https://huggingface.co/spaces/Dessi/gradio-mcp-hack',
@@ -247,7 +276,7 @@ const networkNodes: readonly NetworkNode[] = [
     id: 'system-agentic-commerce',
     kind: 'System',
     title: 'Agentic Commerce',
-    subtitle: 'Learning loop and discoverability control plane',
+    subtitle: 'Evidence-learning engine and governed agent control plane',
     period: '2024–Present',
     evidence: 'Public artifact',
     evidenceConfidence: 'verified',
@@ -257,10 +286,10 @@ const networkNodes: readonly NetworkNode[] = [
       'Observed and simulated validation remain distinct; the prototype does not claim commercial performance.',
     tags: ['agentic commerce', 'learning loops', 'multi-tenant', 'validation'],
     bullets: [
-      'Updates product beliefs through simulated and observed validation.',
-      'Uses confidence-gated memory, provenance, policy, and recovery tests.',
+      'Updates product beliefs through simulated and observed validation without silently retraining the model.',
+      'Combines confidence-gated memory and belief revision with scoped tools, policy, receipts, and recovery.',
     ],
-    map: { column: 2, row: 3 },
+    map: { column: 2, row: 4 },
     links: {
       repo: 'https://github.com/ai-knowledge-hub/deep-dive-analysis-agentic-commerce-augmentation',
       article:
@@ -279,12 +308,20 @@ const networkNodes: readonly NetworkNode[] = [
     provenance: 'Paid platform work across marketing automation and ecommerce optimization.',
     boundary:
       'Client and employer implementation details remain private; only architectural scope and publicly verifiable recognition are included.',
-    tags: ['multi-tenant', 'aws', 'databricks', 'campaign optimization', 'ecommerce'],
+    tags: [
+      'multi-tenant',
+      'aws',
+      'databricks',
+      'programmatic plugin',
+      'campaign optimization',
+      'ecommerce',
+    ],
     bullets: [
       'Connects tenant-aware data, analytics, optimization, and execution workflows.',
+      'Includes a Programmatic plugin with agent-selected skills, a typed CLI, backend tool policy, human approval, and deterministic write gates.',
       'Includes backend and AWS delivery for an award-recognized ecommerce platform.',
     ],
-    map: { column: 2, row: 4 },
+    map: { column: 2, row: 5 },
     links: {
       article:
         'https://www.performancemarketingworldawards.com/finalists/unifying-retail-data-with-publicis-warehouse-7y3bxeifqg035ne',
@@ -307,26 +344,53 @@ const networkNodes: readonly NetworkNode[] = [
       'Replaces legacy infrastructure with reproducible scratch environments.',
       'Adds contract checks, drift awareness, and controlled lifecycle operations.',
     ],
-    map: { column: 2, row: 5 },
+    map: { column: 2, row: 6 },
+  },
+  {
+    id: 'system-human-systems-platform',
+    kind: 'System',
+    title: 'Human Systems Platform',
+    subtitle: 'Owner-controlled evidence and learning network for human-AI work',
+    period: '2026–Present',
+    evidence: 'Professional context',
+    evidenceConfidence: 'self-reported',
+    evidenceVisibility: 'public',
+    provenance:
+      'Private working repository reviewed alongside the public Learning Foundry and DG-OS components.',
+    boundary:
+      'The product is in private active development. Working contracts and prototypes do not yet establish an integrated product, customer demand, beneficial outcomes, or product-market fit.',
+    tags: [
+      'founder product',
+      'human-ai work',
+      'learning',
+      'evidence',
+      'owner control',
+      'talent discovery',
+    ],
+    bullets: [
+      'Turns selected experience into private learning, owner-approved evidence, bounded opportunity hypotheses, and later correction.',
+      'Connects Dessi Space, Learning Foundry, DG-OS, and a planned Organization Foundry without merging their private records or authority.',
+    ],
+    map: { column: 2, row: 8 },
   },
   {
     id: 'system-dg-os',
     kind: 'System',
     title: 'DG-OS',
-    subtitle: 'Portfolio evolving into a working knowledge interface',
+    subtitle: 'Owner-approved public evidence and professional discovery',
     period: '2025–Present',
     evidence: 'Public artifact',
     evidenceConfidence: 'verified',
     evidenceVisibility: 'public',
     provenance: 'The portfolio application currently being inspected.',
     boundary:
-      'The current release is a curated interface; automated source ingestion and the private learning plane remain future work.',
+      'The current release is the reviewed public projection plane; automated ingestion and end-to-end receiver-observed publication remain incomplete.',
     tags: ['portfolio', 'knowledge interface', 'agents', 'evidence'],
     bullets: [
-      'Connects systems, writing, career context, and evidence through an OS metaphor.',
-      'Designed to evolve from a portfolio into a personal constructive-learning surface.',
+      'Gives the owner a richer professional presence than a static CV and gives visitors evidence they can inspect rather than unsupported claims.',
+      'Acts as the public expression and discovery product within Human Systems Platform while remaining functional on its own.',
     ],
-    map: { column: 2, row: 6 },
+    map: { column: 2, row: 9 },
     links: {
       repo: 'https://github.com/DG-creative-lab/dg-labs-os',
       url: 'https://dg-os.com/',
@@ -355,23 +419,23 @@ const networkNodes: readonly NetworkNode[] = [
     },
   },
   {
-    id: 'evidence-learning-foundry',
-    kind: 'Evidence',
+    id: 'system-learning-foundry',
+    kind: 'System',
     title: 'Learning Foundry',
-    subtitle: 'Constructive-learning experiment',
+    subtitle: 'Human learning and separately governed agent development',
     period: '2026',
     evidence: 'Public artifact',
     evidenceConfidence: 'verified',
     evidenceVisibility: 'public',
     provenance: 'OpenAI Build Week submission preserved at the submitted commit.',
     boundary:
-      'The linked state is a hackathon prototype. It demonstrates interaction and evidence design, not a mature learning product.',
+      'The linked state is a hackathon prototype. It demonstrates a functional learning product and evidence model, while longitudinal use and full platform integration remain under development.',
     tags: ['constructive learning', 'evidence ledger', 'consent', 'agent memory'],
     bullets: [
-      'Keeps evidence, understanding, theory, memory, and activated capability distinct.',
-      'Uses append-only evidence and consent-gated agent actions.',
+      'Helps a person explain, practise, apply, and revise knowledge while keeping original sources and corrections visible.',
+      'Develops evaluated agent capabilities separately from human understanding and contributes only curated evidence to the wider platform.',
     ],
-    map: { column: 3, row: 3.4 },
+    map: { column: 2, row: 7 },
     links: {
       repo: 'https://github.com/DG-creative-lab/codex-hack-learning-foundry/tree/0547da02518f432fdd85e79d317e1fedaa51c4c1',
     },
@@ -415,6 +479,16 @@ const networkRelationships: readonly NetworkRelationship[] = [
       'Cloud data and product analytics became the foundation for applied AI platform work.',
     confidence: 'direct',
     evidenceVisibility: 'private-employer',
+  },
+  {
+    id: 'career-ai-to-news',
+    from: 'career-ai-systems',
+    to: 'system-ai-news-hub',
+    relation: 'built during',
+    evidence:
+      'The platform was developed in the Performics innovation context as a shared applied AI research space.',
+    confidence: 'supported',
+    evidenceVisibility: 'mixed',
   },
   {
     id: 'career-ai-to-enterprise',
@@ -484,7 +558,7 @@ const networkRelationships: readonly NetworkRelationship[] = [
   {
     id: 'identity-to-learning-foundry',
     from: 'practice-identity-policy',
-    to: 'evidence-learning-foundry',
+    to: 'system-learning-foundry',
     relation: 'applied in',
     evidence: 'Learning Foundry separates preparation from consent-gated activation.',
     confidence: 'direct',
@@ -512,7 +586,7 @@ const networkRelationships: readonly NetworkRelationship[] = [
   {
     id: 'evaluation-to-learning-foundry',
     from: 'practice-evaluation-evidence',
-    to: 'evidence-learning-foundry',
+    to: 'system-learning-foundry',
     relation: 'applied in',
     evidence: 'The prototype uses append-only evidence and deterministic projections.',
     confidence: 'direct',
@@ -535,6 +609,26 @@ const networkRelationships: readonly NetworkRelationship[] = [
     evidence: 'AWS delivery and data workflows depend on reproducible operational boundaries.',
     confidence: 'supported',
     evidenceVisibility: 'private-employer',
+  },
+  {
+    id: 'news-to-skills',
+    from: 'system-ai-news-hub',
+    to: 'system-ai-skills',
+    relation: 'informed',
+    evidence:
+      'AI Skills Platform was developed as the practical companion to several AI News Hub articles.',
+    confidence: 'direct',
+    evidenceVisibility: 'public',
+  },
+  {
+    id: 'news-to-writing',
+    from: 'system-ai-news-hub',
+    to: 'evidence-technical-writing',
+    relation: 'supports',
+    evidence:
+      'The platform hosts the selected technical analysis represented in the evidence layer.',
+    confidence: 'direct',
+    evidenceVisibility: 'public',
   },
   {
     id: 'skills-to-intent',
@@ -586,14 +680,34 @@ const networkRelationships: readonly NetworkRelationship[] = [
     evidenceVisibility: 'public',
   },
   {
-    id: 'learning-foundry-to-dgos',
-    from: 'evidence-learning-foundry',
-    to: 'system-dg-os',
-    relation: 'informed',
+    id: 'career-ai-to-human-systems-platform',
+    from: 'career-ai-systems',
+    to: 'system-human-systems-platform',
+    relation: 'built during',
     evidence:
-      'Its separation of evidence, memory, and capability informs the planned private learning plane.',
-    confidence: 'interpretive',
-    evidenceVisibility: 'public',
+      "The founder product extends Dessi's current work on human-AI systems, evidence, authority, and capability development.",
+    confidence: 'direct',
+    evidenceVisibility: 'mixed',
+  },
+  {
+    id: 'learning-foundry-to-platform',
+    from: 'system-learning-foundry',
+    to: 'system-human-systems-platform',
+    relation: 'supports',
+    evidence:
+      'Learning Foundry provides the human and agent development product and contributes curated learning evidence without sharing its private ledger.',
+    confidence: 'supported',
+    evidenceVisibility: 'mixed',
+  },
+  {
+    id: 'platform-to-dgos',
+    from: 'system-human-systems-platform',
+    to: 'system-dg-os',
+    relation: 'supports',
+    evidence:
+      'The shared platform supplies the review, evidence, and publication boundary through which owner-approved material can reach DG-OS.',
+    confidence: 'supported',
+    evidenceVisibility: 'mixed',
   },
   {
     id: 'writing-to-dgos',
@@ -608,6 +722,36 @@ const networkRelationships: readonly NetworkRelationship[] = [
 ] as const;
 
 const networkPaths: readonly NetworkPath[] = [
+  {
+    id: 'experience-to-opportunity',
+    question: 'How do Learning Foundry, Human Systems Platform, and DG-OS form one product?',
+    answer:
+      'Learning Foundry turns approved sources and practical work into human learning and separately governed agent capabilities. Human Systems Platform preserves evidence, context, ownership, and review across the product boundaries. DG-OS publishes only the approved public representation, where it can lead to an opportunity, collaboration, research question, or investor conversation. Later outcomes are intended to correct the next learning cycle.',
+    nodeIds: [
+      'career-ai-systems',
+      'system-learning-foundry',
+      'system-human-systems-platform',
+      'system-dg-os',
+    ],
+    relationshipIds: [
+      'career-ai-to-human-systems-platform',
+      'learning-foundry-to-platform',
+      'platform-to-dgos',
+    ],
+  },
+  {
+    id: 'research-to-implementation',
+    question: 'How does Dessi turn research into practical AI tools?',
+    answer:
+      'The AI News Hub gives a community a place to understand applied AI questions. AI Skills Platform turns selected ideas into reusable packages that people can inspect, install, test, and adapt.',
+    nodeIds: [
+      'career-ai-systems',
+      'system-ai-news-hub',
+      'evidence-technical-writing',
+      'system-ai-skills',
+    ],
+    relationshipIds: ['career-ai-to-news', 'news-to-writing', 'news-to-skills'],
+  },
   {
     id: 'data-to-agents',
     question: 'How did Dessi move from data work to agent systems?',
@@ -678,18 +822,18 @@ export const dessiNetworkModule = definePublicNetworkModule({
   profileId: dessiProfileProjection.profileId,
   handle: dessiProfileProjection.handle,
   projectionVersion: dessiProfileProjection.projectionVersion,
-  networkVersion: 1,
+  networkVersion: 4,
   status: 'published',
   title: 'System Map',
   description:
-    'Reviewed relationships between career experience, engineering practices, systems, and public evidence.',
+    'Reviewed relationships between career experience, systems-engineering practices, active platforms, and public evidence.',
   nodes: networkNodes,
   relationships: networkRelationships,
   paths: networkPaths,
   publication: {
     approvedBy: 'owner',
-    reviewedAt: '2026-08-02T00:00:00Z',
-    publishedAt: '2026-08-02T00:00:00Z',
+    reviewedAt: '2026-08-23T00:00:00Z',
+    publishedAt: '2026-08-23T00:00:00Z',
     privateSourcesExcluded: true,
     sourcePolicy:
       'Only owner-reviewed relationships, bounded claims, and public descriptions may enter this module. Raw private evidence remains excluded.',

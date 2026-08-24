@@ -45,7 +45,7 @@ export function renderResumeMarkdown(resume: ResumeViewModel): string {
     '',
     resume.summary,
     '',
-    '## Technical Focus',
+    '## AI Systems Capabilities',
     '',
     ...resume.focusAreas.map((area) => `- **${area.label}:** ${area.detail}`),
     '',

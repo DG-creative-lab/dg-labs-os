@@ -29,13 +29,39 @@ describe('content config sanity', () => {
     expect(ids).toContain('agentic-commerce-loop');
     expect(ids).toContain('learning-foundry');
     expect(ids).toContain('intent-geometry-agent');
+    expect(workbench.find((item) => item.id === 'human-systems-platform')).toMatchObject({
+      category: 'Selected Systems',
+      classification: 'Founder product · Private development',
+      title: 'Human Systems Platform',
+    });
+    expect(workbench.find((item) => item.id === 'learning-foundry')?.summary).toContain(
+      'understanding they can explain, test, apply, and revise'
+    );
+    expect(workbench.find((item) => item.id === 'dg-os')?.summary).toContain(
+      'public expression and discovery product within Human Systems Platform'
+    );
+    expect(workbench.find((item) => item.id === 'ai-news-hub')).toMatchObject({
+      category: 'Selected Systems',
+      classification: 'Open-source public platform · Active',
+      links: {
+        site: 'https://ai-news-hub.performics-labs.com/',
+        repo: 'https://github.com/ai-knowledge-hub/performics_labs_ai_news',
+      },
+    });
+    expect(workbench.find((item) => item.id === 'ai-skills-platform')).toMatchObject({
+      category: 'Selected Systems',
+      classification: 'Open-source public platform · Active',
+      links: {
+        site: 'https://skills.ai-knowledge-hub.org/',
+        repo: 'https://github.com/ai-knowledge-hub/ai-skills-guide',
+      },
+    });
     expect(workbench.find((item) => item.id === 'gateplane-enterprise-auth')).toMatchObject({
       category: 'Selected Systems',
       classification: 'Personal deployed system · Private source',
       links: { site: 'https://gateplane-beta.vercel.app/overview' },
     });
     expect(ids).not.toContain('warehouse-award-platform');
-    expect(ids).not.toContain('ai-news-hub');
     expect(ids).not.toContain('onesuite-labs-infra');
   });
 });

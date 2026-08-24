@@ -5,7 +5,7 @@ title: 'Research Themes - Cross-Cutting Threads'
 tags: ['research', 'themes', 'intent', 'agency', 'agents', 'learning-systems', 'phenomenology']
 confidence: 'verified'
 sources: ['https://ai-news-hub.performics-labs.com/']
-last_verified: '2025-06-01'
+last_verified: '2026-08-22'
 related:
   [
     'identity-philosophy',
@@ -18,7 +18,7 @@ related:
 
 # Research Themes
 
-Seven interconnected research threads run through Dessi's work. These are not isolated topics. They are idea-edges that connect projects, publications, and systems to each other.
+Seven connected questions run through Dessi's work. Each links a conceptual concern to systems that can be inspected, tested, or challenged.
 
 ## 1. Intent & Behavior Understanding
 
@@ -26,7 +26,7 @@ How do we model what people want? Not as classification into predefined categori
 
 ## 2. Agent Architecture & Orchestration
 
-How do we build AI agents that genuinely learn and collaborate? Not just chains of LLM calls, but systems with beliefs, update mechanisms, and coordination protocols. This thread connects the Agentic Commerce Learning Loop and the AI Agent Skills Framework.
+How can agents interpret and learn while deterministic systems retain authority? This thread connects Gateplane, Agentic Commerce, Learning Foundry, DG-OS, the Programmatic plugin, and the AI Agent Skills Framework through identity, policy, evidence, evaluation, memory, and recovery.
 
 ## 3. Open Source Infrastructure
 
@@ -38,7 +38,7 @@ How do we make marketing systems smarter without making them more extractive? Th
 
 ## 5. Human Agency & Empowerment
 
-The meta-thread. How do we build systems that serve people rather than optimise against them? This connects everything, from architectural decisions to research writing to the portfolio itself.
+How do we amplify human ability without turning evidence into surveillance or a reductive score? Human Systems Platform is the founder product developing this question into an owner-controlled learning and evidence network. It connects private experience, human and agent development, approved public representation, organisational context, and later outcome while keeping their authority separate.
 
 ## 6. Data Visualization & Representation
 
@@ -46,8 +46,8 @@ How do we represent complex information structures (career, knowledge, ideas) in
 
 ## 7. Learning Systems & Bayesian Methods
 
-How do we build systems that genuinely learn over time with well-calibrated uncertainty? This connects the Agentic Commerce Learning Loop and broader interest in probabilistic methods for intelligent systems.
+How can a system improve from use without silently changing its own authority? Current work uses evidence-weighted beliefs, calibrated policy, quality-gated memory, evaluated capabilities, and versioned harness configuration. Automatic self-modification remains outside the safe envelope.
 
 ## Shadow Thread: AWS & System Design
 
-Enterprise infrastructure patterns (multi-tenant, production deployment, AWS services) form a supporting layer across projects. This work hasn't been open-sourced but represents significant real-world engineering depth.
+Enterprise infrastructure patterns such as tenant isolation, typed tool contracts, authenticated invocation, human approval, AWS services, reproducible environments, drift checks, and controlled decommissioning support the public research. Employer implementations remain private and are described only at capability level.

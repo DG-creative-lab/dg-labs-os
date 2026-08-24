@@ -5,7 +5,7 @@ title: 'Agentic Commerce Learning Loop'
 tags: ['project', 'flagship', 'bayesian', 'learning-systems', 'multi-tenant', 'commerce', 'agents']
 confidence: 'verified'
 sources: ['https://github.com/DG-creative-lab']
-last_verified: '2026-07-26'
+last_verified: '2026-08-22'
 related:
   [
     'experience-performics',
@@ -20,36 +20,36 @@ related:
 **Classification**: Flagship system, long-term research and delivery project
 **Status**: Collaborative public engineering project / active development
 
-## What It Is
+## System Shape
 
-A multi-tenant Bayesian learning system that enables marketing agents to learn from commerce signals over time. Rather than static rules or one-shot predictions, this system implements a genuine learning loop: agents observe commerce outcomes, update their beliefs using Bayesian methods, and progressively improve their decision-making.
+The platform contains two connected systems: a commerce optimisation and evidence-learning engine, and a governed agent execution control plane. Together they move from an objective through evidence acquisition, bounded execution, observation, belief revision, memory, and operator review.
 
 ## Architecture
 
-### Bayesian Learning Core
+### Evidence-Learning Core
 
-The system uses progressive Bayesian updating. Each new commerce signal refines the agent's posterior beliefs about what works. This is fundamentally different from batch retraining; the system learns continuously and its uncertainty estimates are always current.
+Synthetic validation, observed outcomes, and imported evidence remain different evidence classes. Calibrated belief updates and decision policies can change future behaviour while retaining provenance and uncertainty. The system does not claim to retrain its foundation model.
 
 ### Multi-Tenant Isolation
 
-Built for enterprise deployment where multiple clients or brands share infrastructure but maintain complete data and model isolation. Each tenant has its own learning state, belief priors, and outcome history.
+The domain model scopes learning and operational state across client, brand, product, and experiment boundaries. This is the intended isolation model for shared infrastructure; production isolation requires evidence from the deployed environment.
 
 ### Feedback Loop Design
 
-The critical architectural decision is closing the loop: agent actions produce commerce outcomes, which feed back into belief updates, which inform future actions. This creates a genuine learning system rather than a prediction pipeline.
+The critical decision is to close the loop without collapsing its stages. A model may propose a plan, but policy admits tools and effects. Receipts record execution. Observations update evidence and beliefs. Memory is quality-gated. Human approval controls consequential transitions and future harness changes.
 
 ## Development History
 
-More than 280 Python test functions cover execution policy, API contracts, replay, validation, recovery, credentials, and receipt integrity. This is evidence of regression discipline; it is not a claim of production-scale traffic.
+The reviewed repository passed 413 tests with 1 skipped test. Architecture, safety, and security traceability checks also passed. This establishes implementation and regression discipline within the tested envelope, not production-scale traffic, commercial uplift, or autonomous parallel-agent readiness.
 
-## Why This Matters
+## Current Boundary
 
-Most marketing automation systems are stateless: they apply rules or models to current data without genuine learning over time. This system explores how governed belief updates, tenant isolation, provenance, and operator controls can make a learning loop inspectable.
+The current safe envelope supports supervised or bounded sequential work, read-only protocol intelligence, synthetic and observed validation, and scoped belief and memory adaptation. Dynamic workflows, parallel subagents, transaction-grade external effects, and automatic harness refinement remain future capability tiers.
 
 ## Technical Stack
 
-Python, Bayesian inference frameworks, multi-tenant architecture, AWS deployment, FastAPI
+Python, FastAPI, Pydantic, pytest, TypeScript, React, SQL, provider adapters, policy and evidence contracts
 
 ## Connection to Philosophy
 
-The system embodies the empowerment thesis in a subtle way: by making the learning process transparent (explicit priors, interpretable belief updates, clear uncertainty), it gives operators genuine understanding of why the system behaves as it does. This is the opposite of black-box optimization.
+The system gives operators a reviewable account of what was proposed, authorised, executed, observed, learned, and retained. That makes improvement contestable and reversible instead of treating model output or optimisation metrics as unquestionable authority.

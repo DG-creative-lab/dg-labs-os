@@ -186,7 +186,7 @@ export function validatePublicResumeModule(module: PublicResumeModule): PublicRe
     }
   });
   if (!module.focusAreas.length) {
-    issues.push({ path: 'focusAreas', message: 'At least one technical focus area is required.' });
+    issues.push({ path: 'focusAreas', message: 'At least one capability area is required.' });
   }
   module.focusAreas.forEach((area, index) => {
     if (!isNonEmpty(area.label) || !isNonEmpty(area.detail)) {

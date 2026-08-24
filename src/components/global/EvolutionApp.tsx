@@ -36,14 +36,15 @@ export default function EvolutionApp({ profile, evidenceEvolution }: EvolutionAp
             prompted a revision, which evidence supports it, and what remains open.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-white/65">
-            Behind it is {profile.identity.preferredName} Space, a private review environment built
-            from principles explored in Learning Foundry. It observes approved work and learning
-            sources, keeps evidence, reflection, and agent interpretation separate, and prepares
-            selected public entries for DG-OS.
+            DG-OS is the public expression product within Human Systems Platform. Behind it,{' '}
+            {profile.identity.preferredName} Space preserves selected experience and owner control,
+            while Learning Foundry develops human understanding and separately governed agent
+            capabilities.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-white/65">
-            Approved entries join the System Map, where connections between projects, experience,
-            questions, and ideas can reveal recurring patterns and possible directions for new work.
+            Human Systems Platform carries only reviewed evidence across those boundaries. Approved
+            entries can reach DG-OS and the System Map, where they may support a new opportunity,
+            collaboration, research question, or learning cycle.
           </p>
           <p className="mt-4 border-l border-sky-300/40 pl-3 text-xs leading-5 text-sky-100/75">
             Only reviewed, public-safe entries appear here. Private sources and repository activity
@@ -64,7 +65,7 @@ export default function EvolutionApp({ profile, evidenceEvolution }: EvolutionAp
             How the loop works
           </h2>
           <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-white/35">
-            Private observation → public projection
+            Human Systems Platform / private observation → public projection
           </p>
         </div>
 
@@ -84,8 +85,8 @@ export default function EvolutionApp({ profile, evidenceEvolution }: EvolutionAp
             <div>
               <h3 className="text-sm font-semibold text-white sm:mt-3">Understand</h3>
               <p className="mt-1 text-xs leading-5 text-white/58">
-                Learning Foundry principles keep evidence, interpretation, questions, and agent
-                synthesis distinct.
+                Learning Foundry develops human understanding and agent capabilities without
+                treating them as the same achievement.
               </p>
             </div>
           </li>

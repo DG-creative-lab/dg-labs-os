@@ -29,9 +29,39 @@ export const systemsEvidenceProfile = {
 } as const;
 
 export const openAiCodexApplication = {
-  role: 'Applied AI Engineer, Codex Core Agent',
+  role: 'OpenAI engineering roles in London',
   location: systemsEvidenceProfile.location,
-  roleUrl: 'https://openai.com/careers/applied-ai-engineer-codex-core-agent-san-francisco/',
+  roleUrl: 'https://openai.com/careers/search/?l=fca11f90-4dac-47b6-80e0-752cfeab792b',
+  headline:
+    'I build AI systems that can use tools, complete real work, and recover when something fails.',
+  introduction:
+    'I work out what information the system needs, which actions it may take, how each result will be checked, and when a person should step in. Then I build and test the full workflow. My experience spans open source agent products, enterprise platforms, data systems, and advertising technology.',
+  targetRoles: [
+    {
+      label: 'Applied AI Engineer',
+      url: 'https://openai.com/careers/applied-ai-engineer-london-uk/',
+    },
+    {
+      label: 'Applied AI Engineer, Codex Core Agent',
+      url: 'https://openai.com/careers/applied-ai-engineer-codex-core-agent-san-francisco/',
+    },
+    {
+      label: 'Software Engineer, Codex Core Agents',
+      url: 'https://openai.com/careers/software-engineer-codex-core-agents-san-francisco/',
+    },
+    {
+      label: 'Solutions Engineer, Ads',
+      url: 'https://openai.com/careers/solutions-engineer-ads-london-uk/',
+    },
+    {
+      label: 'Software Engineer, Privacy Engineering',
+      url: 'https://openai.com/careers/software-engineer-privacy-engineering-%28lawful-access%29-london-uk/',
+    },
+    {
+      label: 'Protection Scientist Engineer, Integrity',
+      url: 'https://openai.com/careers/protection-scientist-engineer-integrity-london-uk/',
+    },
+  ],
   profileHandle: 'dessi',
   cvVariantId: openAiCodexCv.id,
   applicationCv: openAiCodexCv.files,

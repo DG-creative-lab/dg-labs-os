@@ -5,7 +5,7 @@ export const dessiProfileProjection = defineProfileProjection({
   schemaVersion: PROFILE_PROJECTION_SCHEMA_VERSION,
   profileId: 'dessi_georgieva',
   handle: 'dessi',
-  projectionVersion: 1,
+  projectionVersion: 3,
   status: 'published',
   identity: {
     displayName: 'Dessi Georgieva',
@@ -15,10 +15,11 @@ export const dessiProfileProjection = defineProfileProjection({
     role: 'AI Systems Engineer',
     location: 'London, UK',
     roleFocus:
-      'Building inspectable agent systems, evaluation loops, and human-controlled AI infrastructure.',
-    headline: 'I build the layer where agent capability becomes accountable behaviour.',
+      'Building AI products that use tools, learn from evidence, and keep important decisions under human control.',
+    headline:
+      'I design and build AI systems that use tools, learn from evidence, and recover when something goes wrong.',
     introduction:
-      'My work sits between models and use: tool execution, context, evidence, failure recovery, human control, and the feedback loops that make the next run better.',
+      'My work spans open source products and enterprise systems. I build the workflow around the agent, including the information it receives, the actions it may take, the checks applied to its work, and the points where a person should step in.',
   },
   contact: {
     publicEmail: 'dessi.georgieva8@gmail.com',
@@ -93,7 +94,7 @@ export const dessiProfileProjection = defineProfileProjection({
     variants: [
       {
         id: 'openai-codex',
-        label: 'OpenAI Codex application CV',
+        label: 'OpenAI London application CV',
         files: {
           pdf: '/cv/Dessi_Georgieva_OpenAI_Codex_CV.pdf',
           docx: '/cv/Dessi_Georgieva_OpenAI_Codex_CV.docx',
@@ -105,7 +106,7 @@ export const dessiProfileProjection = defineProfileProjection({
   seo: {
     title: 'DG-OS - Dessi Georgieva',
     description:
-      'Dessi Georgieva builds agent systems, evaluation loops, and human-controlled AI infrastructure.',
+      'Dessi Georgieva engineers governed agent systems, evidence-led learning loops, and human-controlled AI infrastructure.',
     keywords: [
       'Dessi Georgieva',
       'Applied AI Engineer',
@@ -117,8 +118,8 @@ export const dessiProfileProjection = defineProfileProjection({
   publication: {
     visibility: 'public',
     approvedBy: 'owner',
-    reviewedAt: '2026-08-01T00:00:00Z',
-    publishedAt: '2026-08-01T00:00:00Z',
+    reviewedAt: '2026-08-23T00:00:00Z',
+    publishedAt: '2026-08-23T00:00:00Z',
     privateSourcesExcluded: true,
     sourcePolicy:
       'Only owner-reviewed public claims and assets may enter this projection. Raw local and employer-confidential sources remain excluded.',

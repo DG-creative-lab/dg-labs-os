@@ -1,11 +1,11 @@
 ---
 id: 'capability-technical-stack'
 type: 'capability'
-title: 'Technical Stack & Skills'
-tags: ['capability', 'stack', 'python', 'go', 'typescript', 'aws', 'fastapi', 'react']
+title: 'AI Systems and Harness Capabilities'
+tags: ['capability', 'agent-harness', 'system-architecture', 'evaluation', 'authority', 'recovery']
 confidence: 'verified'
 sources: ['https://github.com/DG-creative-lab', 'https://github.com/ai-knowledge-hub']
-last_verified: '2025-06-01'
+last_verified: '2026-08-22'
 related:
   [
     'identity-profile',
@@ -15,39 +15,34 @@ related:
   ]
 ---
 
-# Technical Stack & Skills
+# AI Systems and Harness Capabilities
 
-## Core Languages
+Dessi's technical capability is best understood through the environments she designs around AI models. A harness is the combination of context, memory, tools, rules, state, evaluation, and human interaction that turns model capability into a useful system.
 
-- **Python**: Primary language for AI/ML systems, data pipelines, API development. Used across Intent Recognition Agent, Agentic Commerce Learning Loop, and general backend services.
-- **Go**: CLI tooling and infrastructure. Built the AI Agent Skills Framework CLI in Go for cross-platform distribution and performance.
-- **TypeScript/JavaScript**: Frontend and full-stack applications. Next.js (Skills Platform), React (DG-Labs OS components), Astro (AI News Hub).
-- **R**: Earlier career analytics and data visualisation work. Foundation for statistical thinking that later informed Bayesian system design.
+## Operating Environment Design
 
-## Frameworks & Tools
+- Defines the people, agents, tools, data, policies, and surrounding systems that must work together to create a useful outcome.
+- Makes product goals, domain knowledge, interfaces, and operational signals legible to both agents and people.
+- Treats the whole system as the unit of design, including the effects it creates in other systems.
 
-- **FastAPI**: Python API development for production services
-- **Next.js**: Full-stack React framework (Skills Platform catalog)
-- **Astro**: Content-focused static sites (AI News Hub)
-- **React**: UI components (DG-Labs OS desktop/mobile shells)
-- **Sigma.js**: Graph visualisation (Network knowledge graph)
+## Context and Capability Design
 
-## Infrastructure & Deployment
+- Assembles task-relevant context with clear sources, freshness, scope, and privacy boundaries.
+- Turns repeated procedures into reusable skills, tool contracts, and execution paths.
+- Separates working context, durable memory, approved evidence, and public claims.
 
-- **AWS**: Production deployment of enterprise systems. Multi-tenant architecture, service design, operational infrastructure.
-- **Vercel**: Frontend deployments (portfolio, catalog sites)
-- **Supabase**: Database and auth services
-- **GitHub Actions**: CI/CD pipelines, automated testing
+## Authority and Human Attention
 
-## AI & ML
+- Keeps identity, permissions, approvals, evidence, state transitions, and consequential effects outside model authority.
+- Defines when an agent can continue, when it should ask for clarification, and when a person must approve the next step.
+- Designs interfaces that help people review uncertainty, evidence, risk, and proposed action without monitoring every model step.
 
-- **Behavioral embeddings**: Vector representations of user behavior
-- **Clustering algorithms**: Unsupervised discovery of intent patterns
-- **Bayesian inference**: Progressive belief updating in learning systems
-- **LLM integration**: Persona generation, natural language interfaces, retrieval-grounded responses
-- **Multi-agent orchestration**: Agent coordination, skill systems, learning loops
-- **OpenRouter**: LLM API routing for agent runtime
+## Evaluation, Learning, and Recovery
 
-## Development Approach
+- Tests model behaviour, tool use, component interactions, and whole-system outcomes.
+- Turns failures, feedback, and observed outcomes into changes that remain reviewable and reversible.
+- Uses explicit execution state, traces, receipts, budgets, retries, replay, fallback, cancellation, and rollback to make work observable and recoverable.
 
-Dessi uses AI coding agents for frontend development (Next.js, React, Node.js), which she treats as a modern development workflow that provides velocity advantages. She maintains deep technical ownership of AI system architecture, backend services, and algorithm design. The AI-assisted work is in the UI layer, not the core intelligence.
+## Implementation Evidence
+
+The public systems use different languages, frameworks, data stores, and cloud services because those are implementation choices, not the capability being claimed. They provide inspectable evidence that Dessi can direct AI coding agents, review the resulting system, enforce architectural boundaries, and verify behaviour across product, data, infrastructure, and interface layers.

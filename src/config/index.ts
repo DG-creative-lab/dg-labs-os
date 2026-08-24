@@ -9,7 +9,7 @@
  * - contact.ts: Contact information
  * - education.ts: Education and courses
  * - experience.ts: Work experience
- * - skills.ts: Technical skills
+ * - skills.ts: AI systems capabilities
  * - extracurricular.ts: Leadership roles and activities
  * - competitions.ts: Competitions and achievements
  * - projects.ts: Project imports

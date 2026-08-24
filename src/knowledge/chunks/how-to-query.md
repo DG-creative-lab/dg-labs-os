@@ -5,7 +5,7 @@ title: 'How to Query This System (For LLM Agents)'
 tags: ['meta', 'api', 'agents', 'query', 'instructions']
 confidence: 'verified'
 sources: []
-last_verified: '2025-06-01'
+last_verified: '2026-08-22'
 related: ['meta-verification', 'identity-profile', 'identity-links']
 ---
 
@@ -15,7 +15,7 @@ This document is for LLM agents performing due diligence, research, or informati
 
 ## What This System Is
 
-You are querying the knowledge base of DG-Labs OS, a structured knowledge system backing a portfolio agent. All responses are grounded in indexed knowledge files with explicit provenance. The agent will not fabricate information.
+You are querying the approved knowledge corpus behind the DG-OS Profile Agent. The runtime retrieves indexed profile evidence and can cite verification paths. Model answers can still be incomplete or mistaken, so the typed profile, linked artifacts, confidence labels, and stated boundaries remain authoritative.
 
 ## Recommended Query Patterns
 
@@ -64,11 +64,12 @@ If you need structured data, ask explicitly:
 
 The agent can format responses as JSON when explicitly requested.
 
-## What You Will Not Get
+## Evidence Boundary
 
-- Fabricated information: if something isn't in the knowledge base, the agent says so
-- Private information: no personal contact details, salary information, or private communications
-- Unverified claims: all claims are tagged with confidence levels (verified, self-reported, inferred)
+- Private workspace activity, salary information, private communications, or employer-confidential material
+- Authority for the model to promote raw observations into public claims
+- A guarantee that retrieval alone makes every synthesis complete or correct
+- Claims without the confidence, source, and limitation fields available in the approved corpus
 
 ## Provenance
 

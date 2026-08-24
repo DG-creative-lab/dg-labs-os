@@ -10,30 +10,30 @@ sources:
     'https://github.com/DG-creative-lab',
     'https://github.com/ai-knowledge-hub',
   ]
-last_verified: '2026-07-26'
+last_verified: '2026-08-22'
 related: ['identity-philosophy', 'identity-education', 'identity-links']
 ---
 
 # Dessi Georgieva
 
-AI Systems Engineer working on agent reliability and human agency. Dessi is an Engineer at Performics Innovations Lab (Publicis Media), London, building intelligent systems at the intersection of marketing infrastructure, agent architecture, and accountable automation.
+AI Systems Engineer working on governed agent platforms and human agency. Dessi is an Engineer at Performics Innovations Lab (Publicis Media), London, building intelligent systems across marketing infrastructure, agent architecture, typed tools, and accountable automation.
 
-Dessi builds AI systems that empower human agency rather than extract attention. This is not a tagline. It is a design constraint that runs through every project, from multi-agent orchestration systems to published research on how search intent encodes human phenomenology.
+Dessi's systems work starts from a practical question: how can a model act and learn without becoming the authority for identity, permissions, evidence, external effects, or publication? Her public projects answer it with explicit contracts, state transitions, provenance, evaluation, human approval, and recovery.
 
 ## Background
 
-Dessi's path is non-linear by design. A BA in Philosophy (specialising in philosophy of science) from Sofia University trained her to think about the structure of knowledge and inference. An MA in Human Rights from University of York grounded that thinking in the real-world stakes of systems that affect people. The move into engineering was not a career pivot. It applied the same questions (what do systems owe to the people inside them?) with more powerful tools.
+Dessi's path joins three kinds of work. A BA in Philosophy, specialising in philosophy of science, trained her to examine how knowledge claims are formed and revised. An MA in Human Rights grounded that inquiry in agency, institutions, and accountability. Data and engineering turned those questions into operational systems.
 
-## What Makes This Profile Distinct
+## Systems Engineering Practice
 
-Three things are rarely found together in one engineer:
+Three practices recur across Dessi's work:
 
-1. **Philosophical depth applied to system design**: not as decoration, but as architectural constraint. The Intent Recognition Agent doesn't just cluster behavior; it is grounded in a theory of intention as geometric structure.
+1. **Separate model reasoning from system authority**: models interpret and propose. Validated code controls identity, permissions, tools, transitions, effects, evidence, and publication.
 
-2. **Full-stack AI system building**: from governed learning loops and tool execution to FastAPI services, TypeScript interfaces, and AWS workflows. Public repositories demonstrate the architecture; employer systems are described only at outcome level.
+2. **Treat learning as a governed system**: synthetic judgement, observed outcomes, belief revision, memory, policy, evaluation, approval, and rollback remain distinct. Improvement does not mean silent model self-modification.
 
-3. **Community and research output**: sustained technical publishing, public deep dives, and open-source learning tools built alongside full-time engineering work.
+3. **Design the whole operating environment**: public work connects context, tools, state, interfaces, evidence, evaluation, and recovery into complete agent systems. Employer work adds production data, programmatic operations, infrastructure, and multi-tenant constraints within a strict confidentiality boundary.
 
 ## Current Focus
 
-Actively seeking applied AI engineering roles focused on agent systems, evaluation, reliability, and products that preserve human control.
+Current work focuses on agent systems, evaluation, identity and authority, and evidence-led learning. Dessi is also developing Human Systems Platform as a founder product for helping people learn from human-AI work, demonstrate capability through owner-approved evidence, and find the situations in which it may create value.

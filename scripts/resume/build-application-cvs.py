@@ -250,9 +250,9 @@ def build_docx(
             continue
 
         if line.startswith("## "):
+            heading = document.add_heading(line[3:], level=1)
             if line in {"## Experience", "## Professional Experience"}:
-                document.add_page_break()
-            document.add_heading(line[3:], level=1)
+                heading.paragraph_format.page_break_before = True
             continue
 
         if line.startswith("### "):

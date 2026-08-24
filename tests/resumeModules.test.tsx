@@ -22,11 +22,11 @@ describe('public Resume modules', () => {
     expect(JSON.parse(JSON.stringify(resumeModuleV1Fixture))).toEqual(resumeModuleV1Fixture);
     expect(dessiResumeModule.publication).toEqual({
       approvedBy: 'owner',
-      reviewedAt: '2026-08-03T22:07:34Z',
-      publishedAt: '2026-08-03T22:07:34Z',
+      reviewedAt: '2026-08-23T00:00:00Z',
+      publishedAt: '2026-08-23T00:00:00Z',
       privateSourcesExcluded: true,
       sourcePolicy:
-        'Resume v1 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
+        'Resume v5 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
     });
   });
 
