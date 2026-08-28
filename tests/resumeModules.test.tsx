@@ -4,8 +4,8 @@ import ResumeApp from '../src/components/global/ResumeApp';
 import { profileModulesV1Fixture } from './fixtures/contracts/profileModulesV1';
 import { profileProjectionV1Fixture } from './fixtures/contracts/profileProjectionV1';
 import { resumeModuleV1Fixture } from './fixtures/contracts/resumeModuleV1';
-import { createPublicProfileRegistry } from '../src/profiles';
-import { createPublicProfileModuleRegistry } from '../src/profiles/modules';
+import { createPublicProfileRegistry, dessiProfileProjection } from '../src/profiles';
+import { createPublicProfileModuleRegistry, dessiProfileModules } from '../src/profiles/modules';
 import {
   buildResumeViewModel,
   createPublicResumeModuleRegistry,
@@ -22,12 +22,29 @@ describe('public Resume modules', () => {
     expect(JSON.parse(JSON.stringify(resumeModuleV1Fixture))).toEqual(resumeModuleV1Fixture);
     expect(dessiResumeModule.publication).toEqual({
       approvedBy: 'owner',
-      reviewedAt: '2026-08-23T00:00:00Z',
-      publishedAt: '2026-08-23T00:00:00Z',
+      reviewedAt: '2026-08-28T00:00:00Z',
+      publishedAt: '2026-08-28T00:00:00Z',
       privateSourcesExcluded: true,
       sourcePolicy:
-        'Resume v5 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
+        'Resume v6 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
     });
+  });
+
+  it('separates production responsibilities from independently inspectable systems', () => {
+    const profiles = createPublicProfileRegistry([dessiProfileProjection]);
+    const modules = createPublicProfileModuleRegistry([dessiProfileModules], profiles);
+    const resume = buildResumeViewModel(
+      profiles.resolve('dessi'),
+      modules.resolve('dessi'),
+      dessiResumeModule
+    );
+    const markdown = renderResumeMarkdown(resume);
+
+    expect(markdown).toContain('production backend, data, and multi-tenant experience');
+    expect(markdown).toContain('Programmatic plugin and agent harness');
+    expect(markdown).toContain('Independent deployed beta');
+    expect(markdown).toContain('production adoption is not claimed');
+    expect(markdown).toContain('remains in delivery rather than a deployed control');
   });
 
   it('resolves and renders a second profile without inheriting Dessi content', () => {

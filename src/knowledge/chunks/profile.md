@@ -10,7 +10,7 @@ sources:
     'https://github.com/DG-creative-lab',
     'https://github.com/ai-knowledge-hub',
   ]
-last_verified: '2026-08-22'
+last_verified: '2026-08-28'
 related: ['identity-philosophy', 'identity-education', 'identity-links']
 ---
 
@@ -18,7 +18,7 @@ related: ['identity-philosophy', 'identity-education', 'identity-links']
 
 AI Systems Engineer working on governed agent platforms and human agency. Dessi is an Engineer at Performics Innovations Lab (Publicis Media), London, building intelligent systems across marketing infrastructure, agent architecture, typed tools, and accountable automation.
 
-Dessi's systems work starts from a practical question: how can a model act and learn without becoming the authority for identity, permissions, evidence, external effects, or publication? Her public projects answer it with explicit contracts, state transitions, provenance, evaluation, human approval, and recovery.
+Dessi's systems work starts from a practical question: how can a model act and learn without becoming the authority for identity, permissions, evidence, external effects, or publication? Her enterprise work applies that question to production agent, data, and multi-tenant systems. Her independent projects make the corresponding contracts, state transitions, provenance, evaluation, human approval, and recovery patterns inspectable.
 
 ## Background
 

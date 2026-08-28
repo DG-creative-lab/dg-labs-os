@@ -156,13 +156,13 @@ export const applicationClaims: readonly ApplicationClaim[] = [
   {
     id: 'gateplane-control-plane',
     statement:
-      'Built Gateplane for organisations that need AI agents to work across users, data, and tools without weakening enterprise access controls.',
+      'I developed Gateplane independently to explore how authenticated human or agent identity becomes bounded, tenant-aware authority for tools and external effects.',
     confidence: 'self-reported',
     visibility: 'public',
-    lastVerified: '2026-08-22',
+    lastVerified: '2026-08-28',
     evidence: [links.gateplane],
     boundary:
-      'The product overview is public and the source is private. LLM orchestration, governed learning, and production proof of the optional sandbox path remain incomplete.',
+      'The product overview is public and the source is private. Gateplane is an independent beta, not an employer deployment, and production adoption is not claimed. LLM orchestration, governed learning, and production proof of the optional sandbox path remain incomplete.',
   },
   {
     id: 'intent-ml',
@@ -174,12 +174,34 @@ export const applicationClaims: readonly ApplicationClaim[] = [
     evidence: [links.intentRecognition, links.geometryArticle],
   },
   {
+    id: 'production-agent-platform',
+    statement:
+      'I architect and build the Programmatic plugin and agent harness that turns ambiguous user requests into tenant-bound execution across skills, a typed CLI, backend services, analytical data, and advertising-platform APIs.',
+    confidence: 'self-reported',
+    visibility: 'private-employer',
+    lastVerified: '2026-08-28',
+    evidence: [],
+    boundary:
+      'This is an owner-reported description of current employer work. Source code, client data, logs, infrastructure details, and operational measurements remain private.',
+  },
+  {
+    id: 'production-data-platform',
+    statement:
+      'I build backend ingestion and serving workflows for heterogeneous advertising data across provider hierarchies and analytical grains, and evaluate storage architecture against query shape, aggregation, latency, reliability, and cost.',
+    confidence: 'self-reported',
+    visibility: 'private-employer',
+    lastVerified: '2026-08-28',
+    evidence: [],
+    boundary:
+      'This is an owner-reported responsibility-level claim. Employer implementation details and measurements remain private, and active architecture proposals are not represented as deployed outcomes.',
+  },
+  {
     id: 'production-backend',
     statement:
       'I delivered backend services and cloud data workflows for an award-recognised ecommerce optimisation platform.',
     confidence: 'self-reported',
     visibility: 'private-employer',
-    lastVerified: '2026-07-26',
+    lastVerified: '2026-08-28',
     evidence: [links.awardPlatform],
     boundary:
       'The public case study verifies the platform and award context. My detailed implementation contribution remains employer-confidential.',
@@ -265,7 +287,7 @@ export const applicationCaseStudies: readonly ApplicationCaseStudy[] = [
   {
     id: 'gateplane-control-plane',
     title: 'Gateplane Agent Control Plane',
-    classification: 'Personal deployed system with private source and public product overview',
+    classification: 'Independent deployed beta with private source and public product overview',
     contribution:
       'Designed the system boundary across identity, tenant scope, delegated authority, approvals, workspace materialisation, execution, evidence, and publication.',
     problem:
@@ -277,7 +299,7 @@ export const applicationCaseStudies: readonly ApplicationCaseStudy[] = [
     result:
       'The current platform provides a substantial security and execution envelope that can host model-proposed work without giving the model deterministic authority.',
     limitation:
-      'It is not yet an LLM intelligence engine. Provider invocation, context assembly, reasoning orchestration, governed memory, evaluation, and learning remain target architecture, while RLS coverage and sandbox production proof need further work.',
+      'It is an independent beta rather than an employer-deployed system, and production adoption is not claimed. Provider invocation, context assembly, reasoning orchestration, governed memory, evaluation, and learning remain target architecture, while RLS coverage and sandbox production proof need further work.',
     roleSignals: [
       'systems engineering',
       'identity and authorisation',
@@ -374,6 +396,20 @@ export const currentBoundaries = [
 ] as const;
 
 export const evolutionEntries: readonly EvolutionEntry[] = [
+  {
+    date: '2026-08-28',
+    kind: 'revision',
+    title: 'Production and public evidence became separate proof planes',
+    summary:
+      'Employer work now demonstrates production agent, data, and multi-tenant constraints at a confidentiality-safe level, while independent systems provide inspectable evidence of the corresponding authority, evaluation, and recovery patterns.',
+    state: 'reviewed',
+    evidenceIds: [
+      'production-agent-platform',
+      'production-data-platform',
+      'gateplane-control-plane',
+      'agent-runtime',
+    ],
+  },
   {
     date: '2026-08-23',
     kind: 'revision',

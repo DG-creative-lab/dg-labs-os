@@ -7,11 +7,11 @@ export const dessiResumeModule = definePublicResumeModule({
   profileId: dessiProfileProjection.profileId,
   handle: dessiProfileProjection.handle,
   projectionVersion: dessiProfileProjection.projectionVersion,
-  resumeVersion: 5,
+  resumeVersion: 6,
   status: 'published',
   roleTitle: 'AI Systems Engineer',
   summary:
-    'I design and build AI systems that use tools, test their outputs against evidence, and recover when something goes wrong. My experience spans open source projects and enterprise backend, data, and multi-tenant platforms.',
+    'I architect and build enterprise AI systems that interpret user intent, coordinate skills and tools, work across hierarchical external systems, and return results under explicit identity, policy, and evidence controls. My professional work provides production backend, data, and multi-tenant experience; my independent systems make the corresponding architecture, evaluation, and recovery patterns inspectable.',
   contact: [
     { kind: 'public-email' },
     { kind: 'profile-link', linkId: 'linkedin' },
@@ -48,6 +48,20 @@ export const dessiResumeModule = definePublicResumeModule({
   ],
   selectedSystems: [
     {
+      workbenchItemId: 'agentic-commerce-loop',
+      evidenceClaimIds: ['agent-runtime', 'feedback-loop'],
+      workbenchHighlightIndexes: [],
+      primaryLink: 'repo',
+      linkLabel: 'Repository',
+    },
+    {
+      workbenchItemId: 'gateplane-enterprise-auth',
+      evidenceClaimIds: ['gateplane-control-plane'],
+      workbenchHighlightIndexes: [3],
+      primaryLink: 'site',
+      linkLabel: 'Public overview',
+    },
+    {
       workbenchItemId: 'human-systems-platform',
       evidenceClaimIds: ['human-systems-platform'],
       workbenchHighlightIndexes: [2],
@@ -57,23 +71,9 @@ export const dessiResumeModule = definePublicResumeModule({
     {
       workbenchItemId: 'learning-foundry',
       evidenceClaimIds: ['codex-capability'],
-      workbenchHighlightIndexes: [2],
-      primaryLink: 'repo',
-      linkLabel: 'Repository at submitted commit',
-    },
-    {
-      workbenchItemId: 'dg-os',
-      evidenceClaimIds: ['provider-runtime'],
-      workbenchHighlightIndexes: [2],
-      primaryLink: 'site',
-      linkLabel: 'First live profile',
-    },
-    {
-      workbenchItemId: 'agentic-commerce-loop',
-      evidenceClaimIds: ['agent-runtime', 'feedback-loop'],
       workbenchHighlightIndexes: [],
       primaryLink: 'repo',
-      linkLabel: 'Repository',
+      linkLabel: 'Repository at submitted commit',
     },
   ],
   experience: [
@@ -85,10 +85,13 @@ export const dessiResumeModule = definePublicResumeModule({
       startedAt: '2023-11',
       endedAt: null,
       highlights: [
-        'I design and build AI and data systems spanning backend services, cloud workflows, identity and policy controls, multi-tenant infrastructure, behavioural modelling, and marketing-intelligence interfaces.',
-        'I build the Programmatic plugin and its agent harness across skill selection, a typed interface and backend tools, tenant-bound execution policy, human approval, evidence handling, and recovery.',
+        'I map production request-to-response lifecycles and am leading architecture work for evidence-led final-answer validation; this remains in delivery rather than a deployed control.',
       ],
-      evidenceClaimIds: ['production-backend'],
+      evidenceClaimIds: [
+        'production-agent-platform',
+        'production-data-platform',
+        'production-backend',
+      ],
       boundary:
         'I describe employer work only at responsibility and outcome level. Employer code, client information, operational measurements, and infrastructure remain confidential.',
     },
@@ -147,10 +150,10 @@ export const dessiResumeModule = definePublicResumeModule({
   ],
   publication: {
     approvedBy: 'owner',
-    reviewedAt: '2026-08-23T00:00:00Z',
-    publishedAt: '2026-08-23T00:00:00Z',
+    reviewedAt: '2026-08-28T00:00:00Z',
+    publishedAt: '2026-08-28T00:00:00Z',
     privateSourcesExcluded: true,
     sourcePolicy:
-      'Resume v5 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
+      'Resume v6 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
   },
 } as const);

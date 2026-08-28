@@ -6,20 +6,20 @@
       "variantId": "general",
       "publicStem": "Dessi_Georgieva_CV",
       "sourceKind": "profile-resume",
-      "sourceSha256": "4e805fc8a8226ba02363c3f198cb610477602ec44e3edc7c5130b63c5ceb4fb0",
+      "sourceSha256": "e9d57637b5699a64096c8745f7d7b7f6b23b2993b10c35846e40e85dbec123ac",
       "approval": {
         "projectionVersion": 3,
-        "resumeVersion": 5,
+        "resumeVersion": 6,
         "approvedBy": "owner",
-        "reviewedAt": "2026-08-23T00:00:00Z",
-        "publishedAt": "2026-08-23T00:00:00Z",
+        "reviewedAt": "2026-08-28T00:00:00Z",
+        "publishedAt": "2026-08-28T00:00:00Z",
         "privateSourcesExcluded": true,
-        "sourcePolicy": "Resume v5 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded."
+        "sourcePolicy": "Resume v6 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded."
       },
       "files": {
-        "markdown": "4e805fc8a8226ba02363c3f198cb610477602ec44e3edc7c5130b63c5ceb4fb0",
-        "docx": "8edb9581b34de60621e3029722276258b3b95b957a2b17e38084f7a58394cac7",
-        "pdf": "c0d25854c8668be3ce42b61f693858c0391339124e00b0feb9b3ddb9c08543de"
+        "markdown": "e9d57637b5699a64096c8745f7d7b7f6b23b2993b10c35846e40e85dbec123ac",
+        "docx": "26e0c889ccc3f6f5db68a026c54ad4a3a9c9e4127d9edb1ac0aff50b6bd6c78a",
+        "pdf": "af8aa91c32e16f5fabe30d65a60d1dc46ce4bb3ae6d418fb7cedced474e0d66e"
       }
     },
     {

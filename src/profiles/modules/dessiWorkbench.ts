@@ -199,11 +199,11 @@ export const workbench: readonly WorkbenchItem[] = [
   {
     id: 'gateplane-enterprise-auth',
     category: 'Selected Systems',
-    classification: 'Personal deployed system · Private source',
-    title: 'Gateplane Enterprise Auth Platform',
+    classification: 'Independent deployed beta · Private source',
+    title: 'Gateplane Agent Control Plane',
     subtitle: 'Identity, authority, and execution control for enterprise agent systems',
     summary:
-      'A provider-independent identity, authorisation, governance, and agent-execution control plane for hosted and embedded systems.',
+      'An independently developed, provider-independent identity, authorisation, governance, and agent-execution control plane for hosted and embedded systems.',
     stack: ['Next.js', 'FastAPI', 'Microsoft Entra SSO', 'OIDC', 'Postgres', 'RBAC'],
     links: {
       site: 'https://gateplane-beta.vercel.app/overview',
@@ -212,7 +212,7 @@ export const workbench: readonly WorkbenchItem[] = [
       'Separates identity and control-plane data from tenant-scoped workspace resources.',
       'It ties access and approvals to the exact task, then checks tools and publication before work can leave an isolated workspace.',
       'Uses isolated run workspaces, declared outputs, and deterministic gates around model-proposed work.',
-      'The product overview is public; source code and provisioned access remain private.',
+      'The product overview is public; source code and provisioned access remain private, and employer deployment or production adoption is not claimed.',
     ],
   },
   {
@@ -234,9 +234,10 @@ export const workbench: readonly WorkbenchItem[] = [
     links: {},
     highlights: [
       'Supports enterprise hierarchies across clients, brands, and markets.',
-      'Connects authenticated workflows to lakehouse and performance data.',
-      'Builds a Programmatic plugin across agent skills, a typed CLI, backend tools, execution policy, human approval, and recovery.',
-      'Keeps provider authorisation and write gates deterministic while the model interprets requests and explains results.',
+      'Connects authenticated workflows to ingestion pipelines, analytical serving, and performance data at multiple business and reporting grains.',
+      'Builds a Programmatic plugin that maps intent through agent skills, a typed CLI, backend tools, and hierarchical REST and GraphQL provider APIs.',
+      'Keeps tenant scope, provider authorisation, write gates, human approval, and recovery deterministic while the model interprets requests and explains results.',
+      'Current architecture work adds evidence-led final-answer acceptance so successful tool execution is not mistaken for a complete or supported answer.',
       'Only architectural scope is described; employer code and operational details remain private.',
     ],
   },
