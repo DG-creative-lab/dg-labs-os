@@ -11,7 +11,7 @@ sources:
     'https://ai-news-hub.performics-labs.com/',
     'https://www.performancemarketingworldawards.com/finalists/unifying-retail-data-with-publicis-warehouse-7y3bxeifqg035ne',
   ]
-last_verified: '2026-08-23'
+last_verified: '2026-08-28'
 related:
   [
     'project-ai-news-hub',
@@ -56,9 +56,19 @@ Dessi is building the Programmatic plugin across agent skills, a typed CLI, back
 
 The current harness has strong execution-boundary coverage. Final narrative closure remains a known engineering gap: the system does not yet enforce a general claim-to-source transaction before text reaches the user. This distinction between a green tool harness and an evidence-faithful final answer is part of the active scaling work.
 
+### Production Agent and Data Systems
+
+The production request path connects an authenticated user and persistent agent session to selected skills, a typed Programmatic CLI, backend services, analytical data, and advertising-platform APIs. The system must resolve ambiguous intent across tenant and provider hierarchies without turning each new phrasing into a new command, while deterministic controls retain authority over scope, entitlements, writes, approvals, and recovery.
+
+Dessi also builds backend ingestion and serving workflows for heterogeneous advertising data across multiple provider hierarchies and analytical grains. Storage and serving decisions are evaluated against the actual workload: dynamic query shape, aggregation, latency, reliability, and cost. Current architecture proposals are described as active design work, not as deployed outcomes.
+
 ## What This Experience Demonstrates
 
 - End-to-end ownership across agent skills, typed tools, services, data, policy, and interfaces
 - Enterprise systems engineering across tenant scope, AWS, provider integrations, and human approval
 - Clear separation between model interpretation and deterministic execution authority
 - Reliability work that treats evidence completeness and final-answer acceptance as distinct from tool success
+
+## Evidence Boundary
+
+These production responsibilities are owner-reported at architecture and responsibility level. Employer code, client data, logs, infrastructure details, operational measurements, and internal discussions are not public evidence. Independent systems such as Gateplane and Agentic Commerce make related authority, evaluation, and recovery patterns inspectable, but are not represented as employer deployments.

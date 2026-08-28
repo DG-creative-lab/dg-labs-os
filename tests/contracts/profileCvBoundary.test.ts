@@ -250,13 +250,13 @@ describe('profile CV boundary', () => {
             sourceKind: 'profile-resume',
             approval: {
               projectionVersion: 3,
-              resumeVersion: 5,
+              resumeVersion: 6,
               approvedBy: 'owner',
-              reviewedAt: '2026-08-23T00:00:00Z',
-              publishedAt: '2026-08-23T00:00:00Z',
+              reviewedAt: '2026-08-28T00:00:00Z',
+              publishedAt: '2026-08-28T00:00:00Z',
               privateSourcesExcluded: true,
               sourcePolicy:
-                'Resume v5 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
+                'Resume v6 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
             },
           },
         ],

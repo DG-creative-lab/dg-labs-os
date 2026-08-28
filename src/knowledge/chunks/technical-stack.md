@@ -5,7 +5,7 @@ title: 'AI Systems and Harness Capabilities'
 tags: ['capability', 'agent-harness', 'system-architecture', 'evaluation', 'authority', 'recovery']
 confidence: 'verified'
 sources: ['https://github.com/DG-creative-lab', 'https://github.com/ai-knowledge-hub']
-last_verified: '2026-08-22'
+last_verified: '2026-08-28'
 related:
   [
     'identity-profile',
@@ -45,4 +45,6 @@ Dessi's technical capability is best understood through the environments she des
 
 ## Implementation Evidence
 
-The public systems use different languages, frameworks, data stores, and cloud services because those are implementation choices, not the capability being claimed. They provide inspectable evidence that Dessi can direct AI coding agents, review the resulting system, enforce architectural boundaries, and verify behaviour across product, data, infrastructure, and interface layers.
+Production employer work provides experience with authenticated multi-tenant workflows, hierarchical provider APIs, ingestion pipelines, analytical serving, and the operational consequences of incomplete agent answers. Those responsibilities are described at a confidentiality-safe level rather than supported by public code or measurements.
+
+The independent systems use different languages, frameworks, data stores, and cloud services because those are implementation choices, not the capability being claimed. They provide inspectable evidence that Dessi can direct AI coding agents, review the resulting system, enforce architectural boundaries, and verify behaviour across product, data, infrastructure, and interface layers. They complement the production record; they do not substitute for or claim employer deployment.

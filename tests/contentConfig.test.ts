@@ -58,7 +58,8 @@ describe('content config sanity', () => {
     });
     expect(workbench.find((item) => item.id === 'gateplane-enterprise-auth')).toMatchObject({
       category: 'Selected Systems',
-      classification: 'Personal deployed system · Private source',
+      title: 'Gateplane Agent Control Plane',
+      classification: 'Independent deployed beta · Private source',
       links: { site: 'https://gateplane-beta.vercel.app/overview' },
     });
     expect(ids).not.toContain('warehouse-award-platform');
