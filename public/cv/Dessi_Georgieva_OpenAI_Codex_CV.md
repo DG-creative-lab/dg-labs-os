@@ -8,23 +8,24 @@ London, UK · [dessi.georgieva8@gmail.com](mailto:dessi.georgieva8@gmail.com) ·
 
 ## Profile
 
-I build AI systems that use tools, complete multi-step work, and recover when something fails. I decide what an agent may know and do, how its work is checked, and when a person should review it. My experience spans open source products and enterprise systems. I am applying for OpenAI roles in London across applied AI, Codex agents, ads solutions, privacy, and integrity.
+I build governed AI products that use tools, complete multi-step work, and recover when something fails. I decide what an agent may know and do, how its work is checked, and when a person should review it. My experience spans enterprise systems, open-source products, and Human Systems Platform, my founder product for evidence-led human-AI learning and opportunity research. I am applying for OpenAI roles in London across applied AI, Codex agents, ads solutions, privacy, and integrity.
 
 ## Selected Product and Engineering Work
 
 ### Founder platform and product architecture
 
-**Human Systems Platform** · Evidence-backed learning and professional discovery · [First public product](https://dg-os.com/)
+**Human Systems Platform** · Evidence-backed learning, opportunity research, and professional discovery · [First public product](https://dg-os.com/)
 
-- I am developing Human Systems Platform for people and organisations that need credible evidence of capability in AI-mediated work. It turns selected experience into private learning, owner-approved public evidence, and testable hypotheses about where that capability may create value.
-- I designed it as a federated product: Dessi Space preserves private experience, Learning Foundry supports learning, and DG-OS publishes approved profiles. I have built the shared review, approval, protected persistence, learning-evidence, and publication layers. Product integration and commercial validation are in progress.
+- I am developing Human Systems Platform for people and organisations that need a more credible way to develop capability, represent it through evidence, and discover where it may create value. Dessi Space preserves private continuity; Learning Foundry develops human and agent capability; Opportunity Studio researches opportunities and markets; DG-OS publishes approved evidence; Organization Foundry remains planned.
+- I have built review, approval, protected persistence, learning-evidence, publication, and Opportunity Studio preview components. The preview validates approved missions and returns cited hypotheses with visible coverage; research remains manual, and it cannot act for the owner.
+- Learning Foundry (MIT) and DG-OS (AGPL-3.0-only) are open source and adaptable. Human Systems Platform, Dessi Space, and Opportunity Studio remain private, keeping personal evidence outside public code.
 
 ### Agent execution, policy, and recovery
 
 **Agentic Commerce Control Plane** · Governed optimisation and learning for commerce · [Public repository](https://github.com/ai-knowledge-hub/deep-dive-analysis-agentic-commerce-augmentation)
 
-- I built Agentic Commerce to help brands test and improve how they describe products for paid placements and organic agent-led discovery, without giving an AI system unchecked control over business actions.
-- I designed a Bayesian-style learning loop that updates brand- and product-scoped beliefs as evidence arrives and carries supported patterns into later query and copy generation. It recommends whether to promote, revise, or reject each variant, while the supervised runtime keeps tools, evidence, memory, approvals, and recovery under explicit control.
+- I built Agentic Commerce to test and improve product messaging for paid placements and agent-led discovery without giving AI unchecked control over business actions.
+- I designed a Bayesian-style loop that updates brand- and product-scoped beliefs, recommends whether to promote, revise, or reject a variant, and keeps tools, evidence, memory, approvals, and recovery under explicit control.
 
 ### Identity, delegated authority, and bounded execution
 
@@ -35,17 +36,16 @@ I build AI systems that use tools, complete multi-step work, and recover when so
 
 ### Codex capabilities, evaluation, and provenance
 
-**Learning Foundry** · Learning with AI without confusing output with understanding · [Submitted repository state](https://github.com/DG-creative-lab/codex-hack-learning-foundry/tree/0547da02518f432fdd85e79d317e1fedaa51c4c1)
+**Learning Foundry** · Open-source learning with AI without confusing output with understanding · [MIT-licensed repository](https://github.com/DG-creative-lab/codex-hack-learning-foundry)
 
-- I built Learning Foundry for people who want to learn with AI without treating an agent's successful output as proof of their own understanding. It supports explanation, practice, application, evaluation, and revision while separately developing agent capabilities.
-- I built the append-only evidence ledger, deterministic projections, learning checks, capability lifecycle, and consent-gated Codex adapter. Within Human Systems Platform, it contributes curated learning evidence while its private ledger remains inside its own boundary.
+- I built Learning Foundry's append-only evidence ledger, deterministic projections, learning checks, capability lifecycle, and consent-gated Codex adapter. It develops human understanding and agent capabilities separately. The MIT-licensed implementation began during OpenAI Build Week and now continues as Human Systems Platform's general learning module.
 
 ### Context construction, provider reliability, and agent UX
 
-**DG-OS Agent Runtime** · Owner-approved public profiles and discovery · [First live profile](https://dg-os.com/) · [Repository](https://github.com/DG-creative-lab/dg-labs-os)
+**DG-OS Agent Runtime** · Open-source public profiles and discovery · [First live profile](https://dg-os.com/) · [AGPL-3.0-only repository](https://github.com/DG-creative-lab/dg-labs-os)
 
-- I built DG-OS as a public profile and discovery product where visitors can inspect a person's systems, evidence, writing, and development or ask questions grounded in reviewed sources. My profile is its first live public instance.
-- Within Human Systems Platform, I use DG-OS to publish approved profiles for work, collaboration, research, or investment conversations. The runtime combines deterministic navigation, evidence retrieval, provider isolation, streaming, and source-aware diagnostics.
+- I built DG-OS as a reusable public profile and discovery product with inspectable systems, evidence, writing, and source-grounded questions. Within Human Systems Platform, it is the public expression module; my profile is its first live instance.
+- The runtime combines deterministic navigation, evidence retrieval, provider isolation, streaming, and source-aware diagnostics.
 
 ## Professional Experience
 

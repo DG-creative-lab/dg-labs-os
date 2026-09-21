@@ -137,6 +137,18 @@ describe('public Network modules', () => {
       kind: 'System',
       title: 'Learning Foundry',
     });
+    expect(dessiNetworkModule.nodes.find((node) => node.id === 'system-dessi-space')).toMatchObject(
+      {
+        title: 'Dessi Space',
+        subtitle: 'First private Personal Space deployment',
+      }
+    );
+    expect(
+      dessiNetworkModule.nodes.find((node) => node.id === 'system-opportunity-studio')
+    ).toMatchObject({
+      title: 'Opportunity Studio',
+      evidenceConfidence: 'self-reported',
+    });
     expect(
       dessiNetworkModule.relationships.find(
         (relationship) => relationship.id === 'learning-foundry-to-platform'
@@ -144,6 +156,15 @@ describe('public Network modules', () => {
     ).toMatchObject({
       from: 'system-learning-foundry',
       to: 'system-human-systems-platform',
+      relation: 'supports',
+    });
+    expect(
+      dessiNetworkModule.relationships.find(
+        (relationship) => relationship.id === 'platform-to-opportunity-studio'
+      )
+    ).toMatchObject({
+      from: 'system-human-systems-platform',
+      to: 'system-opportunity-studio',
       relation: 'supports',
     });
     expect(

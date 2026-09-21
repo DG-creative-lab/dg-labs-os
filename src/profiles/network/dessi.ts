@@ -347,6 +347,26 @@ const networkNodes: readonly NetworkNode[] = [
     map: { column: 2, row: 6 },
   },
   {
+    id: 'system-dessi-space',
+    kind: 'System',
+    title: 'Dessi Space',
+    subtitle: 'First private Personal Space deployment',
+    period: '2026-Present',
+    evidence: 'Practice',
+    evidenceConfidence: 'self-reported',
+    evidenceVisibility: 'public',
+    provenance:
+      'Owner-reviewed public description of a private local system; private records and source locations are excluded.',
+    boundary:
+      'The Dessi instance demonstrates private observation and first review. It does not expose the private ledger, publish directly, or establish the complete reusable Personal Space product.',
+    tags: ['personal space', 'private memory', 'evidence', 'owner review', 'provenance'],
+    bullets: [
+      'Preserves selected experience, provenance, reflection, and decisions inside an owner-controlled local boundary.',
+      "Acts as the first deployment of a general Personal Space module rather than defining the module around one person's data.",
+    ],
+    map: { column: 1, row: 7 },
+  },
+  {
     id: 'system-human-systems-platform',
     kind: 'System',
     title: 'Human Systems Platform',
@@ -368,10 +388,30 @@ const networkNodes: readonly NetworkNode[] = [
       'talent discovery',
     ],
     bullets: [
-      'Turns selected experience into private learning, owner-approved evidence, bounded opportunity hypotheses, and later correction.',
-      'Connects Dessi Space, Learning Foundry, DG-OS, and a planned Organization Foundry without merging their private records or authority.',
+      'Connects private continuity, human and agent learning, opportunity research, owner-approved public expression, and later correction.',
+      'Coordinates Dessi Space, Learning Foundry, Opportunity Studio, DG-OS, and a planned Organization Foundry without merging their private records or authority.',
     ],
     map: { column: 2, row: 8 },
+  },
+  {
+    id: 'system-opportunity-studio',
+    kind: 'System',
+    title: 'Opportunity Studio',
+    subtitle: 'Owner-controlled opportunity and market intelligence',
+    period: '2026-Present',
+    evidence: 'Practice',
+    evidenceConfidence: 'self-reported',
+    evidenceVisibility: 'public',
+    provenance:
+      'Owner-reviewed description of the E05-B1 private preview and its first disclosure-safe dogfood research mission.',
+    boundary:
+      'The deterministic preview and manual workflow are in development. The module does not promise exhaustive coverage or apply, contact, invest, publish, or make employment decisions.',
+    tags: ['opportunity intelligence', 'market research', 'research missions', 'coverage'],
+    bullets: [
+      'Uses an explicitly disclosed profile and project snapshot to research direct, adjacent, developmental, and exploratory possibilities.',
+      'Keeps cited observations, hypotheses, contradictions, freshness, scope, coverage, and owner decisions visible and separate.',
+    ],
+    map: { column: 2, row: 9.5 },
   },
   {
     id: 'system-dg-os',
@@ -384,13 +424,13 @@ const networkNodes: readonly NetworkNode[] = [
     evidenceVisibility: 'public',
     provenance: 'The portfolio application currently being inspected.',
     boundary:
-      'The current release is the reviewed public projection plane; automated ingestion and end-to-end receiver-observed publication remain incomplete.',
-    tags: ['portfolio', 'knowledge interface', 'agents', 'evidence'],
+      'The AGPL-3.0-only software is open source, while each owner retains control of profile content and private evidence. Automated ingestion and end-to-end receiver-observed publication remain incomplete.',
+    tags: ['open source', 'public profiles', 'knowledge interface', 'agents', 'evidence'],
     bullets: [
       'Gives the owner a richer professional presence than a static CV and gives visitors evidence they can inspect rather than unsupported claims.',
-      'Acts as the public expression and discovery product within Human Systems Platform while remaining functional on its own.',
+      "Acts as the reusable public expression and discovery product within Human Systems Platform; Dessi's profile is its first live instance.",
     ],
-    map: { column: 2, row: 9 },
+    map: { column: 3, row: 8.7 },
     links: {
       repo: 'https://github.com/DG-creative-lab/dg-labs-os',
       url: 'https://dg-os.com/',
@@ -423,21 +463,22 @@ const networkNodes: readonly NetworkNode[] = [
     kind: 'System',
     title: 'Learning Foundry',
     subtitle: 'Human learning and separately governed agent development',
-    period: '2026',
+    period: '2026-Present',
     evidence: 'Public artifact',
     evidenceConfidence: 'verified',
     evidenceVisibility: 'public',
-    provenance: 'OpenAI Build Week submission preserved at the submitted commit.',
+    provenance:
+      'MIT-licensed public implementation that began as an OpenAI Build Week submission and now represents the wider learning-module direction.',
     boundary:
-      'The linked state is a hackathon prototype. It demonstrates a functional learning product and evidence model, while longitudinal use and full platform integration remain under development.',
-    tags: ['constructive learning', 'evidence ledger', 'consent', 'agent memory'],
+      'The public implementation proves a bounded learning product and evidence model. Longitudinal use and full Human Systems Platform integration remain under development.',
+    tags: ['open source', 'constructive learning', 'evidence ledger', 'consent', 'agent memory'],
     bullets: [
       'Helps a person explain, practise, apply, and revise knowledge while keeping original sources and corrections visible.',
       'Develops evaluated agent capabilities separately from human understanding and contributes only curated evidence to the wider platform.',
     ],
-    map: { column: 2, row: 7 },
+    map: { column: 1, row: 8.5 },
     links: {
-      repo: 'https://github.com/DG-creative-lab/codex-hack-learning-foundry/tree/0547da02518f432fdd85e79d317e1fedaa51c4c1',
+      repo: 'https://github.com/DG-creative-lab/codex-hack-learning-foundry',
     },
   },
 ] as const;
@@ -690,6 +731,16 @@ const networkRelationships: readonly NetworkRelationship[] = [
     evidenceVisibility: 'mixed',
   },
   {
+    id: 'dessi-space-to-platform',
+    from: 'system-dessi-space',
+    to: 'system-human-systems-platform',
+    relation: 'supports',
+    evidence:
+      'Dessi Space supplies bounded, owner-selected observations while its private ledger remains inside the Personal Space boundary.',
+    confidence: 'supported',
+    evidenceVisibility: 'mixed',
+  },
+  {
     id: 'learning-foundry-to-platform',
     from: 'system-learning-foundry',
     to: 'system-human-systems-platform',
@@ -697,6 +748,26 @@ const networkRelationships: readonly NetworkRelationship[] = [
     evidence:
       'Learning Foundry provides the human and agent development product and contributes curated learning evidence without sharing its private ledger.',
     confidence: 'supported',
+    evidenceVisibility: 'mixed',
+  },
+  {
+    id: 'platform-to-opportunity-studio',
+    from: 'system-human-systems-platform',
+    to: 'system-opportunity-studio',
+    relation: 'supports',
+    evidence:
+      'The shared platform supplies the approved mission, disclosure-safe profile, evidence vocabulary, and owner-decision boundary used by Opportunity Studio.',
+    confidence: 'supported',
+    evidenceVisibility: 'mixed',
+  },
+  {
+    id: 'opportunity-studio-to-dgos',
+    from: 'system-opportunity-studio',
+    to: 'system-dg-os',
+    relation: 'supports',
+    evidence:
+      'Opportunity research can identify a reason to revise or selectively publish public evidence, but DG-OS receives only a separate owner-approved projection.',
+    confidence: 'interpretive',
     evidenceVisibility: 'mixed',
   },
   {
@@ -724,18 +795,23 @@ const networkRelationships: readonly NetworkRelationship[] = [
 const networkPaths: readonly NetworkPath[] = [
   {
     id: 'experience-to-opportunity',
-    question: 'How do Learning Foundry, Human Systems Platform, and DG-OS form one product?',
+    question: 'How do the Human Systems Platform modules form one product?',
     answer:
-      'Learning Foundry turns approved sources and practical work into human learning and separately governed agent capabilities. Human Systems Platform preserves evidence, context, ownership, and review across the product boundaries. DG-OS publishes only the approved public representation, where it can lead to an opportunity, collaboration, research question, or investor conversation. Later outcomes are intended to correct the next learning cycle.',
+      'Dessi Space preserves selected experience under owner control. Learning Foundry turns approved sources and practical work into human learning and separately governed agent capabilities. Human Systems Platform carries evidence, context, and authority across those boundaries. Opportunity Studio researches where a disclosed profile or project may create value. DG-OS publishes only the public representation the owner approves. Later outcomes return as evidence for correction and new learning.',
     nodeIds: [
       'career-ai-systems',
+      'system-dessi-space',
       'system-learning-foundry',
       'system-human-systems-platform',
+      'system-opportunity-studio',
       'system-dg-os',
     ],
     relationshipIds: [
       'career-ai-to-human-systems-platform',
+      'dessi-space-to-platform',
       'learning-foundry-to-platform',
+      'platform-to-opportunity-studio',
+      'opportunity-studio-to-dgos',
       'platform-to-dgos',
     ],
   },
@@ -822,7 +898,7 @@ export const dessiNetworkModule = definePublicNetworkModule({
   profileId: dessiProfileProjection.profileId,
   handle: dessiProfileProjection.handle,
   projectionVersion: dessiProfileProjection.projectionVersion,
-  networkVersion: 4,
+  networkVersion: 5,
   status: 'published',
   title: 'System Map',
   description:
@@ -832,8 +908,8 @@ export const dessiNetworkModule = definePublicNetworkModule({
   paths: networkPaths,
   publication: {
     approvedBy: 'owner',
-    reviewedAt: '2026-08-23T00:00:00Z',
-    publishedAt: '2026-08-23T00:00:00Z',
+    reviewedAt: '2026-09-05T00:00:00Z',
+    publishedAt: '2026-09-05T00:00:00Z',
     privateSourcesExcluded: true,
     sourcePolicy:
       'Only owner-reviewed relationships, bounded claims, and public descriptions may enter this module. Raw private evidence remains excluded.',

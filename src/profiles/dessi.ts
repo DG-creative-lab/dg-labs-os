@@ -5,7 +5,7 @@ export const dessiProfileProjection = defineProfileProjection({
   schemaVersion: PROFILE_PROJECTION_SCHEMA_VERSION,
   profileId: 'dessi_georgieva',
   handle: 'dessi',
-  projectionVersion: 3,
+  projectionVersion: 5,
   status: 'published',
   identity: {
     displayName: 'Dessi Georgieva',
@@ -15,11 +15,11 @@ export const dessiProfileProjection = defineProfileProjection({
     role: 'AI Systems Engineer',
     location: 'London, UK',
     roleFocus:
-      'Building AI products that use tools, learn from evidence, and keep important decisions under human control.',
+      'Building governed AI products and Human Systems Platform for AI-augmented career development, evidence-backed talent discovery, and opportunity research.',
     headline:
-      'I design and build AI systems that use tools, learn from evidence, and recover when something goes wrong.',
+      'I design and build governed AI systems, including Human Systems Platform for learning from human-AI work and connecting evidenced capability to opportunities.',
     introduction:
-      'My work spans open source products and enterprise systems. I build the workflow around the agent, including the information it receives, the actions it may take, the checks applied to its work, and the points where a person should step in.',
+      'My work spans open-source products, private founder development, and enterprise systems. I build the workflow around the agent, including the information it receives, the actions it may take, the checks applied to its work, and the points where a person should step in. Human Systems Platform applies that architecture to career and capability development: it learns from selected human-AI work, turns it into owner-approved evidence, helps individuals explore jobs, collaborators, funding, and next capabilities, and helps organisations discover relevant talent.',
   },
   contact: {
     publicEmail: 'dessi.georgieva8@gmail.com',
@@ -106,20 +106,22 @@ export const dessiProfileProjection = defineProfileProjection({
   seo: {
     title: 'DG-OS - Dessi Georgieva',
     description:
-      'Dessi Georgieva engineers governed agent systems, evidence-led learning loops, and human-controlled AI infrastructure.',
+      'Dessi Georgieva engineers governed agent systems and is developing Human Systems Platform for AI-augmented career development, evidence-backed talent discovery, and opportunity research.',
     keywords: [
       'Dessi Georgieva',
       'Applied AI Engineer',
       'Agent Systems',
       'LLM Evaluation',
       'DG-OS',
+      'Human Systems Platform',
+      'Opportunity Intelligence',
     ],
   },
   publication: {
     visibility: 'public',
     approvedBy: 'owner',
-    reviewedAt: '2026-08-23T00:00:00Z',
-    publishedAt: '2026-08-23T00:00:00Z',
+    reviewedAt: '2026-09-05T00:00:00Z',
+    publishedAt: '2026-09-05T00:00:00Z',
     privateSourcesExcluded: true,
     sourcePolicy:
       'Only owner-reviewed public claims and assets may enter this projection. Raw local and employer-confidential sources remain excluded.',

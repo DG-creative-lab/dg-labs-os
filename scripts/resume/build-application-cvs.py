@@ -251,7 +251,7 @@ def build_docx(
 
         if line.startswith("## "):
             heading = document.add_heading(line[3:], level=1)
-            if line in {"## Experience", "## Professional Experience"}:
+            if line == "## AI Systems Capabilities":
                 heading.paragraph_format.page_break_before = True
             continue
 

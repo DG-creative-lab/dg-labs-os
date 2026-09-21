@@ -22,15 +22,15 @@ describe('public Resume modules', () => {
     expect(JSON.parse(JSON.stringify(resumeModuleV1Fixture))).toEqual(resumeModuleV1Fixture);
     expect(dessiResumeModule.publication).toEqual({
       approvedBy: 'owner',
-      reviewedAt: '2026-08-28T00:00:00Z',
-      publishedAt: '2026-08-28T00:00:00Z',
+      reviewedAt: '2026-09-21T00:00:00Z',
+      publishedAt: '2026-09-21T00:00:00Z',
       privateSourcesExcluded: true,
       sourcePolicy:
-        'Resume v6 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
+        'Resume v9 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
     });
   });
 
-  it('separates production responsibilities from independently inspectable systems', () => {
+  it('renders production delivery before independently inspectable systems', () => {
     const profiles = createPublicProfileRegistry([dessiProfileProjection]);
     const modules = createPublicProfileModuleRegistry([dessiProfileModules], profiles);
     const resume = buildResumeViewModel(
@@ -40,11 +40,30 @@ describe('public Resume modules', () => {
     );
     const markdown = renderResumeMarkdown(resume);
 
-    expect(markdown).toContain('production backend, data, and multi-tenant experience');
-    expect(markdown).toContain('Programmatic plugin and agent harness');
+    expect(markdown).toContain(
+      'I architect and build enterprise AI systems that interpret user intent'
+    );
+    expect(markdown).toContain('three major global advertiser accounts');
+    expect(markdown).toContain('AWS Bedrock AgentCore');
+    expect(markdown).toContain('remove at least three days of cross-team coordination');
+    expect(markdown).toContain('routing and correctness evaluations');
+    expect(markdown).toContain('persisting, versioning, and sharing campaign playbooks');
+    expect(markdown).toContain('millions of records');
+    expect(markdown).toContain('I worked directly with agency, startup, and media clients');
     expect(markdown).toContain('Independent deployed beta');
-    expect(markdown).toContain('production adoption is not claimed');
-    expect(markdown).toContain('remains in delivery rather than a deployed control');
+    expect(markdown).toContain('DG-OS');
+    expect(markdown).toContain('**University of York**');
+    expect(markdown).not.toContain('**University of York** · 2009 - 2011');
+    expect(markdown).not.toContain('**Sofia University** · 2003 - 2007');
+    expect(markdown).not.toContain('Mars');
+    expect(markdown).not.toContain('Novartis');
+    expect(markdown).not.toContain('Samsung');
+    expect(markdown.indexOf('## Experience')).toBeLessThan(
+      markdown.indexOf('## AI Systems Capabilities')
+    );
+    expect(markdown.indexOf('## AI Systems Capabilities')).toBeLessThan(
+      markdown.indexOf('## Selected Systems')
+    );
   });
 
   it('resolves and renders a second profile without inheriting Dessi content', () => {

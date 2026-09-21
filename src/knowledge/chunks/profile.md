@@ -10,7 +10,7 @@ sources:
     'https://github.com/DG-creative-lab',
     'https://github.com/ai-knowledge-hub',
   ]
-last_verified: '2026-08-28'
+last_verified: '2026-09-21'
 related: ['identity-philosophy', 'identity-education', 'identity-links']
 ---
 
@@ -34,6 +34,10 @@ Three practices recur across Dessi's work:
 
 3. **Design the whole operating environment**: public work connects context, tools, state, interfaces, evidence, evaluation, and recovery into complete agent systems. Employer work adds production data, programmatic operations, infrastructure, and multi-tenant constraints within a strict confidentiality boundary.
 
+4. **Turn user requirements into reusable capabilities**: production work starts with agency workflows and operational constraints, moves through rapid prototypes and customer feedback, and becomes shared platform behaviour with explicit evaluation, deployment, observability, and recovery.
+
 ## Current Focus
 
-Current work focuses on agent systems, evaluation, identity and authority, and evidence-led learning. Dessi is also developing Human Systems Platform as a founder product for helping people learn from human-AI work, demonstrate capability through owner-approved evidence, and find the situations in which it may create value.
+Current work focuses on governed agent systems, evaluation, identity and authority, evidence-led learning, and owner-controlled opportunity research. Dessi is developing Human Systems Platform as a modular founder product that connects Dessi Space, Learning Foundry, Opportunity Studio, DG-OS, and a planned Organization Foundry. Together they help people learn from human-AI work, represent capability through evidence, research where it may create value, and use later outcomes to correct the next cycle.
+
+Learning Foundry and DG-OS are open-source systems designed for inspection and adaptation. Human Systems Platform, Dessi Space, and Opportunity Studio remain private development, preserving a firm boundary between customisable software and personal evidence.

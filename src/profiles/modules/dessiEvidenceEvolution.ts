@@ -32,8 +32,8 @@ const links = {
     kind: 'repository',
   },
   learningFoundry: {
-    label: 'Learning Foundry submitted repository',
-    url: 'https://github.com/DG-creative-lab/codex-hack-learning-foundry/tree/0547da02518f432fdd85e79d317e1fedaa51c4c1',
+    label: 'Learning Foundry open-source repository',
+    url: 'https://github.com/DG-creative-lab/codex-hack-learning-foundry',
     kind: 'repository',
   },
   dgOs: {
@@ -105,10 +105,10 @@ export const applicationClaims: readonly ApplicationClaim[] = [
   {
     id: 'human-systems-platform',
     statement:
-      'I am developing Human Systems Platform as a founder-led product for people and organisations that need credible evidence of capability in AI-mediated work. It turns selected experience into private learning, owner-approved public evidence, and testable hypotheses about where that capability may create value.',
+      'I am developing Human Systems Platform for AI-augmented career and capability development. It turns selected human-AI work into private learning and evidence, helps individuals explore jobs, collaborators, funding, markets, and next capabilities, and helps organisations discover relevant talent through owner-approved public profiles.',
     confidence: 'self-reported',
     visibility: 'public',
-    lastVerified: '2026-08-23',
+    lastVerified: '2026-09-05',
     evidence: [links.humanSystemsPublicEvidence, links.learningFoundry, links.dgOs],
     boundary:
       'The shared product repository is private and the joined platform remains under development. Public component repositories support the direction, but product-market fit, beneficial outcomes, customer demand, and willingness to pay are not yet established.',
@@ -136,13 +136,13 @@ export const applicationClaims: readonly ApplicationClaim[] = [
   {
     id: 'codex-capability',
     statement:
-      "I built Learning Foundry as a stand-alone learning product for people who want to learn with AI without treating an agent's successful output as proof of their own understanding. It helps them explain, test, apply, and revise what they learn while separately developing evaluated agent capabilities.",
+      "I built Learning Foundry as an open-source learning product for people who want to learn with AI without treating an agent's successful output as proof of their own understanding. It helps them explain, test, apply, and revise what they learn while separately developing evaluated agent capabilities.",
     confidence: 'verified',
-    visibility: 'submitted-public',
-    lastVerified: '2026-08-22',
+    visibility: 'public',
+    lastVerified: '2026-09-05',
     evidence: [links.learningFoundry],
     boundary:
-      'Learning Foundry is a submitted OpenAI Build Week project. Its repository remains unchanged while judging is active.',
+      "The MIT-licensed public implementation began as an OpenAI Build Week submission. The product now continues as Human Systems Platform's general learning and capability-development module; longitudinal outcomes and full integration remain unproven.",
   },
   {
     id: 'provider-runtime',
@@ -176,21 +176,65 @@ export const applicationClaims: readonly ApplicationClaim[] = [
   {
     id: 'production-agent-platform',
     statement:
-      'I architect and build the Programmatic plugin and agent harness that turns ambiguous user requests into tenant-bound execution across skills, a typed CLI, backend services, analytical data, and advertising-platform APIs.',
+      'I architected and evolved a production Programmatic agent platform used by internal agency teams across three major global advertiser accounts, taking it from prototype through changing engineering and user requirements.',
     confidence: 'self-reported',
     visibility: 'private-employer',
-    lastVerified: '2026-08-28',
+    lastVerified: '2026-09-21',
     evidence: [],
     boundary:
       'This is an owner-reported description of current employer work. Source code, client data, logs, infrastructure details, and operational measurements remain private.',
   },
   {
-    id: 'production-data-platform',
+    id: 'production-agent-runtime',
     statement:
-      'I build backend ingestion and serving workflows for heterogeneous advertising data across provider hierarchies and analytical grains, and evaluate storage architecture against query shape, aggregation, latency, reliability, and cost.',
+      'I designed its provider-neutral CLI grammar and orchestration across Claude Agent SDK on AWS Bedrock AgentCore, Lambda services, analytical data, and hierarchical DV360 and TTD APIs, while deterministic controls retain tenant scope, evidence, approvals, and provider writes.',
     confidence: 'self-reported',
     visibility: 'private-employer',
-    lastVerified: '2026-08-28',
+    lastVerified: '2026-09-21',
+    evidence: [],
+    boundary:
+      'This is a responsibility-level description of a private employer system. Provider credentials, tenant mappings, client configuration, and runtime records remain confidential.',
+  },
+  {
+    id: 'production-onboarding',
+    statement:
+      'I built configuration-driven advertiser onboarding and ingestion workflows that replace spreadsheet-led enablement and remove at least three days of cross-team coordination from each onboarding cycle.',
+    confidence: 'self-reported',
+    visibility: 'private-employer',
+    lastVerified: '2026-09-21',
+    evidence: [],
+    boundary:
+      'The workflow and time reduction are owner-reported. Client identities, onboarding records, credentials, and internal operational evidence remain private.',
+  },
+  {
+    id: 'production-evaluation',
+    statement:
+      'I designed routing and correctness evaluations for the agent; the production platform combines those checks with AgentCore traces, CloudWatch, PostHog, and automated measures for tool use, grounding, latency, and cost.',
+    confidence: 'self-reported',
+    visibility: 'private-employer',
+    lastVerified: '2026-09-21',
+    evidence: [],
+    boundary:
+      'Evaluation datasets, traces, thresholds, results, and production measurements are employer-confidential. The claim is limited to design responsibility and the implemented evaluation surface.',
+  },
+  {
+    id: 'production-playbooks',
+    statement:
+      'I translated agency-user requirements into tenant-scoped CLI workflows for creating, persisting, versioning, and sharing campaign playbooks that users can maintain as their operating practice changes.',
+    confidence: 'self-reported',
+    visibility: 'private-employer',
+    lastVerified: '2026-09-21',
+    evidence: [],
+    boundary:
+      'This describes the reusable product capability without exposing customer playbook content, tenant configuration, or private implementation details.',
+  },
+  {
+    id: 'production-data-platform',
+    statement:
+      'I build backend ingestion and serving workflows for advertising datasets that can reach millions of records across provider hierarchies and analytical grains, and evaluate storage architecture against query shape, aggregation, latency, reliability, and cost.',
+    confidence: 'self-reported',
+    visibility: 'private-employer',
+    lastVerified: '2026-09-21',
     evidence: [],
     boundary:
       'This is an owner-reported responsibility-level claim. Employer implementation details and measurements remain private, and active architecture proposals are not represented as deployed outcomes.',
@@ -314,17 +358,17 @@ export const applicationCaseStudies: readonly ApplicationCaseStudy[] = [
     title: 'Human Systems Platform',
     classification: 'Founder product in private active development',
     contribution:
-      'Defined the product thesis, federated module boundaries, evidence and authority model, initial commercial application, validation questions, and the first executable publication workflow.',
+      'Defined the product thesis, federated module boundaries, evidence and authority model, initial commercial application, opportunity-research surface, validation questions, and the first executable publication workflow.',
     problem:
       'AI makes polished work and professional claims cheap to produce, but existing profiles, interviews, and learning records reveal little about how a person worked with AI, exercised judgement, learned from failure, or could transfer that capability into a different situation.',
     intervention:
       'Designed an owner-controlled product loop in which selected experience can become private learning, approved evidence, a bounded opportunity hypothesis, and a later outcome that corrects the next cycle.',
     evaluation:
-      'The private working repository contains shared evidence contracts and tested adapters for owner review, exact approval, signing, protected local persistence, Dessi Space proposals, Learning Foundry evidence, and DG-OS publication preparation. The public Learning Foundry and DG-OS repositories provide inspectable component evidence.',
+      'The private working repository contains shared evidence contracts and tested adapters for owner review, exact approval, signing, protected local persistence, Dessi Space proposals, Learning Foundry evidence, DG-OS publication preparation, and a deterministic Opportunity Studio preview. The public Learning Foundry and DG-OS repositories provide inspectable component evidence.',
     result:
       'The current work establishes a credible technical and product foundation for connecting useful private learning with trustworthy public representation while preserving separate authority boundaries.',
     limitation:
-      'The federation is not yet an integrated product. Receiver-observed publication, the complete outcome feedback loop, Organization Foundry, production signing, customer pilots, and commercial validation remain incomplete or planned.',
+      'The federation is not yet an integrated product. Opportunity research is manually invoked, and receiver-observed publication, the complete outcome feedback loop, Organization Foundry, customer pilots, and commercial validation remain incomplete or planned.',
     roleSignals: [
       'founder product strategy',
       'systems engineering',
@@ -337,7 +381,7 @@ export const applicationCaseStudies: readonly ApplicationCaseStudy[] = [
   {
     id: 'learning-foundry',
     title: 'Learning Foundry',
-    classification: 'OpenAI Build Week submission · frozen during judging',
+    classification: 'MIT-licensed learning product · active product direction',
     contribution:
       'Directed the product thesis and epistemic boundaries, then built the evidence ledger, deterministic projections, learning checks, capability lifecycle, and consent-gated Codex adapter.',
     problem:
@@ -349,7 +393,7 @@ export const applicationCaseStudies: readonly ApplicationCaseStudy[] = [
     result:
       'A learner can build and test understanding while separately improving an agent. Corrections can revise either path without silently rewriting the original evidence.',
     limitation:
-      'The submitted prototype uses one bounded learning domain. Private persistence, broader longitudinal use, and full integration with Human Systems Platform remain under development.',
+      'The public implementation began with one bounded Build Week learning domain. Private persistence, broader longitudinal use, and full integration with Human Systems Platform remain under development.',
     roleSignals: [
       'Codex capabilities',
       'evaluation design',
@@ -397,6 +441,31 @@ export const currentBoundaries = [
 
 export const evolutionEntries: readonly EvolutionEntry[] = [
   {
+    date: '2026-09-21',
+    kind: 'revision',
+    title: 'Enterprise delivery evidence became explicit',
+    summary:
+      'The profile now records the production Programmatic lifecycle from agency requirements and rapid prototyping through AgentCore delivery, evaluation, advertiser onboarding, user-owned playbooks, and operational recovery without exposing client identities or private implementation data.',
+    state: 'reviewed',
+    evidenceIds: [
+      'production-agent-platform',
+      'production-agent-runtime',
+      'production-onboarding',
+      'production-evaluation',
+      'production-playbooks',
+      'production-data-platform',
+    ],
+  },
+  {
+    date: '2026-09-05',
+    kind: 'revision',
+    title: 'Opportunity research completed the personal product loop',
+    summary:
+      "Opportunity Studio now connects an explicitly disclosed profile and project snapshot to bounded, cited opportunity and market research. Its first dogfood run exposed the need to resolve a person's full project portfolio before designing a market mission.",
+    state: 'active',
+    evidenceIds: ['human-systems-platform'],
+  },
+  {
     date: '2026-08-28',
     kind: 'revision',
     title: 'Production and public evidence became separate proof planes',
@@ -415,7 +484,7 @@ export const evolutionEntries: readonly EvolutionEntry[] = [
     kind: 'revision',
     title: 'The founder product became the orienting system',
     summary:
-      'Human Systems Platform now provides the product frame for Dessi Space, Learning Foundry, DG-OS, and the planned Organization Foundry. Each remains useful on its own while contributing to one owner-controlled evidence and learning loop.',
+      'Human Systems Platform now provides the product frame for Dessi Space, Learning Foundry, Opportunity Studio, DG-OS, and the planned Organization Foundry. Each remains useful on its own while contributing to one owner-controlled evidence, learning, research, and feedback loop.',
     state: 'reviewed',
     evidenceIds: ['human-systems-platform', 'codex-capability', 'provider-runtime'],
   },
