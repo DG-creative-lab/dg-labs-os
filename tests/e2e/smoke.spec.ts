@@ -85,7 +85,7 @@ test.describe('desktop smoke', () => {
     await expect(page.getByText('PRIVATE WORKSPACE', { exact: true })).toBeVisible();
     await expect(page.getByText('OWNER REVIEW', { exact: true })).toBeVisible();
     await expect(page.getByText('No ranking · No inferred score')).toBeVisible();
-    await expect(page.getByText('Owner reviewed 23 Aug 2026')).toBeVisible();
+    await expect(page.getByText('Owner reviewed 05 Sept 2026')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Workbench', exact: true })).toHaveCount(0);
 
     const enterProfile = page.getByRole('link', { name: "Enter Dessi's OS" });
@@ -179,13 +179,13 @@ test.describe('desktop smoke', () => {
     await page.goto('/systems');
     await expect(
       page.getByRole('heading', {
-        name: 'I design and build AI systems that use tools, learn from evidence, and recover when something goes wrong.',
+        name: 'I design and build governed AI systems, including Human Systems Platform for learning from human-AI work and connecting evidenced capability to opportunities.',
       })
     ).toBeVisible();
     await expect(page.getByText('AI Systems Engineer · London, UK')).toBeVisible();
     await expect(page.getByText('Target role')).toHaveCount(0);
     const founderClaim = page.locator('details').filter({
-      hasText: 'I am developing Human Systems Platform as a founder-led product',
+      hasText: 'Human Systems Platform for AI-augmented career and capability development',
     });
     await expect(founderClaim.getByText('Owner-reported')).toBeVisible();
     await expect(page.getByText('Employer context')).toHaveCount(0);
