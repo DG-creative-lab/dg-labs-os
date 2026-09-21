@@ -11,7 +11,7 @@ sources:
     'https://ai-news-hub.performics-labs.com/',
     'https://www.performancemarketingworldawards.com/finalists/unifying-retail-data-with-publicis-warehouse-7y3bxeifqg035ne',
   ]
-last_verified: '2026-08-28'
+last_verified: '2026-09-21'
 related:
   [
     'project-ai-news-hub',
@@ -30,7 +30,7 @@ related:
 
 ## Role Context
 
-The role involves designing and building AI and data systems: FastAPI services, AWS workflows, multi-tenant platform boundaries, behavioural modelling, programmatic tools, and marketing-intelligence interfaces. Detailed code, logs, infrastructure, operational measurements, and client information remain employer-confidential.
+The role involves taking AI and data applications from operational need and prototype into production: AgentCore runtimes, typed tools, AWS workflows, multi-tenant platform boundaries, evaluation, programmatic provider integrations, analytical data, and marketing-intelligence interfaces. The users include internal agency teams responsible for major advertiser accounts. Detailed code, traces, infrastructure, measurements, customer identities, and customer data remain employer-confidential.
 
 ## Core Systems Built
 
@@ -52,23 +52,36 @@ A governed learning-loop architecture that separates simulation, observed outcom
 
 ### Programmatic Plugin and Agent Harness
 
-Dessi is building the Programmatic plugin across agent skills, a typed CLI, backend tools, tenant-bound execution policy, human approval, evidence handling, and recovery. The model interprets requests and explains results, while deterministic runtime and backend controls retain authority over entitlement, tenant scope, command grammar, provider writes, and audit.
+Dessi architected the Programmatic plugin from an initial prototype into a production system used by internal agency teams across three major global advertiser accounts. It connects Claude Agent SDK on AWS Bedrock AgentCore to agent skills, a provider-neutral typed CLI, Lambda services, analytical data, and hierarchical DV360 and TTD APIs. The model interprets requests and explains results, while deterministic runtime and backend controls retain authority over entitlement, tenant scope, supported operations, provider writes, evidence, approval, and audit.
 
-The current harness has strong execution-boundary coverage. Final narrative closure remains a known engineering gap: the system does not yet enforce a general claim-to-source transaction before text reaches the user. This distinction between a green tool harness and an evidence-faithful final answer is part of the active scaling work.
+The CLI grammar is designed around domain capabilities rather than every possible user phrasing. This lets the model interpret variable intent without requiring the command surface to grow for every edge request. The tradeoff is deliberate: model reasoning remains flexible, but unsupported scope, incomplete evidence, and unsafe external effects fail closed.
+
+The current harness has strong execution-boundary coverage. Final narrative closure remains active architecture work: successful tool execution is not treated as proof that the final answer is complete and supported.
+
+### Evaluation and Observability
+
+Dessi designed routing and correctness evaluations for the agent. The broader evaluation surface combines deterministic routing, parameter, ordering, schema, retrieval-grounding, latency, and cost measures with LLM judging where semantic assessment is required. AgentCore traces, CloudWatch, and PostHog support production diagnosis, while evaluation datasets and thresholds remain version-controlled and reviewable.
+
+### Customer-Led Product Capabilities
+
+Agency users needed campaign playbooks to remain owned and maintained by the people operating them. The original process loaded playbooks into the platform knowledge base as a one-off administrator task. Dessi translated that requirement into tenant-scoped CLI workflows through which authorised users can create, persist, version, and share playbooks as operating practice changes.
 
 ### Production Agent and Data Systems
 
-The production request path connects an authenticated user and persistent agent session to selected skills, a typed Programmatic CLI, backend services, analytical data, and advertising-platform APIs. The system must resolve ambiguous intent across tenant and provider hierarchies without turning each new phrasing into a new command, while deterministic controls retain authority over scope, entitlements, writes, approvals, and recovery.
+The production request path connects an authenticated user and persistent AgentCore session to selected skills, the Programmatic CLI, Lambda services, analytical data, and advertising-platform APIs. Deployment is automated through GitHub Actions and AWS stack workflows across controlled development, staging, and production environments.
 
-Dessi also builds backend ingestion and serving workflows for heterogeneous advertising data across multiple provider hierarchies and analytical grains. Storage and serving decisions are evaluated against the actual workload: dynamic query shape, aggregation, latency, reliability, and cost. Current architecture proposals are described as active design work, not as deployed outcomes.
+Dessi also builds backend ingestion and serving workflows for advertising datasets that can reach millions of records across multiple provider hierarchies and analytical grains. Configuration-driven onboarding replaces spreadsheet exchange and at least three days of cross-team enablement coordination with validated provisioning, reconciliation, and auditable state.
+
+Development and personal-stack testing exposed a lifecycle limit in AgentCore: each deployment created another immutable runtime version until the configured allowance was exhausted and deployments temporarily failed. The team restored delivery by increasing the allowance, then added development-runtime rotation and version-headroom checks so the environment could not silently approach the same limit again.
 
 ## What This Experience Demonstrates
 
 - End-to-end ownership across agent skills, typed tools, services, data, policy, and interfaces
-- Enterprise systems engineering across tenant scope, AWS, provider integrations, and human approval
+- Enterprise delivery from customer requirements and prototype through AWS deployment, evaluation, onboarding, and adoption
 - Clear separation between model interpretation and deterministic execution authority
-- Reliability work that treats evidence completeness and final-answer acceptance as distinct from tool success
+- Product judgement that converts repeated customer needs into reusable platform capabilities
+- Reliability work spanning traces, evaluation, deployment headroom, recovery, and final-answer acceptance
 
 ## Evidence Boundary
 
-These production responsibilities are owner-reported at architecture and responsibility level. Employer code, client data, logs, infrastructure details, operational measurements, and internal discussions are not public evidence. Independent systems such as Gateplane and Agentic Commerce make related authority, evaluation, and recovery patterns inspectable, but are not represented as employer deployments.
+These production responsibilities and sanitised outcomes are owner-reported. Employer code, customer identities and data, traces, infrastructure details, detailed measurements, and internal discussions are not public evidence. Independent systems such as Gateplane, Agentic Commerce, and DG-OS make related authority, evaluation, retrieval, and recovery patterns inspectable, but are not represented as employer deployments.

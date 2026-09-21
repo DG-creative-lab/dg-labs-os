@@ -45,13 +45,29 @@ export function renderResumeMarkdown(resume: ResumeViewModel): string {
     '',
     resume.summary,
     '',
+    '## Experience',
+    '',
+  ];
+
+  for (const item of resume.experience) {
+    lines.push(
+      `### ${item.title}`,
+      '',
+      `**${item.organisation}** · ${item.location} · ${formatResumePeriod(item.startedAt, item.endedAt)}`,
+      '',
+      ...item.bullets.map((bullet) => `- ${bullet}`),
+      ''
+    );
+  }
+
+  lines.push(
     '## AI Systems Capabilities',
     '',
     ...resume.focusAreas.map((area) => `- **${area.label}:** ${area.detail}`),
     '',
     '## Selected Systems',
-    '',
-  ];
+    ''
+  );
 
   for (const system of resume.selectedSystems) {
     lines.push(
@@ -64,26 +80,9 @@ export function renderResumeMarkdown(resume: ResumeViewModel): string {
     );
   }
 
-  lines.push('## Experience', '');
-  for (const item of resume.experience) {
-    lines.push(
-      `### ${item.title}`,
-      '',
-      `**${item.organisation}** · ${item.location} · ${formatResumePeriod(item.startedAt, item.endedAt)}`,
-      '',
-      ...item.bullets.map((bullet) => `- ${bullet}`),
-      ''
-    );
-  }
-
   lines.push('## Education', '');
   for (const item of resume.education) {
-    lines.push(
-      `### ${item.qualification}`,
-      '',
-      `**${item.institution}** · ${formatResumePeriod(item.startedAt, item.endedAt)}`,
-      ''
-    );
+    lines.push(`### ${item.qualification}`, '', `**${item.institution}**`, '');
   }
 
   return `${lines.join('\n').trim()}\n`;

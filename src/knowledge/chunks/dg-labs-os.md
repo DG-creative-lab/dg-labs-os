@@ -5,7 +5,7 @@ title: 'DG-OS - Public Evidence and Professional Discovery'
 tags: ['project', 'portfolio', 'os-metaphor', 'astro', 'react', 'agent', 'terminal']
 confidence: 'verified'
 sources: ['https://github.com/DG-creative-lab/dg-labs-os']
-last_verified: '2026-08-23'
+last_verified: '2026-09-05'
 related:
   [
     'project-human-systems-platform',
@@ -19,7 +19,7 @@ related:
 
 # DG-OS - Public Evidence and Professional Discovery
 
-**Classification**: Public profile and discovery product
+**Classification**: Open-source public profile and discovery product
 **Status**: Active development
 **Built with**: Astro + React hybrid
 
@@ -27,7 +27,9 @@ related:
 
 A living professional profile for work that needs more explanation than a static CV can provide. Visitors can inspect systems, professional context, writing, evidence, limitations, and change through direct navigation or a source-grounded Profile Agent.
 
-DG-OS creates value on its own as a public profile and discovery product. Within Human Systems Platform, it is the external expression layer. Dessi Space preserves private experience. Learning Foundry develops human understanding and separately governed agent capabilities. The shared platform carries reviewed evidence and publication authority across those boundaries. DG-OS receives only what the owner has approved for public use.
+DG-OS creates value on its own as a public profile and discovery product. Within Human Systems Platform, it is the reusable external expression layer. Dessi Space preserves private experience. Learning Foundry develops human understanding and separately governed agent capabilities. Opportunity Studio researches where a disclosed profile or project may create value. The shared platform carries reviewed evidence and publication authority across those boundaries. DG-OS receives only what the owner has approved for public use.
+
+Dessi's profile is the first live DG-OS instance, not the limit of the product. The software is open source under AGPL-3.0-only so another owner or organisation can inspect and adapt the public system. The licence does not make Dessi's profile content, CV, writing, media, or private evidence reusable.
 
 ## Core Metaphor
 

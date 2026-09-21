@@ -39,7 +39,8 @@ export default function EvolutionApp({ profile, evidenceEvolution }: EvolutionAp
             DG-OS is the public expression product within Human Systems Platform. Behind it,{' '}
             {profile.identity.preferredName} Space preserves selected experience and owner control,
             while Learning Foundry develops human understanding and separately governed agent
-            capabilities.
+            capabilities. Opportunity Studio uses an explicitly disclosed profile and project
+            snapshot to research where that capability may create value.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-white/65">
             Human Systems Platform carries only reviewed evidence across those boundaries. Approved
@@ -69,7 +70,7 @@ export default function EvolutionApp({ profile, evidenceEvolution }: EvolutionAp
           </p>
         </div>
 
-        <ol className="grid gap-5 sm:grid-cols-3 lg:col-span-9 lg:gap-0">
+        <ol className="grid gap-5 sm:grid-cols-2 lg:col-span-9 lg:grid-cols-4 lg:gap-0">
           <li className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 sm:block sm:pr-5">
             <span className="font-mono text-xs text-sky-300">01</span>
             <div>
@@ -80,7 +81,7 @@ export default function EvolutionApp({ profile, evidenceEvolution }: EvolutionAp
               </p>
             </div>
           </li>
-          <li className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 border-white/10 sm:block sm:border-l sm:px-5">
+          <li className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 border-white/10 sm:block sm:border-l sm:pl-5 lg:px-5">
             <span className="font-mono text-xs text-sky-300">02</span>
             <div>
               <h3 className="text-sm font-semibold text-white sm:mt-3">Understand</h3>
@@ -90,8 +91,18 @@ export default function EvolutionApp({ profile, evidenceEvolution }: EvolutionAp
               </p>
             </div>
           </li>
-          <li className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 border-white/10 sm:block sm:border-l sm:pl-5">
+          <li className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 border-white/10 sm:block lg:border-l lg:px-5">
             <span className="font-mono text-xs text-sky-300">03</span>
+            <div>
+              <h3 className="text-sm font-semibold text-white sm:mt-3">Research</h3>
+              <p className="mt-1 text-xs leading-5 text-white/58">
+                Opportunity Studio tests where a disclosed profile or project may create value and
+                reports the limits of its coverage.
+              </p>
+            </div>
+          </li>
+          <li className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 border-white/10 sm:block sm:border-l sm:pl-5">
+            <span className="font-mono text-xs text-sky-300">04</span>
             <div>
               <h3 className="text-sm font-semibold text-white sm:mt-3">Project</h3>
               <p className="mt-1 text-xs leading-5 text-white/58">

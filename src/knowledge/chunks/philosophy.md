@@ -27,7 +27,7 @@ Dessi's work asks how the same technical capabilities can help a person learn, b
 
 **In learning systems**: Learning Foundry and Agentic Commerce separate evidence, understanding, beliefs, memory, policy, and activated capability so improvement can be inspected and reversed.
 
-**In the wider platform**: Dessi Space, Learning Foundry, DG-OS, and the shared Human Systems Platform keep private observation, shared learning, reviewed public projection, and organisational context under different authority.
+**In the wider platform**: Dessi Space, Learning Foundry, Opportunity Studio, DG-OS, and the shared Human Systems Platform keep private observation, learning, bounded research, reviewed public projection, and organisational context under different authority.
 
 ## Falsification and Failure Modes
 
