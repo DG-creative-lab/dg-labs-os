@@ -7,9 +7,9 @@ export const dessiResumeModule = definePublicResumeModule({
   profileId: dessiProfileProjection.profileId,
   handle: dessiProfileProjection.handle,
   projectionVersion: dessiProfileProjection.projectionVersion,
-  resumeVersion: 6,
+  resumeVersion: 9,
   status: 'published',
-  roleTitle: 'AI Systems Engineer',
+  roleTitle: 'AI Systems Engineer · Enterprise Agents and Applied AI',
   summary:
     'I architect and build enterprise AI systems that interpret user intent, coordinate skills and tools, work across hierarchical external systems, and return results under explicit identity, policy, and evidence controls. My professional work provides production backend, data, and multi-tenant experience; my independent systems make the corresponding architecture, evaluation, and recovery patterns inspectable.',
   contact: [
@@ -21,29 +21,29 @@ export const dessiResumeModule = definePublicResumeModule({
   ],
   focusAreas: [
     {
-      label: 'AI operating environments',
+      label: 'Customer discovery and productisation',
       detail:
-        'Design the people, agents, tools, data, rules, and surrounding systems that must work together to produce a useful result.',
+        'Translate operational needs, user feedback, and integration constraints into prototypes that can become reusable production capabilities.',
     },
     {
-      label: 'Context, memory, and capabilities',
+      label: 'Agent architecture and integration',
       detail:
-        'Give agents the right information and reusable procedures for each task, with clear sources, scope, and limits.',
+        'Connect model reasoning to skills, typed tools, cloud services, provider APIs, retrieval, and analytical data without making each new intent a bespoke workflow.',
     },
     {
-      label: 'Authority and human attention',
+      label: 'Evaluation and observability',
       detail:
-        'Define what an agent may decide, when it must ask, and how identity, permissions, approvals, and consequential actions stay under human and system control.',
+        'Measure routing, correctness, grounding, tool use, latency, and cost, then use traces and user feedback to diagnose failures and prevent regression.',
     },
     {
-      label: 'Evaluation and learning',
+      label: 'Cloud delivery and reliability',
       detail:
-        'Test components, interactions, and end results, then turn failures, feedback, and observed outcomes into changes that can be reviewed and reversed.',
+        'Ship through automated environments with explicit deployment checks, smoke tests, runtime monitoring, rollback, and recovery paths.',
     },
     {
-      label: 'Reliability and recovery',
+      label: 'Authority and safety',
       detail:
-        'Make long-running work observable and recoverable through explicit state, budgets, retries, receipts, fallback, cancellation, and rollback.',
+        'Keep tenant scope, permissions, approvals, evidence, provider writes, and consequential effects under deterministic control while models interpret and propose.',
     },
   ],
   selectedSystems: [
@@ -57,23 +57,16 @@ export const dessiResumeModule = definePublicResumeModule({
     {
       workbenchItemId: 'gateplane-enterprise-auth',
       evidenceClaimIds: ['gateplane-control-plane'],
-      workbenchHighlightIndexes: [3],
+      workbenchHighlightIndexes: [2],
       primaryLink: 'site',
       linkLabel: 'Public overview',
     },
     {
-      workbenchItemId: 'human-systems-platform',
-      evidenceClaimIds: ['human-systems-platform'],
-      workbenchHighlightIndexes: [2],
-      primaryLink: 'site',
-      linkLabel: 'First public product',
-    },
-    {
-      workbenchItemId: 'learning-foundry',
-      evidenceClaimIds: ['codex-capability'],
-      workbenchHighlightIndexes: [],
+      workbenchItemId: 'dg-os',
+      evidenceClaimIds: ['provider-runtime'],
+      workbenchHighlightIndexes: [0],
       primaryLink: 'repo',
-      linkLabel: 'Repository at submitted commit',
+      linkLabel: 'Repository',
     },
   ],
   experience: [
@@ -85,12 +78,14 @@ export const dessiResumeModule = definePublicResumeModule({
       startedAt: '2023-11',
       endedAt: null,
       highlights: [
-        'I map production request-to-response lifecycles and am leading architecture work for evidence-led final-answer validation; this remains in delivery rather than a deployed control.',
+        'I architected and evolved a production Programmatic agent platform used by internal agency teams across three major global advertiser accounts, taking it from prototype through changing engineering and user requirements.',
       ],
       evidenceClaimIds: [
-        'production-agent-platform',
+        'production-agent-runtime',
+        'production-onboarding',
+        'production-evaluation',
+        'production-playbooks',
         'production-data-platform',
-        'production-backend',
       ],
       boundary:
         'I describe employer work only at responsibility and outcome level. Employer code, client information, operational measurements, and infrastructure remain confidential.',
@@ -127,7 +122,7 @@ export const dessiResumeModule = definePublicResumeModule({
       startedAt: '2017',
       endedAt: '2020',
       highlights: [
-        'I delivered CRM, analytics, segmentation, automation, and experimentation systems for agencies, startups, and media organisations.',
+        'I worked directly with agency, startup, and media clients to translate business requirements into CRM, analytics, segmentation, automation, and experimentation systems.',
       ],
       evidenceClaimIds: [],
     },
@@ -150,10 +145,10 @@ export const dessiResumeModule = definePublicResumeModule({
   ],
   publication: {
     approvedBy: 'owner',
-    reviewedAt: '2026-08-28T00:00:00Z',
-    publishedAt: '2026-08-28T00:00:00Z',
+    reviewedAt: '2026-09-21T00:00:00Z',
+    publishedAt: '2026-09-21T00:00:00Z',
     privateSourcesExcluded: true,
     sourcePolicy:
-      'Resume v6 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
+      'Resume v9 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
   },
 } as const);

@@ -28,17 +28,37 @@ describe('content config sanity', () => {
     expect(ids).toContain('dg-os');
     expect(ids).toContain('agentic-commerce-loop');
     expect(ids).toContain('learning-foundry');
+    expect(ids).toContain('dessi-space');
+    expect(ids).toContain('opportunity-studio');
     expect(ids).toContain('intent-geometry-agent');
     expect(workbench.find((item) => item.id === 'human-systems-platform')).toMatchObject({
       category: 'Selected Systems',
-      classification: 'Founder product · Private development',
+      classification: 'Founder product · Private platform development',
       title: 'Human Systems Platform',
     });
+    expect(workbench.find((item) => item.id === 'human-systems-platform')?.summary).toContain(
+      'helps people develop capability through human-AI work'
+    );
+    expect(
+      workbench.find((item) => item.id === 'human-systems-platform')?.highlights.join(' ')
+    ).toContain('connects evidenced current capability to talent demand');
     expect(workbench.find((item) => item.id === 'learning-foundry')?.summary).toContain(
       'understanding they can explain, test, apply, and revise'
     );
+    expect(workbench.find((item) => item.id === 'learning-foundry')?.classification).toContain(
+      'Open-source learning system'
+    );
+    expect(workbench.find((item) => item.id === 'dessi-space')?.summary).toContain(
+      'first personal deployment of a reusable module'
+    );
+    expect(workbench.find((item) => item.id === 'opportunity-studio')?.summary).toContain(
+      'direct, adjacent, developmental, and exploratory possibilities'
+    );
     expect(workbench.find((item) => item.id === 'dg-os')?.summary).toContain(
       'public expression and discovery product within Human Systems Platform'
+    );
+    expect(workbench.find((item) => item.id === 'dg-os')?.classification).toBe(
+      'Open-source public system · Active'
     );
     expect(workbench.find((item) => item.id === 'ai-news-hub')).toMatchObject({
       category: 'Selected Systems',
@@ -62,6 +82,17 @@ describe('content config sanity', () => {
       classification: 'Independent deployed beta · Private source',
       links: { site: 'https://gateplane-beta.vercel.app/overview' },
     });
+    expect(workbench.find((item) => item.id === 'enterprise-multi-tenant-platform')).toMatchObject({
+      category: 'Professional Context',
+      title: 'Production Programmatic Agent Platform',
+      classification: 'Employer system · Outcome-level description',
+    });
+    expect(
+      workbench.find((item) => item.id === 'enterprise-multi-tenant-platform')?.highlights.join(' ')
+    ).toContain('three major global advertiser accounts');
+    expect(
+      workbench.find((item) => item.id === 'enterprise-multi-tenant-platform')?.highlights.join(' ')
+    ).toContain('runtime rotation and headroom checks');
     expect(ids).not.toContain('warehouse-award-platform');
     expect(ids).not.toContain('onesuite-labs-infra');
   });

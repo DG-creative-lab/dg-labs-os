@@ -1,8 +1,8 @@
 # DG-OS Product Roadmap
 
 - Status: living product document
-- Last reviewed: 6 August 2026
-- Current phase: Personal System review surface
+- Last reviewed: 5 September 2026
+- Current phase: Human Systems Platform publication and opportunity-intelligence integration
 - Current proof: Dessi Georgieva is the first public profile instance
 
 This is the canonical product sequence. It records what DG-OS is becoming, which boundaries must
@@ -48,21 +48,31 @@ It:
 - preserves version, provenance, confidence and limitation boundaries;
 - later serves approved data to authenticated AI clients.
 
-### Personal System
+### Personal Space products
 
-The planned local application formed from the Learning Foundry and Personal Space.
+The owner-controlled side of Human Systems Platform is formed from distinct local products rather
+than one shared private database:
 
-It will:
+- Dessi Space is the first Personal Space deployment for private continuity, observation, and
+  owner control;
+- Learning Foundry is the MIT-licensed learning and capability-development module; and
+- Opportunity Studio is the developing research surface for cited personal opportunities and
+  product-market questions.
+
+Together they:
 
 - observe sources explicitly selected by the owner;
 - support learning, reflection, association and experimentation;
 - retain private evidence locally by default;
 - prepare candidate claims and public changes;
+- research opportunities from an explicitly disclosed profile and project snapshot;
 - show the exact publication diff;
 - require human approval before data reaches DG-OS.
 
-The Learning Foundry hackathon repository remains unchanged on GitHub until its review period ends
-on 12 August 2026. Integration contracts can be designed here without changing that repository.
+Learning Foundry began as an OpenAI Build Week submission and now continues as a general product
+module. DG-OS is the AGPL-3.0-only public expression module. Their code can be inspected and adapted;
+private Human Systems Platform records, Dessi Space, and Opportunity Studio remain outside those
+open-source repositories.
 
 ## Completed foundation
 
@@ -105,8 +115,9 @@ These rules survive changes in framework, cloud provider and model provider.
 
 ```mermaid
 flowchart LR
-    F["Learning Foundry"] --> S["Local Personal System"]
-    D["Personal Space"] --> S
+    D["Dessi Space / Personal Space"] --> S["Human Systems Platform kernel"]
+    F["Learning Foundry"] --> S
+    S --> O["Opportunity Studio"]
     S --> R["Owner review"]
     R --> B["Signed publication bundle"]
     B --> P["Versioned DG-OS projection"]
