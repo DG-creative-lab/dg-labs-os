@@ -141,7 +141,7 @@ export const buildDesktopMenuModel = ({
         action: () => openAppFromMenu('notes'),
       },
       {
-        label: 'Terminal',
+        label: 'Profile Agent',
         icon: <IoHelpCircle size={16} />,
         action: () => openAppFromMenu('terminal'),
       },
@@ -189,7 +189,7 @@ export const buildDesktopMenuModel = ({
         action: () => onOpenHelp('user-guide'),
       },
       {
-        label: 'Terminal Command Guide',
+        label: 'Profile Agent Command Guide',
         icon: <IoHelpCircle size={16} />,
         action: () => onOpenHelp('terminal-guide'),
       },
@@ -225,7 +225,7 @@ export const buildDesktopMenuModel = ({
         action: () => openAppFromMenu('notes'),
       },
       {
-        label: 'Terminal',
+        label: 'Profile Agent',
         icon: <IoHelpCircle size={16} />,
         action: () => openAppFromMenu('terminal'),
       },
@@ -383,7 +383,7 @@ export const buildDesktopMenuModel = ({
     Help: [
       ...commonMenus.Help,
       {
-        label: 'Terminal Help',
+        label: 'Profile Agent Help',
         icon: <IoHelpCircle size={16} />,
         action: () => emitTerminalMenuAction(window, 'set_mode', { mode: 'explainer' }),
       },
@@ -596,7 +596,7 @@ export const buildDesktopMenuModel = ({
         ],
     terminal: [
       {
-        label: 'Terminal Help',
+        label: 'Profile Agent Help',
         icon: <IoHelpCircle size={16} />,
         action: () => emitTerminalMenuAction(window, 'set_mode', { mode: 'explainer' }),
       },

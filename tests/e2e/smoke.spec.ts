@@ -339,6 +339,31 @@ test.describe('desktop smoke', () => {
     );
   });
 
+  test('Profile Agent menu entries open the agent and its advanced command guide', async ({
+    page,
+  }) => {
+    await page.goto('/desktop');
+    await waitForDesktopReady(page);
+
+    await page.getByRole('menuitem', { name: 'View', exact: true }).click();
+    await page.getByRole('menuitem', { name: 'Profile Agent', exact: true }).click();
+    await expect(page.getByRole('dialog', { name: 'Profile Agent', exact: true })).toBeVisible();
+
+    await page.getByRole('menuitem', { name: 'Help', exact: true }).click();
+    await page.getByRole('menuitem', { name: 'Profile Agent Command Guide', exact: true }).click();
+    const guide = page.getByTestId('help-guide-window');
+    await expect(guide.getByRole('heading', { name: 'Profile Agent Command Guide' })).toBeVisible();
+    await expect(
+      guide.getByText('Advanced terminal command reference', { exact: true })
+    ).toBeVisible();
+    await expect(
+      guide.getByText(
+        '`open network|projects|writing|resume|terminal`: jump directly to modules.',
+        { exact: false }
+      )
+    ).toBeVisible();
+  });
+
   test('menubar Window -> Contact opens Connect menu', async ({ page }) => {
     await page.goto('/desktop');
     await waitForDesktopReady(page);
