@@ -224,7 +224,7 @@ Representative test files:
   - [`tests/menuActionIntegration.test.ts`](../../tests/menuActionIntegration.test.ts)
 - Open/navigate routing logic:
   - [`tests/appOpenHandlers.test.ts`](../../tests/appOpenHandlers.test.ts)
-- Terminal help open behavior:
+- Profile Agent help navigation:
   - [`tests/terminalGuideService.test.ts`](../../tests/terminalGuideService.test.ts)
 - Clipboard fallback behavior:
   - [`tests/clipboardService.test.ts`](../../tests/clipboardService.test.ts)

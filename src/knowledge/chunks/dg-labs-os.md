@@ -35,7 +35,7 @@ Dessi's profile is the first live DG-OS instance, not the limit of the product. 
 
 - **Desktop** = navigable public state
 - **Apps** = stable modules of work and thinking
-- **Terminal** = deterministic command surface plus retrieval-grounded model interaction
+- **Profile Agent** = reviewed profile questions and evidence retrieval, with an advanced terminal for deterministic commands
 - **System Map** = curated relationships between career experience, engineering practices, systems, and evidence
 
 ## Architecture
@@ -63,12 +63,12 @@ the public profile, without a simulated device status bar or unlock step.
 - **Evidence & Evolution** (`/apps/evolution`): reviewed public entries showing how ideas, systems, questions, and interpretations change over time
 - **Systems & Evidence** (`/systems`): a public dossier separating Dessi's contribution, evaluation, result, and limitation across selected systems
 - **System Map** (`/apps/network`): React Flow projection of a curated Graphology model with typed, evidence-bearing relationships and guided paths
-- **Terminal** (`/apps/terminal`): hybrid runtime with deterministic CLI and LLM-grounded responses
+- **Profile Agent** (`/apps/terminal`): reviewed public profile questions, evidence retrieval, and an advanced terminal with deterministic commands
 - **Resume** (`/@dessi/resume`): profile-owned career trajectory and approved CV assets
 
-### Agent Runtime (Terminal)
+### Profile Agent Runtime
 
-The terminal is backed by a structured knowledge base and can:
+The Profile Agent is backed by a structured knowledge base and can:
 
 - Execute deterministic commands (`help`, `open`, `search`, `projects`, `resume`)
 - Route natural language to appropriate commands

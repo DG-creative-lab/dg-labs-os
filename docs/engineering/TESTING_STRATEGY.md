@@ -20,7 +20,7 @@
 | Interactions  | Identity and evidence across registry, agent, API, and UI seams |
 | Security      | Secrets, local paths, tenant/profile isolation, rate limits     |
 | API contracts | Request schemas, responses, SSE order, fallback and errors      |
-| E2E smoke     | Critical visitor flows in a real browser                        |
+| E2E smoke     | Critical desktop and mobile visitor flows in a real browser     |
 
 ## Commands
 
@@ -32,9 +32,14 @@ pnpm test:machines
 pnpm test:interactions
 pnpm test:harness
 pnpm check
+pnpm test:e2e:smoke
 ```
 
 `pnpm test:harness` is the focused development loop. `pnpm check` is the full handoff and CI gate.
+
+`pnpm test:e2e:smoke` runs both `tests/e2e/smoke.spec.ts` and
+`tests/e2e/mobile-design.spec.ts`. The existing E2E Smoke CI job uses this same command, covering
+desktop flows as well as mobile navigation, layouts, native disclosures and delayed hydration.
 
 ## Contract compatibility
 

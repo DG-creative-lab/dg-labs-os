@@ -114,7 +114,7 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
 
-      - name: Run smoke E2E
+      - name: Run desktop and mobile smoke E2E
         run: pnpm test:e2e:smoke
 
       - name: Upload Playwright report

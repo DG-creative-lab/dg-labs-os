@@ -2,7 +2,7 @@
 import HomeDesktop from '../components/global/HomeDesktop';
 import PublicProfileMobile from '../components/profile/PublicProfileMobile.astro';
 import DesktopLayout from '../layouts/DesktopLayout.astro';
-import IPhoneAppLayout from '../layouts/iPhoneAppLayout.astro';
+import MobileLayout from '../layouts/MobileLayout.astro';
 import {
   findActiveProfile,
   getPublicProfileCanonicalUrl,
@@ -30,7 +30,7 @@ const isMobile = isMobileUserAgent(Astro.request.headers.get('user-agent'));
 
 {
   isMobile ? (
-    <IPhoneAppLayout
+    <MobileLayout
       profile={resolvedProfile}
       title={resolvedProfile.seo.title}
       description={resolvedProfile.seo.description}
@@ -39,7 +39,7 @@ const isMobile = isMobileUserAgent(Astro.request.headers.get('user-agent'));
       backHref="/"
     >
       <PublicProfileMobile profile={resolvedProfile} />
-    </IPhoneAppLayout>
+    </MobileLayout>
   ) : (
     <DesktopLayout
       profile={resolvedProfile}

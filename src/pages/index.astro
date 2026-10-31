@@ -1,6 +1,6 @@
 ---
 import DesktopLayout from '../layouts/DesktopLayout.astro';
-import IPhoneAppLayout from '../layouts/iPhoneAppLayout.astro';
+import MobileLayout from '../layouts/MobileLayout.astro';
 import HomeDesktop from '../components/global/HomeDesktop';
 import PlatformHome from '../components/global/PlatformHome';
 import { platform } from '../config/platform';
@@ -13,7 +13,7 @@ const isMobile = isMobileUserAgent(Astro.request.headers.get('user-agent'));
 
 {
   isMobile ? (
-    <IPhoneAppLayout
+    <MobileLayout
       profile={activeProfile}
       pageKind="platform"
       title={platform.seo.title}
@@ -31,7 +31,7 @@ const isMobile = isMobileUserAgent(Astro.request.headers.get('user-agent'));
       <main class="bg-[#070b12] pb-8">
         <PlatformHome client:load profiles={profiles} />
       </main>
-    </IPhoneAppLayout>
+    </MobileLayout>
   ) : (
     <DesktopLayout
       profile={activeProfile}

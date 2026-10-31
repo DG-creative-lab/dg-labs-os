@@ -42,7 +42,7 @@ from a request.
 - Required checks before merge:
   - `pnpm check`
   - `pnpm build`
-  - E2E smoke (`pnpm test:e2e:smoke`) in CI
+  - Desktop and mobile E2E smoke (`pnpm test:e2e:smoke`) in CI
 - Both production build commands run `resume:check` before Astro compiles, so Vercel cannot deploy
   CV files that do not match their committed artifact manifest.
 

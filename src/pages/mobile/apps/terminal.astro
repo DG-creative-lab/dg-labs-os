@@ -1,10 +1,10 @@
 ---
-import IPhoneAppLayout from '../../../layouts/iPhoneAppLayout.astro';
+import MobileLayout from '../../../layouts/MobileLayout.astro';
 import AgentsTerminal from '../../../components/global/AgentsTerminal';
 import { activeProfile } from '../../../profiles';
 ---
 
-<IPhoneAppLayout profile={activeProfile} appLabel="Profile Agent">
+<MobileLayout profile={activeProfile} appLabel="Profile Agent">
   <main class="px-3 pb-3 pt-3 text-white">
     <div
       class="mx-auto h-[calc(100dvh-5.5rem-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px))] min-h-[24rem] max-w-3xl"
@@ -12,4 +12,4 @@ import { activeProfile } from '../../../profiles';
       <AgentsTerminal client:load profile={activeProfile} />
     </div>
   </main>
-</IPhoneAppLayout>
+</MobileLayout>
