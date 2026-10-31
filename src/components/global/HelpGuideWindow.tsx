@@ -52,14 +52,14 @@ const TOPICS: Record<
           'Start in Workbench for the strongest engineering and platform overview.',
           'Open System Map and choose a guided question to inspect how experience, systems, and evidence connect.',
           'Use Resume when you need the canonical career narrative and downloadable artifacts.',
-          'Use Terminal for guided questions, verification, and cross-surface synthesis.',
+          'Use Profile Agent for guided questions, verification, and cross-surface synthesis.',
         ],
       },
     ],
   },
   'terminal-guide': {
-    title: 'Terminal Command Guide',
-    subtitle: 'Profile Agent command reference',
+    title: 'Profile Agent Command Guide',
+    subtitle: 'Advanced terminal command reference',
     icon: 'terminal',
     sections: [
       {
@@ -107,14 +107,14 @@ const TOPICS: Record<
         bullets: [
           'Open multiple windows and compare Workbench, System Map, Resume, and Technical Writing side by side.',
           'Resize large modules so the menubar and dock remain visible during comparison.',
-          'Use Terminal to ask targeted questions instead of manually scanning long modules.',
+          'Use Profile Agent to ask targeted questions instead of manually scanning long modules.',
         ],
       },
       {
         heading: 'Mobile Behavior',
         bullets: [
-          'Mobile routes keep the iPhone shell metaphor and simplified controls.',
-          'Desktop menubar behavior is intentionally reduced on mobile status bar mode.',
+          'Mobile presents the same creative-machine concept with touch controls and direct access to work, the CV, and Profile Agent.',
+          'Use Explore to move between profile modules. The legacy mobile home and lock routes now open the public profile directly.',
         ],
       },
     ],

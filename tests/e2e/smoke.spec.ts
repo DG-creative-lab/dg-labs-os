@@ -339,6 +339,31 @@ test.describe('desktop smoke', () => {
     );
   });
 
+  test('Profile Agent menu entries open the agent and its advanced command guide', async ({
+    page,
+  }) => {
+    await page.goto('/desktop');
+    await waitForDesktopReady(page);
+
+    await page.getByRole('menuitem', { name: 'View', exact: true }).click();
+    await page.getByRole('menuitem', { name: 'Profile Agent', exact: true }).click();
+    await expect(page.getByRole('dialog', { name: 'Profile Agent', exact: true })).toBeVisible();
+
+    await page.getByRole('menuitem', { name: 'Help', exact: true }).click();
+    await page.getByRole('menuitem', { name: 'Profile Agent Command Guide', exact: true }).click();
+    const guide = page.getByTestId('help-guide-window');
+    await expect(guide.getByRole('heading', { name: 'Profile Agent Command Guide' })).toBeVisible();
+    await expect(
+      guide.getByText('Advanced terminal command reference', { exact: true })
+    ).toBeVisible();
+    await expect(
+      guide.getByText(
+        '`open network|projects|writing|resume|terminal`: jump directly to modules.',
+        { exact: false }
+      )
+    ).toBeVisible();
+  });
+
   test('menubar Window -> Contact opens Connect menu', async ({ page }) => {
     await page.goto('/desktop');
     await waitForDesktopReady(page);
@@ -447,19 +472,18 @@ test.describe('mobile smoke', () => {
 
     const lock = await request.get('/mobile/lock', {
       headers: { 'user-agent': ua },
+      maxRedirects: 0,
     });
-    expect(lock.status()).toBe(200);
-    const lockHtml = await lock.text();
-    expect(lockHtml).toContain('aria-label="Unlock"');
-    expect(lockHtml).toContain('Tap to unlock');
+    // The compatibility route now exposes the reviewed profile without an unlock state.
+    expect(lock.status()).toBe(302);
+    expect(lock.headers().location).toBe('/@dessi');
 
     const home = await request.get('/mobile', {
       headers: { 'user-agent': ua },
+      maxRedirects: 0,
     });
-    expect(home.status()).toBe(200);
-    const homeHtml = await home.text();
-    expect(homeHtml).toContain('Writing');
-    expect(homeHtml).toContain('Projects');
+    expect(home.status()).toBe(302);
+    expect(home.headers().location).toBe('/@dessi');
 
     const projects = await request.get('/mobile/apps/projects', {
       headers: { 'user-agent': ua },

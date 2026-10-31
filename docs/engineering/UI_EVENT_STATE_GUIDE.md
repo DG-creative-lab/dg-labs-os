@@ -224,7 +224,7 @@ Representative test files:
   - [`tests/menuActionIntegration.test.ts`](../../tests/menuActionIntegration.test.ts)
 - Open/navigate routing logic:
   - [`tests/appOpenHandlers.test.ts`](../../tests/appOpenHandlers.test.ts)
-- Terminal help open behavior:
+- Profile Agent help navigation:
   - [`tests/terminalGuideService.test.ts`](../../tests/terminalGuideService.test.ts)
 - Clipboard fallback behavior:
   - [`tests/clipboardService.test.ts`](../../tests/clipboardService.test.ts)
@@ -282,6 +282,24 @@ Suggested sequence in this repo:
 5. Then implement one new menu action end-to-end yourself
 
 ---
+
+## Mobile presentation invariants
+
+- The mobile profile reuses Creative Machine Monitor modes and artwork. Selecting Understand,
+  Imagine or Build changes only the displayed process, highlighted nodes and explanation; it
+  never changes approved records, evidence scope or publication state.
+- Monitor process controls are natively disabled in server-rendered HTML and the initial client
+  render. They become enabled only after React commits and the keyboard handler is attached.
+  Until then, the initial Understand view remains readable and early taps cannot imply a selection.
+- Profile module links and return navigation retain the selected handle. The Profile Agent link
+  remains explicitly Dessi-only while its route is a compatibility surface.
+- Native disclosures reveal the same approved project evidence and record context on demand.
+  The mobile default is collapsed; desktop retains expanded project details. Content remains
+  readable without model access, and disclosure navigation works without JavaScript.
+- `/mobile` and `/mobile/lock` are Dessi compatibility aliases for `/@dessi`. Mobile visitors to
+  `/apps/terminal` reach the existing Profile Agent directly, without an unlock screen.
+- The mobile header identifies the platform, profile return destination and module navigation.
+  It has no simulated device status bar or lock state.
 
 ## 9) External References
 

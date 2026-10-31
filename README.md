@@ -52,6 +52,11 @@ Core rules:
 Legacy `/apps/*` routes remain as Dessi-only compatibility paths while the final single-profile
 dependencies are migrated.
 
+Mobile shares the desktop Creative Machine Monitor's Understand, Imagine and Build views, with
+direct work, CV and Profile Agent links. The Explore menu preserves profile-scoped navigation;
+longer project evidence and learning context use native disclosures. The old `/mobile` and
+`/mobile/lock` entrances redirect to `/@dessi` without a simulated device or unlock step.
+
 ## Implemented foundation
 
 - Astro and React public renderer with desktop and responsive profile surfaces

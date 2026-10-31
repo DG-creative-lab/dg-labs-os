@@ -22,7 +22,15 @@ export const onRequest = defineMiddleware((context, next) => {
     pathname.startsWith('/api');
 
   if (!isAsset && isMobile && !isMobilePath && !isStandaloneResponsivePath) {
-    return context.redirect('/mobile/lock');
+    const mobileCompatibilityRoutes: Record<string, string> = {
+      '/apps/projects': '/@dessi/workbench',
+      '/apps/evolution': '/@dessi/evolution',
+      '/apps/notes': '/@dessi/writing',
+      '/apps/resume': '/@dessi/resume',
+      '/apps/network': '/@dessi/network',
+      '/apps/terminal': '/mobile/apps/terminal',
+    };
+    return context.redirect(mobileCompatibilityRoutes[pathname] ?? '/@dessi');
   }
 
   if (!isAsset && !isMobile && isMobilePath && !isDesktopPath) {

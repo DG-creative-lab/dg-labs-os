@@ -1,0 +1,160 @@
+---
+import Layout from './Layout.astro';
+import { activeProfile, type ActiveProfileRuntime } from '../profiles';
+
+interface Props {
+  profile?: ActiveProfileRuntime;
+  pageKind?: 'platform' | 'profile';
+  title?: string;
+  description?: string;
+  canonical?: string;
+  openGraph?: {
+    url: string;
+    title: string;
+    description: string;
+    site_name: string;
+  };
+  appLabel?: string;
+  backHref?: string;
+}
+
+const {
+  profile = activeProfile,
+  pageKind = 'profile',
+  title = profile.seo.title,
+  description = profile.seo.description,
+  canonical = profile.contact.website,
+  openGraph = {
+    url: profile.contact.website,
+    title: profile.seo.title,
+    description: profile.seo.description,
+    site_name: profile.identity.displayName,
+  },
+  appLabel,
+  backHref = `/@${profile.handle}`,
+} = Astro.props;
+const profilePath = `/@${profile.handle}`;
+const destinations = [
+  ['Profile', profilePath],
+  ['Workbench', `${profilePath}/workbench`],
+  ['Evidence & Evolution', `${profilePath}/evolution`],
+  ['Writing', `${profilePath}/writing`],
+  ['System Map', `${profilePath}/network`],
+  ['Resume', `${profilePath}/resume`],
+  ...(profile.handle === 'dessi' ? [['Profile Agent', '/mobile/apps/terminal']] : []),
+];
+---
+
+<Layout
+  profile={profile}
+  pageKind={pageKind}
+  title={title}
+  description={description}
+  canonical={canonical}
+  openGraph={openGraph}
+>
+  <div class="mobile-surface min-h-dvh bg-[#070b12] text-white">
+    <a class="mobile-skip-link" href="#mobile-content">Skip to content</a>
+    <header
+      class="mobile-header fixed inset-x-0 top-0 z-40 border-b border-white/15 bg-[#070b12]/95 backdrop-blur-md"
+    >
+      <nav
+        class="mx-auto flex min-h-16 max-w-3xl items-center gap-5 px-5"
+        aria-label="Mobile navigation"
+      >
+        <a
+          href="/"
+          class="mr-auto flex min-h-11 items-center gap-2 font-mono text-xs font-semibold tracking-[0.08em]"
+        >
+          <span class="h-1.5 w-1.5 bg-sky-300" aria-hidden="true"></span>DG-OS
+        </a>
+        <a
+          href={pageKind === 'platform' ? profilePath : backHref}
+          class="flex min-h-11 items-center text-xs text-white/65"
+        >
+          {
+            pageKind === 'platform'
+              ? `@${profile.handle} →`
+              : backHref === '/'
+                ? 'All profiles'
+                : '← Profile'
+          }
+        </a>
+        <details class="mobile-explore group">
+          <summary
+            class="flex min-h-11 cursor-pointer list-none items-center gap-2 text-xs text-sky-100"
+          >
+            Explore <span class="font-mono text-sky-300 group-open:rotate-45" aria-hidden="true"
+              >+</span
+            >
+          </summary>
+          <div
+            class="absolute inset-x-0 top-full max-h-[calc(100dvh-5rem)] overflow-y-auto border-b border-white/20 bg-[#0b111b] px-5 py-3 shadow-xl"
+          >
+            <div class="mx-auto max-w-3xl">
+              <p class="pb-2 font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+                @{profile.handle} / Public profile
+              </p>
+              {
+                destinations.map(([label, href]) => (
+                  <a
+                    href={href}
+                    aria-current={Astro.url.pathname === href ? 'page' : undefined}
+                    class="flex min-h-11 items-center justify-between border-t border-white/10 text-sm text-white/80"
+                  >
+                    {label}
+                    <span class="text-sky-300" aria-hidden="true">
+                      →
+                    </span>
+                  </a>
+                ))
+              }
+              <a
+                href={`mailto:${profile.contact.publicEmail}`}
+                class="flex min-h-11 items-center justify-between border-t border-white/10 text-sm text-white/80"
+                >Contact <span aria-hidden="true">↗</span></a
+              >
+            </div>
+          </div>
+        </details>
+      </nav>
+    </header>
+    <div id="mobile-content" class="mx-auto max-w-3xl" tabindex="-1" aria-label={appLabel}>
+      <slot />
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .mobile-header {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .mobile-surface {
+    padding-top: calc(4rem + env(safe-area-inset-top, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .mobile-surface :global(a:focus-visible),
+  .mobile-surface :global(button:focus-visible),
+  .mobile-surface :global(summary:focus-visible) {
+    outline: 2px solid #7dd3fc;
+    outline-offset: 4px;
+  }
+  .mobile-surface :global(summary::-webkit-details-marker) {
+    display: none;
+  }
+  .mobile-surface :global([id]) {
+    scroll-margin-top: 5rem;
+  }
+  .mobile-skip-link {
+    position: fixed;
+    left: 1rem;
+    top: -5rem;
+    z-index: 50;
+    padding: 0.75rem;
+    background: #bae6fd;
+    color: #070b12;
+  }
+  .mobile-skip-link:focus {
+    top: 1rem;
+  }
+</style>

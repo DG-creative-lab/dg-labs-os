@@ -23,9 +23,11 @@ const jumpTo = (id: string) => {
 export default function WorkbenchApp({
   profile,
   workbench,
+  compact = false,
 }: {
   profile: ActiveProfileRuntime;
   workbench: PublicProfileModules['workbench'];
+  compact?: boolean;
 }) {
   useEffect(() => {
     const onWorkbenchMenuAction = (event: Event) => {
@@ -73,26 +75,8 @@ export default function WorkbenchApp({
                 </span>
               </div>
               <div className="divide-y divide-white/10">
-                {items.map((item) => (
-                  <article
-                    key={item.id}
-                    className="grid gap-5 py-6 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
-                  >
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.16em] text-white/45">
-                        {item.classification}
-                      </p>
-                      <h3 className="mt-2 text-lg font-semibold">{item.title}</h3>
-                      <p className="mt-1 text-sm leading-relaxed text-white/60">{item.subtitle}</p>
-                      <p className="mt-4 text-sm leading-relaxed text-white/75">{item.summary}</p>
-                      <div className="mt-4 flex flex-wrap gap-x-3 gap-y-1">
-                        {item.stack.slice(0, 6).map((technology) => (
-                          <span className="text-[11px] text-white/50" key={technology}>
-                            {technology}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+                {items.map((item) => {
+                  const evidence = (
                     <div className="md:border-l md:border-white/10 md:pl-6">
                       <ul className="space-y-2 text-sm leading-relaxed text-white/70">
                         {item.highlights.slice(0, 4).map((highlight) => (
@@ -127,8 +111,48 @@ export default function WorkbenchApp({
                         </div>
                       ) : null}
                     </div>
-                  </article>
-                ))}
+                  );
+                  return (
+                    <article
+                      key={item.id}
+                      className="grid gap-5 py-6 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
+                    >
+                      <div>
+                        <p className="text-[10px] uppercase tracking-[0.16em] text-white/45">
+                          {item.classification}
+                        </p>
+                        <h3 className="mt-2 text-lg font-semibold">{item.title}</h3>
+                        <p className="mt-1 text-sm leading-relaxed text-white/60">
+                          {item.subtitle}
+                        </p>
+                        <p className="mt-4 text-sm leading-relaxed text-white/75">{item.summary}</p>
+                        <div className="mt-4 flex flex-wrap gap-x-3 gap-y-1">
+                          {item.stack.slice(0, 6).map((technology) => (
+                            <span className="text-[11px] text-white/50" key={technology}>
+                              {technology}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      {compact ? (
+                        <details className="group border-t border-white/15 pt-2">
+                          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between text-xs text-sky-100">
+                            Inspect evidence & links{' '}
+                            <span
+                              className="font-mono text-sky-300 group-open:rotate-45"
+                              aria-hidden="true"
+                            >
+                              +
+                            </span>
+                          </summary>
+                          {evidence}
+                        </details>
+                      ) : (
+                        evidence
+                      )}
+                    </article>
+                  );
+                })}
               </div>
             </section>
           );

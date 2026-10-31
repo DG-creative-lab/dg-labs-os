@@ -2,7 +2,7 @@
 import DraggableAppWindow from '../../components/global/DraggableAppWindow';
 import ProfileModuleContent from '../../components/profile/ProfileModuleContent.astro';
 import DesktopLayout from '../../layouts/DesktopLayout.astro';
-import IPhoneAppLayout from '../../layouts/iPhoneAppLayout.astro';
+import MobileLayout from '../../layouts/MobileLayout.astro';
 import {
   findActiveProfile,
   findPublicProfileCv,
@@ -130,7 +130,7 @@ const openGraph = {
 
 {
   isMobile ? (
-    <IPhoneAppLayout
+    <MobileLayout
       profile={resolvedProfile}
       title={title}
       description={selectedPresentation.description}
@@ -139,7 +139,7 @@ const openGraph = {
       appLabel={selectedPresentation.label}
       backHref={profilePath}
     >
-      <main class="min-h-screen px-4 pb-24 pt-24 text-white sm:px-6">
+      <main class="px-5 pb-12 pt-8 text-white sm:px-6">
         <ProfileModuleContent
           profile={resolvedProfile}
           moduleId={moduleId}
@@ -151,7 +151,7 @@ const openGraph = {
           compact
         />
       </main>
-    </IPhoneAppLayout>
+    </MobileLayout>
   ) : (
     <DesktopLayout
       profile={resolvedProfile}
