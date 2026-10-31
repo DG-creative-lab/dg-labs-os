@@ -5,8 +5,10 @@ import { activeProfile } from '../../../profiles';
 ---
 
 <IPhoneAppLayout profile={activeProfile} appLabel="Profile Agent">
-  <main class="min-h-screen px-3 pb-24 pt-20 text-white">
-    <div class="mx-auto h-[calc(100dvh-7rem)] min-h-[32rem] max-w-3xl">
+  <main class="px-3 pb-3 pt-3 text-white">
+    <div
+      class="mx-auto h-[calc(100dvh-5.5rem-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px))] min-h-[24rem] max-w-3xl"
+    >
       <AgentsTerminal client:load profile={activeProfile} />
     </div>
   </main>

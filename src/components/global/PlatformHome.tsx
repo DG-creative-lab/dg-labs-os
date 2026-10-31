@@ -143,7 +143,7 @@ export default function PlatformHome({ profiles, embedded = false }: PlatformHom
                 </g>
                 <g className={activeStep === 2 ? 'platform-node is-active' : 'platform-node'}>
                   <circle cx="454" cy="250" r="8" />
-                  <text x="454" y="285" textAnchor="middle">
+                  <text className="platform-public-label" x="454" y="285" textAnchor="middle">
                     PUBLIC PROFILE
                   </text>
                 </g>
@@ -215,7 +215,11 @@ export default function PlatformHome({ profiles, embedded = false }: PlatformHom
           </ol>
         </section>
 
-        <section className="border-b border-white/14 py-10" aria-labelledby="live-profiles-title">
+        <section
+          id="live-profiles"
+          className="border-b border-white/14 py-10"
+          aria-labelledby="live-profiles-title"
+        >
           <div className="platform-reveal flex items-end justify-between gap-5 pb-4">
             <div>
               <p className="font-mono text-[9px] uppercase tracking-[0.17em] text-sky-200">
@@ -418,6 +422,21 @@ export default function PlatformHome({ profiles, embedded = false }: PlatformHom
           }
         }
         @container platform-home (max-width: 560px) {
+          .platform-projection-graphic {
+            min-height: 0;
+            width: 100%;
+          }
+          .platform-node text,
+          .platform-output text {
+            font-size: 15px;
+            letter-spacing: 0;
+          }
+          .platform-node .platform-public-label {
+            transform: translateY(-60px);
+          }
+          .platform-home figure figcaption {
+            font-size: 10px;
+          }
           .platform-hero {
             min-height: auto;
             padding-top: 2.5rem;

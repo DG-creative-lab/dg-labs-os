@@ -50,7 +50,11 @@ The monitor takes a conceptual cue from Greg Egan's _Permutation City_: persiste
 
 ### Mobile Shell
 
-iPhone-inspired lock/home UX for mobile visitors. Tap-to-unlock gesture, app grid, and bottom dock.
+The mobile profile shares the Creative Machine Monitor's Understand, Imagine, and Build modes
+and association map. A compact DG-OS header provides profile navigation and an Explore menu;
+work, CV, and Profile Agent links appear in the opening screen. Project evidence and learning
+context expand on demand. The legacy `/mobile` and `/mobile/lock` entrances redirect directly to
+the public profile, without a simulated device status bar or unlock step.
 
 ### Content Modules
 

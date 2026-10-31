@@ -26,9 +26,9 @@ const isMobile = isMobileUserAgent(Astro.request.headers.get('user-agent'));
         site_name: platform.name,
       }}
       appLabel={platform.name}
-      backHref="/mobile"
+      backHref="/"
     >
-      <main class="min-h-screen bg-[#070b12] pb-16 pt-16">
+      <main class="bg-[#070b12] pb-8">
         <PlatformHome client:load profiles={profiles} />
       </main>
     </IPhoneAppLayout>

@@ -5,3 +5,5 @@ pnpm-lock.yaml
 docs/files
 test-results
 playwright-report
+.playwright-mcp
+output/playwright

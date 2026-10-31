@@ -1,11 +1,14 @@
 ---
 import type { ActiveProfileRuntime } from '../../profiles';
+import CreativeMachineMonitor from '../global/CreativeMachineMonitor';
 
 interface Props {
   profile: ActiveProfileRuntime;
 }
 
 const { profile } = Astro.props;
+// The agent route remains a Dessi-only compatibility surface until it is profile-scoped.
+const agentHref = profile.handle === 'dessi' ? '/mobile/apps/terminal' : undefined;
 const reviewedDate = new Intl.DateTimeFormat('en-GB', {
   day: '2-digit',
   month: 'short',
@@ -15,65 +18,61 @@ const reviewedDate = new Intl.DateTimeFormat('en-GB', {
 const modules = [
   {
     index: '01',
-    label: 'Resume',
-    description: 'Experience, technical focus, and downloadable CV.',
-    href: `/@${profile.handle}/resume`,
+    label: 'Workbench',
+    description: 'Explore the systems and experiments behind the work.',
+    href: `/@${profile.handle}/workbench`,
   },
   {
     index: '02',
-    label: 'Evidence',
+    label: 'Evidence & Evolution',
     description: 'Reviewed claims, boundaries, questions, and revisions.',
     href: `/@${profile.handle}/evolution`,
   },
   {
     index: '03',
-    label: 'Workbench',
-    description: 'Selected public systems and bounded professional work.',
-    href: `/@${profile.handle}/workbench`,
-  },
-  {
-    index: '04',
     label: 'Writing',
-    description: 'Reviewed technical analysis with authorship and evidence boundaries.',
+    description: 'Ideas developed through technical analysis and practice.',
     href: `/@${profile.handle}/writing`,
   },
   {
-    index: '05',
+    index: '04',
     label: 'System Map',
-    description: 'Connections across experience, systems, and ideas.',
+    description: 'Follow the connections across experience, systems, and ideas.',
     href: `/@${profile.handle}/network`,
+  },
+  {
+    index: '05',
+    label: 'Resume',
+    description: 'Experience, technical focus, and downloadable CV.',
+    href: `/@${profile.handle}/resume`,
   },
 ] as const;
 ---
 
-<main class="mx-auto min-h-screen max-w-3xl px-5 pb-24 pt-24 text-white sm:px-8">
-  <header class="border-b border-white/15 pb-8">
+<main class="mx-auto max-w-3xl px-5 pb-12 pt-6 text-white sm:px-8">
+  <header>
     <div
       class="flex items-center justify-between gap-4 font-mono text-[10px] uppercase tracking-[0.16em]"
     >
       <span class="text-sky-200">Public profile / @{profile.handle}</span>
       <span class="text-white/35">v{profile.projectionVersion}</span>
     </div>
-    <h1 class="mt-6 text-4xl font-semibold leading-[0.95] tracking-[-0.045em] sm:text-6xl">
+    <h1 class="mt-4 text-[clamp(2rem,8.8vw,3.5rem)] font-semibold leading-none tracking-[-0.045em]">
       {profile.identity.displayName}
     </h1>
-    <p class="mt-4 text-xs font-semibold uppercase tracking-[0.15em] text-white/55">
+    <p class="mt-3 text-[10px] font-medium uppercase tracking-[0.12em] text-white/55">
       {profile.identity.role} · {profile.identity.location}
     </p>
-    <h2 class="mt-8 max-w-2xl text-2xl font-semibold leading-tight tracking-[-0.025em] sm:text-3xl">
-      {profile.identity.headline}
-    </h2>
-    <p class="mt-4 max-w-2xl text-sm leading-6 text-white/65 sm:text-base sm:leading-7">
-      {profile.identity.introduction}
-    </p>
   </header>
+
+  <CreativeMachineMonitor client:load profile={profile} compact agentHref={agentHref} />
 
   <section class="py-8" aria-labelledby="profile-modules-title">
     <div class="flex items-end justify-between gap-4 border-b border-white/15 pb-3">
       <h2 id="profile-modules-title" class="text-xs font-semibold uppercase tracking-[0.15em]">
         Explore the profile
       </h2>
-      <span class="font-mono text-[10px] text-white/35">05 modules</span>
+      <span class="font-mono text-[10px] text-white/45">{agentHref ? '06' : '05'} modules</span>
     </div>
     <ol>
       {
@@ -93,7 +92,49 @@ const modules = [
         ))
       }
     </ol>
+    {
+      agentHref ? (
+        <a
+          href={agentHref}
+          class="grid grid-cols-[2rem_1fr_auto] gap-3 border-b border-white/10 py-5"
+        >
+          <span class="font-mono text-[10px] text-sky-300">06</span>
+          <span>
+            <>
+              <strong class="block text-sm font-semibold">Profile Agent</strong>
+              <span class="mt-1 block text-xs leading-5 text-white/60">
+                Ask questions grounded in the reviewed public record.
+              </span>
+            </>
+          </span>
+          <span class="text-sky-200" aria-hidden="true">
+            →
+          </span>
+        </a>
+      ) : null
+    }
   </section>
+
+  <details class="group mb-8 border-y border-white/15 py-4">
+    <summary
+      class="flex min-h-11 cursor-pointer list-none items-center justify-between text-sm font-semibold"
+    >
+      About {profile.identity.possessiveName} practice <span
+        class="text-sky-300 group-open:rotate-45"
+        aria-hidden="true">+</span
+      >
+    </summary>
+    <p class="mt-3 text-base leading-6 text-white/85">{profile.identity.headline}</p>
+    <p class="mt-4 text-sm leading-6 text-white/65">{profile.identity.introduction}</p>
+    <p class="mt-4 text-xs leading-5 text-white/55">
+      Conceptual lens: <a
+        class="text-sky-200 underline underline-offset-4"
+        href="https://www.gregegan.net/PERMUTATION/Permutation.html"
+        target="_blank"
+        rel="noreferrer">Greg Egan’s <cite>Permutation City</cite></a
+      >. Pattern is a design metaphor; {profile.identity.preferredName} remains the author and reviewer.
+    </p>
+  </details>
 
   <section class="border-t border-white/15 pt-6" aria-labelledby="public-links-title">
     <h2 id="public-links-title" class="text-xs font-semibold uppercase tracking-[0.15em]">
@@ -108,7 +149,7 @@ const modules = [
               href={link.url}
               target={link.url.startsWith('http') ? '_blank' : undefined}
               rel={link.url.startsWith('http') ? 'noopener noreferrer' : undefined}
-              class="rounded-md border border-white/15 px-3 py-2 text-xs text-white/65"
+              class="inline-flex min-h-11 items-center border-b border-white/20 px-1 py-2 text-xs text-white/70"
             >
               {link.label} ↗
             </a>

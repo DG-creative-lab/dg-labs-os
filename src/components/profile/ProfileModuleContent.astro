@@ -30,7 +30,7 @@ const { profile, moduleId, modules, network, writing, cv, resume, compact = fals
 
 {
   moduleId === 'workbench' && modules ? (
-    <WorkbenchApp client:load profile={profile} workbench={modules.workbench} />
+    <WorkbenchApp client:load profile={profile} workbench={modules.workbench} compact={compact} />
   ) : null
 }
 
@@ -42,7 +42,12 @@ const { profile, moduleId, modules, network, writing, cv, resume, compact = fals
 
 {
   moduleId === 'evolution' && modules ? (
-    <EvolutionApp client:load profile={profile} evidenceEvolution={modules.evidenceEvolution} />
+    <EvolutionApp
+      client:load
+      profile={profile}
+      evidenceEvolution={modules.evidenceEvolution}
+      compact={compact}
+    />
   ) : null
 }
 

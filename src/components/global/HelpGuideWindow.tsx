@@ -113,8 +113,8 @@ const TOPICS: Record<
       {
         heading: 'Mobile Behavior',
         bullets: [
-          'Mobile routes keep the iPhone shell metaphor and simplified controls.',
-          'Desktop menubar behavior is intentionally reduced on mobile status bar mode.',
+          'Mobile presents the same creative-machine concept with touch controls and direct access to work, the CV, and Profile Agent.',
+          'Use Explore to move between profile modules. The legacy mobile home and lock routes now open the public profile directly.',
         ],
       },
     ],

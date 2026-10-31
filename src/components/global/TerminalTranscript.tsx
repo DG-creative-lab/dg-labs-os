@@ -277,7 +277,7 @@ export function TerminalTranscript({
               onChange={(event) => setInput(event.target.value)}
               onKeyDown={handleKeyDown}
               rows={1}
-              className="max-h-28 min-h-10 w-full resize-none bg-transparent py-2 text-sm leading-5 text-white outline-none placeholder:text-white/28"
+              className="max-h-28 min-h-16 w-full resize-none bg-transparent py-2 text-base leading-6 text-white outline-none placeholder:text-white/28 sm:min-h-10 sm:text-sm sm:leading-5"
               placeholder={`Ask about ${profileName}'s work, evidence, or experience`}
               autoComplete="off"
               spellCheck="true"
