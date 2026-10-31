@@ -447,19 +447,18 @@ test.describe('mobile smoke', () => {
 
     const lock = await request.get('/mobile/lock', {
       headers: { 'user-agent': ua },
+      maxRedirects: 0,
     });
-    expect(lock.status()).toBe(200);
-    const lockHtml = await lock.text();
-    expect(lockHtml).toContain('aria-label="Unlock"');
-    expect(lockHtml).toContain('Tap to unlock');
+    // The compatibility route now exposes the reviewed profile without an unlock state.
+    expect(lock.status()).toBe(302);
+    expect(lock.headers().location).toBe('/@dessi');
 
     const home = await request.get('/mobile', {
       headers: { 'user-agent': ua },
+      maxRedirects: 0,
     });
-    expect(home.status()).toBe(200);
-    const homeHtml = await home.text();
-    expect(homeHtml).toContain('Writing');
-    expect(homeHtml).toContain('Projects');
+    expect(home.status()).toBe(302);
+    expect(home.headers().location).toBe('/@dessi');
 
     const projects = await request.get('/mobile/apps/projects', {
       headers: { 'user-agent': ua },

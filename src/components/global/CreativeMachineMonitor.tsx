@@ -103,18 +103,24 @@ const getNode = (id: string) => CORTEX_NODES.find((node) => node.id === id);
 type CreativeMachineMonitorProps = {
   profile: ActiveProfileRuntime;
   embedded?: boolean;
+  compact?: boolean;
+  agentHref?: string;
 };
 
 export default function CreativeMachineMonitor({
   profile,
   embedded = false,
+  compact = false,
+  agentHref,
 }: CreativeMachineMonitorProps) {
   const [mode, setMode] = useState<MonitorMode>('understand');
+  const [controlsReady, setControlsReady] = useState(false);
   const [bootLineCount, setBootLineCount] = useState(0);
   const [activeLoopStep, setActiveLoopStep] = useState(0);
   const activeMode = MODES[mode];
 
   useEffect(() => {
+    if (compact) return;
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) {
       setBootLineCount(BOOT_LINES.length);
@@ -125,9 +131,10 @@ export default function CreativeMachineMonitor({
       window.setTimeout(() => setBootLineCount(index + 1), 260 + index * 190)
     );
     return () => timers.forEach((timer) => window.clearTimeout(timer));
-  }, []);
+  }, [compact]);
 
   useEffect(() => {
+    if (compact) return;
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
     const timer = window.setInterval(
@@ -135,7 +142,7 @@ export default function CreativeMachineMonitor({
       1600
     );
     return () => window.clearInterval(timer);
-  }, []);
+  }, [compact]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -144,282 +151,185 @@ export default function CreativeMachineMonitor({
       if (nextMode) setMode(nextMode);
     };
     window.addEventListener('keydown', onKeyDown);
+    setControlsReady(true);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
   const activeNodeIds = new Set(activeMode.activeNodes);
 
-  return (
-    <section
-      aria-labelledby="creative-machine-title"
-      className={`creative-monitor h-full overflow-y-auto text-white ${
-        embedded ? 'is-embedded' : ''
-      }`}
-    >
+  const modeSelector = (
+    <div className="monitor-processes mt-8 border-t border-white/14">
+      <p className="py-3 font-mono text-[9px] tracking-[0.16em] text-white/38 uppercase">
+        {!controlsReady
+          ? 'Loading process controls…'
+          : compact
+            ? 'Select a process'
+            : 'One pattern substrate / select a process / keys 1-3'}
+      </p>
       <div
-        className={`mx-auto flex min-h-full w-full max-w-[1600px] flex-col px-5 sm:px-8 lg:px-12 ${
-          embedded ? 'pt-5 pb-7' : 'pt-8 pb-[var(--dg-dock-safe-bottom,7rem)]'
-        } monitor-inner`}
+        role="group"
+        aria-label="Creative processes"
+        aria-busy={!controlsReady}
+        className="grid border-t border-white/10 sm:grid-cols-3"
       >
-        <header className="monitor-header monitor-enter flex items-center justify-between gap-5 border-b border-white/14 pb-3">
-          <div className="flex min-w-0 items-center gap-3">
-            <span className="h-1.5 w-1.5 shrink-0 bg-sky-300 shadow-[0_0_14px_rgba(125,211,252,0.8)]" />
-            <p className="truncate font-mono text-[9px] font-semibold tracking-[0.2em] text-sky-200 uppercase sm:text-[10px]">
-              DG-OS / Creative Machine Monitor
-            </p>
-          </div>
-          <dl className="monitor-status hidden items-center gap-7 font-mono text-[9px] uppercase lg:flex">
-            <div className="flex gap-2">
-              <dt className="text-white/35">State</dt>
-              <dd className="text-white/75">Learning</dd>
-            </div>
-            <div className="flex gap-2">
-              <dt className="text-white/35">Control</dt>
-              <dd className="text-sky-200">Human present</dd>
-            </div>
-            <div className="flex gap-2">
-              <dt className="text-white/35">Memory</dt>
-              <dd className="text-white/75">Reviewed</dd>
-            </div>
-          </dl>
-          <span className="monitor-live font-mono text-[9px] text-white/35 lg:hidden">
-            LIVE / 00
-          </span>
-        </header>
-
-        <div className="monitor-layout grid flex-1 items-center gap-8 py-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(480px,1.18fr)] lg:gap-10 xl:gap-16">
-          <div className="monitor-copy monitor-enter monitor-enter-delay relative z-10 max-w-2xl">
-            <p className="font-mono text-[9px] tracking-[0.18em] text-white/45 uppercase">
-              Constructive intelligence / v0.1
-            </p>
-            <h1
-              id="creative-machine-title"
-              className="mt-4 max-w-[13ch] text-[clamp(2.8rem,5.2vw,5.8rem)] font-semibold leading-[0.93] tracking-[-0.055em]"
+        {MODE_ORDER.map((modeId) => {
+          const item = MODES[modeId];
+          const isActive = modeId === mode;
+          return (
+            <button
+              key={modeId}
+              type="button"
+              disabled={!controlsReady}
+              aria-pressed={isActive}
+              onClick={() => setMode(modeId)}
+              className={`group flex min-h-14 items-center gap-3 border-b border-white/10 py-3 text-left transition disabled:cursor-wait disabled:opacity-50 sm:border-r sm:px-3 sm:last:border-r-0 ${
+                isActive
+                  ? 'bg-sky-300/[0.08] text-white'
+                  : 'text-white/45 hover:bg-white/[0.03] hover:text-white/75'
+              }`}
             >
-              A human becoming a machine that can imagine.
-            </h1>
-            <p className="mt-6 max-w-xl text-sm leading-6 text-white/62 sm:text-base sm:leading-7">
-              {profile.identity.possessiveName} practice is becoming computational. Projects,
-              readings, questions, decisions, and failures become traceable patterns, material that
-              can be revisited, recombined, and used to build what comes next.
-            </p>
-
-            <div className="monitor-processes mt-8 border-t border-white/14">
-              <p className="py-3 font-mono text-[9px] tracking-[0.16em] text-white/38 uppercase">
-                One pattern substrate / select a process / keys 1-3
-              </p>
-              <div className="grid border-t border-white/10 sm:grid-cols-3">
-                {MODE_ORDER.map((modeId) => {
-                  const item = MODES[modeId];
-                  const isActive = modeId === mode;
-                  return (
-                    <button
-                      key={modeId}
-                      type="button"
-                      aria-pressed={isActive}
-                      onClick={() => setMode(modeId)}
-                      className={`group flex min-h-14 items-center gap-3 border-b border-white/10 py-3 text-left transition sm:border-r sm:px-3 sm:last:border-r-0 ${
-                        isActive
-                          ? 'bg-sky-300/[0.08] text-white'
-                          : 'text-white/45 hover:bg-white/[0.03] hover:text-white/75'
-                      }`}
-                    >
-                      <span
-                        className={`font-mono text-[9px] ${
-                          isActive ? 'text-sky-300' : 'text-white/28'
-                        }`}
-                      >
-                        {item.index}
-                      </span>
-                      <span className="text-xs font-semibold">{item.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div
-              className="monitor-command mt-5 min-h-[7.5rem] border-l border-sky-300/45 pl-4"
-              aria-live="polite"
-            >
-              <p className="font-mono text-[10px] text-sky-200">
-                {profile.handle}@dg-os:~$ {activeMode.command}
-              </p>
-              <p className="mt-3 max-w-lg text-sm leading-6 text-white/68">
-                {activeMode.description}
-              </p>
-              <dl className="mt-3 grid grid-cols-3 gap-3 font-mono text-[8px] uppercase sm:text-[9px]">
-                <div>
-                  <dt className="text-white/28">Input</dt>
-                  <dd className="mt-1 text-white/58">{activeMode.input}</dd>
-                </div>
-                <div>
-                  <dt className="text-white/28">Process</dt>
-                  <dd className="mt-1 text-white/58">{activeMode.process}</dd>
-                </div>
-                <div>
-                  <dt className="text-white/28">Output</dt>
-                  <dd className="mt-1 text-white/58">{activeMode.output}</dd>
-                </div>
-              </dl>
-            </div>
-          </div>
-
-          <figure className="monitor-figure monitor-enter monitor-enter-visual relative mx-auto w-full max-w-[760px]">
-            <div className="flex items-center justify-between border-b border-white/12 pb-2 font-mono text-[8px] tracking-[0.15em] uppercase">
-              <span className="text-white/35">Cortex / pattern field</span>
-              <span className="text-sky-200">Mode: {activeMode.label}</span>
-            </div>
-            <div className="monitor-cortex-canvas relative aspect-[1.2/1] min-h-[300px] overflow-hidden">
-              <div
-                className="pointer-events-none absolute inset-0 opacity-60"
-                style={{
-                  background:
-                    'radial-gradient(circle at 50% 50%, rgba(125,211,252,0.08), transparent 47%)',
-                }}
-              />
-              <svg
-                className="absolute inset-0 h-full w-full"
-                viewBox="0 0 620 500"
-                role="img"
-                aria-labelledby="cortex-title cortex-description"
+              <span
+                className={`font-mono text-[9px] ${isActive ? 'text-sky-300' : 'text-white/28'}`}
               >
-                <title id="cortex-title">Creative cortex association map</title>
-                <desc id="cortex-description">
-                  A changing network linking evidence, experience, questions, associations,
-                  imagination, experiments, revisions, and creation.
-                </desc>
-
-                <circle className="monitor-orbit" cx="310" cy="252" r="182" />
-                <circle
-                  className="monitor-orbit monitor-orbit-secondary"
-                  cx="310"
-                  cy="252"
-                  r="118"
-                />
-                <path
-                  className="monitor-scan"
-                  d="M62 252 C155 188 220 316 310 252 S466 184 558 252"
-                />
-
-                {CORTEX_EDGES.map(([fromId, toId]) => {
-                  const from = getNode(fromId);
-                  const to = getNode(toId);
-                  if (!from || !to) return null;
-                  const isActive = activeNodeIds.has(fromId) && activeNodeIds.has(toId);
-                  return (
-                    <line
-                      key={`${fromId}-${toId}`}
-                      x1={from.x}
-                      y1={from.y}
-                      x2={to.x}
-                      y2={to.y}
-                      className={`monitor-edge ${isActive ? 'is-active' : ''}`}
-                    />
-                  );
-                })}
-
-                {CORTEX_NODES.map((node, index) => {
-                  const isActive = activeNodeIds.has(node.id);
-                  const isCore = node.id === 'cortex';
-                  return (
-                    <g
-                      key={node.id}
-                      className={`monitor-node ${isActive ? 'is-active' : ''} ${
-                        isCore ? 'is-core' : ''
-                      }`}
-                      style={{ animationDelay: `${index * 90}ms` }}
-                    >
-                      {isActive ? (
-                        <circle className="monitor-node-pulse" cx={node.x} cy={node.y} r="14" />
-                      ) : null}
-                      <circle
-                        className="monitor-node-point"
-                        cx={node.x}
-                        cy={node.y}
-                        r={isCore ? 8 : 4}
-                      />
-                      <text
-                        className="monitor-node-label"
-                        x={node.x}
-                        y={node.y + (isCore ? 28 : 20)}
-                        textAnchor="middle"
-                      >
-                        {node.label}
-                      </text>
-                    </g>
-                  );
-                })}
-              </svg>
-            </div>
-            <figcaption className="grid grid-cols-2 border-t border-white/12 font-mono text-[8px] uppercase sm:grid-cols-4">
-              {BOOT_LINES.map(([index, label, value], lineIndex) => (
-                <div
-                  key={index}
-                  className={`border-b border-white/10 py-3 transition sm:border-r sm:px-3 sm:last:border-r-0 ${
-                    lineIndex < bootLineCount ? 'opacity-100' : 'opacity-0'
-                  }`}
-                >
-                  <span className="text-sky-300">{index}</span>
-                  <p className="mt-1 text-white/35">{label}</p>
-                  <p className="mt-0.5 text-white/68">{value}</p>
-                </div>
-              ))}
-            </figcaption>
-          </figure>
-        </div>
-
-        <footer className="monitor-footer monitor-enter monitor-enter-footer grid gap-5 border-t border-white/14 pt-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-          <div>
-            <p className="font-mono text-[8px] tracking-[0.16em] text-white/35 uppercase">
-              Constructive loop / continuous
-            </p>
-            <ol className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-2">
-              {LOOP_STEPS.map((step, index) => (
-                <li
-                  key={step}
-                  className={`flex items-center gap-2 font-mono text-[9px] uppercase transition ${
-                    index === activeLoopStep ? 'text-sky-200' : 'text-white/38'
-                  }`}
-                >
-                  <span>{String(index + 1).padStart(2, '0')}</span>
-                  <span>{step}</span>
-                  {index < LOOP_STEPS.length - 1 ? (
-                    <span className="ml-1 text-white/18" aria-hidden="true">
-                      →
-                    </span>
-                  ) : null}
-                </li>
-              ))}
-            </ol>
-            <p className="mt-3 max-w-2xl text-[10px] leading-4 text-white/34">
-              Conceptual lens:{' '}
-              <a
-                className="monitor-citation"
-                href="https://www.gregegan.net/PERMUTATION/Permutation.html"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Greg Egan’s <cite>Permutation City</cite>
-              </a>
-              . Pattern is a design metaphor; Dessi remains the author and reviewer.
-            </p>
-          </div>
-          <nav className="flex flex-wrap gap-x-6 gap-y-2 text-xs" aria-label="Monitor destinations">
-            <a className="monitor-link" href="/desktop">
-              Enter workspace <span aria-hidden="true">→</span>
-            </a>
-            <a className="monitor-link" href="/systems">
-              Inspect evidence <span aria-hidden="true">→</span>
-            </a>
-            <a className="monitor-link" href={`/@${profile.handle}/evolution`}>
-              Follow evolution <span aria-hidden="true">→</span>
-            </a>
-          </nav>
-        </footer>
+                {item.index}
+              </span>
+              <span className="text-xs font-semibold">{item.label}</span>
+            </button>
+          );
+        })}
       </div>
+    </div>
+  );
+  const command = (
+    <div
+      className="monitor-command mt-5 min-h-[7.5rem] border-l border-sky-300/45 pl-4"
+      aria-live="polite"
+    >
+      <p className="font-mono text-[10px] text-sky-200">
+        {profile.handle}@dg-os:~$ {activeMode.command}
+      </p>
+      <p className="mt-3 max-w-lg text-sm leading-6 text-white/68">{activeMode.description}</p>
+      <dl className="mt-3 grid grid-cols-3 gap-3 font-mono text-[8px] uppercase sm:text-[9px]">
+        <div>
+          <dt className="text-white/28">Input</dt>
+          <dd className="mt-1 text-white/58">{activeMode.input}</dd>
+        </div>
+        <div>
+          <dt className="text-white/28">Process</dt>
+          <dd className="mt-1 text-white/58">{activeMode.process}</dd>
+        </div>
+        <div>
+          <dt className="text-white/28">Output</dt>
+          <dd className="mt-1 text-white/58">{activeMode.output}</dd>
+        </div>
+      </dl>
+    </div>
+  );
+  const figure = (
+    <figure className="monitor-figure monitor-enter monitor-enter-visual relative mx-auto w-full max-w-[760px]">
+      <div className="flex items-center justify-between border-b border-white/12 pb-2 font-mono text-[8px] tracking-[0.15em] uppercase">
+        <span className="text-white/35">Cortex / pattern field</span>
+        <span className="text-sky-200">Mode: {activeMode.label}</span>
+      </div>
+      <div className="monitor-cortex-canvas relative aspect-[1.2/1] min-h-[300px] overflow-hidden">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-60"
+          style={{
+            background:
+              'radial-gradient(circle at 50% 50%, rgba(125,211,252,0.08), transparent 47%)',
+          }}
+        />
+        <svg
+          className="absolute inset-0 h-full w-full"
+          viewBox="0 0 620 500"
+          role="img"
+          aria-labelledby="cortex-title cortex-description"
+        >
+          <title id="cortex-title">Creative cortex association map</title>
+          <desc id="cortex-description">
+            A changing network linking evidence, experience, questions, associations, imagination,
+            experiments, revisions, and creation.
+          </desc>
 
-      <style>{`
+          <circle className="monitor-orbit" cx="310" cy="252" r="182" />
+          <circle className="monitor-orbit monitor-orbit-secondary" cx="310" cy="252" r="118" />
+          <path className="monitor-scan" d="M62 252 C155 188 220 316 310 252 S466 184 558 252" />
+
+          {CORTEX_EDGES.map(([fromId, toId]) => {
+            const from = getNode(fromId);
+            const to = getNode(toId);
+            if (!from || !to) return null;
+            const isActive = activeNodeIds.has(fromId) && activeNodeIds.has(toId);
+            return (
+              <line
+                key={`${fromId}-${toId}`}
+                x1={from.x}
+                y1={from.y}
+                x2={to.x}
+                y2={to.y}
+                className={`monitor-edge ${isActive ? 'is-active' : ''}`}
+              />
+            );
+          })}
+
+          {CORTEX_NODES.map((node, index) => {
+            const isActive = activeNodeIds.has(node.id);
+            const isCore = node.id === 'cortex';
+            return (
+              <g
+                key={node.id}
+                className={`monitor-node ${isActive ? 'is-active' : ''} ${isCore ? 'is-core' : ''}`}
+                style={{ animationDelay: `${index * 90}ms` }}
+              >
+                {isActive ? (
+                  <circle className="monitor-node-pulse" cx={node.x} cy={node.y} r="14" />
+                ) : null}
+                <circle className="monitor-node-point" cx={node.x} cy={node.y} r={isCore ? 8 : 4} />
+                <text
+                  className="monitor-node-label"
+                  x={node.x}
+                  y={node.y + (isCore ? 28 : 20)}
+                  textAnchor="middle"
+                >
+                  {node.label}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+      <figcaption className="grid grid-cols-2 border-t border-white/12 font-mono text-[8px] uppercase sm:grid-cols-4">
+        {BOOT_LINES.map(([index, label, value], lineIndex) => (
+          <div
+            key={index}
+            className={`border-b border-white/10 py-3 transition sm:border-r sm:px-3 sm:last:border-r-0 ${
+              lineIndex < bootLineCount ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            <span className="text-sky-300">{index}</span>
+            <p className="mt-1 text-white/35">{label}</p>
+            <p className="mt-0.5 text-white/68">{value}</p>
+          </div>
+        ))}
+      </figcaption>
+    </figure>
+  );
+  const styles = (
+    <style>{`
+        .creative-monitor.is-compact { height: auto; overflow: visible; }
+        .is-compact .monitor-figure { margin-top: 1.75rem; }
+        .is-compact .monitor-cortex-canvas { min-height: 0; aspect-ratio: 1.6; width: 100%; }
+        .is-compact .monitor-node-label { font-size: 24px; letter-spacing: 0.02em; }
+        .is-compact .monitor-node:not(.is-active):not(.is-core) .monitor-node-label { display: none; }
+        .is-compact .monitor-figure figcaption { display: none; }
+        .is-compact .monitor-processes { margin-top: 0; }
+        .is-compact .monitor-processes > div { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .is-compact .monitor-processes button { gap: .5rem; padding: .75rem .5rem; min-height: 3rem; }
+        .is-compact .monitor-processes > p { font-size: 10px; }
+        .is-compact .monitor-command { min-height: 0; margin-top: 1rem; }
+        .is-compact .monitor-command > p:first-child { display: none; }
+        .is-compact .monitor-command > p:nth-child(2) { margin-top: 0; }
+        .is-compact .monitor-command dl { font-size: 10px; }
         .creative-monitor {
           scrollbar-width: none;
         }
@@ -650,6 +560,168 @@ export default function CreativeMachineMonitor({
           }
         }
       `}</style>
+  );
+
+  if (compact) {
+    return (
+      <section className="creative-monitor is-compact" aria-labelledby="creative-machine-title">
+        <p className="mt-7 font-mono text-[10px] uppercase tracking-[0.12em] text-sky-200/80">
+          Creative Machine Monitor / Human present
+        </p>
+        <h2
+          id="creative-machine-title"
+          className="mt-3 max-w-[16ch] text-[clamp(2.25rem,9.8vw,3.75rem)] font-semibold leading-[0.98] tracking-[-0.05em]"
+        >
+          A human becoming a machine that can imagine.
+        </h2>
+        <p className="mt-4 max-w-lg text-sm leading-6 text-white/65">
+          Projects, readings, questions, and experiments become traceable patterns: material to
+          understand, recombine, and build with.
+        </p>
+        <nav
+          aria-label="Start exploring"
+          className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs"
+        >
+          <a
+            href={`/@${profile.handle}/workbench`}
+            className="inline-flex min-h-11 items-center gap-2 border-b border-sky-300/60 font-semibold text-sky-100"
+          >
+            Explore work <span aria-hidden="true">→</span>
+          </a>
+          <a
+            href={`/@${profile.handle}/resume`}
+            className="inline-flex min-h-11 items-center text-white/75"
+          >
+            View CV
+          </a>
+          {agentHref ? (
+            <a href={agentHref} className="inline-flex min-h-11 items-center text-white/75">
+              Ask Profile Agent
+            </a>
+          ) : null}
+        </nav>
+        {figure}
+        {modeSelector}
+        {command}
+        {styles}
+      </section>
+    );
+  }
+
+  return (
+    <section
+      aria-labelledby="creative-machine-title"
+      className={`creative-monitor h-full overflow-y-auto text-white ${
+        embedded ? 'is-embedded' : ''
+      }`}
+    >
+      <div
+        className={`mx-auto flex min-h-full w-full max-w-[1600px] flex-col px-5 sm:px-8 lg:px-12 ${
+          embedded ? 'pt-5 pb-7' : 'pt-8 pb-[var(--dg-dock-safe-bottom,7rem)]'
+        } monitor-inner`}
+      >
+        <header className="monitor-header monitor-enter flex items-center justify-between gap-5 border-b border-white/14 pb-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="h-1.5 w-1.5 shrink-0 bg-sky-300 shadow-[0_0_14px_rgba(125,211,252,0.8)]" />
+            <p className="truncate font-mono text-[9px] font-semibold tracking-[0.2em] text-sky-200 uppercase sm:text-[10px]">
+              DG-OS / Creative Machine Monitor
+            </p>
+          </div>
+          <dl className="monitor-status hidden items-center gap-7 font-mono text-[9px] uppercase lg:flex">
+            <div className="flex gap-2">
+              <dt className="text-white/35">State</dt>
+              <dd className="text-white/75">Learning</dd>
+            </div>
+            <div className="flex gap-2">
+              <dt className="text-white/35">Control</dt>
+              <dd className="text-sky-200">Human present</dd>
+            </div>
+            <div className="flex gap-2">
+              <dt className="text-white/35">Memory</dt>
+              <dd className="text-white/75">Reviewed</dd>
+            </div>
+          </dl>
+          <span className="monitor-live font-mono text-[9px] text-white/35 lg:hidden">
+            LIVE / 00
+          </span>
+        </header>
+
+        <div className="monitor-layout grid flex-1 items-center gap-8 py-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(480px,1.18fr)] lg:gap-10 xl:gap-16">
+          <div className="monitor-copy monitor-enter monitor-enter-delay relative z-10 max-w-2xl">
+            <p className="font-mono text-[9px] tracking-[0.18em] text-white/45 uppercase">
+              Constructive intelligence / v0.1
+            </p>
+            <h1
+              id="creative-machine-title"
+              className="mt-4 max-w-[13ch] text-[clamp(2.8rem,5.2vw,5.8rem)] font-semibold leading-[0.93] tracking-[-0.055em]"
+            >
+              A human becoming a machine that can imagine.
+            </h1>
+            <p className="mt-6 max-w-xl text-sm leading-6 text-white/62 sm:text-base sm:leading-7">
+              {profile.identity.possessiveName} practice is becoming computational. Projects,
+              readings, questions, decisions, and failures become traceable patterns, material that
+              can be revisited, recombined, and used to build what comes next.
+            </p>
+
+            {modeSelector}
+
+            {command}
+          </div>
+
+          {figure}
+        </div>
+
+        <footer className="monitor-footer monitor-enter monitor-enter-footer grid gap-5 border-t border-white/14 pt-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+          <div>
+            <p className="font-mono text-[8px] tracking-[0.16em] text-white/35 uppercase">
+              Constructive loop / continuous
+            </p>
+            <ol className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-2">
+              {LOOP_STEPS.map((step, index) => (
+                <li
+                  key={step}
+                  className={`flex items-center gap-2 font-mono text-[9px] uppercase transition ${
+                    index === activeLoopStep ? 'text-sky-200' : 'text-white/38'
+                  }`}
+                >
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  <span>{step}</span>
+                  {index < LOOP_STEPS.length - 1 ? (
+                    <span className="ml-1 text-white/18" aria-hidden="true">
+                      →
+                    </span>
+                  ) : null}
+                </li>
+              ))}
+            </ol>
+            <p className="mt-3 max-w-2xl text-[10px] leading-4 text-white/34">
+              Conceptual lens:{' '}
+              <a
+                className="monitor-citation"
+                href="https://www.gregegan.net/PERMUTATION/Permutation.html"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Greg Egan’s <cite>Permutation City</cite>
+              </a>
+              . Pattern is a design metaphor; Dessi remains the author and reviewer.
+            </p>
+          </div>
+          <nav className="flex flex-wrap gap-x-6 gap-y-2 text-xs" aria-label="Monitor destinations">
+            <a className="monitor-link" href="/desktop">
+              Enter workspace <span aria-hidden="true">→</span>
+            </a>
+            <a className="monitor-link" href="/systems">
+              Inspect evidence <span aria-hidden="true">→</span>
+            </a>
+            <a className="monitor-link" href={`/@${profile.handle}/evolution`}>
+              Follow evolution <span aria-hidden="true">→</span>
+            </a>
+          </nav>
+        </footer>
+      </div>
+
+      {styles}
     </section>
   );
 }
