@@ -4,7 +4,7 @@ type: 'identity'
 title: 'Empowerment Over Extraction'
 tags: ['philosophy', 'human-agency', 'design-principles', 'core-thesis']
 confidence: 'verified'
-sources: ['https://ai-news-hub.performics-labs.com/']
+sources: ['https://ai-knowledge-hub.org/']
 last_verified: '2026-08-22'
 related: ['identity-profile', 'identity-education', 'research-themes', 'project-intent-recognition']
 ---

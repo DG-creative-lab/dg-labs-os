@@ -2,23 +2,56 @@
 
 **AI Systems Engineer · Applied AI, Agents and Product Platforms**
 
-London, UK · [dessi.georgieva8@gmail.com](mailto:dessi.georgieva8@gmail.com) · [LinkedIn](https://www.linkedin.com/in/dessi-georgieva/) · [GitHub](https://github.com/DG-creative-lab) · [Application evidence](https://dg-os.com/apply/openai-codex)
+London, UK · [dessi.georgieva8@gmail.com](mailto:dessi.georgieva8@gmail.com) · [LinkedIn](https://www.linkedin.com/in/dessi-georgieva/) · [GitHub](https://github.com/DG-creative-lab) · [Application evidence](https://dg-os.com/apply/openai-codex) · [AI Knowledge Hub](https://ai-knowledge-hub.org/)
 
 ---
 
 ## Profile
 
-I build governed AI products that use tools, complete multi-step work, and recover when something fails. I decide what an agent may know and do, how its work is checked, and when a person should review it. My experience spans enterprise systems, open-source products, and Human Systems Platform, my founder product for evidence-led human-AI learning and opportunity research. I am applying for OpenAI roles in London across applied AI, Codex agents, ads solutions, privacy, and integrity.
+I build production AI systems with scoped tools, human approvals, and evaluation. At Publicis Media, I took a programmatic agent platform into production for agency teams. I am applying for OpenAI roles in London across applied AI, Codex agents, ads solutions, privacy, and integrity.
+
+## Professional Experience
+
+### Engineer
+
+**Publicis Media** · London · Nov 2023 - Nov 2026
+
+- I architected the production Programmatic agent platform used by internal agency teams across three major global advertiser accounts.
+- I built configuration-driven advertiser onboarding and ingestion workflows that replaced spreadsheet-led enablement and removed at least three days of cross-team coordination per cycle.
+- I designed the agent harness on AWS Bedrock AgentCore with Claude Agent SDK. Runtime controls governed tenant scope, approvals, evidence, and provider writes.
+- I designed routing and correctness evaluations and used traces and metrics for grounding, tool use, latency, and cost to diagnose agent behaviour.
+- I built API ingestion connectors and bronze, silver, and gold Databricks ELT pipelines. I designed production S3 landing, read-only staging access, and schema-based development reads using test data.
+- I built Databricks-backed serving APIs and typed CLI routing between warehouse reports and live advertising APIs, including DV360 and The Trade Desk. I added schema, freshness, completeness, and reconciliation checks.
+- I delivered backend services and cloud data workflows for an award-recognised ecommerce optimisation platform.
+- I describe employer work only at responsibility and outcome level. Private code, clients, logs, and infrastructure remain confidential.
+
+### Senior Business Intelligence Analyst
+
+**Publicis Media** · London · Mar 2023 - Nov 2023
+
+- I turned recurring marketing reports into reusable datasets and decision-support services, building the API connectors and ELT pipelines that supplied them.
+
+### Business Intelligence Manager
+
+**Jellyfish** · London · Jan 2021 - Mar 2023
+
+- I built interactive analytics applications backed by ingestion connectors, cloud ELT pipelines, and marketing data lakes.
+
+### Data Consultant / SQL Developer / Data Analyst
+
+**Selected contracts** · London · 2017 - 2020
+
+- I delivered CRM, analytics, segmentation, and experimentation systems for agencies, startups, and media organisations, including ingestion connectors and ELT pipelines.
 
 ## Selected Product and Engineering Work
 
 ### Founder platform and product architecture
 
-**Human Systems Platform** · Evidence-backed learning, opportunity research, and professional discovery · [First public product](https://dg-os.com/)
+**Human Systems Platform** · Learning and opportunity research · [First public product](https://dg-os.com/)
 
-- I am developing Human Systems Platform for people and organisations that need a more credible way to develop capability, represent it through evidence, and discover where it may create value. Dessi Space preserves private continuity; Learning Foundry develops human and agent capability; Opportunity Studio researches opportunities and markets; DG-OS publishes approved evidence; Organization Foundry remains planned.
-- I have built review, approval, protected persistence, learning-evidence, publication, and Opportunity Studio preview components. The preview validates approved missions and returns cited hypotheses with visible coverage; research remains manual, and it cannot act for the owner.
-- Learning Foundry (MIT) and DG-OS (AGPL-3.0-only) are open source and adaptable. Human Systems Platform, Dessi Space, and Opportunity Studio remain private, keeping personal evidence outside public code.
+- I am developing Human Systems Platform for evidence-backed learning and opportunity research. It connects private work history with owner-approved public profiles.
+- I built evidence, approval, and publication components. The Opportunity Studio preview returns cited hypotheses from approved missions. Research remains manual.
+- Learning Foundry and DG-OS are open source. The wider platform keeps personal evidence private.
 
 ### Agent execution, policy, and recovery
 
@@ -29,52 +62,21 @@ I build governed AI products that use tools, complete multi-step work, and recov
 
 ### Identity, delegated authority, and bounded execution
 
-**Gateplane Agent Control Plane** · Enterprise control for agent work · [Product overview](https://gateplane-beta.vercel.app/overview)
+**Gateplane Agent Control Plane** · Independent beta for agent identity and execution · [Product overview](https://gateplane-beta.vercel.app/overview)
 
-- I built Gateplane for organisations that need AI agents to work across users, data, and tools without weakening enterprise access controls.
-- I tied identity, delegated authority, task-bound approvals, isolated workspaces, tool scope, evidence, and publication into one control plane around model-proposed work.
+- I built Gateplane to bind delegated authority to task-specific approvals, isolated workspaces, and scoped tools. Its controls also govern what evidence and outputs can be published.
 
 ### Codex capabilities, evaluation, and provenance
 
 **Learning Foundry** · Open-source learning with AI without confusing output with understanding · [MIT-licensed repository](https://github.com/DG-creative-lab/codex-hack-learning-foundry)
 
-- I built Learning Foundry's append-only evidence ledger, deterministic projections, learning checks, capability lifecycle, and consent-gated Codex adapter. It develops human understanding and agent capabilities separately. The MIT-licensed implementation began during OpenAI Build Week and now continues as Human Systems Platform's general learning module.
+- I built an append-only evidence ledger, learning checks, and a consent-gated Codex adapter. The project began during OpenAI Build Week and develops human learning and agent capabilities separately.
 
 ### Context construction, provider reliability, and agent UX
 
 **DG-OS Agent Runtime** · Open-source public profiles and discovery · [First live profile](https://dg-os.com/) · [AGPL-3.0-only repository](https://github.com/DG-creative-lab/dg-labs-os)
 
-- I built DG-OS as a reusable public profile and discovery product with inspectable systems, evidence, writing, and source-grounded questions. Within Human Systems Platform, it is the public expression module; my profile is its first live instance.
-- The runtime combines deterministic navigation, evidence retrieval, provider isolation, streaming, and source-aware diagnostics.
-
-## Professional Experience
-
-### Engineer
-
-**Performics Innovations Lab · Publicis Media** · London · Nov 2023 - Present
-
-- I design and build AI and data systems across backend services, cloud workflows, multi-tenant platform controls, behavioural modelling, and marketing-intelligence interfaces.
-- I build the Programmatic plugin and agent harness across skill selection, a typed interface and backend tools, tenant-bound execution policy, human approval, evidence handling, and recovery.
-- I delivered backend services and cloud data workflows for an award-recognised ecommerce optimisation platform.
-- I describe employer work only at responsibility and outcome level. Private code, clients, logs, and infrastructure remain confidential.
-
-### Senior Business Intelligence Analyst
-
-**Publicis Media** · London · Mar 2023 - Nov 2023
-
-- I bridged analytics and decision systems, turning recurring analysis into reusable services and platformised workflows.
-
-### Business Intelligence Manager
-
-**Jellyfish** · London · Jan 2021 - Mar 2023
-
-- I built analytics applications and data workflows spanning interactive products, cloud ETL, and data-lake patterns.
-
-### Data Consultant / SQL Developer / Data Analyst
-
-**Selected contracts** · London · 2017 - 2020
-
-- I delivered CRM, analytics, segmentation, automation, and experimentation systems across agencies, startups, and media organisations.
+- I built DG-OS as Human Systems Platform’s public profile and discovery module. Its runtime combines evidence retrieval, source-grounded answers, provider isolation, and streaming.
 
 ## AI Engineering Capabilities
 
@@ -84,6 +86,7 @@ I build governed AI products that use tools, complete multi-step work, and recov
 - **Evaluation and improvement:** Test model behaviour, tool use, system interactions, and end results, then convert failures and feedback into reviewable changes.
 - **Reliability and recovery:** Build explicit execution states, traces, receipts, retries, replay, fallback, cancellation, and recovery.
 - **Human attention:** Decide when an agent should continue alone, ask for clarification, request approval, or surface uncertainty.
+- **Data engineering:** Build API connectors, Databricks and AWS Glue ELT pipelines, and serving APIs. Check schema, freshness, completeness, and reconciliation.
 
 ## Evidence Boundaries
 

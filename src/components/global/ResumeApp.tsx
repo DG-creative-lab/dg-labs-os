@@ -56,7 +56,7 @@ export default function ResumeApp({ profile, cv, resume }: ResumeAppProps) {
           <h1 className="text-2xl font-semibold">Resume</h1>
           <p className="mt-2 text-white/70">
             {profile.identity.possessiveName} experience, AI systems capabilities, and selected
-            systems. Available in PDF, DOCX, and Markdown.
+            systems and agents. Available in PDF, DOCX, and Markdown.
           </p>
         </div>
         <div className="hidden text-right text-xs text-white/50 md:block">
@@ -108,7 +108,7 @@ export default function ResumeApp({ profile, cv, resume }: ResumeAppProps) {
           className="mt-2 inline-flex text-sm font-medium text-sky-100 underline decoration-sky-300/40 underline-offset-4"
           href={`/@${profile.handle}/evolution`}
         >
-          Inspect selected systems, claims, and boundaries →
+          Inspect selected systems, agents, and evidence →
         </a>
       </aside>
 

@@ -1,7 +1,7 @@
 ---
 id: 'project-ai-skills-framework'
 type: 'project'
-title: 'AI Skills Platform'
+title: 'AI Knowledge Hub Skills'
 tags:
   [
     'project',
@@ -19,7 +19,7 @@ sources:
   [
     'https://skills.ai-knowledge-hub.org/',
     'https://github.com/ai-knowledge-hub/ai-skills-guide',
-    'https://ai-news-hub.performics-labs.com/news/agent-architect-playbook-building-ai-skills-marketing-adtech',
+    'https://ai-knowledge-hub.org/library/agent-architect-playbook-building-ai-skills-marketing-adtech/',
   ]
 last_verified: '2026-08-23'
 related:
@@ -31,7 +31,7 @@ related:
   ]
 ---
 
-# AI Skills Platform
+# AI Knowledge Hub Skills
 
 **Classification**: Open-source public catalog and installation platform
 
@@ -43,17 +43,17 @@ related:
 
 ## The Product
 
-AI Skills Platform turns applied AI research into reusable working capabilities. Articles can explain how an agent workflow should operate. Practitioners still need packages they can inspect, install, test, and adapt. This platform supplies that practical layer.
+AI Knowledge Hub Skills turns applied AI research into reusable working capabilities. Articles can explain how an agent workflow should operate. Practitioners still need packages they can inspect, install, test, and adapt. This platform supplies that practical layer.
 
-Dessi developed it as a companion to several AI News Hub articles. The catalog began with marketing and adtech, then expanded into engineering maintenance, security, and agent operations.
+Dessi developed Skills as a practical companion to the research and writing now published at AI Knowledge Hub. The catalogue began with marketing and adtech, then expanded into engineering maintenance, security, and agent operations.
 
 ## What It Publishes
 
-The public catalog has four installable module types:
+The public catalogue has four types of resources:
 
 - skills encode task-level expertise and operating instructions
 - agents coordinate roles, skills, tools, outputs, and approval boundaries
-- plugins bundle related capabilities into installable compositions
+- plugins describe reusable compositions, with installability declared per entry
 - tools and MCP entries describe integrations, authentication, access, and trust boundaries
 
 Documentation-only packs combine existing entries into practical playbooks without presenting themselves as installable runtime modules.
@@ -70,7 +70,7 @@ The installer supports Codex, Claude, and generic runtime targets. Go provides t
 
 ## Product Role
 
-The AI News Hub helps people understand a change. AI Skills Platform helps them try a governed implementation of it. Together they connect research, practical learning, reusable capability design, and public code.
+AI Knowledge Hub publishes research and essays. Skills provides reusable resources and Harness explains the underlying system design through guides and interactive examples.
 
 ## Boundaries
 

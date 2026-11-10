@@ -60,13 +60,13 @@ test('mobile monitor keeps primary destinations visible and changes its process'
   await page.goto('/@dessi');
   await expect(page.getByRole('heading', { name: 'Dessi Georgieva', exact: true })).toBeVisible();
   await expect(
-    page.getByRole('heading', { name: 'A human becoming a machine that can imagine.' })
+    page.getByRole('heading', { name: 'I take enterprise AI systems into production.' })
   ).toBeVisible();
 
   const start = page.getByRole('navigation', { name: 'Start exploring' });
   for (const [name, href] of [
     ['Explore work', '/@dessi/workbench'],
-    ['View CV', '/@dessi/resume'],
+    ['View experience and CV', '/@dessi/resume'],
     ['Ask Profile Agent', '/mobile/apps/terminal'],
   ]) {
     const link = start.getByRole('link', { name });
@@ -146,7 +146,12 @@ test('project evidence remains accessible without JavaScript', async ({ browser,
   try {
     const page = await context.newPage();
     await page.goto('/@dessi/workbench');
-    const project = page.locator('article').first();
+    await expect(page.locator('article').first().getByRole('heading')).toHaveText(
+      'Production Programmatic Agent Platform'
+    );
+    const project = page.locator('article').filter({
+      has: page.getByRole('heading', { name: 'AI Knowledge Hub Skills', exact: true }),
+    });
     const repository = project.getByRole('link', {
       name: 'Repository',
       exact: false,
@@ -156,10 +161,45 @@ test('project evidence remains accessible without JavaScript', async ({ browser,
     await expect(repository).toBeHidden();
     await project.locator('summary').click();
     await expect(repository).toBeVisible();
-    await expect(project.getByText('owner-reported', { exact: false })).toBeVisible();
+    await expect(
+      project.getByText('which resources are documentation', { exact: false })
+    ).toBeVisible();
 
     await page.goto('/@dessi/evolution');
     await expect(page.getByRole('heading', { name: 'Ideas in motion' })).toBeVisible();
+    const campaignEntry = page.locator('article').filter({
+      has: page.getByRole('heading', { name: /Direct Acquisition Agent and YouTube Ad Agent/ }),
+    });
+    await campaignEntry.getByText('Inspect supporting claims', { exact: true }).click();
+    await expect(
+      campaignEntry.getByRole('link', { name: 'Direct Acquisition Agent repository' })
+    ).toHaveAttribute('href', 'https://github.com/DG-creative-lab/direct-acquisition-agent');
+    await expect(
+      campaignEntry.getByRole('link', { name: 'YouTube Ad Agent repository' })
+    ).toHaveAttribute('href', 'https://github.com/DG-creative-lab/youtube-ad-agent');
+
+    const publicationEntry = page.locator('article').filter({
+      has: page.getByRole('heading', {
+        name: 'Dessi’s independent publication and research library',
+      }),
+    });
+    await publicationEntry.getByText('Inspect supporting claims', { exact: true }).click();
+    const publicationClaim = publicationEntry.getByRole('listitem').filter({
+      hasText: 'geometry-of-intention-authorship',
+    });
+    await expect(publicationClaim.getByText('Publicly verifiable', { exact: true })).toBeVisible();
+    await expect(
+      publicationClaim.getByText('Dessi Georgieva wrote The Geometry of Intention', {
+        exact: false,
+      })
+    ).toBeVisible();
+    await expect(
+      publicationClaim.getByRole('link', { name: 'The Geometry of Intention' })
+    ).toHaveAttribute(
+      'href',
+      'https://ai-knowledge-hub.org/library/geometry-of-intention-llms-human-goals-marketing/'
+    );
+
     await page.getByText('How the public record is made', { exact: true }).click();
     await expect(
       page.getByText('Opportunity Studio uses an explicitly disclosed profile', { exact: false })

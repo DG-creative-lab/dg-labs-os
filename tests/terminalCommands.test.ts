@@ -90,7 +90,11 @@ describe('executeTerminalCommand', () => {
     const result = executeTerminalCommand('links', ctx);
     expect(result.action.type).toBe('none');
     expect(result.lines.join(' ')).toContain('LinkedIn:');
-    expect(result.lines.join(' ')).toContain('AI Skills Platform:');
+    expect(result.lines).toContain('AI Knowledge Hub: https://ai-knowledge-hub.org/');
+    expect(result.lines).toContain('AI Knowledge Hub Skills: https://skills.ai-knowledge-hub.org/');
+    expect(result.lines).toContain(
+      'AI Knowledge Hub Harness: https://harness.ai-knowledge-hub.org/'
+    );
   });
 
   it('returns list_tools action for tools command', () => {

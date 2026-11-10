@@ -8,7 +8,7 @@ sources:
   [
     'https://www.linkedin.com/in/dessi-georgieva/',
     'https://github.com/DG-creative-lab',
-    'https://github.com/ai-knowledge-hub',
+    'https://ai-knowledge-hub.org/',
   ]
 last_verified: '2026-09-21'
 related: ['identity-philosophy', 'identity-education', 'identity-links']
@@ -16,17 +16,17 @@ related: ['identity-philosophy', 'identity-education', 'identity-links']
 
 # Dessi Georgieva
 
-AI Systems Engineer working on governed agent platforms and human agency. Dessi is an Engineer at Performics Innovations Lab (Publicis Media), London, building intelligent systems across marketing infrastructure, agent architecture, typed tools, and accountable automation.
+Dessi is an AI Systems Engineer in London. Her background spans consulting, business intelligence, and enterprise engineering. She designs agent workflows that integrate tools and data with evaluation and human approvals. Her production work has focused on multi-tenant systems for marketing and advertising. She also publishes AI Knowledge Hub, an independent publication on AI in marketing, growth, and go-to-market.
 
-Dessi's systems work starts from a practical question: how can a model act and learn without becoming the authority for identity, permissions, evidence, external effects, or publication? Her enterprise work applies that question to production agent, data, and multi-tenant systems. Her independent projects make the corresponding contracts, state transitions, provenance, evaluation, human approval, and recovery patterns inspectable.
+Dessi's systems work starts from a practical question: how can a model act and learn without becoming the authority for identity, permissions, evidence, external effects, or publication? Her enterprise work at Publicis Media applied that question to production agent, data, and multi-tenant systems. Her independent projects make the corresponding contracts, state transitions, provenance, evaluation, human approval, and recovery patterns inspectable.
 
 ## Background
 
-Dessi's path joins three kinds of work. A BA in Philosophy, specialising in philosophy of science, trained her to examine how knowledge claims are formed and revised. An MA in Human Rights grounded that inquiry in agency, institutions, and accountability. Data and engineering turned those questions into operational systems.
+Dessi's path joins three kinds of work. A BA in Philosophy, specialising in philosophy of science, trained her to examine how knowledge claims are formed and revised. An MA in Human Rights grounded that inquiry in agency, institutions, and accountability. Across consulting, BI, and applied AI roles, Dessi built API ingestion connectors and ELT pipelines for large marketing datasets using Databricks or AWS Glue, depending on the project. Her most recent employer work connected Databricks-backed data serving to production AI agents.
 
 ## Systems Engineering Practice
 
-Three practices recur across Dessi's work:
+Four practices recur across Dessi's work:
 
 1. **Separate model reasoning from system authority**: models interpret and propose. Validated code controls identity, permissions, tools, transitions, effects, evidence, and publication.
 

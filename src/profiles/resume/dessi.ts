@@ -7,23 +7,22 @@ export const dessiResumeModule = definePublicResumeModule({
   profileId: dessiProfileProjection.profileId,
   handle: dessiProfileProjection.handle,
   projectionVersion: dessiProfileProjection.projectionVersion,
-  resumeVersion: 9,
+  resumeVersion: 10,
   status: 'published',
   roleTitle: 'AI Systems Engineer · Enterprise Agents and Applied AI',
-  summary:
-    'I architect and build enterprise AI systems that interpret user intent, coordinate skills and tools, work across hierarchical external systems, and return results under explicit identity, policy, and evidence controls. My professional work provides production backend, data, and multi-tenant experience; my independent systems make the corresponding architecture, evaluation, and recovery patterns inspectable.',
+  summary: dessiProfileProjection.identity.introduction,
   contact: [
     { kind: 'public-email' },
     { kind: 'profile-link', linkId: 'linkedin' },
     { kind: 'profile-link', linkId: 'github-personal' },
     { kind: 'website', label: 'Portfolio' },
-    { kind: 'profile-link', linkId: 'github-org' },
+    { kind: 'profile-link', linkId: 'news-hub' },
   ],
   focusAreas: [
     {
       label: 'Customer discovery and productisation',
       detail:
-        'Translate operational needs, user feedback, and integration constraints into prototypes that can become reusable production capabilities.',
+        'Work with agency users to turn operational needs and integration constraints into reusable production workflows.',
     },
     {
       label: 'Agent architecture and integration',
@@ -45,8 +44,27 @@ export const dessiResumeModule = definePublicResumeModule({
       detail:
         'Keep tenant scope, permissions, approvals, evidence, provider writes, and consequential effects under deterministic control while models interpret and propose.',
     },
+    {
+      label: 'Data engineering and API integration',
+      detail:
+        'Build API ingestion connectors, AWS Glue and Databricks ELT pipelines, and serving APIs. Validate schemas, freshness, completeness, and source-to-output reconciliation.',
+    },
   ],
   selectedSystems: [
+    {
+      workbenchItemId: 'direct-acquisition-agent',
+      evidenceClaimIds: [],
+      workbenchHighlightIndexes: [0],
+      primaryLink: 'repo',
+      linkLabel: 'Repository',
+    },
+    {
+      workbenchItemId: 'youtube-ad-agent',
+      evidenceClaimIds: [],
+      workbenchHighlightIndexes: [0],
+      primaryLink: 'repo',
+      linkLabel: 'Repository',
+    },
     {
       workbenchItemId: 'agentic-commerce-loop',
       evidenceClaimIds: ['agent-runtime', 'feedback-loop'],
@@ -71,21 +89,22 @@ export const dessiResumeModule = definePublicResumeModule({
   ],
   experience: [
     {
-      id: 'performics-engineer',
+      id: 'publicis-engineer',
       title: 'Engineer',
-      organisation: 'Performics Innovations Lab · Publicis Media',
+      organisation: 'Publicis Media',
       location: 'London',
       startedAt: '2023-11',
-      endedAt: null,
+      endedAt: '2026-11',
       highlights: [
-        'I architected and evolved a production Programmatic agent platform used by internal agency teams across three major global advertiser accounts, taking it from prototype through changing engineering and user requirements.',
+        'I architected the production Programmatic agent platform used by internal agency teams across three major global advertiser accounts and evolved it in response to agency feedback.',
       ],
       evidenceClaimIds: [
-        'production-agent-runtime',
         'production-onboarding',
+        'production-agent-runtime',
         'production-evaluation',
         'production-playbooks',
         'production-data-platform',
+        'production-data-serving',
       ],
       boundary:
         'I describe employer work only at responsibility and outcome level. Employer code, client information, operational measurements, and infrastructure remain confidential.',
@@ -98,7 +117,7 @@ export const dessiResumeModule = definePublicResumeModule({
       startedAt: '2023-03',
       endedAt: '2023-11',
       highlights: [
-        'I bridged marketing analytics and decision systems, moving reporting workflows toward reusable intelligence services and platformised decision support.',
+        'I turned recurring marketing reports into reusable datasets and decision-support services, building the API connectors and ELT pipelines that supplied them.',
       ],
       evidenceClaimIds: [],
     },
@@ -110,7 +129,7 @@ export const dessiResumeModule = definePublicResumeModule({
       startedAt: '2021-01',
       endedAt: '2023-03',
       highlights: [
-        'I built enterprise analytics applications and data workflows, including interactive products, cloud ETL, and data-lake patterns.',
+        'I built interactive enterprise analytics applications backed by ingestion connectors, cloud ELT pipelines, and marketing data lakes.',
       ],
       evidenceClaimIds: [],
     },
@@ -122,7 +141,7 @@ export const dessiResumeModule = definePublicResumeModule({
       startedAt: '2017',
       endedAt: '2020',
       highlights: [
-        'I worked directly with agency, startup, and media clients to translate business requirements into CRM, analytics, segmentation, automation, and experimentation systems.',
+        'I worked directly with agency, startup, and media clients to deliver CRM, segmentation, analytics, and experimentation systems, including their ingestion connectors and ELT pipelines.',
       ],
       evidenceClaimIds: [],
     },
@@ -145,10 +164,10 @@ export const dessiResumeModule = definePublicResumeModule({
   ],
   publication: {
     approvedBy: 'owner',
-    reviewedAt: '2026-09-21T00:00:00Z',
-    publishedAt: '2026-09-21T00:00:00Z',
+    reviewedAt: '2026-11-10T00:00:00Z',
+    publishedAt: '2026-11-10T00:00:00Z',
     privateSourcesExcluded: true,
     sourcePolicy:
-      'Resume v9 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
+      'Resume v10 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
   },
 } as const);

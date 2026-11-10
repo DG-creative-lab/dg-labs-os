@@ -108,13 +108,15 @@ describe('public Network modules', () => {
     expect(privateDirectRelationship?.confidence).toBe('self-reported');
     expect(interpretiveRelationship?.confidence).toBe('inferred');
     expect(interpretiveRelationship?.content).toContain(
-      'AI Skills Platform (system-ai-skills) supports DG-OS (system-dg-os).'
+      'AI Knowledge Hub Skills (system-ai-skills) supports DG-OS (system-dg-os).'
     );
+    expect(dessiNetworkModule.nodes.find((node) => node.id === 'career-ai-systems')).toMatchObject({
+      period: 'Nov 2023 – Nov 2026',
+    });
     expect(dessiNetworkModule.nodes.find((node) => node.id === 'system-ai-news-hub')).toMatchObject(
       {
         links: {
-          url: 'https://ai-news-hub.performics-labs.com/',
-          repo: 'https://github.com/ai-knowledge-hub/performics_labs_ai_news',
+          url: 'https://ai-knowledge-hub.org/',
         },
       }
     );

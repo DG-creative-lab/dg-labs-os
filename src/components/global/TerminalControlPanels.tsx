@@ -16,14 +16,14 @@ import type {
 
 type TerminalControlPanelsProps = {
   activePanelTab: TerminalPanelTab;
-  setActivePanelTab: Dispatch<SetStateAction<TerminalPanelTab>>;
+  onClose: () => void;
   settings: TerminalSettings;
   setSettings: Dispatch<SetStateAction<TerminalSettings>>;
   byokApiKey: string;
   setByokApiKey: Dispatch<SetStateAction<string>>;
   providerHealth: ProviderHealth;
   toolUsage: ToolUsage;
-  lastEvidence: EvidenceState | null;
+  evidence: EvidenceState | null;
   profileName: string;
   reviewedAt: string;
   onResetLlmCounter: () => void;
@@ -43,14 +43,14 @@ const formatReviewDate = (value: string) =>
 
 export function TerminalControlPanels({
   activePanelTab,
-  setActivePanelTab,
+  onClose,
   settings,
   setSettings,
   byokApiKey,
   setByokApiKey,
   providerHealth,
   toolUsage,
-  lastEvidence,
+  evidence,
   profileName,
   reviewedAt,
   onResetLlmCounter,
@@ -62,7 +62,9 @@ export function TerminalControlPanels({
     activePanelTab === 'connection'
       ? 'AI connection'
       : activePanelTab === 'evidence'
-        ? 'Supporting evidence'
+        ? evidence?.verdict === 'question-context'
+          ? 'Question context'
+          : 'Supporting evidence'
         : 'Advanced terminal';
 
   return (
@@ -76,7 +78,7 @@ export function TerminalControlPanels({
         </div>
         <button
           type="button"
-          onClick={() => setActivePanelTab(null)}
+          onClick={onClose}
           aria-label={`Close ${title}`}
           className="grid h-8 w-8 place-items-center rounded-full text-white/45 transition hover:bg-white/5 hover:text-white"
         >
@@ -96,11 +98,7 @@ export function TerminalControlPanels({
         ) : null}
 
         {activePanelTab === 'evidence' ? (
-          <EvidencePanel
-            lastEvidence={lastEvidence}
-            profileName={profileName}
-            reviewedAt={reviewedAt}
-          />
+          <EvidencePanel evidence={evidence} profileName={profileName} reviewedAt={reviewedAt} />
         ) : null}
 
         {activePanelTab === 'advanced' ? (
@@ -204,20 +202,29 @@ function ConnectionPanel({
 }
 
 function EvidencePanel({
-  lastEvidence,
+  evidence,
   profileName,
   reviewedAt,
-}: Pick<TerminalControlPanelsProps, 'lastEvidence' | 'profileName' | 'reviewedAt'>) {
+}: Pick<TerminalControlPanelsProps, 'evidence' | 'profileName' | 'reviewedAt'>) {
   return (
     <div>
       <p className="text-xs leading-5 text-white/45">
         Answers use {profileName}&apos;s reviewed public projection. Last profile review:{' '}
         {formatReviewDate(reviewedAt)}.
       </p>
+      {evidence?.verdict === 'question-context' ? (
+        <p className="mt-2 text-xs leading-5 text-white/55">
+          Related records provide context for the question. The generated reply is unverified.
+        </p>
+      ) : evidence?.verdict === 'partial' || evidence?.verdict === 'insufficient' ? (
+        <p className="mt-2 text-xs leading-5 text-white/55">
+          Related records provide context. The citation check found insufficient direct support.
+        </p>
+      ) : null}
 
-      {lastEvidence && lastEvidence.hits.length > 0 ? (
+      {evidence && evidence.hits.length > 0 ? (
         <div className="mt-5 divide-y divide-white/10 border-y border-white/10">
-          {lastEvidence.hits.slice(0, 6).map((hit, index) => (
+          {evidence.hits.slice(0, 6).map((hit, index) => (
             <article key={hit.id} className="py-4">
               <div className="flex gap-3">
                 <span className="pt-0.5 font-mono text-[9px] text-sky-300/55">

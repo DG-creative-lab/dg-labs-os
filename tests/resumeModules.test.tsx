@@ -22,11 +22,11 @@ describe('public Resume modules', () => {
     expect(JSON.parse(JSON.stringify(resumeModuleV1Fixture))).toEqual(resumeModuleV1Fixture);
     expect(dessiResumeModule.publication).toEqual({
       approvedBy: 'owner',
-      reviewedAt: '2026-09-21T00:00:00Z',
-      publishedAt: '2026-09-21T00:00:00Z',
+      reviewedAt: '2026-11-10T00:00:00Z',
+      publishedAt: '2026-11-10T00:00:00Z',
       privateSourcesExcluded: true,
       sourcePolicy:
-        'Resume v9 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
+        'Resume v10 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded.',
     });
   });
 
@@ -40,16 +40,42 @@ describe('public Resume modules', () => {
     );
     const markdown = renderResumeMarkdown(resume);
 
-    expect(markdown).toContain(
-      'I architect and build enterprise AI systems that interpret user intent'
-    );
+    expect(resume.summary).toBe(dessiProfileProjection.identity.introduction);
+    expect(markdown).toContain('I’m an AI systems engineer with a background in consulting');
+    expect(markdown).not.toMatch(/performics/i);
+    expect(markdown).toContain('**Publicis Media** · London · Nov 2023 - Nov 2026');
+    expect(markdown).toContain('Nov 2023 - Nov 2026');
     expect(markdown).toContain('three major global advertiser accounts');
     expect(markdown).toContain('AWS Bedrock AgentCore');
+    expect(markdown).toContain('[AI Knowledge Hub](https://ai-knowledge-hub.org/)');
+    expect(markdown.indexOf('three major global advertiser accounts')).toBeLessThan(
+      markdown.indexOf('at least three days of cross-team coordination')
+    );
+    expect(markdown.indexOf('at least three days of cross-team coordination')).toBeLessThan(
+      markdown.indexOf('AWS Bedrock AgentCore')
+    );
     expect(markdown).toContain('remove at least three days of cross-team coordination');
     expect(markdown).toContain('routing and correctness evaluations');
     expect(markdown).toContain('persisting, versioning, and sharing campaign playbooks');
     expect(markdown).toContain('millions of records');
+    expect(markdown).toContain('bronze, silver, and gold Databricks ELT pipelines');
+    expect(markdown).toContain('production S3 landing layer, read-only staging access');
+    expect(markdown).toContain('schema, freshness, and completeness checks');
+    expect(markdown.indexOf('routing and correctness evaluations')).toBeLessThan(
+      markdown.indexOf('bronze, silver, and gold Databricks ELT pipelines')
+    );
+    for (const role of resume.experience.slice(1)) {
+      const bullets = role.bullets.join(' ');
+      expect(bullets).toMatch(/(?:API|ingestion) connectors/);
+      expect(bullets).toContain('ELT pipelines');
+    }
     expect(markdown).toContain('I worked directly with agency, startup, and media clients');
+    expect(markdown).toContain('### Direct Acquisition Agent');
+    expect(markdown).toContain('mature synthetic responses');
+    expect(markdown).toContain('https://github.com/DG-creative-lab/direct-acquisition-agent');
+    expect(markdown).toContain('### YouTube Ad Agent');
+    expect(markdown).toContain('saved delivery reports and local viewer activity');
+    expect(markdown).toContain('https://github.com/DG-creative-lab/youtube-ad-agent');
     expect(markdown).toContain('Independent deployed beta');
     expect(markdown).toContain('DG-OS');
     expect(markdown).toContain('**University of York**');
@@ -62,7 +88,7 @@ describe('public Resume modules', () => {
       markdown.indexOf('## AI Systems Capabilities')
     );
     expect(markdown.indexOf('## AI Systems Capabilities')).toBeLessThan(
-      markdown.indexOf('## Selected Systems')
+      markdown.indexOf('## Selected Systems and Agents')
     );
   });
 

@@ -28,6 +28,9 @@ export type KnowledgeItem = {
   snippet: string;
   tags: readonly string[];
   url?: string;
+  reviewedClaim?: NonNullable<KnowledgeEntry['reviewedClaim']> & {
+    confidence: KnowledgeEntry['confidence'];
+  };
 };
 
 export type KnowledgeHit = KnowledgeItem & {
@@ -103,6 +106,9 @@ export const buildKnowledgeIndex = (ctx: TerminalKnowledgeContext): KnowledgeIte
     snippet: entry.content.replace(/\s+/g, ' ').trim().slice(0, 280),
     tags: [entry.type, ...entry.tags],
     url: entry.sources[0],
+    ...(entry.reviewedClaim && {
+      reviewedClaim: { ...entry.reviewedClaim, confidence: entry.confidence },
+    }),
   }));
 
   return [personalItem, ...workbenchItems, ...writingItems, ...networkItems, ...brainItems];
@@ -118,28 +124,63 @@ export const getKnowledgeSourceStats = (
   brain: (ctx.brain ?? []).length,
 });
 
-export const retrieveKnowledge = (
-  query: string,
-  ctx: TerminalKnowledgeContext,
-  topK = 5
-): KnowledgeHit[] => {
-  const q = query.trim();
-  if (!q) return [];
-  const queryTokens = uniqueTokens(q);
-  if (queryTokens.length === 0) return [];
+const scoreKnowledgeItem = (tokens: readonly string[], item: KnowledgeItem): number =>
+  scoreByTokens(tokens, item.title, 4) +
+  scoreByTokens(tokens, item.tags.join(' '), 3) +
+  scoreByTokens(tokens, item.snippet, 2);
 
-  const index = buildKnowledgeIndex(ctx);
+const rankKnowledge = (
+  queryTokens: readonly string[],
+  index: readonly KnowledgeItem[]
+): KnowledgeHit[] => {
   const hits: KnowledgeHit[] = [];
 
   for (const item of index) {
-    const titleScore = scoreByTokens(queryTokens, item.title, 4);
-    const tagScore = scoreByTokens(queryTokens, item.tags.join(' '), 3);
-    const snippetScore = scoreByTokens(queryTokens, item.snippet, 2);
-    const score = titleScore + tagScore + snippetScore;
+    const score = scoreKnowledgeItem(queryTokens, item);
     if (score > 0) {
       hits.push({ ...item, score });
     }
   }
 
-  return hits.sort((a, b) => b.score - a.score).slice(0, topK);
+  return hits.sort((a, b) => b.score - a.score);
+};
+
+export const retrieveKnowledge = (
+  query: string,
+  ctx: TerminalKnowledgeContext,
+  topK = 5
+): KnowledgeHit[] => rankKnowledge(uniqueTokens(query), buildKnowledgeIndex(ctx)).slice(0, topK);
+
+const normalizeClaim = (claim: string): string =>
+  claim
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .replace(/[.!?]$/, '');
+
+export const citeKnowledge = (claim: string, ctx: TerminalKnowledgeContext) => {
+  const index = buildKnowledgeIndex(ctx);
+  const statement = normalizeClaim(claim);
+  const tokens = uniqueTokens(claim);
+  // Related text cannot establish support. Match the reviewed claim or an explicit question for it.
+  const matches = index.filter(
+    (item) =>
+      item.reviewedClaim?.confidence === 'verified' &&
+      item.url &&
+      (normalizeClaim(item.title) === statement ||
+        item.reviewedClaim.questions.some((question) => normalizeClaim(question) === statement))
+  );
+  if (matches.length === 1) {
+    const [direct] = matches;
+    return {
+      verdict: 'supported',
+      evidence: [{ ...direct, score: scoreKnowledgeItem(tokens, direct) }],
+    } as const;
+  }
+
+  const hits = rankKnowledge(tokens, index);
+  return {
+    verdict: (hits[0]?.score ?? 0) >= 6 ? 'partial' : 'insufficient',
+    evidence: hits.slice(0, 5).map((hit) => ({ ...hit, url: undefined })),
+  } as const;
 };

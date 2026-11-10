@@ -1,12 +1,12 @@
 import type { WorkbenchCategory, WorkbenchItem } from './contracts';
 
 export const workbenchCategories = [
-  'Selected Systems',
   'Professional Context',
+  'Selected Systems',
 ] as const satisfies readonly WorkbenchCategory[];
 
 export const workbenchCategoryDescriptions = {
-  'Selected Systems': 'Public code and live systems that can be inspected directly.',
+  'Selected Systems': 'Independent systems and agents, with their scope and available evidence.',
   'Professional Context': 'Production experience described within employer and client boundaries.',
 } as const satisfies Readonly<Record<WorkbenchCategory, string>>;
 
@@ -14,70 +14,95 @@ export const workbench: readonly WorkbenchItem[] = [
   {
     id: 'ai-news-hub',
     category: 'Selected Systems',
-    classification: 'Open-source public platform · Active',
-    title: 'Performics Labs AI News Hub',
-    subtitle: 'A shared research platform for applied AI in marketing',
+    classification: 'Independent publication · Active',
+    title: 'AI Knowledge Hub',
+    subtitle: 'Research and practical work on AI in marketing, growth, and go-to-market',
     summary:
-      'An applied AI research and publishing platform that helps marketing teams understand what new models, interfaces, and agent systems change in practice.',
-    stack: ['Astro', 'React', 'TypeScript', 'MDX', 'Vercel', 'Editorial workflows'],
+      'Dessi publishes research, essays, and experiments on what AI changes in marketing, growth, and go-to-market, and how teams can test those changes in practice.',
+    stack: ['Astro', 'TypeScript', 'MDX', 'Editorial workflows'],
     links: {
-      site: 'https://ai-news-hub.performics-labs.com/',
-      repo: 'https://github.com/ai-knowledge-hub/performics_labs_ai_news',
+      site: 'https://ai-knowledge-hub.org/',
+      article: 'https://ai-knowledge-hub.org/library/',
     },
     highlights: [
-      'Created as a shared home for an internal community of thinkers, builders, and innovators, with about 400 company members reported by the project owner.',
-      'Connects fast news, deeper analysis, All-Hands build sessions, and working prototypes so research can lead to implementation.',
-      'The public repository contains the MIT-licensed Astro application and the editorial system behind the live site.',
-      'The site and code are public. Internal membership and engagement figures are owner-reported, and public bylines may represent collaborative work.',
+      'The library includes revised editions of Dessi’s earlier articles alongside new work.',
+      'Skills makes reusable packages and tools available to inspect and adapt. Harness explains the engineering behind these systems with guides and interactive examples.',
     ],
   },
   {
     id: 'ai-skills-platform',
     category: 'Selected Systems',
     classification: 'Open-source public platform · Active',
-    title: 'AI Skills Platform',
-    subtitle: 'From AI research to reusable working capabilities',
+    title: 'AI Knowledge Hub Skills',
+    subtitle: 'Reusable skills, agents, plugins, and tools',
     summary:
-      'An open catalog that turns AI research into reusable skills, agents, plugins, and tool connectors for marketing, engineering, security, and agent operations.',
+      'The publication’s open catalogue of reusable skills, agent templates, plugins, and tool connectors for marketing, engineering, security, and agent operations.',
     stack: ['Go', 'Next.js', 'TypeScript', 'Markdown', 'JSON registries', 'Playwright'],
     links: {
       site: 'https://skills.ai-knowledge-hub.org/',
       repo: 'https://github.com/ai-knowledge-hub/ai-skills-guide',
       article:
-        'https://ai-news-hub.performics-labs.com/news/agent-architect-playbook-building-ai-skills-marketing-adtech',
+        'https://ai-knowledge-hub.org/library/agent-architect-playbook-building-ai-skills-marketing-adtech/',
     },
     highlights: [
-      'Developed as the practical companion to several AI News Hub articles, giving readers working packages they can inspect, install, test, and adapt.',
-      'Uses versioned registries and manifests to show readiness, usability, authentication, permissions, and approval boundaries before adoption.',
-      'The reviewed public registry contains 42 skills, 7 agents, 8 tool or MCP entries, and 11 plugins.',
-      'The catalog verifies package structure and usability. Adoption and production impact require separate evidence.',
+      'Readers can inspect and adapt the source of each package. The catalogue states which resources are documentation or templates, which need setup, and which are ready to use.',
+      'Versioned registries and manifests describe readiness, authentication, permissions, and approval requirements.',
     ],
   },
   {
     id: 'ai-harness-lab',
     category: 'Selected Systems',
-    classification: 'Open-source public learning lab · Selective development',
-    title: 'AI Harness Lab',
-    subtitle: 'Interactive patterns for reliable AI in marketing systems',
+    classification: 'Open-source engineering guide · Active',
+    title: 'AI Knowledge Hub Harness',
+    subtitle: 'System design, algorithms, software production, and AI engineering',
     summary:
-      'A practical learning environment that shows how context, deterministic structures, tools, permissions, orchestration, and feedback shape the behaviour of marketing AI systems.',
-    stack: [
-      'Interactive systems manual',
-      'Control patterns',
-      'Algorithm visualisation',
-      'Applied AI',
-    ],
+      'The publication’s practical engineering companion uses guides, reference architectures, and interactive visualisers to explain how AI systems are designed, built, and evaluated.',
+    stack: ['System design', 'Algorithm visualisation', 'Software production', 'Agent engineering'],
     links: {
       site: 'https://harness.ai-knowledge-hub.org/',
       repo: 'https://github.com/ai-knowledge-hub/ai-harness-lab',
       article:
-        'https://ai-news-hub.performics-labs.com/analysis/deterministic-core-algorithms-data-structures-marketing-agents',
+        'https://ai-knowledge-hub.org/library/deterministic-core-algorithms-data-structures-marketing-agents/',
     },
     highlights: [
-      'Created to move readers from AI News analysis into practical examples they can inspect and explore.',
-      'Uses marketing workflows to explain the deterministic structures that support retrieval, routing, ordering, deduplication, memory, permissions, and control.',
-      'Includes an interactive algorithms module and an agent control-plane pattern for identity, policy, approval, and audit.',
-      'The public lab is functional, but its broader patterns and case-study library remain incomplete and development is selective.',
+      'Connects algorithms, data structures, and agent harnesses to marketing, growth, and go-to-market workflows.',
+      'Interactive examples let readers inspect how retrieval, routing, ordering, and other deterministic operations work.',
+    ],
+  },
+  {
+    id: 'direct-acquisition-agent',
+    category: 'Selected Systems',
+    classification: 'Independent prototype · Active development',
+    title: 'Direct Acquisition Agent',
+    subtitle: 'Direct-mail campaign preparation and experiment learning',
+    summary:
+      'An acquisition workspace that turns an audience and approved product evidence into a reviewable direct-mail experiment.',
+    stack: ['Python', 'React', 'TypeScript', 'SQLite', 'OpenRouter'],
+    links: {
+      repo: 'https://github.com/DG-creative-lab/direct-acquisition-agent',
+    },
+    highlights: [
+      'I built a direct-mail agent that drafts source-grounded copy, assigns A/B and no-mail groups, and uses mature synthetic responses to propose the next experiment.',
+      'Binds human approval to an exact audience, budget, and draft before simulated handoff.',
+      'Uses synthetic businesses and simulated delivery. Current development includes importing recorded synthetic reports and checking completeness before updating experiment evidence.',
+    ],
+  },
+  {
+    id: 'youtube-ad-agent',
+    category: 'Selected Systems',
+    classification: 'Independent prototype · Active development',
+    title: 'YouTube Ad Agent',
+    subtitle: 'Contextual placements, creative, and follow-up testing',
+    summary:
+      'A campaign planner that matches YouTube placements with relevant ads and product demos, then reviews delivery and viewer activity to plan the next test.',
+    stack: ['Python', 'React', 'TypeScript', 'SQLite', 'YouTube Data API', 'Google Ads API'],
+    links: {
+      repo: 'https://github.com/DG-creative-lab/youtube-ad-agent',
+    },
+    highlights: [
+      'I built an agent that pairs YouTube placements with ads and product demos, then uses saved delivery reports and local viewer activity to recommend the next test.',
+      'Keeps ad delivery metrics separate from tagged viewer arrivals and completions. Proposed changes require buyer approval.',
+      'The local planner uses sample delivery and has a separate Google Ads test-account path for paused setup and read-back.',
     ],
   },
   {
@@ -101,7 +126,7 @@ export const workbench: readonly WorkbenchItem[] = [
     links: {
       repo: 'https://github.com/ai-knowledge-hub/deep-dive-analysis-agentic-commerce-augmentation',
       article:
-        'https://ai-news-hub.performics-labs.com/analysis/building-to-learn-agentic-marketing-optimization',
+        'https://ai-knowledge-hub.org/library/building-to-learn-agentic-marketing-optimization/',
     },
     highlights: [
       'Uses Bayesian-style learning to update client-, brand-, and product-scoped beliefs as new synthetic or observed evidence arrives.',
@@ -229,7 +254,7 @@ export const workbench: readonly WorkbenchItem[] = [
       repo: 'https://github.com/ai-knowledge-hub/deep-dive-analysis-intent-recognition-agent',
       demo: 'https://huggingface.co/spaces/Dessi/gradio-mcp-hack',
       article:
-        'https://ai-news-hub.performics-labs.com/analysis/geometry-of-intention-llms-human-goals-marketing',
+        'https://ai-knowledge-hub.org/library/geometry-of-intention-llms-human-goals-marketing/',
     },
     highlights: [
       'Captures contextual signals across identity, history, situation, and constraints.',
@@ -270,6 +295,7 @@ export const workbench: readonly WorkbenchItem[] = [
       'Claude Agent SDK',
       'AWS Lambda',
       'Databricks',
+      'Amazon S3',
       'GitHub Actions',
       'CloudWatch',
       'PostHog',
@@ -278,9 +304,10 @@ export const workbench: readonly WorkbenchItem[] = [
     links: {},
     highlights: [
       'Evolved from a prototype into a production system used by internal agency teams across three major global advertiser accounts.',
-      'Maps ambiguous intent through agent skills and a provider-neutral CLI grammar into Lambda services, analytical data, and hierarchical DV360 and TTD APIs.',
-      'Keeps tenant scope, provider authorisation, evidence, write gates, human approval, and recovery deterministic while the model interprets requests and explains results.',
+      'Designed the agent harness and typed tools, with deterministic controls for tenant scope, evidence, provider writes, and human approval.',
       'Automates advertiser onboarding and ingestion, replacing spreadsheet exchange and removing at least three days of cross-team coordination per onboarding cycle.',
+      'Built ingestion connectors, Databricks ELT pipelines, and serving APIs so agents could query warehouse and live provider data. Added schema, freshness, completeness, and reconciliation checks.',
+      'Designed production S3 landing, read-only staging access, and schema-based development reads using test data.',
       'Measures routing and correctness alongside tool use, grounding, latency, and cost, with AgentCore traces, CloudWatch, and PostHog supporting diagnosis.',
       'Turns agency feedback into reusable product capabilities, including tenant-scoped, persistent, versioned, and shareable campaign playbooks.',
       'Development deployments exposed AgentCore version-headroom limits; the team restored delivery, then added runtime rotation and headroom checks to prevent recurrence.',

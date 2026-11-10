@@ -52,8 +52,8 @@ export default function WorkbenchApp({
     <section className="text-white">
       <h1 className="text-2xl font-semibold">Workbench</h1>
       <p className="mt-2 text-white/70">
-        Selected systems {profile.identity.preferredName} can show, explain, and bound with
-        evidence.
+        Production engineering and independent systems from {profile.identity.possessiveName}{' '}
+        practice.
       </p>
       <div className="mt-8 space-y-10">
         {workbench.categories.map((category) => {
@@ -64,7 +64,7 @@ export default function WorkbenchApp({
               <div className="flex items-end justify-between gap-6 border-b border-white/15 pb-3">
                 <div>
                   <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-white/85">
-                    {category}
+                    {category === 'Selected Systems' ? 'Selected Systems and Agents' : category}
                   </h2>
                   <p className="mt-1 text-xs leading-relaxed text-white/50">
                     {workbench.categoryDescriptions[category]}

@@ -17,7 +17,8 @@ const estimateTokens = (text: string): number =>
   Math.max(1, Math.ceil(text.trim().split(/\s+/).length * 0.75));
 
 export function buildProfileModuleKnowledgeEntries(
-  modules: PublicProfileModules
+  modules: PublicProfileModules,
+  reviewedQuestions: Readonly<Record<string, readonly string[]>> = {}
 ): readonly KnowledgeEntry[] {
   const workbenchEntries = modules.workbench.items.map((item) => {
     const content = [item.subtitle, item.summary, ...item.highlights].join(' ');
@@ -44,6 +45,7 @@ export function buildProfileModuleKnowledgeEntries(
       title: claim.statement,
       tags: [claim.visibility, claim.confidence],
       confidence: claim.confidence,
+      reviewedClaim: { questions: reviewedQuestions[claim.id] ?? [], boundary: claim.boundary },
       sources: claim.evidence.map((link) => link.url),
       lastVerified: claim.lastVerified,
       related: [],
@@ -56,11 +58,11 @@ export function buildProfileModuleKnowledgeEntries(
   const caseStudyEntries = modules.evidenceEvolution.caseStudies.map((study) => {
     const content = [
       `Contribution: ${study.contribution}`,
+      `Limitation: ${study.limitation}`,
       `Failure surface: ${study.problem}`,
       `Intervention: ${study.intervention}`,
       `Evaluation: ${study.evaluation}`,
       `Result: ${study.result}`,
-      `Limitation: ${study.limitation}`,
     ].join(' ');
     return {
       id: `module-case-study-${study.id}`,
@@ -100,7 +102,10 @@ export function buildProfileModuleKnowledgeEntries(
       id: `module-evolution-${entry.date}-${entry.kind}-${entry.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
       type: 'research' as const,
       title: entry.title,
-      tags: [entry.kind, entry.state],
+      tags:
+        entry.state === 'active'
+          ? [entry.kind, entry.state, 'current focus', 'working on now', 'currently building']
+          : [entry.kind, entry.state],
       confidence: entry.kind === 'question' ? ('inferred' as const) : ('self-reported' as const),
       sources: Array.from(
         new Set(supportingClaims.flatMap((claim) => claim.evidence.map((link) => link.url)))
@@ -248,7 +253,12 @@ const evidenceByProfileHandle = new Map<string, ProfileAgentEvidence>([
       writing: dessiWritingModule.entries,
       network: dessiNetworkModule.nodes,
       brain: [
-        ...buildProfileModuleKnowledgeEntries(dessiProfileModules),
+        ...buildProfileModuleKnowledgeEntries(dessiProfileModules, {
+          'geometry-of-intention-authorship': [
+            'Who wrote The Geometry of Intention?',
+            'Who is the author of The Geometry of Intention?',
+          ],
+        }),
         ...buildWritingModuleKnowledgeEntries(dessiWritingModule),
         ...buildNetworkModuleKnowledgeEntries(dessiNetworkModule),
         ...getKnowledgeEntries(),

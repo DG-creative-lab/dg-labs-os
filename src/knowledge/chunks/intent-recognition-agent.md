@@ -17,12 +17,12 @@ confidence: 'verified'
 sources:
   [
     'https://github.com/ai-knowledge-hub/deep-dive-analysis-intent-recognition-agent',
-    'https://ai-news-hub.performics-labs.com/analysis/geometry-of-intention-llms-human-goals-marketing',
+    'https://ai-knowledge-hub.org/library/geometry-of-intention-llms-human-goals-marketing/',
   ]
 last_verified: '2026-07-26'
 related:
   [
-    'experience-performics',
+    'experience-publicis-engineering',
     'research-geometry-of-intention',
     'identity-philosophy',
     'capability-agent-architecture',

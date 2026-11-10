@@ -9,7 +9,7 @@ last_verified: '2026-09-21'
 related:
   [
     'identity-profile',
-    'experience-performics',
+    'experience-publicis-engineering',
     'capability-agent-architecture',
     'capability-ai-coding-workflow',
   ]
@@ -30,6 +30,12 @@ Dessi's technical capability is best understood through the environments she des
 - Works with internal agency teams and consulting clients to turn operational needs into testable prototypes and production capabilities.
 - Integrates Claude Agent SDK on AWS Bedrock AgentCore with Lambda services, provider APIs, analytical data, tenant policy, and user-facing workflows.
 - Converts repeated requirements into reusable capabilities rather than one-off customer branches, including automated onboarding and user-owned, versioned playbooks.
+
+## Data Engineering and Serving
+
+- Built ingestion connectors and Databricks or AWS Glue ELT pipelines for large marketing datasets across consulting, BI, and applied AI roles.
+- At Publicis Media, built bronze, silver, and gold Databricks transformations and Databricks-backed serving APIs. The typed CLI routed agent reads between warehouse reports and live ad-platform APIs.
+- Checked schema, freshness, completeness, and reconciliation to source totals. Evaluated Databricks SQL latency for interactive reporting.
 
 ## Context and Capability Design
 

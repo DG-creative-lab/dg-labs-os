@@ -7,6 +7,12 @@ const stateLabel = {
   reviewed: 'Reviewed revision',
 } as const;
 
+const confidenceLabel = {
+  verified: 'Publicly verifiable',
+  'self-reported': 'Owner-reported',
+  inferred: 'Interpretation',
+} as const;
+
 type EvolutionAppProps = {
   profile: ActiveProfileRuntime;
   evidenceEvolution: EvidenceEvolutionModule;
@@ -183,15 +189,36 @@ export default function EvolutionApp({
                       </span>
                     </summary>
                     <ul className="mt-3 border-l border-sky-300/30 pl-3 text-xs leading-5 text-white/58">
-                      {entry.evidenceIds.map((id) => (
-                        <li
-                          key={id}
-                          className="grid gap-1 border-b border-white/8 py-2 last:border-b-0 sm:grid-cols-[8.5rem_minmax(0,1fr)] sm:gap-3"
-                        >
-                          <span className="font-mono text-sky-200/80">{id}</span>
-                          <span>{claimsById.get(id)?.statement}</span>
-                        </li>
-                      ))}
+                      {entry.evidenceIds.map((id) => {
+                        const claim = claimsById.get(id);
+                        if (!claim) return null;
+                        return (
+                          <li
+                            key={id}
+                            className="grid gap-1 border-b border-white/8 py-2 last:border-b-0 sm:grid-cols-[8.5rem_minmax(0,1fr)] sm:gap-3"
+                          >
+                            <span className="font-mono text-sky-200/80">{id}</span>
+                            <div>
+                              <p className="font-medium text-sky-100/85">
+                                {confidenceLabel[claim.confidence]}
+                              </p>
+                              <p>{claim.statement}</p>
+                              {claim.boundary && <p className="mt-1">{claim.boundary}</p>}
+                              {claim.evidence.map((link) => (
+                                <a
+                                  key={link.url}
+                                  className="mt-1 block text-sky-200 underline underline-offset-4"
+                                  href={link.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
+                                  {link.label}
+                                </a>
+                              ))}
+                            </div>
+                          </li>
+                        );
+                      })}
                     </ul>
                   </details>
                 </article>

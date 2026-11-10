@@ -65,7 +65,7 @@ export function renderResumeMarkdown(resume: ResumeViewModel): string {
     '',
     ...resume.focusAreas.map((area) => `- **${area.label}:** ${area.detail}`),
     '',
-    '## Selected Systems',
+    '## Selected Systems and Agents',
     ''
   );
 

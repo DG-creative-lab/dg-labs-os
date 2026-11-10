@@ -584,23 +584,39 @@ describe('API route success contracts', () => {
     expect(body.tool).toBe('retrieve');
   });
 
-  it('tools cite returns evidence verdict', async () => {
+  it.each([
+    ['Does the article independently verify Dessi’s enterprise platform work?', 'partial'],
+    [
+      'Someone other than Dessi Georgieva wrote The Geometry of Intention, available on AI Knowledge Hub.',
+      'partial',
+    ],
+    ['Dessi Georgieva wrote The Geometry of Intention, available on AI Knowledge Hub', 'supported'],
+    ['Who first published The Geometry of Intention?', 'partial'],
+    ['Who wrote The Geometry of Intention?', 'supported'],
+    ['zxyzzq', 'insufficient'],
+  ])('tools cite assesses %s as %s', async (claim, verdict) => {
     const { POST } = await import('../src/pages/api/tools');
     const request = new Request('http://localhost/api/tools', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        profileHandle: 'dessi',
-        tool: 'cite',
-        input: { claim: 'Dessi built intent systems' },
-      }),
+      body: JSON.stringify({ profileHandle: 'dessi', tool: 'cite', input: { claim } }),
     });
 
     const response = await POST({ request } as Parameters<typeof POST>[0]);
     expect(response.status).toBe(200);
     const body = (await response.json()) as unknown;
     expect(isToolSuccessEnvelope(body)).toBe(true);
-    if (!isToolSuccessEnvelope(body)) return;
-    expect(body.tool).toBe('cite');
+    expect(body).toMatchObject({ tool: 'cite', result: { claim, verdict } });
+    const { result } = body as { result: { evidence: { id: string; url?: string }[] } };
+    if (verdict === 'supported') {
+      expect(result.evidence).toEqual([
+        expect.objectContaining({
+          id: 'brain-module-claim-geometry-of-intention-authorship',
+          url: 'https://ai-knowledge-hub.org/library/geometry-of-intention-llms-human-goals-marketing/',
+        }),
+      ]);
+    } else {
+      expect(result.evidence.every((hit) => hit.url === undefined)).toBe(true);
+    }
   });
 });

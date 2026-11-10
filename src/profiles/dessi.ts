@@ -5,7 +5,7 @@ export const dessiProfileProjection = defineProfileProjection({
   schemaVersion: PROFILE_PROJECTION_SCHEMA_VERSION,
   profileId: 'dessi_georgieva',
   handle: 'dessi',
-  projectionVersion: 5,
+  projectionVersion: 6,
   status: 'published',
   identity: {
     displayName: 'Dessi Georgieva',
@@ -15,11 +15,10 @@ export const dessiProfileProjection = defineProfileProjection({
     role: 'AI Systems Engineer',
     location: 'London, UK',
     roleFocus:
-      'Building governed AI products and Human Systems Platform for AI-augmented career development, evidence-backed talent discovery, and opportunity research.',
-    headline:
-      'I design and build governed AI systems, including Human Systems Platform for learning from human-AI work and connecting evidenced capability to opportunities.',
+      'Agent architecture, tool and data integration, evaluation, and production delivery.',
+    headline: 'I take enterprise AI systems into production.',
     introduction:
-      'My work spans open-source products, private founder development, and enterprise systems. I build the workflow around the agent, including the information it receives, the actions it may take, the checks applied to its work, and the points where a person should step in. Human Systems Platform applies that architecture to career and capability development: it learns from selected human-AI work, turns it into owner-approved evidence, helps individuals explore jobs, collaborators, funding, and next capabilities, and helps organisations discover relevant talent.',
+      'I’m an AI systems engineer with a background in consulting, business intelligence, and enterprise engineering. I design agent workflows, connect them to tools and data, and build in evaluation and human approvals. My production work has focused on multi-tenant systems for marketing and advertising.',
   },
   contact: {
     publicEmail: 'dessi.georgieva8@gmail.com',
@@ -55,19 +54,28 @@ export const dessiProfileProjection = defineProfileProjection({
     },
     {
       id: 'news-hub',
-      label: 'AI News Hub',
-      url: 'https://ai-news-hub.performics-labs.com/',
+      label: 'AI Knowledge Hub',
+      url: 'https://ai-knowledge-hub.org/',
       kind: 'publication',
-      tags: ['articles', 'writing', 'research', 'ai-news-hub'],
+      tags: ['writing', 'research', 'marketing', 'growth', 'go-to-market', 'ai-knowledge-hub'],
       trust: 'high',
       surfaces: ['verification', 'profile'],
     },
     {
       id: 'skills-hub',
-      label: 'AI Skills Platform',
+      label: 'AI Knowledge Hub Skills',
       url: 'https://skills.ai-knowledge-hub.org/',
       kind: 'platform',
       tags: ['skills', 'agents', 'tooling', 'platform'],
+      trust: 'high',
+      surfaces: ['verification', 'profile'],
+    },
+    {
+      id: 'harness-lab',
+      label: 'AI Knowledge Hub Harness',
+      url: 'https://harness.ai-knowledge-hub.org/',
+      kind: 'platform',
+      tags: ['harness', 'system design', 'algorithms', 'engineering'],
       trust: 'high',
       surfaces: ['verification', 'profile'],
     },
@@ -106,7 +114,7 @@ export const dessiProfileProjection = defineProfileProjection({
   seo: {
     title: 'DG-OS - Dessi Georgieva',
     description:
-      'Dessi Georgieva engineers governed agent systems and is developing Human Systems Platform for AI-augmented career development, evidence-backed talent discovery, and opportunity research.',
+      'Dessi Georgieva is an AI systems engineer with production experience in agent workflows, tool and data integration, and evaluation. Her background spans consulting, business intelligence, and enterprise engineering.',
     keywords: [
       'Dessi Georgieva',
       'Applied AI Engineer',
@@ -120,8 +128,8 @@ export const dessiProfileProjection = defineProfileProjection({
   publication: {
     visibility: 'public',
     approvedBy: 'owner',
-    reviewedAt: '2026-09-05T00:00:00Z',
-    publishedAt: '2026-09-05T00:00:00Z',
+    reviewedAt: '2026-11-10T00:00:00Z',
+    publishedAt: '2026-11-10T00:00:00Z',
     privateSourcesExcluded: true,
     sourcePolicy:
       'Only owner-reviewed public claims and assets may enter this projection. Raw local and employer-confidential sources remain excluded.',

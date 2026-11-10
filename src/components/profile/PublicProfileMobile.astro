@@ -18,33 +18,33 @@ const reviewedDate = new Intl.DateTimeFormat('en-GB', {
 const modules = [
   {
     index: '01',
-    label: 'Workbench',
-    description: 'Explore the systems and experiments behind the work.',
-    href: `/@${profile.handle}/workbench`,
+    label: 'Resume',
+    description: 'Enterprise experience, technical focus, and downloadable CV.',
+    href: `/@${profile.handle}/resume`,
   },
   {
     index: '02',
+    label: 'Workbench',
+    description: 'Explore production engineering and independent systems.',
+    href: `/@${profile.handle}/workbench`,
+  },
+  {
+    index: '03',
     label: 'Evidence & Evolution',
     description: 'Reviewed claims, boundaries, questions, and revisions.',
     href: `/@${profile.handle}/evolution`,
   },
   {
-    index: '03',
+    index: '04',
     label: 'Writing',
-    description: 'Ideas developed through technical analysis and practice.',
+    description: 'Research, essays, and engineering guides.',
     href: `/@${profile.handle}/writing`,
   },
   {
-    index: '04',
+    index: '05',
     label: 'System Map',
     description: 'Follow the connections across experience, systems, and ideas.',
     href: `/@${profile.handle}/network`,
-  },
-  {
-    index: '05',
-    label: 'Resume',
-    description: 'Experience, technical focus, and downloadable CV.',
-    href: `/@${profile.handle}/resume`,
   },
 ] as const;
 ---
@@ -124,8 +124,6 @@ const modules = [
         aria-hidden="true">+</span
       >
     </summary>
-    <p class="mt-3 text-base leading-6 text-white/85">{profile.identity.headline}</p>
-    <p class="mt-4 text-sm leading-6 text-white/65">{profile.identity.introduction}</p>
     <p class="mt-4 text-xs leading-5 text-white/55">
       Conceptual lens: <a
         class="text-sky-200 underline underline-offset-4"
