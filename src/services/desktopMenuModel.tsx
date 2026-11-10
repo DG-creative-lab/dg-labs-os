@@ -1,7 +1,7 @@
 import type React from 'react';
 import { FaEnvelope, FaGithub, FaLinkedin, FaWindowRestore } from 'react-icons/fa';
 import { IoCodeSlash, IoDocumentText, IoHelpCircle, IoMail } from 'react-icons/io5';
-import type { ActiveProfileRuntime } from '../profiles';
+import { findPublicWritingModule, type ActiveProfileRuntime } from '../profiles';
 import {
   openAppFromMenu,
   openContactFromMenu,
@@ -75,6 +75,10 @@ export const buildDesktopMenuModel = ({
   const linkById = (id: string) => profile.links.find((link) => link.id === id)?.url;
   const githubUrl = linkById('github-personal');
   const linkedinUrl = linkById('linkedin');
+  const writingArchive = findPublicWritingModule(profile.handle)?.archive;
+  const openWritingArchive = () => {
+    if (writingArchive) window.open(writingArchive.url, '_blank', 'noopener,noreferrer');
+  };
   const commonMenus: MenuSet = {
     Apple: [
       {
@@ -157,11 +161,15 @@ export const buildDesktopMenuModel = ({
         icon: <FaLinkedin size={16} />,
         action: () => linkedinUrl && window.open(linkedinUrl, '_blank'),
       },
-      {
-        label: 'Performics Labs Archive',
-        icon: <IoDocumentText size={16} />,
-        action: () => window.open('https://ai-news-hub.performics-labs.com/analysis', '_blank'),
-      },
+      ...(writingArchive
+        ? [
+            {
+              label: writingArchive.label,
+              icon: <IoDocumentText size={16} />,
+              action: openWritingArchive,
+            },
+          ]
+        : []),
       {
         label: 'Email',
         icon: <FaEnvelope size={16} />,
@@ -456,7 +464,7 @@ export const buildDesktopMenuModel = ({
     ...commonMenus,
     View: [
       {
-        label: 'Selected Systems',
+        label: 'Selected Systems and Agents',
         icon: <IoCodeSlash size={16} />,
         action: () => openWorkbenchSectionFromMenu('workbench-selected-systems'),
       },
@@ -630,7 +638,7 @@ export const buildDesktopMenuModel = ({
     ],
     projects: [
       {
-        label: 'Jump to Selected Systems',
+        label: 'Jump to Selected Systems and Agents',
         icon: <IoCodeSlash size={16} />,
         action: () => openWorkbenchSectionFromMenu('workbench-selected-systems'),
       },
@@ -708,7 +716,7 @@ export const buildDesktopMenuModel = ({
       {
         label: 'Open Full Archive',
         icon: <IoCodeSlash size={16} />,
-        action: () => window.open('https://ai-news-hub.performics-labs.com/analysis', '_blank'),
+        action: openWritingArchive,
       },
       {
         label: 'Close Technical Writing',

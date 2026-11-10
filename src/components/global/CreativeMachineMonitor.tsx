@@ -572,27 +572,26 @@ export default function CreativeMachineMonitor({
           id="creative-machine-title"
           className="mt-3 max-w-[16ch] text-[clamp(2.25rem,9.8vw,3.75rem)] font-semibold leading-[0.98] tracking-[-0.05em]"
         >
-          A human becoming a machine that can imagine.
+          {profile.identity.headline}
         </h2>
         <p className="mt-4 max-w-lg text-sm leading-6 text-white/65">
-          Projects, readings, questions, and experiments become traceable patterns: material to
-          understand, recombine, and build with.
+          {profile.identity.introduction}
         </p>
         <nav
           aria-label="Start exploring"
           className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs"
         >
           <a
-            href={`/@${profile.handle}/workbench`}
+            href={`/@${profile.handle}/resume`}
             className="inline-flex min-h-11 items-center gap-2 border-b border-sky-300/60 font-semibold text-sky-100"
           >
-            Explore work <span aria-hidden="true">→</span>
+            View experience and CV <span aria-hidden="true">→</span>
           </a>
           <a
-            href={`/@${profile.handle}/resume`}
+            href={`/@${profile.handle}/workbench`}
             className="inline-flex min-h-11 items-center text-white/75"
           >
-            View CV
+            Explore work
           </a>
           {agentHref ? (
             <a href={agentHref} className="inline-flex min-h-11 items-center text-white/75">
@@ -600,6 +599,7 @@ export default function CreativeMachineMonitor({
             </a>
           ) : null}
         </nav>
+        <p className="mt-4 text-xs text-white/55">A human becoming a machine that can imagine.</p>
         {figure}
         {modeSelector}
         {command}
@@ -649,18 +649,25 @@ export default function CreativeMachineMonitor({
         <div className="monitor-layout grid flex-1 items-center gap-8 py-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(480px,1.18fr)] lg:gap-10 xl:gap-16">
           <div className="monitor-copy monitor-enter monitor-enter-delay relative z-10 max-w-2xl">
             <p className="font-mono text-[9px] tracking-[0.18em] text-white/45 uppercase">
-              Constructive intelligence / v0.1
+              {profile.identity.displayName} / {profile.identity.role}
             </p>
             <h1
               id="creative-machine-title"
               className="mt-4 max-w-[13ch] text-[clamp(2.8rem,5.2vw,5.8rem)] font-semibold leading-[0.93] tracking-[-0.055em]"
             >
-              A human becoming a machine that can imagine.
+              {profile.identity.headline}
             </h1>
             <p className="mt-6 max-w-xl text-sm leading-6 text-white/62 sm:text-base sm:leading-7">
-              {profile.identity.possessiveName} practice is becoming computational. Projects,
-              readings, questions, decisions, and failures become traceable patterns, material that
-              can be revisited, recombined, and used to build what comes next.
+              {profile.identity.introduction}
+            </p>
+            <a
+              className="monitor-link mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-sky-100"
+              href={`/@${profile.handle}/resume`}
+            >
+              View experience and CV <span aria-hidden="true">→</span>
+            </a>
+            <p className="mt-3 text-xs text-white/55">
+              A human becoming a machine that can imagine.
             </p>
 
             {modeSelector}

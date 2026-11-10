@@ -87,7 +87,7 @@ describe('terminalKnowledge', () => {
       sources: [
         'https://skills.ai-knowledge-hub.org/',
         'https://github.com/ai-knowledge-hub/ai-skills-guide',
-        'https://ai-news-hub.performics-labs.com/news/agent-architect-playbook-building-ai-skills-marketing-adtech',
+        'https://ai-knowledge-hub.org/library/agent-architect-playbook-building-ai-skills-marketing-adtech/',
       ],
       related: [
         'project-ai-news-hub',

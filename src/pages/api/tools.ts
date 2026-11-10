@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { toolSuccess } from '../../utils/apiContracts';
 import { errorResponse, jsonResponse } from '../../utils/apiResponse';
 import { parseRequiredProfileHandle, parseToolCallInput } from '../../utils/requestSchemas';
-import { retrieveKnowledge } from '../../utils/terminalKnowledge';
+import { citeKnowledge, retrieveKnowledge } from '../../utils/terminalKnowledge';
 import { performWebVerify } from '../../utils/webVerify';
 import { DESKTOP_APP_TARGETS } from '../../services/desktopAppRegistry';
 import { findProfileAgentContext } from '../../profiles/agentEvidence';
@@ -179,28 +179,24 @@ export const POST: APIRoute = async ({ request }) => {
       if (!claim || claim.length < 2) {
         return err('INVALID_INPUT', 'cite requires input.claim (min 2 chars)', 400);
       }
-      const evidence = retrieveKnowledge(
-        claim,
-        {
-          user: profileIdentity,
-          workbench: profileEvidence.workbench,
-          writing: profileEvidence.writing,
-          network: profileEvidence.network,
-          brain: profileEvidence.brain,
-        },
-        5
-      ).map((hit) => ({
+      const citation = citeKnowledge(claim, {
+        user: profileIdentity,
+        workbench: profileEvidence.workbench,
+        writing: profileEvidence.writing,
+        network: profileEvidence.network,
+        brain: profileEvidence.brain,
+      });
+      const evidence = citation.evidence.map((hit) => ({
         id: hit.id,
         source: hit.source,
         title: hit.title,
         snippet: hit.snippet,
         url: hit.url,
         score: hit.score,
+        boundary: citation.verdict === 'supported' ? hit.reviewedClaim?.boundary : undefined,
       }));
 
-      const topScore = evidence[0]?.score ?? 0;
-      const verdict = topScore >= 12 ? 'supported' : topScore >= 6 ? 'partial' : 'insufficient';
-      return jsonResponse(toolSuccess('cite', { claim, verdict, evidence }), 200);
+      return jsonResponse(toolSuccess('cite', { claim, verdict: citation.verdict, evidence }), 200);
     }
 
     const projects = profileEvidence.workbench.map((item) => ({

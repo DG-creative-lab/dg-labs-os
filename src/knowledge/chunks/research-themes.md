@@ -4,7 +4,7 @@ type: 'research'
 title: 'Research Themes - Cross-Cutting Threads'
 tags: ['research', 'themes', 'intent', 'agency', 'agents', 'learning-systems', 'phenomenology']
 confidence: 'verified'
-sources: ['https://ai-news-hub.performics-labs.com/']
+sources: ['https://ai-knowledge-hub.org/']
 last_verified: '2026-08-22'
 related:
   [
@@ -34,7 +34,7 @@ How do we make AI capabilities accessible to teams that aren't building from scr
 
 ## 4. Marketing Intelligence
 
-How do we make marketing systems smarter without making them more extractive? This thread runs through all the Performics work, turning commercial problems into research questions about behavior, intent, and learning.
+How do we make marketing systems smarter without making them more extractive? Dessi’s enterprise work turned commercial problems into research questions about behavior, intent, and learning.
 
 ## 5. Human Agency & Empowerment
 

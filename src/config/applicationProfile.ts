@@ -32,10 +32,9 @@ export const openAiCodexApplication = {
   role: 'OpenAI engineering roles in London',
   location: systemsEvidenceProfile.location,
   roleUrl: 'https://openai.com/careers/search/?l=fca11f90-4dac-47b6-80e0-752cfeab792b',
-  headline:
-    'I build AI systems that can use tools, complete real work, and recover when something fails.',
+  headline: 'I build production AI and data systems for enterprise teams.',
   introduction:
-    'I work out what information the system needs, which actions it may take, how each result will be checked, and when a person should step in. Then I build and test the full workflow. My experience spans open source agent products, enterprise platforms, data systems, and advertising technology.',
+    'At Publicis Media, I architected a production agent platform used by agency teams across three major global advertiser accounts. I designed the workflow around the model, including tools, tenant access, approvals, evaluation, and recovery. My independent systems make related engineering choices visible through public code and case studies.',
   targetRoles: [
     {
       label: 'Applied AI Engineer',

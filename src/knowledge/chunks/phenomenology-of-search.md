@@ -4,7 +4,8 @@ type: 'research'
 title: 'The Phenomenology of Search'
 tags: ['research', 'deep-dive', 'search', 'phenomenology', 'behavior', 'philosophy']
 confidence: 'verified'
-sources: ['https://ai-news-hub.performics-labs.com/']
+sources:
+  ['https://ai-knowledge-hub.org/library/phenomenology-search-llm-second-order-representations/']
 last_verified: '2025-06-01'
 related:
   [
@@ -18,7 +19,7 @@ related:
 
 # The Phenomenology of Search
 
-**Type**: Deep Dive Analysis (published on AI News Hub)
+**Type**: Deep Dive Analysis (revised edition in AI Knowledge Hub)
 **Status**: Published
 
 ## Core Argument

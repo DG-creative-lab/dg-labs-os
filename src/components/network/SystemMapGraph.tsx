@@ -104,7 +104,7 @@ const nodeTypes = {
 };
 
 const columnX = [0, 230, 470, 700] as const;
-const rowHeight = 92;
+const rowHeight = 140;
 
 export default function SystemMapGraph({
   nodes,
@@ -202,8 +202,8 @@ export default function SystemMapGraph({
         edges={flowEdges}
         nodeTypes={nodeTypes}
         fitView
-        fitViewOptions={{ padding: 0.1, minZoom: 0.45, maxZoom: 0.92 }}
-        minZoom={0.4}
+        fitViewOptions={{ padding: 0.1, maxZoom: 0.92 }}
+        minZoom={0.2}
         maxZoom={1.35}
         nodesDraggable={false}
         nodesConnectable={false}

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Dispatch, FormEvent, KeyboardEvent, RefObject, SetStateAction } from 'react';
 import { FiArrowUp, FiPaperclip, FiSquare } from 'react-icons/fi';
 import { confidenceBadgeText, normalizeTerminalNarrativeAnswer } from '../../utils/terminalLlm';
-import type { LastAnswerMeta, TerminalEntry } from '../../services/terminalTypes';
+import type { EvidenceState, LastAnswerMeta, TerminalEntry } from '../../services/terminalTypes';
 
 type TerminalTranscriptProps = {
   outputRef: RefObject<HTMLDivElement | null>;
@@ -20,16 +20,15 @@ type TerminalTranscriptProps = {
   onSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>;
   onStarterQuestion: (question: string) => Promise<void>;
   onOpenEvidence: () => void;
+  onOpenReplyContext: (context: EvidenceState) => void;
   onOpenConnection: () => void;
   onStartOver: () => void;
   onCancel: () => void;
 };
 
-type TranscriptGroup = {
-  id: number;
-  kind: TerminalEntry['kind'];
-  lines: string[];
-};
+type TranscriptGroup =
+  | { id: number; kind: 'command' | 'output' | 'system'; lines: string[] }
+  | Extract<TerminalEntry, { kind: 'reviewed-claim' | 'narrative-reply' }>;
 
 const STARTER_QUESTIONS = [
   'What has Dessi built?',
@@ -64,6 +63,10 @@ const groupEntries = (history: readonly TerminalEntry[]): TranscriptGroup[] => {
   const groups: TranscriptGroup[] = [];
 
   for (const entry of history) {
+    if (entry.kind === 'reviewed-claim' || entry.kind === 'narrative-reply') {
+      groups.push(entry);
+      continue;
+    }
     const previous = groups[groups.length - 1];
     if (previous && previous.kind === entry.kind && entry.kind !== 'command') {
       previous.lines.push(entry.text);
@@ -96,6 +99,7 @@ export function TerminalTranscript({
   onSubmit,
   onStarterQuestion,
   onOpenEvidence,
+  onOpenReplyContext,
   onOpenConnection,
   onStartOver,
   onCancel,
@@ -108,18 +112,19 @@ export function TerminalTranscript({
   const hasConversation = groups.some((group) => group.kind !== 'system');
   const citationCount = lastAnswerMeta?.chips.length ?? 0;
 
-  const renderAnswerText = (line: string) =>
+  const renderAnswerText = (line: string, context?: EvidenceState) =>
     line.split(/(\[evidence:[^\]]+\])/g).map((part, index) => {
       if (!/^\[evidence:[^\]]+\]$/.test(part)) return part;
+      if (!context) return null;
       return (
         <button
           key={`${part}-${index}`}
           type="button"
-          onClick={onOpenEvidence}
-          title={part.slice(1, -1)}
+          onClick={() => onOpenReplyContext(context)}
+          title="Open question context"
           className="ml-1 align-baseline font-mono text-[9px] uppercase tracking-[0.1em] text-sky-300/72 hover:text-sky-200"
         >
-          [evidence]
+          [context]
         </button>
       );
     });
@@ -191,15 +196,31 @@ export function TerminalTranscript({
                 );
               }
 
+              if (group.kind === 'reviewed-claim') {
+                return (
+                  <figure key={group.id} className="max-w-[92%] text-sm leading-6 text-white/78">
+                    <figcaption className="mb-2 font-mono text-[10px] uppercase tracking-[0.16em] text-sky-300/68">
+                      {group.owner} · Reviewed statement
+                    </figcaption>
+                    <blockquote className="border-l border-sky-300/25 pl-3">
+                      <p>{group.text}</p>
+                    </blockquote>
+                    {group.boundary ? <p className="mt-2 text-white/55">{group.boundary}</p> : null}
+                  </figure>
+                );
+              }
+
               return (
                 <div key={group.id} className="max-w-[92%] text-sm leading-6 text-white/78">
                   <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.16em] text-sky-300/68">
                     Profile Agent
                   </p>
                   <div className="space-y-1 whitespace-pre-wrap">
-                    {group.lines.map((line, index) => (
-                      <p key={`${group.id}-${index}`}>{renderAnswerText(line)}</p>
-                    ))}
+                    {group.kind === 'narrative-reply' ? (
+                      <p>{renderAnswerText(group.text, group.context)}</p>
+                    ) : (
+                      group.lines.map((line, index) => <p key={`${group.id}-${index}`}>{line}</p>)
+                    )}
                   </div>
                 </div>
               );
@@ -216,7 +237,7 @@ export function TerminalTranscript({
                     {renderAnswerText(normalizeTerminalNarrativeAnswer(streamingAnswer))}
                   </p>
                 ) : (
-                  <p className="text-white/35">Preparing an evidence-backed answer...</p>
+                  <p className="text-white/35">Preparing a reply…</p>
                 )}
               </div>
             ) : null}
@@ -254,7 +275,11 @@ export function TerminalTranscript({
 
         {lastAnswerMeta && hasConversation ? (
           <div className="mx-auto mb-2 flex max-w-3xl flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-white/45">
-            <span>{confidenceBadgeText(lastAnswerMeta.confidence)} evidence</span>
+            <span>
+              {lastAnswerMeta.confidence
+                ? `${confidenceBadgeText(lastAnswerMeta.confidence)} evidence`
+                : 'Question context'}
+            </span>
             <button
               type="button"
               onClick={onOpenEvidence}

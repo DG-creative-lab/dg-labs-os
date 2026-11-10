@@ -11,4 +11,7 @@ export const skills: readonly string[] = [
   'Reliability, recovery, and rollback',
   'Agent-legible repository architecture',
   'Multi-tenant system boundaries',
+  'Data engineering with Databricks, AWS Glue, and Amazon S3',
+  'API ingestion connectors, ELT, and data serving',
+  'Schema validation, freshness, completeness, and reconciliation',
 ] as const;

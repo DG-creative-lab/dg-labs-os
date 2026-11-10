@@ -1,14 +1,12 @@
 ---
-id: 'experience-performics'
+id: 'experience-publicis-engineering'
 type: 'experience'
-title: 'Performics Innovations Lab - Publicis Media'
-tags:
-  ['experience', 'current-role', 'marketing-intelligence', 'programmatic', 'publicis', 'performics']
+title: 'Publicis Media Engineering'
+tags: ['experience', 'past-role', 'marketing-intelligence', 'programmatic', 'publicis']
 confidence: 'self-reported'
 sources:
   [
     'https://www.linkedin.com/in/dessi-georgieva/',
-    'https://ai-news-hub.performics-labs.com/',
     'https://www.performancemarketingworldawards.com/finalists/unifying-retail-data-with-publicis-warehouse-7y3bxeifqg035ne',
   ]
 last_verified: '2026-09-21'
@@ -22,25 +20,18 @@ related:
   ]
 ---
 
-# Performics Innovations Lab - Publicis Media
+# Publicis Media Engineering
 
 **Title**: Engineer
+**Period**: November 2023 to November 2026
 **Location**: London, UK
-**Organisation**: Performics Innovations Lab, part of Publicis Media
+**Organisation**: Publicis Media
 
 ## Role Context
 
-The role involves taking AI and data applications from operational need and prototype into production: AgentCore runtimes, typed tools, AWS workflows, multi-tenant platform boundaries, evaluation, programmatic provider integrations, analytical data, and marketing-intelligence interfaces. The users include internal agency teams responsible for major advertiser accounts. Detailed code, traces, infrastructure, measurements, customer identities, and customer data remain employer-confidential.
+The role involved taking AI and data applications from operational need and prototype into production: AgentCore runtimes, typed tools, AWS workflows, multi-tenant platform boundaries, evaluation, programmatic provider integrations, analytical data, and marketing-intelligence interfaces. The users included internal agency teams responsible for major advertiser accounts. Detailed code, traces, infrastructure, measurements, customer identities, and customer data remain employer-confidential.
 
 ## Core Systems Built
-
-### Performics Labs AI News Hub
-
-Dessi conceived, built, and maintains the open-source AI News Hub as a shared place for applied AI research in marketing. It connects short news, deeper analysis, All-Hands build sessions, and public prototypes so practitioners can move from understanding a change to deciding what to build. Dessi reports that the internal community has grown to about 400 company members; this figure is owner-reported because public membership analytics are not available.
-
-### AI Skills Platform
-
-Dessi built AI Skills Platform as the practical companion to several AI News Hub articles. It turns selected research into reusable skills, agents, plugins, and tool connectors with manifests, test prompts, usability labels, installation flows, and a public catalog. The open-source project is documented separately under `project-ai-skills-framework`.
 
 ### Intent Recognition Agent
 
@@ -56,7 +47,7 @@ Dessi architected the Programmatic plugin from an initial prototype into a produ
 
 The CLI grammar is designed around domain capabilities rather than every possible user phrasing. This lets the model interpret variable intent without requiring the command surface to grow for every edge request. The tradeoff is deliberate: model reasoning remains flexible, but unsupported scope, incomplete evidence, and unsafe external effects fail closed.
 
-The current harness has strong execution-boundary coverage. Final narrative closure remains active architecture work: successful tool execution is not treated as proof that the final answer is complete and supported.
+At the time of the review, the harness had strong coverage of execution boundaries. Checking whether a successful tool run produced a complete, supported answer was still active architecture work.
 
 ### Evaluation and Observability
 
@@ -70,7 +61,11 @@ Agency users needed campaign playbooks to remain owned and maintained by the peo
 
 The production request path connects an authenticated user and persistent AgentCore session to selected skills, the Programmatic CLI, Lambda services, analytical data, and advertising-platform APIs. Deployment is automated through GitHub Actions and AWS stack workflows across controlled development, staging, and production environments.
 
-Dessi also builds backend ingestion and serving workflows for advertising datasets that can reach millions of records across multiple provider hierarchies and analytical grains. Configuration-driven onboarding replaces spreadsheet exchange and at least three days of cross-team enablement coordination with validated provisioning, reconciliation, and auditable state.
+Dessi built ad-platform ingestion connectors and three Databricks ELT layers for advertising datasets that could reach millions of records. Bronze captured source data, silver normalised it, and gold prepared it for reporting. She designed a production S3 landing layer, bounded read-only staging access, and schema-based development reads against test data.
+
+She built Databricks-backed serving APIs so AI agents could read analytical results through the typed Programmatic CLI. The CLI routed between warehouse reports and live ad-platform APIs according to data availability and policy. The data and serving work covered schema validation, freshness, completeness, and reconciliation to source totals.
+
+Configuration-driven onboarding replaced spreadsheet exchange and removed at least three days of cross-team coordination per cycle.
 
 Development and personal-stack testing exposed a lifecycle limit in AgentCore: each deployment created another immutable runtime version until the configured allowance was exhausted and deployments temporarily failed. The team restored delivery by increasing the allowance, then added development-runtime rotation and version-headroom checks so the environment could not silently approach the same limit again.
 

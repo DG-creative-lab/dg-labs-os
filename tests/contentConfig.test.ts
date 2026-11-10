@@ -62,10 +62,10 @@ describe('content config sanity', () => {
     );
     expect(workbench.find((item) => item.id === 'ai-news-hub')).toMatchObject({
       category: 'Selected Systems',
-      classification: 'Open-source public platform · Active',
+      classification: 'Independent publication · Active',
       links: {
-        site: 'https://ai-news-hub.performics-labs.com/',
-        repo: 'https://github.com/ai-knowledge-hub/performics_labs_ai_news',
+        site: 'https://ai-knowledge-hub.org/',
+        article: 'https://ai-knowledge-hub.org/library/',
       },
     });
     expect(workbench.find((item) => item.id === 'ai-skills-platform')).toMatchObject({
@@ -75,6 +75,10 @@ describe('content config sanity', () => {
         site: 'https://skills.ai-knowledge-hub.org/',
         repo: 'https://github.com/ai-knowledge-hub/ai-skills-guide',
       },
+    });
+    expect(workbench.find((item) => item.id === 'ai-harness-lab')).toMatchObject({
+      title: 'AI Knowledge Hub Harness',
+      links: { site: 'https://harness.ai-knowledge-hub.org/' },
     });
     expect(workbench.find((item) => item.id === 'gateplane-enterprise-auth')).toMatchObject({
       category: 'Selected Systems',

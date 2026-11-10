@@ -6,14 +6,14 @@ import type {
 } from './contracts';
 
 const links = {
-  aiNewsHub: {
-    label: 'Performics Labs AI News Hub',
-    url: 'https://ai-news-hub.performics-labs.com/',
+  independentPublication: {
+    label: 'AI Knowledge Hub library',
+    url: 'https://ai-knowledge-hub.org/library/',
     kind: 'site',
   },
-  aiNewsHubRepository: {
-    label: 'AI News Hub repository',
-    url: 'https://github.com/ai-knowledge-hub/performics_labs_ai_news',
+  aiHarness: {
+    label: 'AI Knowledge Hub Harness repository',
+    url: 'https://github.com/ai-knowledge-hub/ai-harness-lab',
     kind: 'repository',
   },
   aiSkillsPlatform: {
@@ -24,6 +24,16 @@ const links = {
   aiSkillsRepository: {
     label: 'AI Skills Platform repository',
     url: 'https://github.com/ai-knowledge-hub/ai-skills-guide',
+    kind: 'repository',
+  },
+  directAcquisition: {
+    label: 'Direct Acquisition Agent repository',
+    url: 'https://github.com/DG-creative-lab/direct-acquisition-agent',
+    kind: 'repository',
+  },
+  youtubeAdAgent: {
+    label: 'YouTube Ad Agent repository',
+    url: 'https://github.com/DG-creative-lab/youtube-ad-agent',
     kind: 'repository',
   },
   agenticCommerce: {
@@ -53,7 +63,7 @@ const links = {
   },
   geometryArticle: {
     label: 'The Geometry of Intention',
-    url: 'https://ai-news-hub.performics-labs.com/analysis/geometry-of-intention-llms-human-goals-marketing',
+    url: 'https://ai-knowledge-hub.org/library/geometry-of-intention-llms-human-goals-marketing/',
     kind: 'article',
   },
   awardPlatform: {
@@ -70,26 +80,43 @@ const links = {
 
 export const applicationClaims: readonly ApplicationClaim[] = [
   {
-    id: 'ai-news-platform',
+    id: 'ai-knowledge-hub-publication',
     statement:
-      'Built and maintains the open-source AI News Hub as a shared research platform for applied AI in marketing, connecting news, deep analysis, build sessions, and public prototypes.',
+      'Dessi publishes AI Knowledge Hub, an independent publication covering AI in marketing, growth, and go-to-market, with reusable resources in Skills and engineering guides and interactive examples in Harness.',
     confidence: 'verified',
-    visibility: 'collaborative-public',
-    lastVerified: '2026-08-23',
-    evidence: [links.aiNewsHub, links.aiNewsHubRepository],
-    boundary:
-      'The public site and repository verify the platform. Article bylines may represent collaborative newsroom work and do not establish sole authorship of every publication.',
+    visibility: 'public',
+    lastVerified: '2026-11-10',
+    evidence: [links.independentPublication, links.aiSkillsPlatform, links.aiHarness],
   },
   {
-    id: 'ai-news-community',
+    id: 'direct-acquisition-agent',
     statement:
-      'Created the platform to support an internal community of thinkers, builders, and innovators that has grown to about 400 company members.',
-    confidence: 'self-reported',
-    visibility: 'collaborative-public',
-    lastVerified: '2026-08-23',
-    evidence: [links.aiNewsHub],
+      'I built the Direct Acquisition Agent to prepare direct-mail experiments with source-grounded copy, randomised A/B and no-mail groups, and exact campaign approval. I am improving the checks that require complete, mature synthetic response cohorts before proposing the next test.',
+    confidence: 'verified',
+    visibility: 'public',
+    lastVerified: '2026-11-10',
+    evidence: [links.directAcquisition],
     boundary:
-      'The community purpose and approximate membership are owner-reported. Public membership or engagement analytics were not available for independent verification.',
+      'The local prototype uses synthetic businesses and responses and a simulated handoff. Its results describe those demonstration cohorts.',
+  },
+  {
+    id: 'youtube-ad-agent',
+    statement:
+      'I built the YouTube Ad Agent to match video placements with relevant ads and demos. I am improving how it uses saved delivery reports and separately recorded viewer activity to propose a next test for buyer review.',
+    confidence: 'verified',
+    visibility: 'public',
+    lastVerified: '2026-11-10',
+    evidence: [links.youtubeAdAgent],
+    boundary:
+      'The prototype uses sample delivery, local viewer activity, and a separate paused Google Ads test-account workflow.',
+  },
+  {
+    id: 'geometry-of-intention-authorship',
+    statement: 'Dessi Georgieva wrote The Geometry of Intention, available on AI Knowledge Hub.',
+    confidence: 'verified',
+    visibility: 'public',
+    lastVerified: '2026-11-10',
+    evidence: [links.geometryArticle],
   },
   {
     id: 'ai-skills-platform',
@@ -182,7 +209,7 @@ export const applicationClaims: readonly ApplicationClaim[] = [
     lastVerified: '2026-09-21',
     evidence: [],
     boundary:
-      'This is an owner-reported description of current employer work. Source code, client data, logs, infrastructure details, and operational measurements remain private.',
+      'This is an owner-reported description of Dessi’s work at Publicis Media. Source code, client data, logs, infrastructure details, and operational measurements remain private.',
   },
   {
     id: 'production-agent-runtime',
@@ -231,13 +258,24 @@ export const applicationClaims: readonly ApplicationClaim[] = [
   {
     id: 'production-data-platform',
     statement:
-      'I build backend ingestion and serving workflows for advertising datasets that can reach millions of records across provider hierarchies and analytical grains, and evaluate storage architecture against query shape, aggregation, latency, reliability, and cost.',
+      'I built ingestion connectors and bronze, silver, and gold Databricks ELT pipelines for advertising datasets that could reach millions of records. I designed the production S3 landing layer, read-only staging access, and schema-based development reads using test data.',
     confidence: 'self-reported',
     visibility: 'private-employer',
-    lastVerified: '2026-09-21',
+    lastVerified: '2026-11-10',
     evidence: [],
     boundary:
-      'This is an owner-reported responsibility-level claim. Employer implementation details and measurements remain private, and active architecture proposals are not represented as deployed outcomes.',
+      'The S3 and environment access model describes design responsibility. Bucket identifiers, access configurations, and production rollout details remain private.',
+  },
+  {
+    id: 'production-data-serving',
+    statement:
+      'I built Databricks-backed serving APIs and typed CLI routing between warehouse reports and live advertising APIs. I added schema, freshness, and completeness checks and reconciled serving results to source totals.',
+    confidence: 'self-reported',
+    visibility: 'private-employer',
+    lastVerified: '2026-11-10',
+    evidence: [],
+    boundary:
+      'This describes implementation scope. Employer code, customer data, performance measurements, and rollout details remain private.',
   },
   {
     id: 'production-backend',
@@ -254,40 +292,53 @@ export const applicationClaims: readonly ApplicationClaim[] = [
 
 export const applicationCaseStudies: readonly ApplicationCaseStudy[] = [
   {
-    id: 'ai-news-hub',
-    title: 'Performics Labs AI News Hub',
-    classification: 'Open-source public platform developed in a professional innovation context',
+    id: 'direct-acquisition-agent',
+    title: 'Direct Acquisition Agent',
+    classification: 'Independent prototype · Active development',
     contribution:
-      'Conceived, built, and maintains the Astro platform, editorial structure, publishing workflows, and research-to-prototype links.',
+      'Built a direct-mail acquisition agent that turns a brief and a specified audience into a campaign that a person can review.',
     problem:
-      'Marketing teams face constant AI announcements but often lack a shared place to decide what changes their work and what they should build next.',
+      'A new campaign needs a defined audience, a copy test, and a comparison group so later responses can inform the next decision.',
     intervention:
-      'Created one public hub for fast news, deeper analysis, All-Hands build sessions, and projects that carry useful research into working code.',
+      'Randomised eligible businesses into A/B and no-mail groups, grounded copy in approved product facts, and bound approval to the exact audience, budget, and draft.',
     evaluation:
-      'The reviewed public repository contains 43 news entries, 19 analyses, 6 All-Hands sessions, an MIT license, and 109 commits. The project owner reports about 400 internal company members.',
+      'Local tests exercise report ingestion, incomplete cohorts, and approval checks. Only complete, mature synthetic response cohorts contribute to the comparison.',
     result:
-      'The platform gives practitioners, strategists, and engineers a common route from awareness to discussion, implementation choices, and public prototypes.',
+      'The prototype prepares a campaign for simulated handoff and uses counted responses to propose the next experiment.',
     limitation:
-      'Membership and engagement figures are owner-reported. Public bylines may represent collaborative newsroom work, so platform development is separate from authorship of every article.',
-    roleSignals: [
-      'product development',
-      'applied AI research',
-      'technical communication',
-      'community platform',
-      'Astro',
-    ],
-    evidence: [links.aiNewsHub, links.aiNewsHubRepository],
+      'Evidence comes from synthetic audiences and responses in a local demonstration. Delivery is simulated.',
+    roleSignals: ['marketing agents', 'experiment design', 'data quality', 'human approval'],
+    evidence: [links.directAcquisition],
+  },
+  {
+    id: 'youtube-ad-agent',
+    title: 'YouTube Ad Agent',
+    classification: 'Independent prototype · Active development',
+    contribution:
+      'Built a campaign-planning agent that links YouTube placement research, creative selection, and post-click product demos.',
+    problem:
+      'A buyer needs to see which ads ran, what viewers did after arriving, and which part of the campaign is worth testing next.',
+    intervention:
+      'Paired placements with ads and matching demos, kept reported delivery separate from tagged viewer activity, and used saved evidence to recommend a follow-up test.',
+    evaluation:
+      'The local workflow records arrivals and completed comparisons. A separate Google Ads test-account path validates and reads back a paused setup.',
+    result:
+      'The planner proposes a next test for buyer review, with the report, viewer observations, and buyer corrections available for inspection.',
+    limitation:
+      'Evidence is limited to sample delivery, local viewer activity, and test-account checks.',
+    roleSignals: ['marketing agents', 'contextual advertising', 'measurement', 'human approval'],
+    evidence: [links.youtubeAdAgent],
   },
   {
     id: 'ai-skills-platform',
-    title: 'AI Skills Platform',
+    title: 'AI Knowledge Hub Skills',
     classification: 'Open-source public catalog and installation platform',
     contribution:
       'Designed and built the catalog model, reusable packages, generated registries, install flows, web interface, validation rules, and QA conventions.',
     problem:
       'Articles can explain agent workflows, but practitioners still need reusable packages that state what they do, what they can access, and what must be approved.',
     intervention:
-      'Turned several AI News Hub ideas into skills, agents, plugins, and tool connectors with manifests, examples, test prompts, usability labels, and cross-runtime installation support.',
+      'Turned selected published ideas into skills, agents, plugins, and tool connectors with manifests, examples, test prompts, usability labels, and cross-runtime installation support.',
     evaluation:
       'The reviewed public registry contains 42 skills, 7 agents, 8 tool or MCP entries, and 11 plugins, supported by 69 test-prompt suites and a public Next.js catalog.',
     result:
@@ -441,6 +492,34 @@ export const currentBoundaries = [
 
 export const evolutionEntries: readonly EvolutionEntry[] = [
   {
+    date: '2026-11-10',
+    kind: 'question',
+    title:
+      'What can the Direct Acquisition Agent and YouTube Ad Agent learn from marketing campaign evidence?',
+    summary:
+      'Dessi is improving how the Direct Acquisition Agent checks synthetic report completeness before learning, and how the YouTube Ad Agent combines saved delivery reports and local viewer activity to propose the next test. Both projects are independent marketing agents in active development, with human review before campaign changes.',
+    state: 'active',
+    evidenceIds: ['direct-acquisition-agent', 'youtube-ad-agent'],
+  },
+  {
+    date: '2026-11-10',
+    kind: 'revision',
+    title: 'Data engineering and agent data access',
+    summary:
+      'The profile records the ingestion and transformation work behind the programmatic agent, including the S3 environment design, Databricks pipelines and serving APIs, and checks for data quality.',
+    state: 'reviewed',
+    evidenceIds: ['production-data-platform', 'production-data-serving'],
+  },
+  {
+    date: '2026-11-10',
+    kind: 'revision',
+    title: 'Dessi’s independent publication and research library',
+    summary:
+      'Dessi publishes her research, essays, and practical guides independently at AI Knowledge Hub. The library includes revised editions of her earlier work alongside new writing.',
+    state: 'reviewed',
+    evidenceIds: ['ai-knowledge-hub-publication', 'geometry-of-intention-authorship'],
+  },
+  {
     date: '2026-09-21',
     kind: 'revision',
     title: 'Enterprise delivery evidence became explicit',
@@ -491,11 +570,11 @@ export const evolutionEntries: readonly EvolutionEntry[] = [
   {
     date: '2026-08-23',
     kind: 'revision',
-    title: 'Research and implementation platforms became first-class systems',
+    title: 'Research became reusable through Skills',
     summary:
-      'The AI News Hub now appears as the shared research product, while AI Skills Platform appears as its practical capability layer for turning selected ideas into reusable packages.',
+      'AI Knowledge Hub Skills turns selected research ideas into packages that practitioners can inspect, install, and test.',
     state: 'reviewed',
-    evidenceIds: ['ai-news-platform', 'ai-news-community', 'ai-skills-platform'],
+    evidenceIds: ['ai-skills-platform'],
   },
   {
     date: '2026-08-22',

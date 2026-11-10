@@ -4,7 +4,7 @@ type: 'research'
 title: 'The Geometry of Intention'
 tags: ['research', 'deep-dive', 'intent', 'geometry', 'embeddings', 'philosophy']
 confidence: 'verified'
-sources: ['https://ai-news-hub.performics-labs.com/']
+sources: ['https://ai-knowledge-hub.org/library/geometry-of-intention-llms-human-goals-marketing/']
 last_verified: '2025-06-01'
 related:
   [
@@ -17,7 +17,7 @@ related:
 
 # The Geometry of Intention
 
-**Type**: Deep Dive Analysis (published on AI News Hub)
+**Type**: Deep Dive Analysis (revised edition in AI Knowledge Hub)
 **Status**: Published
 
 ## Core Argument

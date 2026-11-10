@@ -14,6 +14,7 @@ export type KnowledgeEntry = {
   title: string;
   tags: string[];
   confidence: ConfidenceLevel;
+  reviewedClaim?: { questions: readonly string[]; boundary?: string };
   sources: string[];
   lastVerified: string;
   related: string[];
