@@ -47,6 +47,12 @@ Every new stateful workflow defines:
 - Inject timeouts, malformed events, missing identities, and unavailable dependencies.
 - Keep model-generated text non-deterministic, but keep evidence scope, permissions, tool execution,
   response envelopes, and publication deterministic.
+- Strict evidence answers display the profile owner’s statement, source, and any recorded
+  limitation from a unique matching verified claim. An unmatched or canceled request cannot
+  publish a cited answer.
+- Narrative answers label question matches as context. Retrieval and question matching do not
+  verify the generated reply. Inline context opens the evidence saved with that reply, even
+  after a later request changes the latest evidence.
 
 ## Publication machine gate
 

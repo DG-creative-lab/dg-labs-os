@@ -43,6 +43,10 @@ export default function TechnicalWritingApp({ profile, writing }: TechnicalWriti
     };
   }, [writing.archive.url]);
 
+  const companions = profile.links.filter(
+    (link) => link.id === 'skills-hub' || link.id === 'harness-lab'
+  );
+
   return (
     <section className="text-white">
       <header
@@ -54,16 +58,31 @@ export default function TechnicalWritingApp({ profile, writing }: TechnicalWriti
             05 / Selected writing
           </p>
           <p className="mt-2 font-mono text-[10px] text-white/40">
-            {writing.entries.length} technical pieces
+            {writing.entries.length} selected pieces
           </p>
         </div>
         <div className="col-span-4 md:col-span-9">
           <h1 className="text-2xl font-semibold tracking-[-0.02em]">{writing.title}</h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">
-            {writing.description} These pieces show technical synthesis and design judgement. The
-            published byline and {profile.identity.preferredName}'s contribution are stated
-            separately; this is professional writing, not independent academic research.
+            {writing.description} Each piece lists the published byline and{' '}
+            {profile.identity.preferredName}'s contribution.
           </p>
+          {companions.length > 0 ? (
+            <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">
+              {companions.map((link) => (
+                <li key={link.id}>
+                  <a
+                    className="text-sky-200 underline underline-offset-4"
+                    href={link.url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
       </header>
 

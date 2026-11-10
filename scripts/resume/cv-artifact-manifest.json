@@ -6,20 +6,20 @@
       "variantId": "general",
       "publicStem": "Dessi_Georgieva_CV",
       "sourceKind": "profile-resume",
-      "sourceSha256": "6c79cc08f5135b892c2e84268807e537cc8e2e99894471cce9cd2c6e4f76b42a",
+      "sourceSha256": "cc55ce7d08ba8f0b243e887c3f32395fd3d1949d0f4303cc1f2e578378ee2518",
       "approval": {
-        "projectionVersion": 5,
-        "resumeVersion": 9,
+        "projectionVersion": 6,
+        "resumeVersion": 10,
         "approvedBy": "owner",
-        "reviewedAt": "2026-09-21T00:00:00Z",
-        "publishedAt": "2026-09-21T00:00:00Z",
+        "reviewedAt": "2026-11-10T00:00:00Z",
+        "publishedAt": "2026-11-10T00:00:00Z",
         "privateSourcesExcluded": true,
-        "sourcePolicy": "Resume v9 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded."
+        "sourcePolicy": "Resume v10 includes only owner-reviewed public Profile, Workbench, and Evidence records selected in this module. Private and employer-confidential source material is excluded."
       },
       "files": {
-        "markdown": "6c79cc08f5135b892c2e84268807e537cc8e2e99894471cce9cd2c6e4f76b42a",
-        "docx": "b5b958db98f17dfd40cc18d738edf24452942f5521c1900541766356a801459c",
-        "pdf": "9b075e0f0494665466afedb9fbed032783da3f2b7e089e9f3eed579c931662a8"
+        "markdown": "cc55ce7d08ba8f0b243e887c3f32395fd3d1949d0f4303cc1f2e578378ee2518",
+        "docx": "5cdf310bad4bfe5d21e397213a29f27fe23f396be0b353242d0a41d18f1458b0",
+        "pdf": "839fdf3c3acf3e76bbd5f0210adedc17f71684c87e754a3c708a1312090c6150"
       }
     },
     {
@@ -27,12 +27,12 @@
       "variantId": "openai-codex",
       "publicStem": "Dessi_Georgieva_OpenAI_Codex_CV",
       "sourceKind": "markdown",
-      "sourceSha256": "76717f6d0b65d84019bb95560c2b3ca5b16e54660d450d657c2c1c90644e186b",
+      "sourceSha256": "c78753c8abcdb00ccf3458cc82c6c6e05aa1d79b01aaafc04135e09bae1b0190",
       "approval": null,
       "files": {
-        "markdown": "76717f6d0b65d84019bb95560c2b3ca5b16e54660d450d657c2c1c90644e186b",
-        "docx": "7d08483bcfde78100aefbd605a55d703a2971a3795ece2bbf74d8c7740fadee1",
-        "pdf": "d1f13f6dcadcc449a2f6116ca41292414fb73a69368ed1fc47fe0b9d04184196"
+        "markdown": "c78753c8abcdb00ccf3458cc82c6c6e05aa1d79b01aaafc04135e09bae1b0190",
+        "docx": "5132d2cfac5bbb980c24b5ccea42702fd52681b12a493d5bdb892db214c05bac",
+        "pdf": "96f2f6c305b73688ee67d462df9db07f3bf70ae6ff35f6a19740fac05f001d1b"
       }
     }
   ]

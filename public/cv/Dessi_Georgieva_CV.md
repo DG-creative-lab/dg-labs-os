@@ -2,55 +2,69 @@
 
 **AI Systems Engineer · Enterprise Agents and Applied AI**
 
-London, UK · [dessi.georgieva8@gmail.com](mailto:dessi.georgieva8@gmail.com) · [LinkedIn](https://www.linkedin.com/in/dessi-georgieva/) · [GitHub](https://github.com/DG-creative-lab) · [Portfolio](https://dg-os.com/) · [ai-knowledge-hub](https://github.com/ai-knowledge-hub)
+London, UK · [dessi.georgieva8@gmail.com](mailto:dessi.georgieva8@gmail.com) · [LinkedIn](https://www.linkedin.com/in/dessi-georgieva/) · [GitHub](https://github.com/DG-creative-lab) · [Portfolio](https://dg-os.com/) · [AI Knowledge Hub](https://ai-knowledge-hub.org/)
 
 ---
 
 ## Summary
 
-I architect and build enterprise AI systems that interpret user intent, coordinate skills and tools, work across hierarchical external systems, and return results under explicit identity, policy, and evidence controls. My professional work provides production backend, data, and multi-tenant experience; my independent systems make the corresponding architecture, evaluation, and recovery patterns inspectable.
+I’m an AI systems engineer with a background in consulting, business intelligence, and enterprise engineering. I design agent workflows, connect them to tools and data, and build in evaluation and human approvals. My production work has focused on multi-tenant systems for marketing and advertising.
 
 ## Experience
 
 ### Engineer
 
-**Performics Innovations Lab · Publicis Media** · London · Nov 2023 - Present
+**Publicis Media** · London · Nov 2023 - Nov 2026
 
-- I architected and evolved a production Programmatic agent platform used by internal agency teams across three major global advertiser accounts, taking it from prototype through changing engineering and user requirements.
-- I designed its provider-neutral CLI grammar and orchestration across Claude Agent SDK on AWS Bedrock AgentCore, Lambda services, analytical data, and hierarchical DV360 and TTD APIs, while deterministic controls retain tenant scope, evidence, approvals, and provider writes.
+- I architected the production Programmatic agent platform used by internal agency teams across three major global advertiser accounts and evolved it in response to agency feedback.
 - I built configuration-driven advertiser onboarding and ingestion workflows that replace spreadsheet-led enablement and remove at least three days of cross-team coordination from each onboarding cycle.
+- I designed its provider-neutral CLI grammar and orchestration across Claude Agent SDK on AWS Bedrock AgentCore, Lambda services, analytical data, and hierarchical DV360 and TTD APIs, while deterministic controls retain tenant scope, evidence, approvals, and provider writes.
 - I designed routing and correctness evaluations for the agent; the production platform combines those checks with AgentCore traces, CloudWatch, PostHog, and automated measures for tool use, grounding, latency, and cost.
 - I translated agency-user requirements into tenant-scoped CLI workflows for creating, persisting, versioning, and sharing campaign playbooks that users can maintain as their operating practice changes.
-- I build backend ingestion and serving workflows for advertising datasets that can reach millions of records across provider hierarchies and analytical grains, and evaluate storage architecture against query shape, aggregation, latency, reliability, and cost.
+- I built ingestion connectors and bronze, silver, and gold Databricks ELT pipelines for advertising datasets that could reach millions of records. I designed the production S3 landing layer, read-only staging access, and schema-based development reads using test data.
+- I built Databricks-backed serving APIs and typed CLI routing between warehouse reports and live advertising APIs. I added schema, freshness, and completeness checks and reconciled serving results to source totals.
 - I describe employer work only at responsibility and outcome level. Employer code, client information, operational measurements, and infrastructure remain confidential.
 
 ### Senior Business Intelligence Analyst
 
 **Publicis Media** · London · Mar 2023 - Nov 2023
 
-- I bridged marketing analytics and decision systems, moving reporting workflows toward reusable intelligence services and platformised decision support.
+- I turned recurring marketing reports into reusable datasets and decision-support services, building the API connectors and ELT pipelines that supplied them.
 
 ### Business Intelligence Manager
 
 **Jellyfish** · London · Jan 2021 - Mar 2023
 
-- I built enterprise analytics applications and data workflows, including interactive products, cloud ETL, and data-lake patterns.
+- I built interactive enterprise analytics applications backed by ingestion connectors, cloud ELT pipelines, and marketing data lakes.
 
 ### Data Consultant / SQL Developer / Data Analyst
 
 **Selected contracts** · London · 2017 - 2020
 
-- I worked directly with agency, startup, and media clients to translate business requirements into CRM, analytics, segmentation, automation, and experimentation systems.
+- I worked directly with agency, startup, and media clients to deliver CRM, segmentation, analytics, and experimentation systems, including their ingestion connectors and ELT pipelines.
 
 ## AI Systems Capabilities
 
-- **Customer discovery and productisation:** Translate operational needs, user feedback, and integration constraints into prototypes that can become reusable production capabilities.
+- **Customer discovery and productisation:** Work with agency users to turn operational needs and integration constraints into reusable production workflows.
 - **Agent architecture and integration:** Connect model reasoning to skills, typed tools, cloud services, provider APIs, retrieval, and analytical data without making each new intent a bespoke workflow.
 - **Evaluation and observability:** Measure routing, correctness, grounding, tool use, latency, and cost, then use traces and user feedback to diagnose failures and prevent regression.
 - **Cloud delivery and reliability:** Ship through automated environments with explicit deployment checks, smoke tests, runtime monitoring, rollback, and recovery paths.
 - **Authority and safety:** Keep tenant scope, permissions, approvals, evidence, provider writes, and consequential effects under deterministic control while models interpret and propose.
+- **Data engineering and API integration:** Build API ingestion connectors, AWS Glue and Databricks ELT pipelines, and serving APIs. Validate schemas, freshness, completeness, and source-to-output reconciliation.
 
-## Selected Systems
+## Selected Systems and Agents
+
+### Direct Acquisition Agent
+
+_Independent prototype · Active development · [Repository](https://github.com/DG-creative-lab/direct-acquisition-agent)_
+
+- I built a direct-mail agent that drafts source-grounded copy, assigns A/B and no-mail groups, and uses mature synthetic responses to propose the next experiment.
+
+### YouTube Ad Agent
+
+_Independent prototype · Active development · [Repository](https://github.com/DG-creative-lab/youtube-ad-agent)_
+
+- I built an agent that pairs YouTube placements with ads and product demos, then uses saved delivery reports and local viewer activity to recommend the next test.
 
 ### Agentic Commerce Learning Loop
 

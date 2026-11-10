@@ -1,12 +1,14 @@
-import type { VerifySource } from '../utils/apiContracts';
 import type { CitationChip, LlmConfidenceLabel } from '../utils/terminalLlm';
 import type { TerminalLlmProvider } from '../utils/terminalSettings';
 
 export type TerminalEntry = {
   id: number;
-  kind: 'command' | 'output' | 'system';
   text: string;
-};
+} & (
+  | { kind: 'command' | 'output' | 'system' }
+  | { kind: 'narrative-reply'; context: EvidenceState }
+  | { kind: 'reviewed-claim'; owner: string; boundary?: string }
+);
 
 export type LlmHistoryMessage = {
   role: 'user' | 'assistant';
@@ -24,18 +26,13 @@ export type ToolName =
 
 export type ToolUsage = Record<ToolName, number>;
 
-export type LastWebVerifyContext = {
-  query: string;
-  summary: string;
-  sources: VerifySource[];
-};
-
 export type RetrievedHit = {
   id: string;
   source: string;
   title: string;
   snippet: string;
   url?: string;
+  boundary?: string;
   score: number;
 };
 
@@ -62,9 +59,8 @@ export type EvidenceState = {
 };
 
 export type LastAnswerMeta = {
-  confidence: LlmConfidenceLabel;
+  confidence?: LlmConfidenceLabel;
   chips: CitationChip[];
-  unverifiedCount?: number;
 };
 
 export type ProviderHealthStatus = 'checking' | 'healthy' | 'missing_key' | 'timeout' | 'error';
@@ -103,4 +99,6 @@ export const isRetrievedHit = (value: unknown): value is RetrievedHit =>
   typeof (value as { snippet?: unknown }).snippet === 'string' &&
   typeof (value as { score?: unknown }).score === 'number' &&
   (typeof (value as { url?: unknown }).url === 'string' ||
-    typeof (value as { url?: unknown }).url === 'undefined');
+    typeof (value as { url?: unknown }).url === 'undefined') &&
+  (typeof (value as { boundary?: unknown }).boundary === 'string' ||
+    typeof (value as { boundary?: unknown }).boundary === 'undefined');

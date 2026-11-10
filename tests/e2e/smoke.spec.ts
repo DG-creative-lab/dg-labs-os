@@ -4,6 +4,9 @@ const waitForDesktopReady = async (page: import('@playwright/test').Page) => {
   await page.waitForFunction(() => document.documentElement.dataset.desktopReady === 'true');
 };
 
+const youtubeClaim =
+  'I built the YouTube Ad Agent to match video placements with relevant ads and demos. I am improving how it uses saved delivery reports and separately recorded viewer activity to propose a next test for buyer review.';
+
 test.describe('desktop smoke', () => {
   test.beforeEach(({ isMobile }) => {
     test.skip(isMobile, 'desktop smoke runs only on desktop project');
@@ -22,15 +25,16 @@ test.describe('desktop smoke', () => {
     await page.goto('/@dessi');
     await expect(page.getByRole('dialog', { name: 'DG-OS Browser' })).toBeVisible();
     await expect(
-      page.getByRole('heading', { name: 'A human becoming a machine that can imagine.' })
+      page.getByRole('heading', { name: 'I take enterprise AI systems into production.' })
     ).toBeVisible();
 
     await expect(
-      page.getByText(
-        'Projects, readings, questions, decisions, and failures become traceable patterns',
-        { exact: false }
-      )
+      page.getByText('I’m an AI systems engineer with a background in consulting', { exact: false })
     ).toBeVisible();
+    await expect(page.getByRole('link', { name: 'View experience and CV' })).toHaveAttribute(
+      'href',
+      '/@dessi/resume'
+    );
     await expect(page.getByText('One pattern substrate', { exact: false })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Greg Egan’s Permutation City' })).toHaveAttribute(
       'href',
@@ -49,13 +53,13 @@ test.describe('desktop smoke', () => {
     await page.getByRole('button', { name: 'Close browser' }).click();
     await expect(page.getByRole('dialog', { name: 'DG-OS Browser' })).toHaveCount(0);
     await expect(
-      page.getByRole('heading', { name: 'A human becoming a machine that can imagine.' })
+      page.getByRole('heading', { name: 'I take enterprise AI systems into production.' })
     ).toHaveCount(0);
 
     await page.getByRole('button', { name: 'Browser', exact: true }).click();
     await expect(page.getByRole('dialog', { name: 'DG-OS Browser' })).toBeVisible();
     await expect(
-      page.getByRole('heading', { name: 'A human becoming a machine that can imagine.' })
+      page.getByRole('heading', { name: 'I take enterprise AI systems into production.' })
     ).toBeVisible();
 
     await page.getByRole('button', { name: 'Back to DG-OS home' }).click();
@@ -85,7 +89,7 @@ test.describe('desktop smoke', () => {
     await expect(page.getByText('PRIVATE WORKSPACE', { exact: true })).toBeVisible();
     await expect(page.getByText('OWNER REVIEW', { exact: true })).toBeVisible();
     await expect(page.getByText('No ranking · No inferred score')).toBeVisible();
-    await expect(page.getByText('Owner reviewed 05 Sept 2026')).toBeVisible();
+    await expect(page.getByText('Owner reviewed 10 Nov 2026')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Workbench', exact: true })).toHaveCount(0);
 
     const enterProfile = page.getByRole('link', { name: "Enter Dessi's OS" });
@@ -94,7 +98,7 @@ test.describe('desktop smoke', () => {
 
     await expect(page).toHaveURL(/\/@dessi$/);
     await expect(
-      page.getByRole('heading', { name: 'A human becoming a machine that can imagine.' })
+      page.getByRole('heading', { name: 'I take enterprise AI systems into production.' })
     ).toBeVisible();
   });
 
@@ -107,7 +111,10 @@ test.describe('desktop smoke', () => {
     );
     await expect(page.getByRole('dialog', { name: 'DG-OS Browser' })).toBeVisible();
     await expect(
-      page.getByText("Dessi's practice is becoming computational", { exact: false })
+      page.getByText(
+        'My production work has focused on multi-tenant systems for marketing and advertising.',
+        { exact: false }
+      )
     ).toBeVisible();
   });
 
@@ -179,11 +186,14 @@ test.describe('desktop smoke', () => {
     await page.goto('/systems');
     await expect(
       page.getByRole('heading', {
-        name: 'I design and build governed AI systems, including Human Systems Platform for learning from human-AI work and connecting evidenced capability to opportunities.',
+        name: 'I take enterprise AI systems into production.',
       })
     ).toBeVisible();
     await expect(page.getByText('AI Systems Engineer · London, UK')).toBeVisible();
     await expect(page.getByText('Target role')).toHaveCount(0);
+    const caseTitles = page.locator('#systems .case-study h3');
+    await expect(caseTitles.nth(0)).toHaveText('Direct Acquisition Agent');
+    await expect(caseTitles.nth(1)).toHaveText('YouTube Ad Agent');
     const founderClaim = page.locator('details').filter({
       hasText: 'Human Systems Platform for AI-augmented career and capability development',
     });
@@ -194,7 +204,10 @@ test.describe('desktop smoke', () => {
     ).toBeVisible();
   });
 
-  test('targeted application remains unindexed', async ({ page }) => {
+  test('targeted application remains unindexed and leads with professional experience', async ({
+    page,
+    request,
+  }) => {
     await page.goto('/apply/openai-codex');
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
       'content',
@@ -204,6 +217,20 @@ test.describe('desktop smoke', () => {
     await expect(page.getByRole('link', { name: 'CV · PDF', exact: true })).toHaveAttribute(
       'href',
       '/cv/Dessi_Georgieva_OpenAI_Codex_CV.pdf'
+    );
+    const cv = await request.get('/cv/Dessi_Georgieva_OpenAI_Codex_CV.md');
+    expect(cv.ok()).toBe(true);
+    const markdown = await cv.text();
+    expect(markdown).toContain('three major global advertiser accounts');
+    expect(markdown).toContain('Nov 2023 - Nov 2026');
+    expect(markdown).toContain('Databricks-backed serving APIs');
+    expect(markdown).toContain('AWS Glue ELT pipelines');
+    expect(markdown.indexOf('agent harness on AWS Bedrock AgentCore')).toBeLessThan(
+      markdown.indexOf('Databricks-backed serving APIs')
+    );
+    expect(markdown.indexOf('## Professional Experience')).toBeGreaterThan(-1);
+    expect(markdown.indexOf('## Professional Experience')).toBeLessThan(
+      markdown.indexOf('## Selected Product and Engineering Work')
     );
   });
 
@@ -241,7 +268,14 @@ test.describe('desktop smoke', () => {
     await expect(page.getByText(/Tool list_projects returned \d+ project\(s\):/)).toBeVisible();
   });
 
-  test('terminal shows streaming status before final answer', async ({ page }) => {
+  test('terminal streams a narrative reply and labels its question context', async ({ page }) => {
+    const wrongAuthor = 'The Geometry of Intention was written by another author.';
+    await page.addInitScript(() => {
+      localStorage.setItem(
+        'dg_labs_terminal_settings_v2',
+        JSON.stringify({ showLlmSources: true })
+      );
+    });
     let releaseResponse!: () => void;
     const responseGate = new Promise<void>((resolve: () => void) => {
       releaseResponse = resolve;
@@ -278,13 +312,13 @@ test.describe('desktop smoke', () => {
         contentType: 'text/event-stream; charset=utf-8',
         body: [
           'event: delta',
-          'data: {"type":"delta","delta":"Dessi builds "}',
+          'data: {"type":"delta","delta":"The Geometry of Intention "}',
           '',
           'event: delta',
-          'data: {"type":"delta","delta":"agentic systems."}',
+          'data: {"type":"delta","delta":"was written by another author."}',
           '',
           'event: result',
-          'data: {"ok":true,"message":"Dessi builds agentic systems.","meta":{"provider":"openrouter","model":"openai/gpt-oss-120b","latencyMs":1200,"fallbackUsed":false}}',
+          `data: ${JSON.stringify({ ok: true, message: `${wrongAuthor} [evidence:module-claim-geometry-of-intention-authorship]` })}`,
           '',
           'event: done',
           'data: {"ok":true}',
@@ -299,24 +333,143 @@ test.describe('desktop smoke', () => {
     await expect(page.getByRole('dialog', { name: 'Profile Agent' })).toBeVisible();
 
     const input = page.getByRole('textbox', { name: "Ask Dessi's public profile" });
-    await input.fill('tell me about dessi');
+    await input.fill('Who wrote The Geometry of Intention?');
     await input.press('Enter');
     await requestIntercepted;
 
     await expect(page.getByText('Preparing answer…', { exact: true })).toBeVisible();
     releaseResponse();
-    await expect(page.getByText('Dessi builds agentic systems.', { exact: true })).toBeVisible();
+    await expect(page.getByText(wrongAuthor, { exact: false })).toBeVisible();
+    await page.getByRole('button', { name: 'Advanced', exact: true }).click();
+    await expect(page.getByText('The question matches a reviewed statement.')).toBeVisible();
+    await expect(
+      page.getByText('Question context includes 1 reviewed record and 1 public link.')
+    ).toBeVisible();
+    await expect(
+      page.getByText(/citation verdict: supported|Grounded in|Trust level:/i)
+    ).toHaveCount(0);
+    await page.getByRole('button', { name: '[context]', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Question context' })).toBeVisible();
+    await expect(
+      page.getByText('The generated reply is unverified.', { exact: false })
+    ).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Open public source' })).toHaveAttribute(
+      'href',
+      'https://ai-knowledge-hub.org/library/geometry-of-intention-llms-human-goals-marketing/'
+    );
 
     await page.getByRole('button', { name: 'Ask another question', exact: true }).click();
     await expect(page.getByRole('button', { name: 'What has Dessi built? →' })).toBeVisible();
 
+    await page.getByRole('button', { name: 'Advanced', exact: true }).click();
+    await page.getByRole('checkbox', { name: 'Require direct evidence' }).check();
+    await page.getByRole('button', { name: 'Close Advanced terminal' }).click();
+    await input.fill(youtubeClaim);
+    await input.press('Enter');
+    await expect(page.locator('blockquote')).toHaveText(youtubeClaim);
+    const latestEvidence = page.getByRole('button', { name: '1 reviewed record · 1 public link' });
+    await latestEvidence.click();
+    await expect(page.getByRole('heading', { name: 'Supporting evidence' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Open public source' })).toHaveAttribute(
+      'href',
+      'https://github.com/DG-creative-lab/youtube-ad-agent'
+    );
+
+    await page.getByRole('button', { name: '[context]', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Question context' })).toBeVisible();
+    await expect(
+      page.getByText('The generated reply is unverified.', { exact: false })
+    ).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Open public source' })).toHaveAttribute(
+      'href',
+      'https://ai-knowledge-hub.org/library/geometry-of-intention-llms-human-goals-marketing/'
+    );
+
+    await latestEvidence.click();
+    await expect(page.getByRole('heading', { name: 'Supporting evidence' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Open public source' })).toHaveAttribute(
+      'href',
+      'https://github.com/DG-creative-lab/youtube-ad-agent'
+    );
+
     await page.getByRole('button', { name: 'Start over', exact: true }).click();
-    await expect(page.getByText('Dessi builds agentic systems.', { exact: true })).toHaveCount(0);
+    await expect(page.getByText(wrongAuthor, { exact: false })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: '[context]', exact: true })).toHaveCount(0);
     await expect(
       page.getByRole('heading', {
         name: 'Ask what Dessi has built, learned, or can support with evidence.',
       })
     ).toBeVisible();
+  });
+
+  test('strict evidence displays reviewed claims without asking the model', async ({ page }) => {
+    const question = 'Who wrote The Geometry of Intention?';
+    const reviewed =
+      'Dessi Georgieva wrote The Geometry of Intention, available on AI Knowledge Hub.';
+    const wrong = 'The Geometry of Intention was written by another author.';
+    let modelRequests = 0;
+    await page.route('**/api/llm/health', async (route) => {
+      await route.fulfill({
+        json: {
+          ok: true,
+          providers: [{ provider: 'openrouter', configured: true, status: 'healthy' }],
+        },
+      });
+    });
+    await page.route('**/api/chat/stream', async (route) => {
+      modelRequests += 1;
+      await route.fulfill({ json: { ok: true, message: wrong } });
+    });
+
+    await page.goto('/desktop');
+    await waitForDesktopReady(page);
+    await page.getByRole('button', { name: 'Profile Agent', exact: true }).click();
+    const terminal = page.getByRole('dialog', { name: 'Profile Agent' });
+    await terminal.getByRole('button', { name: 'Advanced', exact: true }).click();
+    await terminal.getByRole('checkbox', { name: 'Require direct evidence' }).check();
+    await terminal.getByRole('button', { name: 'Close Advanced terminal' }).click();
+    const input = terminal.getByRole('textbox', { name: "Ask Dessi's public profile" });
+
+    for (const query of [question, reviewed]) {
+      await input.fill(query);
+      await input.press('Enter');
+      await expect(
+        terminal.getByText(reviewed, { exact: true }).and(terminal.locator('p'))
+      ).toBeVisible();
+      await expect(terminal.getByText(wrong, { exact: false })).toHaveCount(0);
+      await terminal.getByRole('button', { name: '1 reviewed record · 1 public link' }).click();
+      await expect(terminal.getByRole('link', { name: 'Open public source' })).toHaveAttribute(
+        'href',
+        'https://ai-knowledge-hub.org/library/geometry-of-intention-llms-human-goals-marketing/'
+      );
+      if (query === question) {
+        await terminal.getByRole('button', { name: 'Start over', exact: true }).click();
+      } else {
+        await terminal.getByRole('button', { name: 'Close Supporting evidence' }).click();
+      }
+    }
+
+    await input.fill('Who first published The Geometry of Intention?');
+    await input.press('Enter');
+    await expect(
+      terminal.getByText('Insufficient direct evidence', { exact: false })
+    ).toBeVisible();
+    await expect(terminal.getByRole('button', { name: /public link/ })).toHaveCount(0);
+
+    await input.fill(youtubeClaim);
+    await input.press('Enter');
+    const reviewedStatement = terminal.locator('figure').filter({ hasText: youtubeClaim });
+    await expect(reviewedStatement.locator('figcaption')).toHaveText(
+      'Dessi Georgieva · Reviewed statement'
+    );
+    await expect(reviewedStatement.locator('blockquote')).toHaveText(youtubeClaim);
+    await expect(
+      reviewedStatement.getByText(
+        'The prototype uses sample delivery, local viewer activity, and a separate paused Google Ads test-account workflow.',
+        { exact: true }
+      )
+    ).toBeVisible();
+    expect(modelRequests).toBe(0);
   });
 
   test('menubar View opens Workbench and resets after close', async ({ page }) => {
@@ -334,9 +487,9 @@ test.describe('desktop smoke', () => {
 
     await viewMenu.click();
     await expect(page.getByRole('menuitem', { name: 'Projects', exact: true })).toBeVisible();
-    await expect(page.getByRole('menuitem', { name: 'Selected Systems', exact: true })).toHaveCount(
-      0
-    );
+    await expect(
+      page.getByRole('menuitem', { name: 'Selected Systems and Agents', exact: true })
+    ).toHaveCount(0);
   });
 
   test('Profile Agent menu entries open the agent and its advanced command guide', async ({
@@ -393,11 +546,15 @@ test.describe('desktop smoke', () => {
     await expect(
       guideDialog.getByRole('heading', { name: 'DG-Labs User Guide', exact: true })
     ).toBeVisible();
+    await expect(
+      guideDialog.getByText('independent AI Knowledge Hub', { exact: false })
+    ).toBeVisible();
     await closeGuide.click();
     await expect(guideDialog).toHaveCount(0);
   });
 
   test('system map reveals a guided path and switches to the index', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto('/desktop');
     await waitForDesktopReady(page);
     const dockMap = page.getByRole('button', { name: 'System Map', exact: true });
@@ -407,6 +564,56 @@ test.describe('desktop smoke', () => {
       await dockMap.click();
     }
     await expect(closeMap).toBeVisible();
+
+    const graph = page.getByTestId('rf__wrapper');
+    await expect(
+      graph.getByRole('button', { name: 'Inspect Direct Acquisition Agent' })
+    ).toBeVisible();
+    await expect(graph.getByRole('button', { name: 'Inspect YouTube Ad Agent' })).toBeVisible();
+    await expect
+      .poll(() =>
+        graph.evaluate((viewport) => {
+          const bounds = viewport.getBoundingClientRect();
+          const cards = Array.from(viewport.querySelectorAll<HTMLElement>('[data-map-node-id]'));
+          const positions = cards.map((card) => ({
+            id: card.dataset.mapNodeId,
+            box: card.getBoundingClientRect(),
+          }));
+          const layoutIssues: string[] = [];
+
+          for (const [index, { id, box }] of positions.entries()) {
+            if (
+              box.left < bounds.left ||
+              box.top < bounds.top ||
+              box.right > bounds.right ||
+              box.bottom > bounds.bottom
+            ) {
+              layoutIssues.push(`${id} is clipped`);
+            }
+            for (const { id: otherId, box: other } of positions.slice(index + 1)) {
+              if (
+                box.left < other.right &&
+                box.right > other.left &&
+                box.top < other.bottom &&
+                box.bottom > other.top
+              ) {
+                layoutIssues.push(`${id} overlaps ${otherId}`);
+              }
+            }
+          }
+          return layoutIssues;
+        })
+      )
+      .toEqual([]);
+
+    await page
+      .getByText('How do Dessi’s agents learn from campaign evidence?', { exact: true })
+      .click();
+    await expect(
+      page.getByText('The Direct Acquisition Agent compares mature synthetic responses', {
+        exact: false,
+      })
+    ).toBeVisible();
 
     const evolutionPath = page.getByText('How did Dessi move from data work to agent systems?', {
       exact: true,
@@ -490,8 +697,11 @@ test.describe('mobile smoke', () => {
     });
     expect(projects.status()).toBe(200);
     const projectsHtml = await projects.text();
-    expect(projectsHtml).toContain('Selected systems Dessi can show');
-    expect(projectsHtml).toContain('Selected Systems');
+    expect(projectsHtml).toContain('Production engineering and independent systems');
+    expect(projectsHtml).toContain('Production Programmatic Agent Platform');
+    expect(projectsHtml).toContain('Selected Systems and Agents');
+    expect(projectsHtml).toContain('Direct Acquisition Agent');
+    expect(projectsHtml).toContain('YouTube Ad Agent');
 
     const notes = await request.get('/mobile/apps/notes', {
       headers: { 'user-agent': ua },
@@ -500,6 +710,9 @@ test.describe('mobile smoke', () => {
     const notesHtml = await notes.text();
     expect(notesHtml).toContain('Technical Writing');
     expect(notesHtml).toContain('Selected analysis');
+    expect(notesHtml).toContain('href="https://ai-knowledge-hub.org/library/"');
+    expect(notesHtml).toContain('href="https://skills.ai-knowledge-hub.org/"');
+    expect(notesHtml).toContain('href="https://harness.ai-knowledge-hub.org/"');
 
     const evolution = await request.get('/mobile/apps/evolution', {
       headers: { 'user-agent': ua },
@@ -515,7 +728,7 @@ test.describe('mobile smoke', () => {
     });
     expect(resume.status()).toBe(200);
     const resumeHtml = await resume.text();
-    expect(resumeHtml).toContain('experience, technical focus, and selected systems.');
+    expect(resumeHtml).toContain('experience, technical focus, and selected systems and agents.');
     expect(resumeHtml).toContain('Download PDF');
 
     const legacyResume = await request.get('/mobile/apps/resume', {

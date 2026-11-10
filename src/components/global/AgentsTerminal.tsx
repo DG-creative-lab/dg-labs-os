@@ -9,10 +9,8 @@ import { routeNaturalLanguageCommand } from '../../utils/terminalRouter';
 import {
   buildCitationChips,
   consumeJsonSseStream,
-  confidenceBadgeText,
   explainConfidenceLabel,
   explainVerificationGap,
-  formatAnswerWithCitations,
   isLlmQuery,
   normalizeLlmQuery,
   normalizeTerminalNarrativeAnswer,
@@ -36,7 +34,6 @@ import {
   type CiteResult,
   type EvidenceState,
   type LastAnswerMeta,
-  type LastWebVerifyContext,
   type LlmHistoryMessage,
   type RetrieveResult,
   type TerminalEntry,
@@ -88,12 +85,12 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
   const { byokApiKey, setByokApiKey, settings, setSettings, providerHealth } =
     useTerminalSessionSettings();
   const [toolUsage, setToolUsage] = useState<ToolUsage>(INITIAL_TOOL_USAGE);
-  const [lastWebVerifyContext, setLastWebVerifyContext] = useState<LastWebVerifyContext | null>(
-    null
-  );
   const [llmHistory, setLlmHistory] = useState<LlmHistoryMessage[]>([]);
   const [lastEvidence, setLastEvidence] = useState<EvidenceState | null>(null);
-  const [activePanelTab, setActivePanelTab] = useState<TerminalPanelTab>(null);
+  const [panel, setPanel] = useState<{
+    tab: NonNullable<TerminalPanelTab>;
+    replyContext?: EvidenceState;
+  } | null>(null);
   const [lastAnswerMeta, setLastAnswerMeta] = useState<LastAnswerMeta | null>(null);
   const [streamingAnswer, setStreamingAnswer] = useState('');
   const [streamingStatus, setStreamingStatus] = useState('');
@@ -105,6 +102,7 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
   const citeCacheRef = useRef<Map<string, Omit<CiteResult, 'fromCache'>>>(new Map());
   const outputRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const activePanelTab = panel?.tab ?? null;
 
   const prompt = useMemo(() => `${profile.identity.preferredName}:~$`, [profile]);
   useEffect(() => {
@@ -122,11 +120,16 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
     inputRef.current?.focus();
   }, []);
 
-  const pushLine = (kind: TerminalEntry['kind'], text: string): TerminalEntry => ({
+  const pushLine = (kind: 'command' | 'output' | 'system', text: string): TerminalEntry => ({
     id: nextIdRef.current++,
     kind,
     text,
   });
+
+  const clearTranscript = () => {
+    setHistory([]);
+    setPanel((current) => (current?.replyContext ? null : current));
+  };
 
   const getAndIncrementLlmCount = () => {
     if (typeof window === 'undefined') return 0;
@@ -246,21 +249,24 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
       return;
     }
 
-    const sessionCount = getAndIncrementLlmCount();
-    if (sessionCount > settings.llmSessionCap) {
-      setHistory((prev) => [
-        ...prev,
-        pushLine(
-          'output',
-          `LLM session cap reached (${settings.llmSessionCap}). Use deterministic commands (help/projects/search/open).`
-        ),
-      ]);
-      return;
-    }
+    const strictEvidenceMode = settings.strictEvidenceMode;
+    if (!strictEvidenceMode) {
+      const sessionCount = getAndIncrementLlmCount();
+      if (sessionCount > settings.llmSessionCap) {
+        setHistory((prev) => [
+          ...prev,
+          pushLine(
+            'output',
+            `LLM session cap reached (${settings.llmSessionCap}). Use deterministic commands (help/projects/search/open).`
+          ),
+        ]);
+        return;
+      }
 
-    if (!byokApiKey.trim() && providerHealth.status === 'missing_key') {
-      await answerFromProfileIndex(query);
-      return;
+      if (!byokApiKey.trim() && providerHealth.status === 'missing_key') {
+        await answerFromProfileIndex(query);
+        return;
+      }
     }
 
     const controller = new AbortController();
@@ -269,8 +275,40 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
 
     setIsLlmBusy(true);
     setStreamingAnswer('');
-    setStreamingStatus('Preparing answer…');
+    setStreamingStatus(strictEvidenceMode ? 'Checking reviewed claims…' : 'Preparing answer…');
+    setLastEvidence(null);
+    setLastAnswerMeta(null);
     try {
+      if (strictEvidenceMode) {
+        const result = await runCiteTool(query, controller.signal);
+        if (llmAbortRef.current !== controller) return;
+        const claim = result?.verdict === 'supported' ? result.evidence[0] : undefined;
+        if (result && claim?.url) {
+          setLastEvidence({
+            query,
+            classification: 'general',
+            verdict: result.verdict,
+            hits: [claim],
+            fromCache: result.fromCache,
+          });
+          setLastAnswerMeta({ confidence: 'local-only', chips: buildCitationChips([claim], []) });
+          const reviewedReply: TerminalEntry = {
+            id: nextIdRef.current++,
+            kind: 'reviewed-claim',
+            text: claim.title,
+            owner: profile.identity.ownerName,
+            boundary: claim.boundary,
+          };
+          setHistory((prev) => [...prev, reviewedReply]);
+        } else {
+          const message = result
+            ? 'Insufficient direct evidence in the reviewed profile for this question.'
+            : 'The reviewed evidence could not be checked. Try again.';
+          setHistory((prev) => [...prev, pushLine('output', message)]);
+        }
+        return;
+      }
+
       let retrievalLines: string[] = [];
 
       const retrieveResult = await runRetrieveTool(query, controller.signal, 6);
@@ -279,7 +317,7 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
         const classification = retrieveResult.classification;
         retrievalLines = [
           '[evidence]',
-          `- workflow: classify -> retrieve -> cite -> answer`,
+          `- workflow: classify -> retrieve -> match question -> answer`,
           `- classification: ${classification}`,
           `- retrieved: ${hits.length}`,
           `- retrieve cache: ${retrieveResult.fromCache ? 'hit' : 'miss'}`,
@@ -287,28 +325,14 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
       }
 
       const citeResult = await runCiteTool(query, controller.signal);
-      if (citeResult) {
-        const verdict = citeResult.verdict;
-        const evidence = citeResult.evidence;
-        retrievalLines.push(`- citation verdict: ${verdict}`);
-        retrievalLines.push(`- evidence refs: ${evidence.length}`);
-        retrievalLines.push(`- cite cache: ${citeResult.fromCache ? 'hit' : 'miss'}`);
-        setLastEvidence({
-          query: retrieveResult?.query ?? query,
-          classification: retrieveResult?.classification ?? 'general',
-          verdict,
-          hits: evidence.length > 0 ? evidence : (retrieveResult?.hits ?? []),
-          fromCache: (retrieveResult?.fromCache ?? false) && citeResult.fromCache,
-        });
-      } else if (retrieveResult) {
-        setLastEvidence({
-          query: retrieveResult.query,
-          classification: retrieveResult.classification,
-          verdict: 'unknown',
-          hits: retrieveResult.hits,
-          fromCache: retrieveResult.fromCache,
-        });
+      if (llmAbortRef.current !== controller) return;
+      const reviewedMatch = citeResult?.verdict === 'supported';
+      if (reviewedMatch) {
+        retrievalLines.push('The question matches a reviewed statement.');
       }
+      const contextHits = reviewedMatch
+        ? citeResult.evidence
+        : (retrieveResult?.hits ?? citeResult?.evidence ?? []);
 
       const response = await fetch('/api/chat/stream', {
         method: 'POST',
@@ -409,36 +433,25 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
         return;
       }
 
+      if (llmAbortRef.current !== controller) return;
       setLlmHistory((prev) => [
         ...prev,
         { role: 'user', content: query },
         { role: 'assistant', content: message },
       ]);
 
-      const evidenceRefs = (citeResult?.evidence ?? retrieveResult?.hits ?? []).map((hit) => ({
-        source: hit.source,
-        title: hit.title,
-        snippet: hit.snippet,
-        url: hit.url,
-        score: hit.score,
-      }));
-      const cited = formatAnswerWithCitations(message, evidenceRefs, settings.strictEvidenceMode);
-      const answerText = normalizeTerminalNarrativeAnswer(
-        settings.strictEvidenceMode ? cited.answer : message
-      );
       setStreamingAnswer('');
       setStreamingStatus('');
-      const confidence = resolveAnswerConfidenceLabel(
-        evidenceRefs.length,
-        lastWebVerifyContext?.sources.length ?? 0
-      );
-      const chips = buildCitationChips(evidenceRefs, lastWebVerifyContext?.sources ?? []);
-      setLastAnswerMeta({
-        confidence,
-        chips,
-        unverifiedCount: cited.unverifiedCount,
-      });
-      const confidenceGuidance = explainConfidenceLabel(confidence);
+      const context: EvidenceState = {
+        query: retrieveResult?.query ?? query,
+        classification: retrieveResult?.classification ?? 'general',
+        verdict: 'question-context',
+        hits: contextHits,
+        fromCache: (retrieveResult?.fromCache ?? false) && (citeResult?.fromCache ?? false),
+      };
+      setLastEvidence(context);
+      const chips = buildCitationChips(contextHits, []);
+      setLastAnswerMeta({ chips });
       setHistory((prev) => [
         ...prev,
         ...retrievalLines.map((line) => pushLine('system', line)),
@@ -454,47 +467,38 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
               ),
             ]
           : []),
-        pushLine('output', answerText),
-        pushLine('system', `${confidenceBadgeText(confidence)} confidence • ${confidenceGuidance}`),
-        ...(chips.length > 0
-          ? [pushLine('system', `${chips.length} source link(s) available below.`)]
-          : []),
-        ...(cited.unverifiedCount > 0
-          ? [
-              pushLine(
-                'system',
-                `${cited.unverifiedCount} claim(s) are not directly evidenced in the current context.`
-              ),
-            ]
-          : []),
+        {
+          id: nextIdRef.current++,
+          kind: 'narrative-reply',
+          text: normalizeTerminalNarrativeAnswer(message),
+          context,
+        },
         ...(settings.showLlmSources
           ? [
               pushLine(
                 'system',
-                `Grounded in ${evidenceRefs.length} local source(s)${
-                  lastWebVerifyContext?.sources.length
-                    ? ` and ${lastWebVerifyContext.sources.length} verified web source(s)`
-                    : ''
-                }.`
+                `Question context includes ${contextHits.length} reviewed record${contextHits.length === 1 ? '' : 's'} and ${chips.length} public link${chips.length === 1 ? '' : 's'}.`
               ),
             ]
           : []),
       ]);
     } catch (error) {
+      if (llmAbortRef.current !== controller) return;
       setStreamingAnswer('');
       setStreamingStatus('');
+      const requestLabel = strictEvidenceMode ? 'Evidence check' : 'LLM';
       const timeoutMessage =
         error instanceof DOMException && error.name === 'AbortError'
-          ? `LLM timed out after ${Math.round(settings.llmTimeoutMs / 1000)}s.`
-          : 'LLM request failed unexpectedly.';
+          ? `${requestLabel} timed out after ${Math.round(settings.llmTimeoutMs / 1000)}s.`
+          : `${requestLabel} request failed unexpectedly.`;
       setHistory((prev) => [...prev, pushLine('output', timeoutMessage)]);
     } finally {
       if (llmAbortRef.current === controller) {
         llmAbortRef.current = null;
+        setIsLlmBusy(false);
+        setStreamingStatus('');
       }
       clearTimeout(timeout);
-      setIsLlmBusy(false);
-      setStreamingStatus('');
     }
   };
 
@@ -633,11 +637,6 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
         const verificationGap = explainVerificationGap(sources.length, verifiedQuery || 'verify');
         const chips = buildCitationChips([], sources);
         const lines = buildVerifyEnvelopeLines(summary, sources);
-        setLastWebVerifyContext({
-          query: verifiedQuery || 'verify',
-          summary,
-          sources,
-        });
         setLastAnswerMeta({ confidence, chips });
         setHistory((prev) => [
           ...prev,
@@ -751,9 +750,7 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
     const handleMenuAction = (event: Event) => {
       const customEvent = event as CustomEvent<TerminalMenuEventDetail>;
       handleTerminalMenuAction(customEvent.detail, {
-        clearOutput: () => {
-          setHistory([]);
-        },
+        clearOutput: clearTranscript,
         setMode: (mode) => {
           setSettings((prev) => ({ ...prev, brainMode: mode }));
           setHistory((prev) => [...prev, pushLine('system', `Mode set to ${mode}.`)]);
@@ -802,6 +799,8 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
       llmAbortRef.current?.abort();
       llmAbortRef.current = null;
       setIsLlmBusy(false);
+      setStreamingAnswer('');
+      setStreamingStatus('');
       setInput('');
       setHistory((prev) => [
         ...prev,
@@ -856,7 +855,7 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
     const response = executeTerminalCommand(commandToRun, { profile });
 
     if (response.action.type === 'clear') {
-      setHistory([]);
+      clearTranscript();
       return;
     }
 
@@ -918,13 +917,15 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
     setLlmHistory([]);
     setLastEvidence(null);
     setLastAnswerMeta(null);
-    setLastWebVerifyContext(null);
-    setActivePanelTab(null);
+    setPanel(null);
     window.requestAnimationFrame(() => inputRef.current?.focus());
   };
 
-  const openPanel = (panel: Exclude<TerminalPanelTab, null>) => {
-    setActivePanelTab((previous) => (previous === panel ? null : panel));
+  const openPanel = (tab: NonNullable<TerminalPanelTab>) => {
+    setPanel((previous) => {
+      const viewingLatest = !previous?.replyContext || previous.replyContext === lastEvidence;
+      return previous?.tab === tab && viewingLatest ? null : { tab };
+    });
   };
 
   const aiAvailable = providerHealth.configured && providerHealth.status === 'healthy';
@@ -1013,20 +1014,21 @@ export default function AgentsTerminal({ profile }: { profile: ActiveProfileRunt
           onSubmit={handleSubmit}
           onStarterQuestion={submitCommand}
           onOpenEvidence={() => openPanel('evidence')}
+          onOpenReplyContext={(replyContext) => setPanel({ tab: 'evidence', replyContext })}
           onOpenConnection={() => openPanel('connection')}
           onStartOver={startOver}
           onCancel={cancelResponse}
         />
         <TerminalControlPanels
           activePanelTab={activePanelTab}
-          setActivePanelTab={setActivePanelTab}
+          onClose={() => setPanel(null)}
           settings={settings}
           setSettings={setSettings}
           byokApiKey={byokApiKey}
           setByokApiKey={setByokApiKey}
           providerHealth={providerHealth}
           toolUsage={toolUsage}
-          lastEvidence={lastEvidence}
+          evidence={panel?.replyContext ?? lastEvidence}
           profileName={profile.identity.preferredName}
           reviewedAt={profile.publication.reviewedAt}
           onResetLlmCounter={resetLlmCounter}

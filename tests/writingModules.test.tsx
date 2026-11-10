@@ -56,17 +56,21 @@ describe('public Writing modules', () => {
     expect(html).not.toContain('Performics Labs');
   });
 
-  it('renders self-reported contribution confidence for Dessi writing', () => {
+  it('credits Dessi for her writing and links to the practical companions', () => {
     const profile = createActiveProfileRuntime(dessiProfileProjection);
     const html = renderToStaticMarkup(
       <TechnicalWritingApp profile={profile} writing={dessiWritingModule} />
     );
 
     expect(html).toContain('Dessi&#x27;s contribution');
-    expect(html).toContain('Self-reported');
     expect(html).toContain(
-      'Professional article selected as evidence of Dessi&#x27;s technical synthesis and design judgement.'
+      'Wrote the article and published the revised edition on AI Knowledge Hub.'
     );
+    expect(html).not.toMatch(/performics/i);
+    expect(html).toContain('Dessi Georgieva');
+    expect(html).toContain('https://ai-knowledge-hub.org/library/');
+    expect(html).toContain('https://skills.ai-knowledge-hub.org/');
+    expect(html).toContain('https://harness.ai-knowledge-hub.org/');
   });
 
   it('rejects embedded Unix, file URL, and Windows private paths in prose', () => {

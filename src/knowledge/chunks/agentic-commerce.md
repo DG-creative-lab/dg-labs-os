@@ -8,7 +8,7 @@ sources: ['https://github.com/DG-creative-lab']
 last_verified: '2026-08-22'
 related:
   [
-    'experience-performics',
+    'experience-publicis-engineering',
     'capability-agent-architecture',
     'research-themes',
     'identity-philosophy',

@@ -31,11 +31,11 @@ const TOPICS: Record<
       {
         heading: 'Module Map',
         bullets: [
-          'Workbench: production systems, enterprise platforms, and engineering artifacts.',
+          'Workbench lists enterprise work, independent systems, and agents in active development.',
           'System Map: curated relationships between career experience, engineering practices, systems, and public evidence.',
           'Profile Agent: ask questions about the public profile, inspect supporting evidence, or open the advanced terminal.',
           'Resume: canonical profile module with local downloadable formats.',
-          'Technical Writing: a selected set of Performics Labs analysis connected to systems Dessi has built or investigated.',
+          'Technical Writing features research and analysis from the independent AI Knowledge Hub, including revised editions of Dessi’s earlier articles.',
         ],
       },
       {

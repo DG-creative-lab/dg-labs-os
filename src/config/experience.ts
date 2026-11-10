@@ -3,16 +3,17 @@ import type { Experience } from '../types';
 export const experience: readonly Experience[] = [
   {
     title: 'Engineer',
-    company: 'Performics Innovations Lab, Publicis Media',
+    company: 'Publicis Media',
     location: 'London, UK',
-    period: 'November 2023 - Present',
+    period: 'November 2023 - November 2026',
     description:
-      'Builds AI and data systems across agent workflows, including a Programmatic plugin, typed tool contracts, tenant-bound execution policy, human approval, behavioural modelling, and production services.',
+      'Architected a production agent platform with typed tools, tenant controls, human approvals, and evaluation. Built the ad-platform connectors, Databricks pipelines, and serving APIs that supported it.',
     technologies: [
       'Python',
       'FastAPI',
       'PostgreSQL',
-      'AWS',
+      'Amazon S3',
+      'Databricks',
       'TypeScript',
       'React',
       'LLM systems',
@@ -25,8 +26,8 @@ export const experience: readonly Experience[] = [
     location: 'London, UK',
     period: 'March 2023 - November 2023',
     description:
-      'Connected marketing analytics, decision systems, and platformised intelligence workflows.',
-    technologies: ['Python', 'SQL', 'Analytics engineering', 'Data products'],
+      'Turned recurring marketing reporting into reusable analytics datasets and decision-support services, with API ingestion connectors and ELT pipelines.',
+    technologies: ['Python', 'SQL', 'API integration', 'ELT'],
   },
   {
     title: 'Business Intelligence Manager',
@@ -34,8 +35,8 @@ export const experience: readonly Experience[] = [
     location: 'London, UK',
     period: 'January 2021 - March 2023',
     description:
-      'Built enterprise analytics applications, AWS data pipelines, and decision-support systems.',
-    technologies: ['Python', 'R', 'SQL', 'AWS', 'Shiny'],
+      'Built enterprise analytics applications and decision-support systems backed by ingestion connectors, AWS data pipelines, and marketing data lakes.',
+    technologies: ['Python', 'R', 'SQL', 'AWS', 'ELT', 'Shiny'],
   },
   {
     title: 'Data Consultant, SQL Developer, and Data Analyst',
@@ -43,7 +44,7 @@ export const experience: readonly Experience[] = [
     location: 'London, UK',
     period: '2017 - 2020',
     description:
-      'Delivered CRM, segmentation, automation, experimentation, and analytics systems across agencies, startups, and media organisations.',
-    technologies: ['SQL', 'Python', 'R', 'CRM', 'Data engineering'],
+      'Delivered CRM, segmentation, experimentation, and analytics systems across agencies, startups, and media organisations, with ingestion connectors and ELT pipelines.',
+    technologies: ['SQL', 'Python', 'R', 'CRM', 'ELT'],
   },
 ] as const;

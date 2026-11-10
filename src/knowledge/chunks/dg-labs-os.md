@@ -58,8 +58,8 @@ the public profile, without a simulated device status bar or unlock step.
 
 ### Content Modules
 
-- **Workbench** (`/apps/projects`): selected public-code and deployed personal systems plus bounded professional platform context
-- **Technical Writing** (`/apps/notes`): selected Performics Labs analysis with explicit provenance, related systems, and limitations
+- **Workbench** (`/apps/projects`): independent systems and agents with public evidence, alongside enterprise experience
+- **Technical Writing** (`/apps/notes`): selected independent AI Knowledge Hub research and analysis, with original attribution preserved on revised articles
 - **Evidence & Evolution** (`/apps/evolution`): reviewed public entries showing how ideas, systems, questions, and interpretations change over time
 - **Systems & Evidence** (`/systems`): a public dossier separating Dessi's contribution, evaluation, result, and limitation across selected systems
 - **System Map** (`/apps/network`): React Flow projection of a curated Graphology model with typed, evidence-bearing relationships and guided paths

@@ -166,7 +166,7 @@ const CLASSIFICATION_KEYWORDS: Record<QueryClassification, readonly string[]> = 
   capability: ['stack', 'skills', 'language', 'aws', 'python', 'typescript', 'agent architecture'],
   verification: ['verify', 'prove', 'evidence', 'source', 'confirm', 'real'],
   meta: ['how', 'query', 'protocol', 'instructions', 'system prompt'],
-  experience: ['experience', 'role', 'work', 'career', 'performics', 'publicis'],
+  experience: ['experience', 'role', 'work', 'career', 'publicis'],
   navigation: ['open', 'show', 'go to', 'navigate', 'app', 'module'],
 };
 
